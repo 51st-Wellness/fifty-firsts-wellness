@@ -20,7 +20,7 @@ const Home = () => {
   return (
     <main className="h-screen w-full flex flex-col items-center ">
 
-      <body className="h-screen w-full flex flex-col items-center px-4">
+      <div className="h-screen w-full flex flex-col items-center px-4">
 
         <article className="w-[80%] mt-10 flex flex-col">
           <section>
@@ -509,8 +509,8 @@ const Home = () => {
           </div>
 
         </div>
-      </body>
       <Footer/>
+      </div>
 
     </main>
   );
