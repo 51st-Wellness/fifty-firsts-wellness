@@ -3,7 +3,7 @@ import Navbar from "./components/Navbar";
 import Home from "./pages/Home";
 import { FcAbout } from "react-icons/fc";
 import PersonalWellnessProgrammes from "./pages/services/PersonalWellnessProgrammes";
-import BusinessWellnessProgrammes from "./pages/Services/BusinessWellnessProgrammes";
+import BusinessWellnessProgrammes from "./pages/services/BusinessWellnessProgrammes";
 import WellnessProgramDetails from "./pages/services/WellnessProgramDetails";
 import MarketPlace from "./pages/MarketPlace";
 import Podcasts from "./pages/ResourcesHub/Podcasts";
