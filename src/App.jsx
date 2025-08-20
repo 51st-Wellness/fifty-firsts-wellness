@@ -9,9 +9,9 @@ import Membership from "./pages/Membership";
 import ContactUs from "./pages/ContactUs";
 import Login from "./pages/Login";
 import Signup from "./pages/Signup";
-import PersonalWellnessProgrammes from "./pages/Services/PersonalWellnessProgrammes";
-import BusinessWellnessProgrammes from "./pages/Services/BusinessWellnessProgrammes";
-import WellnessProgramDetails from "./pages/Services/WellnessProgramDetails";
+import PersonalWellnessProgrammes from "./pages/services/PersonalWellnessProgrammes";
+import BusinessWellnessProgrammes from "./pages/services/BusinessWellnessProgrammes";
+import WellnessProgramDetails from "./pages/services/WellnessProgramDetails";
 import Podcasts from "./pages/ResourcesHub/Podcasts";
 import Webinars from "./pages/ResourcesHub/Webinars";
 
