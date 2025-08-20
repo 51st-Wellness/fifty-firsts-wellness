@@ -1,0 +1,12 @@
+{
+  "editor.formatOnSave": true,
+  "editor.defaultFormatter": "esbenp.prettier-vscode",
+  "tailwindCSS.includeLanguages": {
+    "javascript": "javascript",
+    "javascriptreact": "javascriptreact"
+  },
+  "files.autoSave": "afterDelay",
+  "editor.quickSuggestions": {
+    "strings": true
+  }
+}
