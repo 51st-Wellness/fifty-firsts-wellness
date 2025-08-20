@@ -1,19 +1,20 @@
 import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
 import Navbar from "./components/Navbar";
 import Home from "./pages/Home";
-import About from "./pages/About";
+import { FcAbout } from "react-icons/fc";
+import PersonalWellnessProgrammes from "./pages/services/PersonalWellnessProgrammes";
+import BusinessWellnessProgrammes from "./pages/Services/BusinessWellnessProgrammes";
+import WellnessProgramDetails from "./pages/services/WellnessProgramDetails";
 import MarketPlace from "./pages/MarketPlace";
+import Podcasts from "./pages/ResourcesHub/Podcasts";
+import Webinars from "./pages/ResourcesHub/Webinars";
 import Blog from "./pages/Blog";
 import AIWellness from "./pages/AIWellness";
 import Membership from "./pages/Membership";
 import ContactUs from "./pages/ContactUs";
 import Login from "./pages/Login";
 import Signup from "./pages/Signup";
-import PersonalWellnessProgrammes from "./pages/services/PersonalWellnessProgrammes";
-import BusinessWellnessProgrammes from "./pages/services/BusinessWellnessProgrammes";
-import WellnessProgramDetails from "./pages/services/WellnessProgramDetails";
-import Podcasts from "./pages/ResourcesHub/Podcasts";
-import Webinars from "./pages/ResourcesHub/Webinars";
+
 
 function App() {
   return (
@@ -22,9 +23,9 @@ function App() {
       <div className="p-6">
         <Routes>
           <Route path="/" element={<Home />} />
-          <Route path="/about" element={<About />} />
+          <Route path="/about" element={<FcAbout />} />
           <Route path="/services/personal-wellness" element={<PersonalWellnessProgrammes />} />
-          <Route path="/services/business-wellness" element={<BusinessWellnessProgrammes />} />
+          <Route path="/services/business-wellness" element={<BusinessWellnessProgrammes/>} />
           <Route path="/services/program-details" element={<WellnessProgramDetails />} />
           <Route path="/marketplace" element={<MarketPlace />} />
           <Route path="/resources/podcasts" element={<Podcasts />} />
