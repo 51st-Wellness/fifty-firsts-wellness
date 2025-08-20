@@ -9,11 +9,11 @@ import Membership from "./pages/Membership";
 import ContactUs from "./pages/ContactUs";
 import Login from "./pages/Login";
 import Signup from "./pages/Signup";
-import PersonalWellnessProgrammes from "./pages/services/PersonalWellnessProgrammes";
-import BusinessWellnessProgrammes from "./pages/Services/BusinessWellnessProgrammes";
-import WellnessProgramDetails from "./pages/services/WellnessProgramDetails";
+import PersonalWellnessProgrammes from "./pages/service/PersonalWellnessProgrammes";
+import WellnessProgramDetails from "./pages/service/WellnessProgramDetails";
 import Podcasts from "./pages/ResourcesHub/Podcasts";
 import Webinars from "./pages/ResourcesHub/Webinars";
+import BusinessWellnessProgrammes from "./pages/service/BusinessWellnessProgrammes";
 
 function App() {
   return (
