@@ -24,7 +24,7 @@ const Home = () => {
         <article className="w-full md:w-4/5 mt-10 flex flex-col">
           <section>
             <div className="flex flex-wrap justify-center gap-3 font-semibold text-3xl sm:text-5xl lg:text-7xl xl:text-8xl text-center">
-              <span className="bg-[#9898F2] px-1 text-white">RESTORE</span>
+              <span className="bg-[#363689] px-1 text-white">RESTORE</span>
               <span>YOUR BALANCE</span>
             </div>
 
