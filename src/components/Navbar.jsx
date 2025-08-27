@@ -7,29 +7,30 @@ const Navbar = () => {
   const [servicesOpen, setServicesOpen] = useState(false);
   const [resourcesOpen, setResourcesOpen] = useState(false);
 
-  // Refs for dropdowns
-  const servicesRef = useRef(null);
-  const resourcesRef = useRef(null);
+  // Single ref for the entire navbar (used to detect clicks outside)
+  const navRef = useRef(null);
 
-  // Close dropdowns when clicking outside
+  // Close menus when clicking/tapping outside the navbar
   useEffect(() => {
     const handleClickOutside = (event) => {
-      if (servicesRef.current && !servicesRef.current.contains(event.target)) {
+      if (navRef.current && !navRef.current.contains(event.target)) {
+        setMenuOpen(false);
         setServicesOpen(false);
-      }
-      if (resourcesRef.current && !resourcesRef.current.contains(event.target)) {
         setResourcesOpen(false);
       }
     };
 
     document.addEventListener("mousedown", handleClickOutside);
+    document.addEventListener("touchstart", handleClickOutside);
+
     return () => {
       document.removeEventListener("mousedown", handleClickOutside);
+      document.removeEventListener("touchstart", handleClickOutside);
     };
   }, []);
 
   return (
-    <nav className="bg-white shadow-md px-6 py-3 flex justify-between items-center relative">
+    <nav ref={navRef} className="bg-white shadow-md px-6 py-3 flex justify-between items-center relative">
       {/* Logo */}
       <Link to="/" className="flex items-center">
         <img src={Logo} alt="Logo" className="h-14 w-14 inline-block" />
@@ -37,8 +38,11 @@ const Navbar = () => {
 
       {/* Hamburger (Mobile) */}
       <button
+        type="button"
         className="md:hidden text-2xl"
-        onClick={() => setMenuOpen(!menuOpen)}
+        onClick={() => setMenuOpen((v) => !v)}
+        aria-expanded={menuOpen}
+        aria-label="Toggle menu"
       >
         {menuOpen ? "✖" : "☰"}
       </button>
@@ -52,11 +56,17 @@ const Navbar = () => {
           <Link to="/about" className="hover:text-indigo-600">About</Link>
         </li>
 
-        {/* Services Dropdown */}
-        <li className="relative" ref={servicesRef}>
+        {/* Services Dropdown (desktop) */}
+        <li className="relative">
           <button
-            onClick={() => setServicesOpen(!servicesOpen)}
+            type="button"
+            onClick={() => {
+              setServicesOpen((v) => !v);
+              // close other dropdown if open
+              setResourcesOpen(false);
+            }}
             className="hover:text-indigo-600"
+            aria-expanded={servicesOpen}
           >
             Services ▾
           </button>
@@ -97,11 +107,16 @@ const Navbar = () => {
           <Link to="/marketplace" className="hover:text-indigo-600">MarketPlace</Link>
         </li>
 
-        {/* Resources Dropdown */}
-        <li className="relative" ref={resourcesRef}>
+        {/* Resources Dropdown (desktop) */}
+        <li className="relative">
           <button
-            onClick={() => setResourcesOpen(!resourcesOpen)}
+            type="button"
+            onClick={() => {
+              setResourcesOpen((v) => !v);
+              setServicesOpen(false);
+            }}
             className="hover:text-indigo-600"
+            aria-expanded={resourcesOpen}
           >
             Resources Hub ▾
           </button>
@@ -146,50 +161,126 @@ const Navbar = () => {
       {/* Mobile Dropdown Menu */}
       {menuOpen && (
         <ul className="absolute top-14 left-0 w-full bg-white border-t shadow-md flex flex-col space-y-2 p-4 md:hidden z-50">
-          <li><Link to="/" onClick={() => setMenuOpen(false)} className="hover:text-indigo-600">Home</Link></li>
-          <li><Link to="/about" onClick={() => setMenuOpen(false)} className="hover:text-indigo-600">About</Link></li>
+          <li>
+            <Link to="/" onClick={() => setMenuOpen(false)} className="hover:text-indigo-600 block">Home</Link>
+          </li>
+          <li>
+            <Link to="/about" onClick={() => setMenuOpen(false)} className="hover:text-indigo-600 block">About</Link>
+          </li>
 
-          {/* Services Submenu */}
+          {/* Services Submenu (mobile) */}
           <li>
             <button
-              onClick={() => setServicesOpen(!servicesOpen)}
+              type="button"
+              onClick={() => {
+                setServicesOpen((v) => !v);
+                // ensure other dropdown closes
+                setResourcesOpen(false);
+              }}
               className="w-full text-left hover:text-indigo-600"
+              aria-expanded={servicesOpen}
             >
               Services ▾
             </button>
             {servicesOpen && (
               <ul className="pl-4 mt-1 space-y-1">
-                <li><Link to="/services/personal-wellness" onClick={() => setMenuOpen(false)} className="block hover:text-indigo-600">Personal Wellness Programmes</Link></li>
-                <li><Link to="/services/business-wellness" onClick={() => setMenuOpen(false)} className="block hover:text-indigo-600">Business Wellness Programmes</Link></li>
-                <li><Link to="/services/program-details" onClick={() => setMenuOpen(false)} className="block hover:text-indigo-600">Wellness Program Details</Link></li>
+                <li>
+                  <Link
+                    to="/services/personal-wellness"
+                    onClick={() => {
+                      setMenuOpen(false);
+                      setServicesOpen(false);
+                    }}
+                    className="block hover:text-indigo-600"
+                  >
+                    Personal Wellness Programmes
+                  </Link>
+                </li>
+                <li>
+                  <Link
+                    to="/services/business-wellness"
+                    onClick={() => {
+                      setMenuOpen(false);
+                      setServicesOpen(false);
+                    }}
+                    className="block hover:text-indigo-600"
+                  >
+                    Business Wellness Programmes
+                  </Link>
+                </li>
+                <li>
+                  <Link
+                    to="/services/program-details"
+                    onClick={() => {
+                      setMenuOpen(false);
+                      setServicesOpen(false);
+                    }}
+                    className="block hover:text-indigo-600"
+                  >
+                    Wellness Program Details
+                  </Link>
+                </li>
               </ul>
             )}
           </li>
 
-          <li><Link to="/marketplace" onClick={() => setMenuOpen(false)} className="hover:text-indigo-600">MarketPlace</Link></li>
+          <li>
+            <Link to="/marketplace" onClick={() => setMenuOpen(false)} className="hover:text-indigo-600 block">MarketPlace</Link>
+          </li>
 
-          {/* Resources Submenu */}
+          {/* Resources Submenu (mobile) */}
           <li>
             <button
-              onClick={() => setResourcesOpen(!resourcesOpen)}
+              type="button"
+              onClick={() => {
+                setResourcesOpen((v) => !v);
+                setServicesOpen(false);
+              }}
               className="w-full text-left hover:text-indigo-600"
+              aria-expanded={resourcesOpen}
             >
               Resources Hub ▾
             </button>
             {resourcesOpen && (
               <ul className="pl-4 mt-1 space-y-1">
-                <li><Link to="/resources/podcasts" onClick={() => setMenuOpen(false)} className="block hover:text-indigo-600">Podcasts</Link></li>
-                <li><Link to="/resources/webinars" onClick={() => setMenuOpen(false)} className="block hover:text-indigo-600">Webinars</Link></li>
+                <li>
+                  <Link
+                    to="/resources/podcasts"
+                    onClick={() => {
+                      setMenuOpen(false);
+                      setResourcesOpen(false);
+                    }}
+                    className="block hover:text-indigo-600"
+                  >
+                    Podcasts
+                  </Link>
+                </li>
+                <li>
+                  <Link
+                    to="/resources/webinars"
+                    onClick={() => {
+                      setMenuOpen(false);
+                      setResourcesOpen(false);
+                    }}
+                    className="block hover:text-indigo-600"
+                  >
+                    Webinars
+                  </Link>
+                </li>
               </ul>
             )}
           </li>
 
-          <li><Link to="/blog" onClick={() => setMenuOpen(false)} className="hover:text-indigo-600">Blog</Link></li>
-          <li><Link to="/ai-wellness" onClick={() => setMenuOpen(false)} className="hover:text-indigo-600">AI Wellness</Link></li>
-          <li><Link to="/membership" onClick={() => setMenuOpen(false)} className="hover:text-indigo-600">Membership</Link></li>
-          <li><Link to="/contact" onClick={() => setMenuOpen(false)} className="hover:text-indigo-600">Contact Us</Link></li>
+          <li><Link to="/blog" onClick={() => setMenuOpen(false)} className="hover:text-indigo-600 block">Blog</Link></li>
+          <li><Link to="/ai-wellness" onClick={() => setMenuOpen(false)} className="hover:text-indigo-600 block">AI Wellness</Link></li>
+          <li><Link to="/membership" onClick={() => setMenuOpen(false)} className="hover:text-indigo-600 block">Membership</Link></li>
+          <li><Link to="/contact" onClick={() => setMenuOpen(false)} className="hover:text-indigo-600 block">Contact Us</Link></li>
           <li>
-            <Link to="/login" onClick={() => setMenuOpen(false)} className="bg-indigo-600 text-white px-4 py-2 rounded-md hover:bg-indigo-700 block text-center">
+            <Link
+              to="/login"
+              onClick={() => setMenuOpen(false)}
+              className="bg-indigo-600 text-white px-4 py-2 rounded-md hover:bg-indigo-700 block text-center"
+            >
               Login
             </Link>
           </li>
