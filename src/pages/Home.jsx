@@ -1,4 +1,5 @@
 import React from "react";
+import { CiShoppingCart } from "react-icons/ci";
 import StarRating from "../components/StarRating";
 import family from "../assets/images/family.png";
 import serenity from "../assets/images/serenity.png";
@@ -13,7 +14,6 @@ import bathtub from "../assets/images/bathtub.png";
 import selflove from "../assets/images/selflove.png";
 import jump from "../assets/images/jump.png";
 import stretch from "../assets/images/stretch.png";
-import { CiShoppingCart } from "react-icons/ci";
 import Footer from "../components/Footer";
 
 const Home = () => {
