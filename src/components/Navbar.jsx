@@ -151,7 +151,7 @@ const Navbar = () => {
         <li>
           <Link
             to="/login"
-            className="bg-indigo-600 text-white px-4 py-2 rounded-md hover:bg-indigo-700"
+            className="bg-[#006666] text-white px-4 py-2 rounded-md hover:bg-[#006666]/80"
           >
             Login
           </Link>
@@ -279,7 +279,7 @@ const Navbar = () => {
             <Link
               to="/login"
               onClick={() => setMenuOpen(false)}
-              className="bg-indigo-600 text-white px-4 py-2 rounded-md hover:bg-indigo-700 block text-center"
+              className="bg-[#006666] text-white px-4 py-2 rounded-md hover:bg-[#006666]/80 block text-center"
             >
               Login
             </Link>
