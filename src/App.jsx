@@ -14,6 +14,7 @@ import WellnessProgramDetails from "./pages/service/WellnessProgramDetails";
 import Podcasts from "./pages/ResourcesHub/Podcasts";
 import Webinars from "./pages/ResourcesHub/Webinars";
 import BusinessWellnessProgrammes from "./pages/service/BusinessWellnessProgrammes";
+import ForgotPassword from "./pages/ForgotPassword";
 
 function App() {
   return (
@@ -35,6 +36,7 @@ function App() {
           <Route path="/contact" element={<ContactUs />} />
           <Route path="/login" element={<Login />} />
           <Route path="/signup" element={<Signup />} />
+          <Route path="/forgot-password" element={<ForgotPassword />} />
         </Routes>
       </div>
     </Router>

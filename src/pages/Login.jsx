@@ -3,6 +3,7 @@ import loginlogo from "../assets/images/loginlogo.png";
 import logo from "../assets/images/logo.png";
 import { FcGoogle } from "react-icons/fc";
 import { FiEye, FiEyeOff } from "react-icons/fi";
+import { Link } from "react-router-dom";
 
 const Login = () => {
   const [formData, setFormData] = useState({
@@ -40,7 +41,7 @@ const Login = () => {
         {/* Right Form */}
         <div className="w-full md:w-1/2 flex flex-col justify-center p-6 sm:p-10">
           <div>
-            <img className="w-20 mb-6" src={logo} alt="Logo" />
+            <img className="w-16 mt-8" src={logo} alt="Logo" />
           </div>
           <div className="flex flex-col justify-center items-center">
             <div className="text-[#000407] font-medium text-3xl sm:text-4xl text-center">
@@ -96,7 +97,12 @@ const Login = () => {
                     {showPassword ? <FiEyeOff size={20} /> : <FiEye size={20} />}
                   </button>
                 </div>
-
+                  <Link
+                    to="/forgot-password"
+                    className="ml-2 text-[#006666] text-sm justify-end flex font-semibold cursor-pointer"
+                  >
+                    Forgot Password?
+                  </Link>
                 {/* Button */}
                 <button
                   type="submit"
@@ -113,8 +119,14 @@ const Login = () => {
                 </div>
                 <div className="text-base text-[#475464] flex justify-center whitespace-nowrap">
                   Don’t have an account?{" "}
-                  <span className="ml-2 text-[#006666] font-semibold cursor-pointer">
-                    Create an account
+
+                  <span>
+                    <Link
+                      to="/signup"
+                      className="ml-2 text-[#006666] font-semibold cursor-pointer"
+                    >
+                      Create an account
+                    </Link>
                   </span>
                 </div>
               </form>
