@@ -9,24 +9,23 @@ const Signup = () => {
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
 
   return (
-    <main className="min-h-screen flex flex-col items-center justify-center bg-gray-50 px-4">
+    <main>
       <section className="w-full flex flex-col md:flex-row h-screen">
         {/* Left Image (hidden on mobile) */}
-        <article className="hidden md:block md:w-1/2">
+        <div className="hidden md:block md:w-1/2">
           <img
             src={loginlogo}
             alt="Login Illustration"
             className="h-full w-full object-cover"
           />
-        </article>
-
+        </div>
 
         {/* Right Form */}
         <article className="w-full md:w-1/2 flex flex-col justify-center p-6 sm:p-10">
 
           {/* Logo */}
-          <div className="flex justify-center mb-6">
-            <img src={logo} alt="Logo" className="h-12" />
+          <div>
+            <img className="w-16 mt-8" src={logo} alt="Logo" />
           </div>
 
           {/* Card */}
@@ -112,11 +111,9 @@ const Signup = () => {
             </div>
 
             {/* Google Signup */}
-            <button className="w-full border border-gray-300 flex items-center justify-center gap-2 py-2 rounded-lg hover:bg-gray-50 transition">
-              <FcGoogle className="text-xl" />
-              <span className="text-sm font-medium text-gray-700">
-                Signup with Google
-              </span>
+            <button className=" w-full border border-[#4444B3] px-2 py-2 rounded-full justify-center text-[#4444B3] text-lg font-semibold flex items-center gap-3 hover:bg-[#f5f5ff] transition">
+              <FcGoogle className="text-2xl" />
+              Signup with Google
             </button>
 
             {/* Login Link */}
@@ -129,11 +126,7 @@ const Signup = () => {
           </div>
 
         </article>
-
       </section>
-
-
-
     </main>
   );
 };
