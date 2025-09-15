@@ -1,15 +1,30 @@
-import React from 'react'
+import React, { useState } from "react";
 import loginlogo from "../assets/images/loginlogo.png";
 import logo from "../assets/images/logo.png";
-import { Link } from 'react-router-dom';
-
+import { Link, useNavigate } from "react-router-dom";
+import toast from "react-hot-toast";
 
 const ForgotPassword = () => {
+    const [email, setEmail] = useState("");
+    const navigate = useNavigate();
 
+    const handleSubmit = (e) => {
+        e.preventDefault();
 
+        if (!email) {
+            toast.error("Email is required");
+            return;
+        }
 
+        // Simulate API call
+        toast.success("Password reset link sent to your email 📧");
 
-    
+        // Redirect after short delay
+        setTimeout(() => {
+            navigate("/reset-password");
+        }, 2000);
+    };
+
     return (
         <main>
             <section className="w-full flex flex-col md:flex-row h-screen">
@@ -37,7 +52,7 @@ const ForgotPassword = () => {
                         </div>
 
                         <div className="w-full max-w-md mx-auto bg-gray-50 p-6 rounded-lg shadow-sm">
-                            <form className="space-y-4">
+                            <form className="space-y-4" onSubmit={handleSubmit}>
                                 {/* Email */}
                                 <div>
                                     <label
@@ -51,8 +66,8 @@ const ForgotPassword = () => {
                                         id="email"
                                         name="email"
                                         placeholder="johndoe@example.com"
-                                        // value={formData.email}
-                                        // onChange={handleChange}
+                                        value={email}
+                                        onChange={(e) => setEmail(e.target.value)}
                                         className="w-full border rounded-md px-4 py-3 outline-none focus:ring-2 focus:ring-indigo-500"
                                     />
                                 </div>
@@ -68,8 +83,7 @@ const ForgotPassword = () => {
                                 <div className="text-center">or</div>
 
                                 <div className="text-base text-[#475464] flex justify-center whitespace-nowrap">
-                                  Remember password?{" "}
-
+                                    Remember password?{" "}
                                     <span>
                                         <Link
                                             to="/login"
@@ -83,10 +97,9 @@ const ForgotPassword = () => {
                         </div>
                     </div>
                 </div>
-
             </section>
         </main>
-    )
-}
+    );
+};
 
-export default ForgotPassword
+export default ForgotPassword;

@@ -1,9 +1,11 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import loginlogo from "../assets/images/loginlogo.png";
 import logo from "../assets/images/logo.png";
 import { FcGoogle } from "react-icons/fc";
 import { FiEye, FiEyeOff } from "react-icons/fi";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
+import { useAuth } from "../context/AuthContextProvider";
+
 
 const Login = () => {
   const [formData, setFormData] = useState({
@@ -12,19 +14,56 @@ const Login = () => {
   });
 
   const [showPassword, setShowPassword] = useState(false);
+  const { login,error } = useAuth();
+  const navigate = useNavigate();
+  const [email, setEmail] = useState('');
+  const [password, setPassword] = useState('');
+  const [rememberMe, setRememberMe] = useState(false);
+
+
+
+  const handleLogin = async (e) => {
+    e.preventDefault();
+
+    // Your authentication logic here (API call, etc.)
+
+    if (rememberMe) {
+      localStorage.setItem("savedEmail", email);
+      localStorage.setItem("savedPassword", password);
+    } else {
+      localStorage.removeItem("savedEmail");
+      localStorage.removeItem("savedPassword");
+    }
+
+    const success = await login(email, password);
+    if (success) {
+      navigate("/");
+    }
+  };
+
 
   const handleChange = (e) => {
     setFormData({ ...formData, [e.target.name]: e.target.value });
   };
 
-  const handleSubmit = (e) => {
-    e.preventDefault();
-    console.log("Login Data: ", formData);
-  };
-
   const togglePassword = () => {
     setShowPassword((prev) => !prev);
   };
+
+  // Load saved credentials if they exist
+  useEffect(() => {
+    const savedEmail = localStorage.getItem("savedEmail");
+    const savedPassword = localStorage.getItem("savedPassword");
+
+    if (savedEmail && savedPassword) {
+      setEmail(savedEmail);
+      setPassword(savedPassword);
+      setRememberMe(true);
+    }
+  }, []);
+
+
+
 
   return (
     <main>
@@ -52,7 +91,9 @@ const Login = () => {
             </div>
 
             <div className="w-full max-w-md mx-auto bg-gray-50 p-6 rounded-lg shadow-sm">
-              <form onSubmit={handleSubmit} className="space-y-4">
+              <form onSubmit={handleLogin} className="space-y-4">
+                {error && <p className="text-red-500 text-sm mb-4">{error} </p>}
+
                 {/* Email */}
                 <div>
                   <label

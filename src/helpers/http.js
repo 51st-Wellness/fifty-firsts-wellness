@@ -2,7 +2,7 @@ import axios from "axios";
 
 const http = () => {
     let options = {
-        baseURL: import.meta.env.VITE_API_URL,
+        baseURL: import.meta.env.VITE_BASE_URL,
         headers: {
             "Content-Type": "application/json",
             Accept: "application/json",

@@ -15,12 +15,15 @@ import Podcasts from "./pages/ResourcesHub/Podcasts";
 import Webinars from "./pages/ResourcesHub/Webinars";
 import BusinessWellnessProgrammes from "./pages/service/BusinessWellnessProgrammes";
 import ForgotPassword from "./pages/ForgotPassword";
+import { Toaster } from "react-hot-toast";
+import ResetPassword from "./pages/ResetPassword";
 
 function App() {
   return (
-    <Router>
-      <Navbar />
+    <div>
+       <Navbar />
       <div className="p-6">
+        <Toaster position="top-center"/> 
         <Routes>
           <Route path="/" element={<Home />} />
           <Route path="/about" element={<About />} />
@@ -37,9 +40,10 @@ function App() {
           <Route path="/login" element={<Login />} />
           <Route path="/signup" element={<Signup />} />
           <Route path="/forgot-password" element={<ForgotPassword />} />
+          <Route path="/reset-password" element={<ResetPassword />} />
         </Routes>
       </div>
-    </Router>
+    </div>   
   );
 }
 
