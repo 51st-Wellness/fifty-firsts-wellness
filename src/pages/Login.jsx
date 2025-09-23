@@ -6,7 +6,6 @@ import { FiEye, FiEyeOff } from "react-icons/fi";
 import { Link, useNavigate } from "react-router-dom";
 import { useAuth } from "../context/AuthContextProvider";
 
-
 const Login = () => {
   const [formData, setFormData] = useState({
     email: "",
@@ -14,18 +13,15 @@ const Login = () => {
   });
 
   const [showPassword, setShowPassword] = useState(false);
-  const { login,error } = useAuth();
-  const navigate = useNavigate();
-  const [email, setEmail] = useState('');
-  const [password, setPassword] = useState('');
   const [rememberMe, setRememberMe] = useState(false);
 
-
+  const { login, error } = useAuth();
+  const navigate = useNavigate();
 
   const handleLogin = async (e) => {
     e.preventDefault();
 
-    // Your authentication logic here (API call, etc.)
+    const { email, password } = formData;
 
     if (rememberMe) {
       localStorage.setItem("savedEmail", email);
@@ -41,7 +37,6 @@ const Login = () => {
     }
   };
 
-
   const handleChange = (e) => {
     setFormData({ ...formData, [e.target.name]: e.target.value });
   };
@@ -56,14 +51,10 @@ const Login = () => {
     const savedPassword = localStorage.getItem("savedPassword");
 
     if (savedEmail && savedPassword) {
-      setEmail(savedEmail);
-      setPassword(savedPassword);
+      setFormData({ email: savedEmail, password: savedPassword });
       setRememberMe(true);
     }
   }, []);
-
-
-
 
   return (
     <main>
@@ -92,7 +83,7 @@ const Login = () => {
 
             <div className="w-full max-w-md mx-auto bg-gray-50 p-6 rounded-lg shadow-sm">
               <form onSubmit={handleLogin} className="space-y-4">
-                {error && <p className="text-red-500 text-sm mb-4">{error} </p>}
+                {error && <p className="text-red-500 text-sm mb-4">{error}</p>}
 
                 {/* Email */}
                 <div>
@@ -138,12 +129,25 @@ const Login = () => {
                     {showPassword ? <FiEyeOff size={20} /> : <FiEye size={20} />}
                   </button>
                 </div>
+
+                <div className="flex items-center justify-between">
+                  <label className="flex items-center gap-2 text-sm text-gray-600">
+                    <input
+                      type="checkbox"
+                      checked={rememberMe}
+                      onChange={(e) => setRememberMe(e.target.checked)}
+                      className="h-4 w-4 text-indigo-600 border-gray-300 rounded"
+                    />
+                    Remember me
+                  </label>
                   <Link
                     to="/forgot-password"
-                    className="ml-2 text-[#006666] text-sm justify-end flex font-semibold cursor-pointer"
+                    className="text-[#006666] text-sm font-semibold cursor-pointer"
                   >
                     Forgot Password?
                   </Link>
+                </div>
+
                 {/* Button */}
                 <button
                   type="submit"
@@ -159,8 +163,7 @@ const Login = () => {
                   Login with Google
                 </div>
                 <div className="text-base text-[#475464] flex justify-center whitespace-nowrap">
-                  Don’t have an account?{" "}
-
+                  Don’t have an account?
                   <span>
                     <Link
                       to="/signup"

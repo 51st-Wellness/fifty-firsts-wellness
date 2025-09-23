@@ -1,19 +1,35 @@
 import React, { useState } from "react";
 import { FiEye, FiEyeOff } from "react-icons/fi";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useLocation } from "react-router-dom";
 import toast from "react-hot-toast";
-import logo from "../assets/images/logo.png"; // replace with your logo
+import logo from "../assets/images/logo.png";
+import http from "../helpers/http"; // axios instance
 
 const ResetPassword = () => {
     const [password, setPassword] = useState("");
     const [confirmPassword, setConfirmPassword] = useState("");
     const [showPassword, setShowPassword] = useState(false);
     const [showConfirmPassword, setShowConfirmPassword] = useState(false);
+    const [otp, setOtp] = useState(""); // user enters OTP
+    const [email, setEmail] = useState(""); // could be auto-filled from forgot password flow
 
     const navigate = useNavigate();
+    const location = useLocation();
 
-    const handleSubmit = (e) => {
+    // If email was passed via state (from ForgotPassword), set it
+    React.useEffect(() => {
+        if (location.state?.email) {
+            setEmail(location.state.email);
+        }
+    }, [location]);
+
+    const handleSubmit = async (e) => {
         e.preventDefault();
+
+        if (!otp) {
+            toast.error("OTP is required");
+            return;
+        }
 
         if (password.length < 8) {
             toast.error("Password must be at least 8 characters");
@@ -25,13 +41,23 @@ const ResetPassword = () => {
             return;
         }
 
-        // Simulate API call success
-        toast.success("Password reset successfully 🎉");
+        try {
+            const res = await http().post("/auth/reset-password", {
+                email,
+                otp,
+                newPassword: password,
+            });
 
-        // Redirect back to login
-        setTimeout(() => {
-            navigate("/login");
-        }, 2000);
+            toast.success("Password reset successfully 🎉");
+            setTimeout(() => {
+                navigate("/login");
+            }, 2000);
+        } catch (err) {
+            console.error(err);
+            toast.error(
+                err.response?.data?.message || "Failed to reset password"
+            );
+        }
     };
 
     return (
@@ -48,10 +74,33 @@ const ResetPassword = () => {
                         Reset Password
                     </h2>
                     <p className="text-sm text-gray-500 text-center mt-2 mb-6">
-                        Enter your new password below
+                        Enter your OTP and new password
                     </p>
 
                     <form className="space-y-4" onSubmit={handleSubmit}>
+                        {/* Email (readonly if passed from forgot password) */}
+                        <div>
+                            <input
+                                type="email"
+                                value={email}
+                                onChange={(e) => setEmail(e.target.value)}
+                                placeholder="Email"
+                                className="w-full border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-teal-500"
+                                readOnly={!!location.state?.email}
+                            />
+                        </div>
+
+                        {/* OTP */}
+                        <div>
+                            <input
+                                type="text"
+                                value={otp}
+                                onChange={(e) => setOtp(e.target.value)}
+                                placeholder="Enter OTP"
+                                className="w-full border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-teal-500"
+                            />
+                        </div>
+
                         {/* New Password */}
                         <div className="relative">
                             <input
@@ -68,9 +117,6 @@ const ResetPassword = () => {
                             >
                                 {showPassword ? <FiEyeOff /> : <FiEye />}
                             </button>
-                            <p className="text-xs text-gray-400 mt-1">
-                                Must contain at least 8 characters
-                            </p>
                         </div>
 
                         {/* Confirm Password */}
@@ -84,7 +130,9 @@ const ResetPassword = () => {
                             />
                             <button
                                 type="button"
-                                onClick={() => setShowConfirmPassword(!showConfirmPassword)}
+                                onClick={() =>
+                                    setShowConfirmPassword(!showConfirmPassword)
+                                }
                                 className="absolute right-3 top-2.5 text-gray-500"
                             >
                                 {showConfirmPassword ? <FiEyeOff /> : <FiEye />}

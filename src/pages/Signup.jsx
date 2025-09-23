@@ -23,20 +23,51 @@ const Signup = () => {
   const [address, setAddress] = useState("");
   const [bio, setBio] = useState("");
   const [role, setRole] = useState("");
+  const [errors, setErrors] = useState({});
 
   const navigate = useNavigate();
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+    const newErrors = {};
+
+    // Email validation
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if (!emailRegex.test(email)) {
+      newErrors.email = "Please enter a valid email address";
+    }
+
+    // Phone validation
+    const phoneRegex = /^[0-9]{10,}$/;
+    if (!phoneRegex.test(phone)) {
+      newErrors.phone = "Phone must be at least 10 digits";
+    }
+
+    // Password validation
+    if (password.length < 8) {
+      newErrors.password = "Password must be at least 8 characters";
+    }
 
     if (password !== confirmPassword) {
-      toast.error("Passwords do not match!");
-      return;
+      newErrors.confirmPassword = "Passwords do not match";
+    }
+
+    // Required fields
+    if (!firstName) newErrors.firstName = "First name is required";
+    if (!lastName) newErrors.lastName = "Last name is required";
+    if (!city) newErrors.city = "City is required";
+    if (!address) newErrors.address = "Address is required";
+    if (!role) newErrors.role = "Please select a role";
+
+    setErrors(newErrors);
+
+    if (Object.keys(newErrors).length > 0) {
+      return; // Stop if validation fails
     }
 
     setLoading(true);
     try {
-      const response = await signUp({
+      await signUp({
         email,
         password,
         firstName,
@@ -48,8 +79,9 @@ const Signup = () => {
         role,
       });
       setLoading(false);
-      toast.success(response.message || "Signup successful!");
-      navigate("/check-email");
+
+      toast.success("Signup successful! Please check your email.");
+      navigate("/verify-email", { state: { email } });
     } catch (error) {
       setLoading(false);
       if (error.response) {
@@ -59,6 +91,7 @@ const Signup = () => {
       }
     }
   };
+
 
   return (
     <main className="w-full flex">
@@ -89,8 +122,8 @@ const Signup = () => {
 
             {/* Form */}
             <form onSubmit={handleSubmit} className="space-y-4">
-              {/* First + Last Name */}
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+              {/* First Name */}
+              <div>
                 <input
                   type="text"
                   placeholder="First Name"
@@ -98,6 +131,13 @@ const Signup = () => {
                   onChange={(e) => setFirstName(e.target.value)}
                   className="w-full border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-teal-500"
                 />
+                {errors.firstName && (
+                  <p className="text-red-500 text-xs">{errors.firstName}</p>
+                )}
+              </div>
+
+              {/* Last Name */}
+              <div>
                 <input
                   type="text"
                   placeholder="Last Name"
@@ -105,26 +145,42 @@ const Signup = () => {
                   onChange={(e) => setLastName(e.target.value)}
                   className="w-full border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-teal-500"
                 />
+                {errors.lastName && (
+                  <p className="text-red-500 text-xs">{errors.lastName}</p>
+                )}
               </div>
 
               {/* Email */}
-              <input
-                type="email"
-                placeholder="Email"
-                value={email}
-                onChange={(e) => setEmail(e.target.value)}
-                className="w-full border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-teal-500"
-              />
-
-              {/* Phone + City */}
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+              <div>
                 <input
-                  type="tel"
-                  placeholder="Phone"
-                  value={phone}
-                  onChange={(e) => setPhone(e.target.value)}
+                  type="email"
+                  placeholder="Email Address"
+                  value={email}
+                  onChange={(e) => setEmail(e.target.value)}
                   className="w-full border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-teal-500"
                 />
+                {errors.email && <p className="text-red-500 text-xs">{errors.email}</p>}
+              </div>
+
+              {/* Phone */}
+              <div>
+                <input
+                  type="tel"
+                  placeholder="Phone Number"
+                  value={phone}
+                  onChange={(e) => {
+                    // Allow only digits
+                    const value = e.target.value.replace(/\D/g, "");
+                    setPhone(value);
+                  }}
+                  className="w-full border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-teal-500"
+                />
+                {errors.phone && <p className="text-red-500 text-xs">{errors.phone}</p>}
+              </div>
+
+
+              {/* City */}
+              <div>
                 <input
                   type="text"
                   placeholder="City"
@@ -132,81 +188,95 @@ const Signup = () => {
                   onChange={(e) => setCity(e.target.value)}
                   className="w-full border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-teal-500"
                 />
+                {errors.city && <p className="text-red-500 text-xs">{errors.city}</p>}
               </div>
 
               {/* Address */}
-              <input
-                type="text"
-                placeholder="Address"
-                value={address}
-                onChange={(e) => setAddress(e.target.value)}
-                className="w-full border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-teal-500"
-              />
+              <div>
+                <input
+                  type="text"
+                  placeholder="Address"
+                  value={address}
+                  onChange={(e) => setAddress(e.target.value)}
+                  className="w-full border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-teal-500"
+                />
+                {errors.address && (
+                  <p className="text-red-500 text-xs">{errors.address}</p>
+                )}
+              </div>
 
               {/* Bio */}
-              <textarea
-                placeholder="Bio"
-                rows="3"
-                value={bio}
-                onChange={(e) => setBio(e.target.value)}
-                className="w-full border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-teal-500"
-              ></textarea>
+              <div>
+                <textarea
+                  placeholder="Bio"
+                  value={bio}
+                  onChange={(e) => setBio(e.target.value)}
+                  className="w-full border border-gray-300 rounded-lg px-3 py-2 h-20 focus:outline-none focus:ring-2 focus:ring-teal-500"
+                />
+              </div>
 
               {/* Role */}
-              <input
-                type="text"
-                placeholder="Role"
-                value={role}
-                onChange={(e) => setRole(e.target.value)}
-                className="w-full border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-teal-500"
-              />
+              <div>
+                <select
+                  value={role}
+                  onChange={(e) => setRole(e.target.value)}
+                  className="w-full border border-gray-300 rounded-lg px-3 py-2 bg-white focus:outline-none focus:ring-2 focus:ring-teal-500"
+                >
+                  <option value="">Select Role</option>
+                  <option value="USER">USER</option>
+                  <option value="ADMIN">ADMIN</option>
+                  <option value="COACH">COACH</option>
+                </select>
+                {errors.role && <p className="text-red-500 text-xs">{errors.role}</p>}
+              </div>
 
               {/* Password */}
               <div className="relative">
                 <input
                   type={showPassword ? "text" : "password"}
-                  placeholder="Enter a password"
+                  placeholder="Password"
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
                   className="w-full border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-teal-500"
                 />
-                <button
-                  type="button"
+                <span
+                  className="absolute right-3 top-3 cursor-pointer"
                   onClick={() => setShowPassword(!showPassword)}
-                  className="absolute right-3 top-2.5 text-gray-500"
                 >
                   {showPassword ? <FiEyeOff /> : <FiEye />}
-                </button>
-                <p className="text-xs text-gray-400 mt-1">
-                  Password must contain at least 8 characters
-                </p>
+                </span>
+                {errors.password && (
+                  <p className="text-red-500 text-xs">{errors.password}</p>
+                )}
               </div>
 
               {/* Confirm Password */}
               <div className="relative">
                 <input
                   type={showConfirmPassword ? "text" : "password"}
-                  placeholder="Enter password again"
+                  placeholder="Confirm Password"
                   value={confirmPassword}
                   onChange={(e) => setConfirmPassword(e.target.value)}
                   className="w-full border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-teal-500"
                 />
-                <button
-                  type="button"
+                <span
+                  className="absolute right-3 top-3 cursor-pointer"
                   onClick={() => setShowConfirmPassword(!showConfirmPassword)}
-                  className="absolute right-3 top-2.5 text-gray-500"
                 >
                   {showConfirmPassword ? <FiEyeOff /> : <FiEye />}
-                </button>
+                </span>
+                {errors.confirmPassword && (
+                  <p className="text-red-500 text-xs">{errors.confirmPassword}</p>
+                )}
               </div>
 
-              {/* Signup Button */}
+              {/* Submit Button */}
               <button
                 type="submit"
                 disabled={loading}
-                className="w-full bg-teal-700 text-white py-2 rounded-lg font-semibold hover:bg-teal-800 transition disabled:opacity-50"
+                className="w-full bg-teal-600 text-white py-2 rounded-lg hover:bg-teal-700 transition"
               >
-                {loading ? "Signing up..." : "Signup"}
+                {loading ? "Signing up..." : "Sign Up"}
               </button>
             </form>
 
