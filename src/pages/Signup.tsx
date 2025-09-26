@@ -1,5 +1,4 @@
 import React, { useState } from "react";
-import logo from "../assets/images/logo.png"; // app logo
 import selflove from "../assets/images/selflove.png"; // hero image
 import { FiEye, FiEyeOff } from "react-icons/fi";
 import { FcGoogle } from "react-icons/fc";
@@ -28,8 +27,6 @@ const Signup: React.FC = () => {
   const [city, setCity] = useState<string>("");
   const [phone, setPhone] = useState<string>("");
   const [address, setAddress] = useState<string>("");
-  const [bio, setBio] = useState<string>("");
-  const [role, setRole] = useState<string>("");
   const [errors, setErrors] = useState<FormErrors>({});
 
   const navigate = useNavigate();
@@ -64,7 +61,6 @@ const Signup: React.FC = () => {
     if (!lastName) newErrors.lastName = "Last name is required";
     if (!city) newErrors.city = "City is required";
     if (!address) newErrors.address = "Address is required";
-    if (!role) newErrors.role = "Please select a role";
 
     setErrors(newErrors);
 
@@ -82,8 +78,7 @@ const Signup: React.FC = () => {
         city,
         phone,
         address,
-        bio,
-        role,
+        role: "user",
       });
       setLoading(false);
 
@@ -112,26 +107,21 @@ const Signup: React.FC = () => {
         </div>
 
         {/* Right Form */}
-        <article className="w-full md:w-1/2 h-screen flex flex-col justify-center sm:p-10 bg-gray-50">
-          {/* Logo */}
-          <div>
-            <img className="w-16 mb-6" src={logo} alt="Logo" />
-          </div>
-
+        <article className="w-full md:w-1/2 h-screen flex flex-col justify-center p-4 sm:p-6 bg-gray-50">
           {/* Card */}
-          <div className="w-full max-w-2xl bg-white p-6 rounded-lg shadow-sm overflow-y-auto max-h-[88vh]">
+          <div className="w-full max-w-xl mx-auto bg-white p-4 sm:p-6 rounded-lg shadow-sm overflow-y-auto max-h-[95vh]">
             {/* Title */}
-            <h2 className="text-3xl font-bold text-gray-900">
+            <h2 className="text-2xl font-bold text-gray-900">
               Create an account!
             </h2>
-            <p className="text-sm text-gray-500 mb-6">
+            <p className="text-sm text-gray-500 mb-4">
               Join us now! Your wellness journey begins here.
             </p>
 
             {/* Form */}
             <form
               onSubmit={handleSubmit}
-              className="grid grid-cols-1 md:grid-cols-2 gap-4"
+              className="grid grid-cols-1 md:grid-cols-2 gap-3"
             >
               {/* First Name */}
               <div>
@@ -140,7 +130,7 @@ const Signup: React.FC = () => {
                   placeholder="First Name"
                   value={firstName}
                   onChange={(e) => setFirstName(e.target.value)}
-                  className="w-full border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-teal-500"
+                  className="w-full border border-gray-300 rounded-lg px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-teal-500"
                 />
                 {errors.firstName && (
                   <p className="text-red-500 text-xs">{errors.firstName}</p>
@@ -154,7 +144,7 @@ const Signup: React.FC = () => {
                   placeholder="Last Name"
                   value={lastName}
                   onChange={(e) => setLastName(e.target.value)}
-                  className="w-full border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-teal-500"
+                  className="w-full border border-gray-300 rounded-lg px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-teal-500"
                 />
                 {errors.lastName && (
                   <p className="text-red-500 text-xs">{errors.lastName}</p>
@@ -168,7 +158,7 @@ const Signup: React.FC = () => {
                   placeholder="Email Address"
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
-                  className="w-full border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-teal-500"
+                  className="w-full border border-gray-300 rounded-lg px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-teal-500"
                 />
                 {errors.email && (
                   <p className="text-red-500 text-xs">{errors.email}</p>
@@ -186,7 +176,7 @@ const Signup: React.FC = () => {
                     const value = e.target.value.replace(/\D/g, "");
                     setPhone(value);
                   }}
-                  className="w-full border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-teal-500"
+                  className="w-full border border-gray-300 rounded-lg px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-teal-500"
                 />
                 {errors.phone && (
                   <p className="text-red-500 text-xs">{errors.phone}</p>
@@ -200,7 +190,7 @@ const Signup: React.FC = () => {
                   placeholder="City"
                   value={city}
                   onChange={(e) => setCity(e.target.value)}
-                  className="w-full border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-teal-500"
+                  className="w-full border border-gray-300 rounded-lg px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-teal-500"
                 />
                 {errors.city && (
                   <p className="text-red-500 text-xs">{errors.city}</p>
@@ -214,37 +204,10 @@ const Signup: React.FC = () => {
                   placeholder="Address"
                   value={address}
                   onChange={(e) => setAddress(e.target.value)}
-                  className="w-full border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-teal-500"
+                  className="w-full border border-gray-300 rounded-lg px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-teal-500"
                 />
                 {errors.address && (
                   <p className="text-red-500 text-xs">{errors.address}</p>
-                )}
-              </div>
-
-              {/* Bio */}
-              <div className="md:col-span-2">
-                <textarea
-                  placeholder="Bio"
-                  value={bio}
-                  onChange={(e) => setBio(e.target.value)}
-                  className="w-full border border-gray-300 rounded-lg px-3 py-2 h-20 focus:outline-none focus:ring-2 focus:ring-teal-500"
-                />
-              </div>
-
-              {/* Role */}
-              <div>
-                <select
-                  value={role}
-                  onChange={(e) => setRole(e.target.value)}
-                  className="w-full border border-gray-300 rounded-lg px-3 py-2 bg-white focus:outline-none focus:ring-2 focus:ring-teal-500"
-                >
-                  <option value="">Select Role</option>
-                  <option value="USER">USER</option>
-                  <option value="ADMIN">ADMIN</option>
-                  <option value="COACH">COACH</option>
-                </select>
-                {errors.role && (
-                  <p className="text-red-500 text-xs">{errors.role}</p>
                 )}
               </div>
 
@@ -255,7 +218,7 @@ const Signup: React.FC = () => {
                   placeholder="Password"
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
-                  className="w-full border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-teal-500"
+                  className="w-full border border-gray-300 rounded-lg px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-teal-500"
                 />
                 <span
                   className="absolute right-3 top-3 cursor-pointer"
@@ -275,7 +238,7 @@ const Signup: React.FC = () => {
                   placeholder="Confirm Password"
                   value={confirmPassword}
                   onChange={(e) => setConfirmPassword(e.target.value)}
-                  className="w-full border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-teal-500"
+                  className="w-full border border-gray-300 rounded-lg px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-teal-500"
                 />
                 <span
                   className="absolute right-3 top-3 cursor-pointer"
@@ -294,27 +257,27 @@ const Signup: React.FC = () => {
               <button
                 type="submit"
                 disabled={loading}
-                className="md:col-span-2 w-full bg-teal-600 text-white py-2 rounded-lg hover:bg-teal-700 transition"
+                className="md:col-span-2 w-full bg-teal-600 text-white py-2.5 rounded-lg hover:bg-teal-700 transition text-sm font-medium"
               >
                 {loading ? "Signing up..." : "Sign Up"}
               </button>
             </form>
 
             {/* Divider */}
-            <div className="flex items-center my-4">
+            <div className="flex items-center my-3">
               <div className="flex-grow h-px bg-gray-300"></div>
-              <span className="px-2 text-sm text-gray-400">or</span>
+              <span className="px-2 text-xs text-gray-400">or</span>
               <div className="flex-grow h-px bg-gray-300"></div>
             </div>
 
             {/* Google Signup */}
-            <button className="w-full border border-[#4444B3] px-2 py-2 rounded-full justify-center text-[#4444B3] text-lg font-semibold flex items-center gap-3 hover:bg-[#f5f5ff] transition">
-              <FcGoogle className="text-2xl" />
+            <button className="w-full border border-[#4444B3] px-3 py-2.5 rounded-lg justify-center text-[#4444B3] text-sm font-medium flex items-center gap-2 hover:bg-[#f5f5ff] transition">
+              <FcGoogle className="text-lg" />
               Signup with Google
             </button>
 
             {/* Login Link */}
-            <p className="text-sm text-center text-gray-600 mt-4">
+            <p className="text-xs text-center text-gray-600 mt-3">
               Already have an account?{" "}
               <a href="/login" className="text-teal-700 font-semibold">
                 Login
