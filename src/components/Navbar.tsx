@@ -2,23 +2,58 @@ import React, { useState, useEffect, useRef } from "react";
 import { Link } from "react-router-dom";
 import { Menu, X, ChevronDown } from "lucide-react";
 import Logo from "../assets/images/logo.png";
+import { UserAvatar } from "./UserAvatar";
+import { useAuth } from "../context/AuthContextProvider";
 
 const Navbar: React.FC = () => {
   const [menuOpen, setMenuOpen] = useState(false);
   const [servicesOpen, setServicesOpen] = useState(false);
   const [resourcesOpen, setResourcesOpen] = useState(false);
-  const user = (() => {
-    try {
-      const raw =
-        typeof window !== "undefined" ? localStorage.getItem("user") : null;
-      return raw ? JSON.parse(raw) : null;
-    } catch {
-      return null;
-    }
-  })();
+
+  // Timeout refs for delayed closing
+  const servicesTimeoutRef = useRef<NodeJS.Timeout | null>(null);
+  const resourcesTimeoutRef = useRef<NodeJS.Timeout | null>(null);
+
+  // Get auth state from context
+  const { user, isAuthenticated } = useAuth();
 
   // Single ref for the entire navbar (used to detect clicks outside)
   const navRef = useRef<HTMLElement>(null);
+
+  // Helper functions for dropdown management with delay
+  const handleServicesMouseEnter = () => {
+    // Clear any pending close timeout
+    if (servicesTimeoutRef.current) {
+      clearTimeout(servicesTimeoutRef.current);
+      servicesTimeoutRef.current = null;
+    }
+    setServicesOpen(true);
+    setResourcesOpen(false);
+  };
+
+  const handleServicesMouseLeave = () => {
+    // Set a delay before closing
+    servicesTimeoutRef.current = setTimeout(() => {
+      setServicesOpen(false);
+    }, 300); // 300ms delay
+  };
+
+  const handleResourcesMouseEnter = () => {
+    // Clear any pending close timeout
+    if (resourcesTimeoutRef.current) {
+      clearTimeout(resourcesTimeoutRef.current);
+      resourcesTimeoutRef.current = null;
+    }
+    setResourcesOpen(true);
+    setServicesOpen(false);
+  };
+
+  const handleResourcesMouseLeave = () => {
+    // Set a delay before closing
+    resourcesTimeoutRef.current = setTimeout(() => {
+      setResourcesOpen(false);
+    }, 300); // 300ms delay
+  };
 
   // Close menus when clicking/tapping outside the navbar
   useEffect(() => {
@@ -36,6 +71,13 @@ const Navbar: React.FC = () => {
     return () => {
       document.removeEventListener("mousedown", handleClickOutside);
       document.removeEventListener("touchstart", handleClickOutside);
+      // Clean up any pending timeouts
+      if (servicesTimeoutRef.current) {
+        clearTimeout(servicesTimeoutRef.current);
+      }
+      if (resourcesTimeoutRef.current) {
+        clearTimeout(resourcesTimeoutRef.current);
+      }
     };
   }, []);
 
@@ -82,13 +124,8 @@ const Navbar: React.FC = () => {
             <li className="relative">
               <button
                 type="button"
-                onMouseEnter={() => {
-                  setServicesOpen(true);
-                  setResourcesOpen(false);
-                }}
-                onMouseLeave={() => {
-                  setServicesOpen(false);
-                }}
+                onMouseEnter={handleServicesMouseEnter}
+                onMouseLeave={handleServicesMouseLeave}
                 className="flex items-center space-x-1 text-gray-700 hover:text-brand-green font-medium transition-colors px-3 py-2 rounded-lg hover:bg-brand-green/5 font-primary"
                 aria-expanded={servicesOpen}
               >
@@ -103,8 +140,8 @@ const Navbar: React.FC = () => {
               {servicesOpen && (
                 <ul
                   className="absolute left-0 mt-2 w-64 bg-white border border-gray-200 rounded-xl shadow-xl z-50 py-2"
-                  onMouseEnter={() => setServicesOpen(true)}
-                  onMouseLeave={() => setServicesOpen(false)}
+                  onMouseEnter={handleServicesMouseEnter}
+                  onMouseLeave={handleServicesMouseLeave}
                 >
                   <li>
                     <Link
@@ -150,13 +187,8 @@ const Navbar: React.FC = () => {
             <li className="relative">
               <button
                 type="button"
-                onMouseEnter={() => {
-                  setResourcesOpen(true);
-                  setServicesOpen(false);
-                }}
-                onMouseLeave={() => {
-                  setResourcesOpen(false);
-                }}
+                onMouseEnter={handleResourcesMouseEnter}
+                onMouseLeave={handleResourcesMouseLeave}
                 className="flex items-center space-x-1 text-gray-700 hover:text-brand-green font-medium transition-colors px-3 py-2 rounded-lg hover:bg-brand-green/5 font-primary"
                 aria-expanded={resourcesOpen}
               >
@@ -171,8 +203,8 @@ const Navbar: React.FC = () => {
               {resourcesOpen && (
                 <ul
                   className="absolute left-0 mt-2 w-48 bg-white border border-gray-200 rounded-xl shadow-xl z-50 py-2"
-                  onMouseEnter={() => setResourcesOpen(true)}
-                  onMouseLeave={() => setResourcesOpen(false)}
+                  onMouseEnter={handleResourcesMouseEnter}
+                  onMouseLeave={handleResourcesMouseLeave}
                 >
                   <li>
                     <Link
@@ -206,22 +238,17 @@ const Navbar: React.FC = () => {
             </li> */}
           </ul>
 
-          {/* Login Button - Right aligned */}
+          {/* User Avatar - Right aligned */}
           <div className="hidden md:flex items-center gap-3">
-            {user?.role === "ADMIN" && (
+            {isAuthenticated && user?.role === "ADMIN" && (
               <Link
                 to="/admin/overview"
-                className="bg-indigo-600 text-white px-4 py-2 rounded-lg hover:bg-indigo-700 transition-colors shadow-sm"
+                className="bg-indigo-600 text-white px-4 py-2 rounded-lg hover:bg-indigo-700 transition-colors shadow-sm font-medium text-sm"
               >
                 Admin
               </Link>
             )}
-            <Link
-              to="/login"
-              className="bg-brand-green text-white px-6 py-2 rounded-lg hover:bg-brand-green-dark font-medium transition-colors shadow-sm hover:shadow-md font-primary"
-            >
-              Login
-            </Link>
+            <UserAvatar />
           </div>
 
           {/* Mobile Dropdown Menu */}
@@ -367,14 +394,10 @@ const Navbar: React.FC = () => {
                     Contact
                   </Link>
                 </li> */}
+
+                {/* Mobile User Avatar/Auth */}
                 <li className="px-6 py-3">
-                  <Link
-                    to="/login"
-                    onClick={() => setMenuOpen(false)}
-                    className="block w-full bg-brand-green text-white px-6 py-3 rounded-lg hover:bg-brand-green-dark font-medium transition-colors text-center shadow-sm"
-                  >
-                    Login
-                  </Link>
+                  <UserAvatar className="w-full" />
                 </li>
               </ul>
             </div>

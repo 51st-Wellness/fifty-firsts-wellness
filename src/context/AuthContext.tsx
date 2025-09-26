@@ -1,21 +1,27 @@
 import { createContext } from "react";
+import type { User } from "../types/user.types";
 
-interface User {
-  id?: string;
-  email?: string;
-  name?: string;
-  role?: string;
-  token?: string;
-}
+// Update profile payload type
+export type UpdateProfilePayload = {
+  firstName?: string;
+  lastName?: string;
+  phone?: string;
+  city?: string;
+  address?: string;
+  bio?: string;
+};
 
 interface AuthContextType {
   user: User | null;
-  login: (email: string, password: string) => Promise<boolean>;
-  logout: () => void;
-  isLoggedIn: boolean;
-  token: string;
+  isAuthenticated: boolean;
   loading: boolean;
-  error: string;
+  error: string | null;
+  login: (email: string, password: string) => Promise<boolean>;
+  logout: () => Promise<void>;
+  checkAuthStatus: () => Promise<void>;
+  loadUserProfile: () => Promise<void>;
+  updateProfile: (payload: UpdateProfilePayload) => Promise<boolean>;
+  updateProfilePicture: (file: File) => Promise<boolean>;
 }
 
 export const AuthContext = createContext<AuthContextType | null>(null);

@@ -5,9 +5,9 @@ import type { ResponseDto } from "../types/response.types";
 export const login = async (payload: {
   email: string;
   password: string;
-}): Promise<ResponseDto<{ token: string }>> => {
+}): Promise<ResponseDto<{ user: any; accessToken: string }>> => {
   const { data } = await http().post("/auth/login", payload);
-  return data as ResponseDto<{ token: string }>;
+  return data as ResponseDto<{ user: any; accessToken: string }>;
 };
 
 // Sign up a new user

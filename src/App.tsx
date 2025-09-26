@@ -15,6 +15,7 @@ import Membership from "./pages/Membership";
 import ContactUs from "./pages/ContactUs";
 import Login from "./pages/Login";
 import Signup from "./pages/Signup";
+import Profile from "./pages/Profile";
 import PersonalWellnessProgrammes from "./pages/service/PersonalWellnessProgrammes";
 import WellnessProgramDetails from "./pages/service/WellnessProgramDetails";
 import Podcasts from "./pages/ResourcesHub/Podcasts";
@@ -91,7 +92,15 @@ const App: React.FC = () => {
               </>
             }
           />
-          <Route path="/marketplace" element={<MarketPlace />} />
+          <Route
+            path="/marketplace"
+            element={
+              <>
+                <Navbar />
+                <MarketPlace />
+              </>
+            }
+          />
           <Route
             path="/resources/podcasts"
             element={
@@ -132,6 +141,7 @@ const App: React.FC = () => {
           <Route path="/contact" element={<ContactUs />} />
           <Route path="/login" element={<Login />} />
           <Route path="/signup" element={<Signup />} />
+          <Route path="/profile" element={<Profile />} />
           <Route path="/forgot-password" element={<ForgotPassword />} />
           <Route path="/reset-password" element={<ResetPassword />} />
           <Route path="/check-email" element={<CheckEmail />} />

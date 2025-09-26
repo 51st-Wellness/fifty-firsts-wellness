@@ -1,16 +1,7 @@
 import React from "react";
 import { CiShoppingCart } from "react-icons/ci";
 import StarRating from "./StarRating";
-
-interface StoreItem {
-  id?: string;
-  name?: string;
-  price?: number;
-  display?: {
-    url?: string;
-  };
-  images?: string[];
-}
+import type { StoreItem } from "../types/marketplace.types";
 
 interface StoreItemCardProps {
   item: StoreItem;
@@ -19,9 +10,9 @@ interface StoreItemCardProps {
 
 // Reusable card for rendering a single store item
 const StoreItemCard: React.FC<StoreItemCardProps> = ({ item, onAddToCart }) => {
-  const imageUrl = item?.display?.url || item?.images?.[0] || "";
-  const title = item?.name || "Product";
-  const price = item?.price ?? 0;
+  const imageUrl = item.display?.url || item.images?.[0] || ""; // pick cover image
+  const title = item.name || "Product";
+  const price = item.price ?? 0;
 
   return (
     <article className="flex border rounded-3xl p-4 flex-col hover:shadow-md transition-shadow">
