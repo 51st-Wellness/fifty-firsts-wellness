@@ -25,6 +25,7 @@ import {
 import toast from "react-hot-toast";
 import { createStoreItem, updateStoreItem } from "../../api/marketplace.api";
 import type { StoreItem } from "../../types/marketplace.types";
+import CategorySelector from "./CategorySelector";
 
 interface StoreItemDialogProps {
   open: boolean;
@@ -52,7 +53,6 @@ const StoreItemDialog: React.FC<StoreItemDialogProps> = ({
     isFeatured: false,
     isPublished: false,
   });
-  const [tagInput, setTagInput] = useState("");
   const [displayFile, setDisplayFile] = useState<File | null>(null);
   const [imageFiles, setImageFiles] = useState<File[]>([]);
   const [displayPreview, setDisplayPreview] = useState<string>("");
@@ -88,7 +88,6 @@ const StoreItemDialog: React.FC<StoreItemDialogProps> = ({
         setDisplayPreview("");
         setImagePreviews([]);
       }
-      setTagInput("");
       setDisplayFile(null);
       setImageFiles([]);
     }
@@ -118,22 +117,11 @@ const StoreItemDialog: React.FC<StoreItemDialogProps> = ({
     setImagePreviews(previews);
   };
 
-  // Add tag to form
-  const addTag = () => {
-    if (tagInput.trim() && !formData.tags.includes(tagInput.trim())) {
-      setFormData((prev) => ({
-        ...prev,
-        tags: [...prev.tags, tagInput.trim()],
-      }));
-      setTagInput("");
-    }
-  };
-
-  // Remove tag from form
-  const removeTag = (tagToRemove: string) => {
+  // Handle category selection
+  const handleCategoryChange = (categories: string[]) => {
     setFormData((prev) => ({
       ...prev,
-      tags: prev.tags.filter((tag) => tag !== tagToRemove),
+      tags: categories,
     }));
   };
 
@@ -304,38 +292,16 @@ const StoreItemDialog: React.FC<StoreItemDialogProps> = ({
                 />
               </Box>
 
-              {/* Tags */}
+              {/* Categories */}
               <Box>
-                <Box sx={{ mb: 1 }}>
-                  <Typography variant="subtitle2">Tags</Typography>
-                </Box>
-                <Stack direction="row" spacing={1} sx={{ mb: 1 }}>
-                  <TextField
-                    size="small"
-                    placeholder="Add tag"
-                    value={tagInput}
-                    onChange={(e) => setTagInput(e.target.value)}
-                    onKeyDown={(e) => {
-                      if (e.key === "Enter") {
-                        e.preventDefault();
-                        addTag();
-                      }
-                    }}
-                  />
-                  <Button onClick={addTag} variant="outlined" size="small">
-                    Add
-                  </Button>
-                </Stack>
-                <Box sx={{ display: "flex", flexWrap: "wrap", gap: 1 }}>
-                  {formData.tags.map((tag, idx) => (
-                    <Chip
-                      key={idx}
-                      label={tag}
-                      onDelete={() => removeTag(tag)}
-                      size="small"
-                    />
-                  ))}
-                </Box>
+                <CategorySelector
+                  service="store"
+                  selectedCategories={formData.tags}
+                  onChange={handleCategoryChange}
+                  label="Categories"
+                  placeholder="Select categories for this store item..."
+                  helperText="Choose from existing categories to help customers find this product"
+                />
               </Box>
 
               {/* Options */}
