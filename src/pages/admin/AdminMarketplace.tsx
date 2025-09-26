@@ -305,10 +305,17 @@ const AdminMarketplace: React.FC = () => {
         </Button>
       </Box>
 
-      <Grid container spacing={3}>
-        {/* Items List */}
-        <Grid item xs={12} md={5}>
-          <Card>
+      <Box sx={{ display: "flex", gap: 3, height: "calc(100vh - 200px)" }}>
+        {/* Items List - Fixed Left Side */}
+        <Box
+          sx={{
+            width: { xs: "100%", md: "420px" },
+            flexShrink: 0,
+            display: "flex",
+            flexDirection: "column",
+          }}
+        >
+          <Card sx={{ flex: 1, display: "flex", flexDirection: "column" }}>
             <Box sx={{ p: 2, borderBottom: 1, borderColor: "divider" }}>
               <TextField
                 fullWidth
@@ -321,7 +328,7 @@ const AdminMarketplace: React.FC = () => {
               />
             </Box>
 
-            <Box sx={{ maxHeight: "70vh", overflow: "auto" }}>
+            <Box sx={{ flex: 1, overflow: "auto" }}>
               {loading && items.length === 0 ? (
                 <Box sx={{ p: 3, textAlign: "center" }}>
                   <CircularProgress size={24} />
@@ -423,10 +430,16 @@ const AdminMarketplace: React.FC = () => {
               </Typography>
             </Box>
           </Card>
-        </Grid>
+        </Box>
 
-        {/* Item Details */}
-        <Grid item xs={12} md={7}>
+        {/* Item Details - Right Side */}
+        <Box
+          sx={{
+            flex: 1,
+            minWidth: 0,
+            display: { xs: selected ? "block" : "none", md: "block" },
+          }}
+        >
           <Card sx={{ height: "fit-content" }}>
             {!selected ? (
               <Box sx={{ p: 4, textAlign: "center" }}>
@@ -573,8 +586,8 @@ const AdminMarketplace: React.FC = () => {
               </CardContent>
             )}
           </Card>
-        </Grid>
-      </Grid>
+        </Box>
+      </Box>
 
       {/* Create/Edit Dialog */}
       <Dialog

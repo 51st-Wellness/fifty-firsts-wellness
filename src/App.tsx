@@ -1,5 +1,10 @@
 import React, { Suspense, lazy } from "react";
-import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
+import {
+  BrowserRouter as Router,
+  Routes,
+  Route,
+  Navigate,
+} from "react-router-dom";
 import Navbar from "./components/Navbar";
 import Home from "./pages/Home";
 import About from "./pages/About";
@@ -141,8 +146,10 @@ const App: React.FC = () => {
               </Suspense>
             }
           >
+            {/* Redirect /admin to /admin/overview by default */}
             <Route
-              path="overview"
+              // path="overview"
+              index
               element={
                 <Suspense fallback={<Loader />}>
                   <AdminOverview />
