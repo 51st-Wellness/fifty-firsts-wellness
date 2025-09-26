@@ -23,3 +23,5 @@ dist-ssr
 *.sln
 *.sw?
 src/helpers/http.js
+pnpm-lock.yaml
+temp.js

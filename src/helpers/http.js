@@ -2,11 +2,11 @@ import axios from "axios";
 
 const http = () => {
   let options = {
-    baseURL: import.meta.env.VITE_API_URL,
+    baseURL: "https://fiftyfirstwellnessbackend-production.up.railway.app/api",
+    // baseURL: "http://localhost:3000/api",
     headers: {
       "Content-Type": "application/json",
       Accept: "application/json",
-      "Access-Control-Allow-Origin": "*",
     },
   };
   if (localStorage.getItem("token")) {
