@@ -9,7 +9,7 @@ import {
   Shield,
 } from "lucide-react";
 import { useAuth } from "../context/AuthContextProvider";
-import { UserRole } from "../types/user.types";
+import { UserRole } from "../types/user.types.ts";
 interface UserAvatarProps {
   className?: string;
 }

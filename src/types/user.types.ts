@@ -1,6 +1,10 @@
 // Types inferred from backend schema at src/database/schema.ts
 
-export type UserRole = "USER" | "ADMIN" | "COACH";
+export interface UserRole {
+  USER: "USER";
+  ADMIN: "ADMIN";
+  COACH: "COACH";
+}
 
 export type User = {
   id: string;
