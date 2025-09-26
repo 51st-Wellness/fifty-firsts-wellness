@@ -1,5 +1,12 @@
 import React, { useEffect, useMemo, useState } from "react";
-import { fetchStoreItems, fetchStoreItemById } from "../api/marketplace.api";
+import * as Dialog from "@radix-ui/react-dialog";
+import {
+  fetchStoreItems,
+  fetchStoreItemById,
+  createStoreItem,
+  updateStoreItem,
+  deleteStoreItem,
+} from "../../api/marketplace.api";
 
 // Marketplace admin with two-pane layout: list + details
 const AdminMarketplace = () => {
@@ -40,6 +47,59 @@ const AdminMarketplace = () => {
     } catch {}
   };
 
+  const [showForm, setShowForm] = useState(false);
+  const [form, setForm] = useState({
+    name: "",
+    price: 0,
+    stock: 0,
+    description: "",
+  });
+  const [submitting, setSubmitting] = useState(false);
+
+  const openCreate = () => {
+    setForm({ name: "", price: 0, stock: 0, description: "" });
+    setShowForm(true);
+  };
+  const openEdit = () => {
+    if (!selected) return;
+    setForm({
+      name: selected.name || "",
+      price: selected.price || 0,
+      stock: selected.stock || 0,
+      description: selected.description || "",
+    });
+    setShowForm(true);
+  };
+
+  const submitForm = async () => {
+    setSubmitting(true);
+    try {
+      if (selected && selected.productId) {
+        const updated = await updateStoreItem(selected.productId, form);
+        setSelected(updated);
+      } else {
+        await createStoreItem(form);
+      }
+      // refresh list
+      const res = await fetchStoreItems({ ...query, search: debouncedSearch });
+      setItems(res.items);
+      setPagination(res.pagination);
+      setShowForm(false);
+    } finally {
+      setSubmitting(false);
+    }
+  };
+
+  const onDelete = async () => {
+    if (!selected?.productId) return;
+    if (!confirm("Delete this item?")) return;
+    await deleteStoreItem(selected.productId);
+    const res = await fetchStoreItems({ ...query, search: debouncedSearch });
+    setItems(res.items);
+    setPagination(res.pagination);
+    setSelected(null);
+  };
+
   return (
     <div className="grid grid-cols-12 gap-6">
       <section className="col-span-5 bg-white border border-gray-200 rounded-lg overflow-hidden">
@@ -67,6 +127,12 @@ const AdminMarketplace = () => {
             <option value={24}>24</option>
             <option value={48}>48</option>
           </select>
+          <button
+            onClick={openCreate}
+            className="ml-2 px-3 py-2 rounded-md bg-indigo-600 text-white text-sm"
+          >
+            New Item
+          </button>
         </div>
 
         <div className="max-h-[70vh] overflow-auto divide-y divide-gray-100">
@@ -115,7 +181,7 @@ const AdminMarketplace = () => {
         </div>
       </section>
 
-      <section className="col-span-7 bg-white border border-gray-200 rounded-lg">
+      <section className="col-span-7 bg-white border border-gray-200 rounded-lg relative">
         {!selected ? (
           <div className="p-6 text-sm text-gray-500">
             Select an item to view details
@@ -173,16 +239,96 @@ const AdminMarketplace = () => {
                 </div>
               ) : null}
               <div className="mt-6 flex gap-3">
-                <button className="px-3 py-2 rounded-md bg-indigo-600 text-white text-sm">
+                <button
+                  onClick={openEdit}
+                  className="px-3 py-2 rounded-md bg-indigo-600 text-white text-sm"
+                >
                   Edit
                 </button>
-                <button className="px-3 py-2 rounded-md bg-white border text-sm">
-                  Unpublish
+                <button
+                  onClick={onDelete}
+                  className="px-3 py-2 rounded-md bg-white border text-sm"
+                >
+                  Delete
                 </button>
               </div>
             </div>
           </div>
         )}
+        <Dialog.Root open={showForm} onOpenChange={setShowForm}>
+          <Dialog.Portal>
+            <Dialog.Overlay className="fixed inset-0 bg-black/30" />
+            <Dialog.Content className="fixed left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 w-[95vw] max-w-lg rounded-lg border bg-white p-5 shadow-xl">
+              <Dialog.Title className="text-lg font-semibold">
+                {selected ? "Edit Store Item" : "Create Store Item"}
+              </Dialog.Title>
+              <div className="mt-4 space-y-3">
+                <label className="block">
+                  <span className="block text-sm text-gray-600">Name</span>
+                  <input
+                    value={form.name}
+                    onChange={(e) => setForm({ ...form, name: e.target.value })}
+                    className="mt-1 w-full rounded-md border-gray-200 focus:border-indigo-500 focus:ring-indigo-500 text-sm"
+                  />
+                </label>
+                <div className="grid grid-cols-2 gap-3">
+                  <label className="block">
+                    <span className="block text-sm text-gray-600">Price</span>
+                    <input
+                      type="number"
+                      value={form.price}
+                      onChange={(e) =>
+                        setForm({ ...form, price: Number(e.target.value) })
+                      }
+                      className="mt-1 w-full rounded-md border-gray-200 focus:border-indigo-500 focus:ring-indigo-500 text-sm"
+                    />
+                  </label>
+                  <label className="block">
+                    <span className="block text-sm text-gray-600">Stock</span>
+                    <input
+                      type="number"
+                      value={form.stock}
+                      onChange={(e) =>
+                        setForm({ ...form, stock: Number(e.target.value) })
+                      }
+                      className="mt-1 w-full rounded-md border-gray-200 focus:border-indigo-500 focus:ring-indigo-500 text-sm"
+                    />
+                  </label>
+                </div>
+                <label className="block">
+                  <span className="block text-sm text-gray-600">
+                    Description
+                  </span>
+                  <textarea
+                    value={form.description}
+                    onChange={(e) =>
+                      setForm({ ...form, description: e.target.value })
+                    }
+                    className="mt-1 w-full rounded-md border-gray-200 focus:border-indigo-500 focus:ring-indigo-500 text-sm"
+                    rows={3}
+                  />
+                </label>
+              </div>
+              <div className="mt-5 flex justify-end gap-2">
+                <Dialog.Close asChild>
+                  <button
+                    className="px-3 py-2 rounded-md bg-white border text-sm"
+                    disabled={submitting}
+                  >
+                    Cancel
+                  </button>
+                </Dialog.Close>
+                <button
+                  onClick={submitForm}
+                  className="px-3 py-2 rounded-md bg-indigo-600 text-white text-sm"
+                  disabled={submitting}
+                >
+                  {submitting ? "Saving…" : "Save"}
+                </button>
+              </div>
+            </Dialog.Content>
+          </Dialog.Portal>
+        </Dialog.Root>
       </section>
     </div>
   );

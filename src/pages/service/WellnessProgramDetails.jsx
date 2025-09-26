@@ -6,7 +6,6 @@ import martin3 from "../../assets/images/martin3.png";
 import martin4 from "../../assets/images/martin4.png";
 import comment from "../../assets/images/comment.png";
 import profilepic from "../../assets/images/profilepic.png";
-import Footer from "../../components/Footer";
 
 const WellnessProgramDetails = () => {
   const [formData, setFormData] = useState({
@@ -26,7 +25,7 @@ const WellnessProgramDetails = () => {
   };
 
   return (
-    <main className="px-6">
+    <main className="">
       {/* Hero Section */}
       <article className="w-full flex flex-col lg:flex-row gap-8 h-fit">
         <section className="w-full lg:w-1/2 flex flex-col gap-3 justify-between">
@@ -107,16 +106,10 @@ const WellnessProgramDetails = () => {
               feedback, our team is ready to assist you.
             </div>
             <div className="flex items-center gap-2">
-              <img
-                src={profilepic}
-                alt=""
-                className="w-10 h-10 rounded-full"
-              />
+              <img src={profilepic} alt="" className="w-10 h-10 rounded-full" />
               <div className="flex flex-col text-sm">
                 <div>Gabrielle Williams</div>
-                <div className="text-xs text-gray-500">
-                  CEO, Mandilla Inc.
-                </div>
+                <div className="text-xs text-gray-500">CEO, Mandilla Inc.</div>
               </div>
             </div>
           </section>
@@ -186,8 +179,6 @@ const WellnessProgramDetails = () => {
           </form>
         </div>
       </div>
-
-      <Footer />
     </main>
   );
 };

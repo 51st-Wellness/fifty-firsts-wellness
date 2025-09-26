@@ -21,7 +21,7 @@ const Podcasts = ({ onSearch }) => {
   };
 
   return (
-    <main className="px-4 sm:px-6 lg:px-12 relative min-h-screen pb-20 bg-gray-50">
+    <main className="relative min-h-screen pb-20 bg-gray-50">
       {/* Header Section */}
       <article className="flex flex-col-reverse md:flex-row justify-between items-center md:items-start w-full gap-6 mt-6">
         {/* Left Content */}
@@ -87,48 +87,57 @@ const Podcasts = ({ onSearch }) => {
       {/* Podcast Section */}
       <article className="flex flex-col p-4 sm:p-6 w-full mt-6 items-center">
         <section className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 w-full">
-          {[podcast1, podcast2, podcast3, podcast4, podcast5, podcast6, podcast1, podcast2, podcast3, podcast4].map(
-            (img, idx) => (
-              <div
-                key={idx}
-                className="flex flex-col gap-2 border rounded-3xl p-4 hover:shadow-md transition bg-white"
-              >
-                <img
-                  src={img}
-                  alt={`Podcast ${idx + 1}`}
-                  className="rounded-lg w-full h-40 sm:h-48 object-cover"
-                />
-                <div className="text-xs sm:text-sm text-gray-500 font-semibold">
-                  March 4, 2025
-                </div>
-                <div className="text-base sm:text-lg lg:text-xl font-medium line-clamp-2">
-                  Redefining Success in Life
-                </div>
-                <div className="text-sm sm:text-base text-[#667085] flex justify-between">
-                  <span>30:23</span>
-                  <span className="text-[#98A2B3]">Morning Talk</span>
-                </div>
+          {[
+            podcast1,
+            podcast2,
+            podcast3,
+            podcast4,
+            podcast5,
+            podcast6,
+            podcast1,
+            podcast2,
+            podcast3,
+            podcast4,
+          ].map((img, idx) => (
+            <div
+              key={idx}
+              className="flex flex-col gap-2 border rounded-3xl p-4 hover:shadow-md transition bg-white"
+            >
+              <img
+                src={img}
+                alt={`Podcast ${idx + 1}`}
+                className="rounded-lg w-full h-40 sm:h-48 object-cover"
+              />
+              <div className="text-xs sm:text-sm text-gray-500 font-semibold">
+                March 4, 2025
+              </div>
+              <div className="text-base sm:text-lg lg:text-xl font-medium line-clamp-2">
+                Redefining Success in Life
+              </div>
+              <div className="text-sm sm:text-base text-[#667085] flex justify-between">
+                <span>30:23</span>
+                <span className="text-[#98A2B3]">Morning Talk</span>
+              </div>
 
-                {/* Controls */}
-                <div className="mt-2 flex justify-between items-center">
-                  <button className="text-xl text-[#4444B3] hover:text-indigo-600">
-                    <MdSlowMotionVideo />
+              {/* Controls */}
+              <div className="mt-2 flex justify-between items-center">
+                <button className="text-xl text-[#4444B3] hover:text-indigo-600">
+                  <MdSlowMotionVideo />
+                </button>
+                <div className="flex items-center gap-3">
+                  <button className="text-xl hover:text-indigo-600">
+                    <RiForward10Line />
                   </button>
-                  <div className="flex items-center gap-3">
-                    <button className="text-xl hover:text-indigo-600">
-                      <RiForward10Line />
-                    </button>
-                    <button className="text-xl hover:text-indigo-600">
-                      <GrBackTen />
-                    </button>
-                    <button className="text-xl hover:text-indigo-600">
-                      <BsCopy />
-                    </button>
-                  </div>
+                  <button className="text-xl hover:text-indigo-600">
+                    <GrBackTen />
+                  </button>
+                  <button className="text-xl hover:text-indigo-600">
+                    <BsCopy />
+                  </button>
                 </div>
               </div>
-            )
-          )}
+            </div>
+          ))}
         </section>
 
         {/* Load More Button */}

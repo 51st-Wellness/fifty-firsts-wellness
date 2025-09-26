@@ -703,9 +703,6 @@ const Home = () => {
           </div>
         </section>
       </div>
-
-      {/* Footer */}
-      <Footer />
     </main>
   );
 };

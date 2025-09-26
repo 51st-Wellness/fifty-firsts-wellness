@@ -7,6 +7,15 @@ const Navbar = () => {
   const [menuOpen, setMenuOpen] = useState(false);
   const [servicesOpen, setServicesOpen] = useState(false);
   const [resourcesOpen, setResourcesOpen] = useState(false);
+  const user = (() => {
+    try {
+      const raw =
+        typeof window !== "undefined" ? localStorage.getItem("user") : null;
+      return raw ? JSON.parse(raw) : null;
+    } catch {
+      return null;
+    }
+  })();
 
   // Single ref for the entire navbar (used to detect clicks outside)
   const navRef = useRef(null);
@@ -198,7 +207,15 @@ const Navbar = () => {
           </ul>
 
           {/* Login Button - Right aligned */}
-          <div className="hidden md:block">
+          <div className="hidden md:flex items-center gap-3">
+            {user?.role === "ADMIN" && (
+              <Link
+                to="/admin/overview"
+                className="bg-indigo-600 text-white px-4 py-2 rounded-lg hover:bg-indigo-700 transition-colors shadow-sm"
+              >
+                Admin
+              </Link>
+            )}
             <Link
               to="/login"
               className="bg-brand-green text-white px-6 py-2 rounded-lg hover:bg-brand-green-dark font-medium transition-colors shadow-sm hover:shadow-md font-primary"

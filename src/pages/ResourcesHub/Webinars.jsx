@@ -15,7 +15,7 @@ const Webinars = ({ onSearch }) => {
   };
 
   return (
-    <main className="px-4 sm:px-6 lg:px-12 relative min-h-screen pb-20 bg-gray-50">
+    <main className="relative min-h-screen pb-20 bg-gray-50">
       {/* Header Section */}
       <article className="flex flex-col-reverse md:flex-row justify-between items-center md:items-start w-full gap-6 mt-6">
         {/* Left Content */}

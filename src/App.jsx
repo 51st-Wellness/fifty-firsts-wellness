@@ -21,38 +21,110 @@ import ResetPassword from "./pages/ResetPassword";
 import CheckEmail from "./pages/CheckEmail";
 import VerifyEmail from "./pages/VerifyEmail";
 import Loader from "./components/Loader";
+import Footer from "./components/Footer";
 
 // Admin routes (lazy loaded)
-const AdminLayout = lazy(() => import("./pages/AdminLayout"));
-const AdminOverview = lazy(() => import("./pages/AdminOverview"));
-const AdminMarketplace = lazy(() => import("./pages/AdminMarketplace"));
+const AdminLayout = lazy(() => import("./pages/admin/AdminLayout.tsx"));
+const AdminOverview = lazy(() => import("./pages/admin/AdminOverview.tsx"));
+const AdminMarketplace = lazy(() =>
+  import("./pages/admin/AdminMarketplace.tsx")
+);
 
 function App() {
   return (
     <div className="min-h-screen">
-      <Navbar />
+      {/* Hide global Navbar on admin routes */}
+      {/* {location.pathname.startsWith("/admin") ? null : } */}
       <div>
         <Toaster position="top-center" />
         <Routes>
-          <Route path="/" element={<Home />} />
-          <Route path="/about" element={<About />} />
+          <Route
+            path="/"
+            element={
+              <>
+                <Navbar />
+                <Home />
+                <Footer />
+              </>
+            }
+          />
+          <Route
+            path="/about"
+            element={
+              <>
+                <Navbar />
+                <About />
+                <Footer />
+              </>
+            }
+          />
           <Route
             path="/services/personal-wellness"
-            element={<PersonalWellnessProgrammes />}
+            element={
+              <>
+                <Navbar />
+                <PersonalWellnessProgrammes />
+                <Footer />
+              </>
+            }
           />
           <Route
             path="/services/business-wellness"
-            element={<BusinessWellnessProgrammes />}
+            element={
+              <>
+                <Navbar />
+                <BusinessWellnessProgrammes />
+                <Footer />
+              </>
+            }
           />
           <Route
             path="/services/program-details"
-            element={<WellnessProgramDetails />}
+            element={
+              <>
+                <Navbar />
+                <WellnessProgramDetails />
+                <Footer />
+              </>
+            }
           />
           <Route path="/marketplace" element={<MarketPlace />} />
-          <Route path="/resources/podcasts" element={<Podcasts />} />
-          <Route path="/resources/webinars" element={<Webinars />} />
-          <Route path="/blog" element={<Blog />} />
-          <Route path="/ai-wellness" element={<AIWellness />} />
+          <Route
+            path="/resources/podcasts"
+            element={
+              <>
+                <Navbar />
+                <Podcasts />
+              </>
+            }
+          />
+          <Route
+            path="/resources/webinars"
+            element={
+              <>
+                <Navbar />
+                <Webinars />
+              </>
+            }
+          />
+          <Route
+            path="/blog"
+            element={
+              <>
+                <Navbar />
+                <Blog />
+              </>
+            }
+          />
+          <Route
+            path="/ai-wellness"
+            element={
+              <>
+                <Navbar />
+                <AIWellness />
+              </>
+            }
+          />
           <Route path="/membership" element={<Membership />} />
           <Route path="/contact" element={<ContactUs />} />
           <Route path="/login" element={<Login />} />

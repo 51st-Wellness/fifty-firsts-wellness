@@ -7,7 +7,7 @@ import { fetchStoreItems } from "../api/marketplace.api";
 
 const MarketPlace = ({ onSearch }) => {
   const [query, setQuery] = useState("");
-  const [openFilter, setOpenFilter] = useState(null); // "price" | "product" | null
+  const [openFilter, setOpenFilter] = useState(null); // "product" | null
   const [items, setItems] = useState([]);
   const [page, setPage] = useState(1);
   const [pageSize] = useState(12);
@@ -49,7 +49,7 @@ const MarketPlace = ({ onSearch }) => {
   }, []);
 
   return (
-    <main className="px-4 sm:px-6 lg:px-12 relative min-h-screen pb-20">
+    <main className="relative min-h-screen pb-20">
       {/* Header Section */}
       <article className="flex flex-col-reverse md:flex-row justify-between items-center md:items-start w-full gap-6 mt-6">
         {/* Left Content */}
@@ -90,12 +90,6 @@ const MarketPlace = ({ onSearch }) => {
 
       {/* Mobile Filter Buttons (under search bar) */}
       <div className="mt-4 flex gap-3 lg:hidden">
-        <button
-          onClick={() => setOpenFilter("price")}
-          className="flex-1 py-2 bg-gray-100 rounded-lg font-medium"
-        >
-          Price Range
-        </button>
         <button
           onClick={() => setOpenFilter("product")}
           className="flex-1 py-2 bg-gray-100 rounded-lg font-medium"
@@ -148,29 +142,6 @@ const MarketPlace = ({ onSearch }) => {
 
         {/* Sidebar (desktop only) */}
         <section className="hidden lg:block w-full lg:w-2/6 bg-[#F9F9F9] p-4 lg:p-6 rounded-xl">
-          {/* Price Range */}
-          <article className="bg-[#F2F4F7] p-4 flex flex-col justify-center gap-4 rounded-xl">
-            <div className="flex items-center justify-between">
-              <div className="text-lg sm:text-xl font-medium">Price Range</div>
-              <div className="flex items-center gap-2 sm:gap-3 text-sm sm:text-lg font-medium text-[#4444B3]">
-                <div className="py-1 px-3 border rounded-full border-[#4444B3]">
-                  Clear
-                </div>
-                <div className="py-1 px-3 border rounded-full border-[#4444B3]">
-                  Apply
-                </div>
-              </div>
-            </div>
-            <div className="flex flex-col gap-1 bg-white rounded-xl p-3">
-              <div className="font-semibold">Minimum Price</div>
-              <div className="text-[#98A2B3] font-semibold text-lg">$10</div>
-            </div>
-            <div className="flex flex-col gap-1 bg-white rounded-xl p-3">
-              <div className="font-semibold">Maximum Price</div>
-              <div className="text-[#98A2B3] font-semibold text-lg">$200</div>
-            </div>
-          </article>
-
           {/* Product Range */}
           <article className="bg-[#F2F4F7] p-4 flex flex-col justify-center gap-4 mt-6 rounded-xl">
             <div className="flex items-center justify-between">
@@ -222,12 +193,6 @@ const MarketPlace = ({ onSearch }) => {
       {/* Mobile Bottom Drawer */}
       {openFilter && (
         <div className="fixed bottom-0 left-0 w-full bg-white border-t border-gray-200 lg:hidden p-6 shadow-lg rounded-t-2xl z-50 animate-slide-up">
-          {openFilter === "price" && (
-            <div>
-              <h3 className="font-medium mb-3">Select Price Range</h3>
-              <input type="range" className="w-full" />
-            </div>
-          )}
           {openFilter === "product" && (
             <div>
               <h3 className="font-medium mb-3">Select Product Range</h3>

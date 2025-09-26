@@ -1,18 +1,18 @@
 import React from "react";
 import { Link, NavLink, Outlet } from "react-router-dom";
-
+import Logo from "../../assets/images/logo.png";
 // Layout container for all admin pages with sidebar and header
 const AdminLayout = () => {
   return (
     <div className="min-h-screen w-full bg-gray-50">
       <div className="grid grid-cols-[260px_1fr] min-h-screen">
         <aside className="bg-white border-r border-gray-200">
-          <div className="h-16 flex items-center px-4 border-b border-gray-100">
-            <Link
-              to="/admin/overview"
-              className="text-xl font-semibold text-gray-900"
-            >
-              Admin
+          <div className="h-16 flex items-center px-4 border-b border-gray-100 justify-between">
+            <Link to="/" className="flex items-center gap-2">
+              <img src={Logo} alt="Admin Dashboard" width={32} height={32} />
+              <span className="text-sm font-medium text-gray-700">
+                Admin Dashboard
+              </span>
             </Link>
           </div>
           <nav className="p-3 space-y-1">

@@ -74,7 +74,7 @@ const Membership = ({ onSearch }) => {
   };
 
   return (
-    <main className="px-4 sm:px-6 lg:px-12 relative min-h-screen pb-20 bg-gray-50">
+    <main className="relative min-h-screen pb-20 bg-gray-50">
       {/* Header Section */}
       <article className="flex flex-col-reverse md:flex-row justify-between items-center md:items-start w-full gap-6 mt-6">
         <div className="flex flex-col gap-4 w-full md:w-1/2 text-center md:text-left">
@@ -82,7 +82,8 @@ const Membership = ({ onSearch }) => {
             Wellness Membership
           </h1>
           <p className="text-sm sm:text-base text-[#475464] leading-relaxed">
-            Access exclusive downloads, in-depth guides, and extended podcast & webinar content created just for you.
+            Access exclusive downloads, in-depth guides, and extended podcast &
+            webinar content created just for you.
           </p>
         </div>
       </article>
@@ -149,7 +150,8 @@ const Membership = ({ onSearch }) => {
                 March 4, 2025
               </div>
               <div className="text-base sm:text-lg lg:text-xl font-medium">
-                10 Innovative workplace wellness tips: Unlocking Happiness at Work
+                10 Innovative workplace wellness tips: Unlocking Happiness at
+                Work
               </div>
               <div className="text-sm sm:text-base text-[#667085]">
                 Discover practical and creative ways to boost morale, reduce
@@ -173,7 +175,8 @@ const Membership = ({ onSearch }) => {
             Unlock access to the contents when you go premium
           </div>
           <div className="text-base">
-            Flexible plans and solutions for personal use and business of all sizes
+            Flexible plans and solutions for personal use and business of all
+            sizes
           </div>
         </div>
 
@@ -182,19 +185,21 @@ const Membership = ({ onSearch }) => {
           <div className="flex bg-white rounded-lg overflow-hidden w-full max-w-md">
             <button
               onClick={() => setActiveTab("personal")}
-              className={`flex-1 py-3 font-medium transition ${activeTab === "personal"
-                ? "bg-[#0A8A7E] text-white"
-                : "bg-white text-gray-800"
-                }`}
+              className={`flex-1 py-3 font-medium transition ${
+                activeTab === "personal"
+                  ? "bg-[#0A8A7E] text-white"
+                  : "bg-white text-gray-800"
+              }`}
             >
               Personal
             </button>
             <button
               onClick={() => setActiveTab("business")}
-              className={`flex-1 py-3 font-medium transition ${activeTab === "business"
-                ? "bg-[#0A8A7E] text-white"
-                : "bg-white text-gray-800"
-                }`}
+              className={`flex-1 py-3 font-medium transition ${
+                activeTab === "business"
+                  ? "bg-[#0A8A7E] text-white"
+                  : "bg-white text-gray-800"
+              }`}
             >
               Business
             </button>

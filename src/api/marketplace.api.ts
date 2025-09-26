@@ -1,16 +1,15 @@
 // endpoints for marketplace/store items
 import http from "./http";
+import type {
+  PaginatedStoreItems,
+  StoreItem,
+  StoreItemListParams,
+} from "../types/marketplace.types";
 
 // Fetch list of store items (paginated)
 export const fetchStoreItems = async (
-  params: {
-    page?: number;
-    limit?: number;
-    search?: string;
-    isFeatured?: boolean;
-    isPublished?: boolean;
-  } = {}
-) => {
+  params: StoreItemListParams = {}
+): Promise<PaginatedStoreItems> => {
   const client = http(); // create axios client
   const { data } = await client.get("/product/store", { params });
   // Backend wraps in ResponseDto; extract items & pagination if present
@@ -34,21 +33,37 @@ export const fetchStoreItems = async (
 };
 
 // Fetch a single store item by id
-export const fetchStoreItemById = async (id: string) => {
+export const fetchStoreItemById = async (id: string): Promise<StoreItem> => {
   const client = http(); // create axios client
   const { data } = await client.get(`/product/store/${id}`);
   return data?.data;
 };
 
-export type StoreItem = {
-  productId: string;
-  name: string;
-  description?: string;
-  price: number;
-  stock: number;
-  display?: { url?: string; type?: "image" | "video" } | null;
-  images?: string[];
-  tags?: string[];
-  isFeatured?: boolean;
-  isPublished?: boolean;
+// Create a store item (Admin)
+export const createStoreItem = async (
+  payload: Partial<StoreItem> & { name: string; price: number; stock: number }
+): Promise<StoreItem> => {
+  const client = http();
+  const { data } = await client.post(`/product/store`, payload);
+  return data?.data;
 };
+
+// Update a store item (Admin)
+export const updateStoreItem = async (
+  id: string,
+  payload: Partial<StoreItem>
+): Promise<StoreItem> => {
+  const client = http();
+  const { data } = await client.put(`/product/store/${id}`);
+  return data?.data;
+};
+
+// Delete a store item (Admin)
+export const deleteStoreItem = async (
+  id: string
+): Promise<{ success: boolean }> => {
+  const client = http();
+  const { data } = await client.delete(`/product/store/${id}`);
+  return { success: Boolean(data) };
+};
+export type { StoreItem };
