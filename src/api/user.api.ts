@@ -16,8 +16,7 @@ type UpdateProfilePayload = {
 export const getUserProfile = async (): Promise<
   ResponseDto<{ user: User }>
 > => {
-  const client = http();
-  const { data } = await client.get("/user/me");
+  const { data } = await http.get("/user/me");
   return data as ResponseDto<{ user: User }>;
 };
 
@@ -25,8 +24,7 @@ export const getUserProfile = async (): Promise<
 export const updateUserProfile = async (
   payload: UpdateProfilePayload
 ): Promise<ResponseDto<{ user: User }>> => {
-  const client = http();
-  const { data } = await client.put("/user/me", payload);
+  const { data } = await http.put("/user/me", payload);
   return data as ResponseDto<{ user: User }>;
 };
 
@@ -34,31 +32,27 @@ export const updateUserProfile = async (
 export const updateProfilePicture = async (
   file: File
 ): Promise<ResponseDto<{ user: User; upload: any }>> => {
-  const client = http();
+  // Update profile picture with file upload
   const formData = new FormData();
   formData.append("file", file);
 
-  const { data } = await client.post("/user/me/profile-picture", formData, {
+  const { data } = await http.post("/user/me/profile-picture", formData, {
     headers: {
       "Content-Type": "multipart/form-data",
     },
   });
   return data as ResponseDto<{ user: User; upload: any }>;
 };
-
-// Check authentication status
 export const checkAuth = async (): Promise<
   ResponseDto<{ authenticated: boolean }>
 > => {
-  const client = http();
-  const { data } = await client.get("/auth/check");
+  const { data } = await http.get("/auth/check");
   return data as ResponseDto<{ authenticated: boolean }>;
 };
 
 // Logout user
 export const logoutUser = async (): Promise<ResponseDto<null>> => {
-  const client = http();
-  const { data } = await client.post("/auth/logout");
+  const { data } = await http.post("/auth/logout");
   return data as ResponseDto<null>;
 };
 

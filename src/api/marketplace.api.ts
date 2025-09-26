@@ -13,8 +13,7 @@ import type {
 export const fetchStoreItems = async (
   params: StoreItemListParams = {}
 ): Promise<PaginationResponseDto<StoreItem>> => {
-  const client = http();
-  const { data } = await client.get("/product/store", { params });
+  const { data } = await http.get("/product/store", { params });
   return data as PaginationResponseDto<StoreItem>;
 };
 
@@ -22,8 +21,7 @@ export const fetchStoreItems = async (
 export const fetchStoreItemById = async (
   id: string
 ): Promise<ResponseDto<StoreItem>> => {
-  const client = http();
-  const { data } = await client.get(`/product/store/${id}`);
+  const { data } = await http.get(`/product/store/${id}`);
   return data as ResponseDto<StoreItem>;
 };
 
@@ -33,12 +31,11 @@ export const createStoreItem = async (
     | FormData
     | (Partial<StoreItem> & { name: string; price: number; stock: number })
 ): Promise<ResponseDto<StoreItem>> => {
-  const client = http();
   const config =
     payload instanceof FormData
       ? { headers: { "Content-Type": "multipart/form-data" } }
       : {};
-  const { data } = await client.post(`/product/store`, payload, config);
+  const { data } = await http.post(`/product/store`, payload, config);
   return data as ResponseDto<StoreItem>;
 };
 
@@ -47,12 +44,11 @@ export const updateStoreItem = async (
   id: string,
   payload: FormData | Partial<StoreItem>
 ): Promise<ResponseDto<StoreItem>> => {
-  const client = http();
   const config =
     payload instanceof FormData
       ? { headers: { "Content-Type": "multipart/form-data" } }
       : {};
-  const { data } = await client.put(`/product/store/${id}`, payload, config);
+  const { data } = await http.put(`/product/store/${id}`, payload, config);
   return data as ResponseDto<StoreItem>;
 };
 
@@ -60,8 +56,7 @@ export const updateStoreItem = async (
 export const deleteStoreItem = async (
   id: string
 ): Promise<ResponseDto<{ id: string }>> => {
-  const client = http();
-  const { data } = await client.delete(`/product/store/${id}`);
+  const { data } = await http.delete(`/product/store/${id}`);
   return data as ResponseDto<{ id: string }>;
 };
 export type { StoreItem };

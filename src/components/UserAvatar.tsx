@@ -9,7 +9,7 @@ import {
   Shield,
 } from "lucide-react";
 import { useAuth } from "../context/AuthContextProvider";
-import { UserRole } from "../types/user.types.ts";
+// import { UserRole } from "../types/user.types";
 interface UserAvatarProps {
   className?: string;
 }
@@ -161,7 +161,7 @@ export function UserAvatar({ className = "" }: UserAvatarProps) {
                   <span>My Orders</span>
                 </Link>
 
-                {user.role === UserRole.ADMIN && (
+                {user.role === "ADMIN" && (
                   <Link
                     to="/admin"
                     onClick={() => setIsDropdownOpen(false)}

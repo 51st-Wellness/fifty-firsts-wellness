@@ -17,4 +17,4 @@ const http = () => {
   }
   return axios.create(options);
 };
-export default http;
+export default http();

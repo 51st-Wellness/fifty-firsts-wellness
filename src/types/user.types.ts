@@ -14,7 +14,7 @@ export type User = {
   lastName: string;
   phone?: string | null;
   googleId?: string | null;
-  role: UserRole;
+  role: "USER" | "ADMIN" | "COACH";
   city?: string | null;
   address?: string | null;
   bio?: string | null;
