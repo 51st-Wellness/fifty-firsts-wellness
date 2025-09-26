@@ -22,16 +22,25 @@ import VerifyEmail from "./pages/VerifyEmail";
 
 function App() {
   return (
-    <div>
-       <Navbar />
-      <div className="p-6">
-        <Toaster position="top-center"/> 
+    <div className="min-h-screen">
+      <Navbar />
+      <div>
+        <Toaster position="top-center" />
         <Routes>
           <Route path="/" element={<Home />} />
           <Route path="/about" element={<About />} />
-          <Route path="/services/personal-wellness" element={<PersonalWellnessProgrammes />} />
-          <Route path="/services/business-wellness" element={<BusinessWellnessProgrammes />} />
-          <Route path="/services/program-details" element={<WellnessProgramDetails />} />
+          <Route
+            path="/services/personal-wellness"
+            element={<PersonalWellnessProgrammes />}
+          />
+          <Route
+            path="/services/business-wellness"
+            element={<BusinessWellnessProgrammes />}
+          />
+          <Route
+            path="/services/program-details"
+            element={<WellnessProgramDetails />}
+          />
           <Route path="/marketplace" element={<MarketPlace />} />
           <Route path="/resources/podcasts" element={<Podcasts />} />
           <Route path="/resources/webinars" element={<Webinars />} />
@@ -45,10 +54,9 @@ function App() {
           <Route path="/reset-password" element={<ResetPassword />} />
           <Route path="/check-email" element={<CheckEmail />} />
           <Route path="/verify-email" element={<VerifyEmail />} />
-
         </Routes>
       </div>
-    </div>   
+    </div>
   );
 }
 

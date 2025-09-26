@@ -2,8 +2,14 @@ import React, { useState } from "react";
 import blog1 from "../assets/images/blog1.png";
 import blog2 from "../assets/images/blog2.png";
 import blog3 from "../assets/images/blog3.png";
-import { Search } from "lucide-react";
-import { MdOutlineExpandMore } from "react-icons/md";
+import {
+  Search,
+  ChevronDown,
+  Calendar,
+  User,
+  ArrowRight,
+  Tag,
+} from "lucide-react";
 import Footer from "../components/Footer";
 
 const Blog = ({ onSearch }) => {
@@ -15,115 +21,201 @@ const Blog = ({ onSearch }) => {
   };
 
   return (
-    <main className="px-4 sm:px-6 lg:px-12 relative min-h-screen pb-20 bg-gray-50">
-      {/* Header Section */}
-      <article className="flex flex-col-reverse md:flex-row justify-between items-center md:items-start w-full gap-6 mt-6">
-        {/* Left Content */}
-        <div className="flex flex-col gap-4 w-full md:w-1/2 text-center md:text-left">
-          <h1 className="text-3xl sm:text-4xl lg:text-6xl font-semibold">
+    <main className="min-h-screen bg-gradient-to-br from-gray-50 to-white">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16">
+        {/* Header Section */}
+        <div className="text-center mb-16">
+          <h1 className="text-4xl sm:text-5xl lg:text-6xl font-bold text-gray-900 mb-6">
             Wellness Blog
           </h1>
-          <p className="text-sm sm:text-base text-[#475464] leading-relaxed">
-            Explore thoughtfully curated wellness podcasts designed to nourish
+          <p className="text-lg sm:text-xl text-gray-600 max-w-3xl mx-auto">
+            Explore thoughtfully curated wellness content designed to nourish
             your body, calm your mind, and support your everyday self-care
             rituals.
           </p>
         </div>
-      </article>
 
-      {/* Search Bar */}
-      <form
-        onSubmit={handleSubmit}
-        className="max-w-2xl mx-auto flex items-center bg-white border rounded-full shadow-sm overflow-hidden mt-6 w-full"
-      >
-        <div className="pl-4 text-gray-400">
-          <Search size={20} />
+        {/* Search Bar */}
+        <div className="max-w-2xl mx-auto mb-12">
+          <form
+            onSubmit={handleSubmit}
+            className="flex items-center bg-white border-2 border-gray-200 rounded-2xl shadow-lg overflow-hidden focus-within:border-indigo-500 transition-colors"
+          >
+            <div className="pl-6 text-gray-400">
+              <Search size={20} />
+            </div>
+            <input
+              type="text"
+              placeholder="Search articles, topics, or keywords..."
+              value={query}
+              onChange={(e) => setQuery(e.target.value)}
+              className="flex-1 px-4 py-4 text-lg focus:outline-none"
+            />
+            <button
+              type="submit"
+              className="px-8 py-4 bg-indigo-600 text-white font-semibold hover:bg-indigo-700 transition-colors"
+            >
+              Search
+            </button>
+          </form>
         </div>
-        <input
-          type="text"
-          placeholder="Search webinars..."
-          value={query}
-          onChange={(e) => setQuery(e.target.value)}
-          className="flex-1 px-3 py-2 text-sm sm:text-base focus:outline-none"
-        />
-        <button
-          type="submit"
-          className="px-4 sm:px-6 py-2 bg-indigo-600 text-white text-sm sm:text-base font-medium hover:bg-indigo-700 transition-all"
-        >
-          Search
-        </button>
-      </form>
 
-      {/* Filter Section */}
-      <article className="flex flex-col sm:flex-row justify-between items-center mt-6 gap-4">
-        {/* Categories */}
-        <section className="flex flex-wrap justify-center sm:justify-start gap-2 sm:gap-3 items-center">
-          <div className="text-[#4444B3] border-[#4444B3] rounded-full border py-1 px-3 text-xs sm:text-sm font-medium">
-            All
+        {/* Filter Section */}
+        <div className="flex flex-col sm:flex-row justify-between items-center mb-12 gap-6">
+          {/* Categories */}
+          <div className="flex flex-wrap justify-center sm:justify-start gap-3">
+            <button className="bg-indigo-600 text-white px-6 py-2 rounded-full font-semibold">
+              All Articles
+            </button>
+            {[
+              "Wellness",
+              "Mindfulness",
+              "Nutrition",
+              "Mental Health",
+              "Fitness",
+            ].map((cat, i) => (
+              <button
+                key={i}
+                className="bg-white text-gray-700 px-6 py-2 rounded-full font-semibold border border-gray-300 hover:bg-indigo-50 hover:border-indigo-300 transition-colors"
+              >
+                {cat}
+              </button>
+            ))}
           </div>
-          {["Healthy", "Social", "Psychology", "Health"].map((cat, i) => (
-            <div
-              key={i}
-              className="text-xs sm:text-sm font-medium cursor-pointer hover:text-[#4444B3] transition"
-            >
-              {cat}
-            </div>
-          ))}
-        </section>
 
-        {/* Sort Dropdown */}
-        <div className="flex gap-1.5 text-[#4444B3] border-[#4444B3] rounded-full border py-1 px-3 text-xs sm:text-sm cursor-pointer">
-          Newest First
-          <MdOutlineExpandMore className="mt-0.5 sm:mt-1 text-lg" />
+          {/* Sort Dropdown */}
+          <div className="flex items-center gap-2 bg-white border border-gray-300 rounded-full px-4 py-2 hover:border-indigo-300 transition-colors cursor-pointer">
+            <span className="text-gray-700 font-medium">Newest First</span>
+            <ChevronDown size={16} className="text-gray-500" />
+          </div>
         </div>
-      </article>
 
-      {/* Blog Section */}
-      <article className="flex flex-col p-4 sm:p-6 w-full mt-6 items-center">
-        <section className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 w-full">
-          {[blog1, blog2, blog3, blog1, blog2, blog3].map((img, idx) => (
-            <div
+        {/* Blog Articles */}
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 mb-12">
+          {[
+            {
+              img: blog1,
+              title:
+                "10 Innovative Workplace Wellness Tips: Unlocking Happiness at Work",
+              excerpt:
+                "Discover practical and creative ways to boost morale, reduce stress, and create a happier, healthier work environment.",
+              date: "March 4, 2025",
+              author: "Dr. Sarah Johnson",
+              readTime: "5 min read",
+              tags: ["Wellness", "Mindfulness", "Workplace"],
+            },
+            {
+              img: blog2,
+              title:
+                "The Science of Stress Management: Evidence-Based Techniques",
+              excerpt:
+                "Learn about the latest research on stress reduction and practical techniques you can implement today for better mental health.",
+              date: "March 1, 2025",
+              author: "Dr. Michael Chen",
+              readTime: "7 min read",
+              tags: ["Stress", "Research", "Mental Health"],
+            },
+            {
+              img: blog3,
+              title: "Building Self-Compassion: A Path to Mental Wellness",
+              excerpt:
+                "Explore the transformative power of self-compassion and how it can improve your overall mental health and well-being.",
+              date: "February 28, 2025",
+              author: "Dr. Emily Davis",
+              readTime: "6 min read",
+              tags: ["Self-Care", "Mental Health", "Compassion"],
+            },
+            {
+              img: blog1,
+              title: "Nutrition for Mental Health: Foods That Boost Your Mood",
+              excerpt:
+                "Discover the connection between nutrition and mental health, and learn which foods can help improve your mood and cognitive function.",
+              date: "February 25, 2025",
+              author: "Dr. Lisa Rodriguez",
+              readTime: "8 min read",
+              tags: ["Nutrition", "Mental Health", "Wellness"],
+            },
+            {
+              img: blog2,
+              title: "The Power of Morning Routines: Starting Your Day Right",
+              excerpt:
+                "Learn how to create an effective morning routine that sets you up for success and improves your overall well-being throughout the day.",
+              date: "February 22, 2025",
+              author: "Dr. James Wilson",
+              readTime: "4 min read",
+              tags: ["Productivity", "Wellness", "Routine"],
+            },
+            {
+              img: blog3,
+              title: "Digital Detox: Reclaiming Your Mental Space",
+              excerpt:
+                "Understand the impact of digital overload on your mental health and learn practical strategies for a healthy relationship with technology.",
+              date: "February 20, 2025",
+              author: "Dr. Anna Thompson",
+              readTime: "6 min read",
+              tags: ["Digital Wellness", "Mental Health", "Technology"],
+            },
+          ].map((article, idx) => (
+            <article
               key={idx}
-              className="flex flex-col gap-2 border rounded-3xl p-4 hover:shadow-md transition"
+              className="bg-white rounded-2xl shadow-lg hover:shadow-xl transition-shadow overflow-hidden"
             >
-              {/* Responsive Image */}
-              <img
-                src={img}
-                alt=""
-                className="rounded-lg w-full h-40 sm:h-48 md:h-56 lg:h-64 object-cover"
-              />
+              <div className="relative">
+                <img
+                  src={article.img}
+                  alt={article.title}
+                  className="w-full h-48 object-cover"
+                />
+                <div className="absolute top-4 left-4 bg-white/90 backdrop-blur-sm text-xs font-semibold text-gray-700 px-3 py-1 rounded-full flex items-center gap-1">
+                  <Calendar size={12} />
+                  {article.date}
+                </div>
+              </div>
 
-              <div className="text-xs sm:text-sm text-gray-500 font-semibold">
-                March 4, 2025
-              </div>
-              <div className="text-base sm:text-lg lg:text-xl font-medium">
-                10 Innovative workplace wellness tips: Unlocking Happiness at
-                Work
-              </div>
-              <div className="text-sm sm:text-base text-[#667085]">
-                Discover practical and creative ways to boost morale, reduce
-                stress, and create a happier, healthier work environment. These
-                10 wellness tips are designed to help you and your team thrive
-              </div>
-              <div className="flex gap-2 mt-2 flex-wrap">
-                {["Wellness", "Mindfulness", "Workplace"].map((tag, i) => (
-                  <div
-                    key={i}
-                    className="font-medium text-xs text-[#667085] rounded-full px-3 py-1 border bg-[#C7C7C729]"
-                  >
-                    {tag}
+              <div className="p-6">
+                <div className="flex items-center gap-4 mb-4 text-sm text-gray-500">
+                  <div className="flex items-center gap-1">
+                    <User size={14} />
+                    {article.author}
                   </div>
-                ))}
+                  <div>{article.readTime}</div>
+                </div>
+
+                <h3 className="text-xl font-bold text-gray-900 mb-3 leading-tight">
+                  {article.title}
+                </h3>
+                <p className="text-gray-600 mb-4 leading-relaxed">
+                  {article.excerpt}
+                </p>
+
+                <div className="flex flex-wrap gap-2 mb-4">
+                  {article.tags.map((tag, i) => (
+                    <span
+                      key={i}
+                      className="bg-indigo-50 text-indigo-700 text-xs font-medium px-3 py-1 rounded-full flex items-center gap-1"
+                    >
+                      <Tag size={10} />
+                      {tag}
+                    </span>
+                  ))}
+                </div>
+
+                <button className="text-indigo-600 font-semibold hover:text-indigo-700 transition-colors flex items-center gap-2">
+                  Read More
+                  <ArrowRight size={16} />
+                </button>
               </div>
-            </div>
+            </article>
           ))}
-        </section>
+        </div>
 
         {/* Load More Button */}
-        <button className="flex rounded-full text-white justify-center mt-6 px-6 py-2 text-center bg-[#4444B3] text-sm sm:text-base hover:bg-[#343494] transition">
-          Load More
-        </button>
-      </article>
+        <div className="text-center">
+          <button className="bg-indigo-600 text-white px-8 py-4 rounded-lg font-semibold hover:bg-indigo-700 transition-colors shadow-lg hover:shadow-xl">
+            Load More Articles
+          </button>
+        </div>
+      </div>
 
       <Footer />
     </main>
