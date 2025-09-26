@@ -26,17 +26,7 @@ const Login: React.FC = () => {
 
   const handleLogin = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
-
     const { email, password } = formData;
-
-    if (rememberMe) {
-      localStorage.setItem("savedEmail", email);
-      localStorage.setItem("savedPassword", password);
-    } else {
-      localStorage.removeItem("savedEmail");
-      localStorage.removeItem("savedPassword");
-    }
-
     const success = await login(email, password);
     if (success) {
       navigate("/");

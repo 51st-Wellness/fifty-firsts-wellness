@@ -89,9 +89,10 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
       if (response.data?.accessToken) {
         localStorage.setItem("token", response.data.accessToken);
         setIsAuthenticated(true);
-
-        // Load user profile after successful login
-        await loadUserProfile();
+        // Set user directly from login response to avoid an immediate refetch
+        if (response.data?.user) {
+          setUser(response.data.user);
+        }
 
         toast.success("Login successful!");
         return true;
