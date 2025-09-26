@@ -46,8 +46,8 @@ const CategorySelector: React.FC<CategorySelectorProps> = ({
   const loadCategories = async () => {
     setLoading(true);
     try {
-      const data = await categoryAPI.getByService(service);
-      setCategories(data);
+      const data = await categoryAPI.getAll({ service });
+      setCategories(data.data);
     } catch (error: any) {
       console.error("Error loading categories:", error);
       toast.error("Failed to load categories");

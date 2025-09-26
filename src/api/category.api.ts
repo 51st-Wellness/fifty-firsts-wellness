@@ -25,14 +25,6 @@ class CategoryAPI {
     return response.data;
   }
 
-  // Get categories by service
-  async getByService(service: CategoryService): Promise<Category[]> {
-    const response = await http.get<Category[]>(
-      `${this.baseURL}/service/${service}`
-    );
-    return response.data;
-  }
-
   // Get category by ID
   async getById(id: string): Promise<Category> {
     const response = await http.get<Category>(`${this.baseURL}/${id}`);
