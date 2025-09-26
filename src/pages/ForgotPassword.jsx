@@ -3,12 +3,14 @@ import loginlogo from "../assets/images/loginlogo.png";
 import logo from "../assets/images/logo.png";
 import { Link, useNavigate } from "react-router-dom";
 import toast from "react-hot-toast";
+import { forgetPassword } from "../services/auth"; // we'll create this service
 
 const ForgotPassword = () => {
     const [email, setEmail] = useState("");
+    const [loading, setLoading] = useState(false);
     const navigate = useNavigate();
 
-    const handleSubmit = (e) => {
+    const handleSubmit = async (e) => {
         e.preventDefault();
 
         if (!email) {
@@ -16,13 +18,23 @@ const ForgotPassword = () => {
             return;
         }
 
-        // Simulate API call
-        toast.success("Password reset link sent to your email 📧");
+        try {
+            setLoading(true);
 
-        // Redirect after short delay
-        setTimeout(() => {
-            navigate("/reset-password");
-        }, 2000);
+            const res = await forgetPassword(email);
+
+            toast.success(res.message || "Password reset link sent to your email 📧");
+
+            // Redirect after short delay (to OTP or reset page)
+            setTimeout(() => {
+                navigate("/reset-password", { state: { email } });
+                // adjust route depending on your flow
+            }, 1500);
+        } catch (err) {
+            toast.error(err.message || "Something went wrong");
+        } finally {
+            setLoading(false);
+        }
     };
 
     return (
@@ -75,9 +87,10 @@ const ForgotPassword = () => {
                                 {/* Button */}
                                 <button
                                     type="submit"
-                                    className="w-full px-6 py-3 bg-[#006666] text-white rounded-full font-medium hover:bg-[#006666]/80 transition"
+                                    disabled={loading}
+                                    className="w-full px-6 py-3 bg-[#006666] text-white rounded-full font-medium hover:bg-[#006666]/80 transition disabled:opacity-60"
                                 >
-                                    Submit
+                                    {loading ? "Sending..." : "Submit"}
                                 </button>
 
                                 <div className="text-center">or</div>
