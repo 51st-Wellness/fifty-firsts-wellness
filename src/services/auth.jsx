@@ -1,4 +1,3 @@
-import axios from 'axios'; 
 import http from '../helpers/http';
 
 export const signUp = async (payload) => {
@@ -42,4 +41,8 @@ export const resetPassword = async ({ email, otp, newPassword }) => {
             throw new Error("Network error");
         }
     }
+};
+
+export const logout = () => {
+    localStorage.removeItem("token"); // remove JWT
 };

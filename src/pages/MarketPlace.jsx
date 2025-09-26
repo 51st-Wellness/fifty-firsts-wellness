@@ -23,7 +23,7 @@ const MarketPlace = ({ onSearch }) => {
         {/* Left Content */}
         <div className="flex flex-col gap-4 w-full md:w-1/2 text-center md:text-left">
           <div className="text-3xl sm:text-4xl lg:text-6xl font-semibold">
-            Marketplace
+            Shop
           </div>
           <div className="text-sm sm:text-base text-[#475464]">
             Explore thoughtfully curated wellness products designed to nourish

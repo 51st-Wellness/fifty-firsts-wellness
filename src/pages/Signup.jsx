@@ -21,7 +21,7 @@ const Signup = () => {
   const [city, setCity] = useState("");
   const [phone, setPhone] = useState("");
   const [address, setAddress] = useState("");
-  const [bio, setBio] = useState("");
+  // const [bio, setBio] = useState("");
   const [role, setRole] = useState("");
   const [errors, setErrors] = useState({});
 
@@ -75,7 +75,7 @@ const Signup = () => {
         city,
         phone,
         address,
-        bio,
+        // bio,
         role,
       });
       setLoading(false);
@@ -206,14 +206,14 @@ const Signup = () => {
               </div>
 
               {/* Bio */}
-              <div>
+              {/* <div>
                 <textarea
                   placeholder="Bio"
                   value={bio}
                   onChange={(e) => setBio(e.target.value)}
                   className="w-full border border-gray-300 rounded-lg px-3 py-2 h-20 focus:outline-none focus:ring-2 focus:ring-teal-500"
                 />
-              </div>
+              </div> */}
 
               {/* Role */}
               <div>

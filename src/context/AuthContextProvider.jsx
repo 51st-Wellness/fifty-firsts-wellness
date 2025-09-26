@@ -7,47 +7,50 @@ import { toast } from "react-hot-toast";
 export const AuthProvider = ({ children }) => {
     const [isLoggedIn, setIsLoggedIn] = useState(false);
     const [loading, setLoading] = useState(false);
-    const [error, setError] = useState('');
+    const [error, setError] = useState("");
     const [user, setUser] = useState(() => {
-        // Load user data from local storage upon component initialization
         const storedUser = localStorage.getItem("user");
-        return storedUser ? JSON.parse(storedUser) : {};
+        return storedUser ? JSON.parse(storedUser) : null;
     });
-    const [token, setToken] = useState("");
+    const [token, setToken] = useState(localStorage.getItem("token") || "");
     const navigate = useNavigate();
 
     const login = async (email, password) => {
         setLoading(true);
         try {
-            const response = await http().post("/auth/login", {
-                password,
-                email,
-            });
+            const response = await http().post("/auth/login", { email, password });
 
-            if (response.data) {
-                localStorage.setItem("token", response.data.data.token);
-                localStorage.setItem("user", JSON.stringify(response.data.data));
+            if (response.data?.data?.accessToken) {
+                const { user, accessToken } = response.data.data;
+
+                // Save to localStorage
+                localStorage.setItem("token", accessToken);
+                localStorage.setItem("user", JSON.stringify(user));
+
+                // Update state
                 setIsLoggedIn(true);
-                setUser(response.data.data);
-                setToken(response.data.data.token);
-                setLoading(false);
+                setUser(user);
+                setToken(accessToken);
 
+                toast.success("Login successful!");
                 return true; // ✅ success
             }
         } catch (error) {
             if (error.response) {
-                setError(false);
+                setError(error.response.data.message);
                 toast.error(error.response.data.message);
             }
         } finally {
             setLoading(false);
         }
 
-        return false; // 
+        return false; // ❌ failed
     };
 
     const logout = () => {
         setUser(null);
+        setToken("");
+        setIsLoggedIn(false);
         localStorage.removeItem("token");
         localStorage.removeItem("user");
         navigate("/");
@@ -62,13 +65,13 @@ export const AuthProvider = ({ children }) => {
                 isLoggedIn,
                 token,
                 loading,
-                error
+                error,
             }}
         >
             {children}
         </AuthContext.Provider>
     );
-}
+};
 
 export const useAuth = () => {
     return useContext(AuthContext);
