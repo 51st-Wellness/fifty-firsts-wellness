@@ -448,26 +448,26 @@ const AdminMarketplace: React.FC = () => {
                           </Typography>
                         </Box>
 
-                        {/* Tags */}
-                        {selected.tags && selected.tags.length > 0 && (
-                          <Box sx={{ mb: 2 }}>
-                            <Typography variant="subtitle2" sx={{ mb: 1 }}>
-                              Tags:
-                            </Typography>
-                            <Box
-                              sx={{ display: "flex", flexWrap: "wrap", gap: 1 }}
-                            >
-                              {selected.tags.map((tag, idx) => (
-                                <Chip
-                                  key={idx}
-                                  label={tag}
-                                  size="small"
-                                  variant="outlined"
-                                />
-                              ))}
-                            </Box>
-                          </Box>
-                        )}
+                         {/* Categories */}
+                         {selected.categories && selected.categories.length > 0 && (
+                           <Box sx={{ mb: 2 }}>
+                             <Typography variant="subtitle2" sx={{ mb: 1 }}>
+                               Categories:
+                             </Typography>
+                             <Box
+                               sx={{ display: "flex", flexWrap: "wrap", gap: 1 }}
+                             >
+                               {selected.categories.map((category, idx) => (
+                                 <Chip
+                                   key={idx}
+                                   label={category}
+                                   size="small"
+                                   variant="outlined"
+                                 />
+                               ))}
+                             </Box>
+                           </Box>
+                         )}
 
                         {/* Status */}
                         <Box sx={{ display: "flex", gap: 1 }}>

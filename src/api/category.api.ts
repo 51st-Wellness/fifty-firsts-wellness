@@ -9,7 +9,7 @@ import type {
 } from "../types/category.types";
 
 class CategoryAPI {
-  private baseURL = "/categories";
+  private baseURL = "/product/category";
 
   // Create a new category
   async create(data: CreateCategoryDto): Promise<Category> {

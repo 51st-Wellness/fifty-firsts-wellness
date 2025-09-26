@@ -49,7 +49,7 @@ const StoreItemDialog: React.FC<StoreItemDialogProps> = ({
     description: "",
     price: 0,
     stock: 0,
-    tags: [] as string[],
+    categories: [] as string[],
     isFeatured: false,
     isPublished: false,
   });
@@ -69,7 +69,7 @@ const StoreItemDialog: React.FC<StoreItemDialogProps> = ({
           description: item.description || "",
           price: item.price || 0,
           stock: item.stock || 0,
-          tags: item.tags || [],
+          categories: item.categories || [],
           isFeatured: item.isFeatured || false,
           isPublished: item.isPublished || false,
         });
@@ -81,7 +81,7 @@ const StoreItemDialog: React.FC<StoreItemDialogProps> = ({
           description: "",
           price: 0,
           stock: 0,
-          tags: [],
+          categories: [],
           isFeatured: false,
           isPublished: false,
         });
@@ -121,7 +121,7 @@ const StoreItemDialog: React.FC<StoreItemDialogProps> = ({
   const handleCategoryChange = (categories: string[]) => {
     setFormData((prev) => ({
       ...prev,
-      tags: categories,
+      categories: categories,
     }));
   };
 
@@ -153,8 +153,8 @@ const StoreItemDialog: React.FC<StoreItemDialogProps> = ({
       submitData.append("isPublished", formData.isPublished.toString());
 
       // Add tags
-      formData.tags.forEach((tag) => {
-        submitData.append("tags", tag);
+      formData.categories.forEach((tag) => {
+        submitData.append("categories", tag);
       });
 
       // Add display file if selected
@@ -296,7 +296,7 @@ const StoreItemDialog: React.FC<StoreItemDialogProps> = ({
               <Box>
                 <CategorySelector
                   service="store"
-                  selectedCategories={formData.tags}
+                  selectedCategories={formData.categories}
                   onChange={handleCategoryChange}
                   label="Categories"
                   placeholder="Select categories for this store item..."

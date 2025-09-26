@@ -15,7 +15,7 @@ export type StoreItem = {
   stock: number;
   display?: StoreItemDisplay;
   images?: string[];
-  tags?: string[];
+  categories?: string[];
   isFeatured?: boolean;
   isPublished?: boolean;
   createdAt?: string | Date;
