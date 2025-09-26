@@ -3,14 +3,14 @@ import { useLocation, useNavigate } from "react-router-dom";
 import toast from "react-hot-toast";
 import { verifyOtp } from "../api/auth.api";
 
-const VerifyEmail = () => {
+const VerifyEmail: React.FC = () => {
   const location = useLocation();
   const navigate = useNavigate();
-  const [email, setEmail] = useState(location.state?.email || "");
-  const [otp, setOtp] = useState("");
-  const [loading, setLoading] = useState(false);
+  const [email, setEmail] = useState<string>(location.state?.email || "");
+  const [otp, setOtp] = useState<string>("");
+  const [loading, setLoading] = useState<boolean>(false);
 
-  const handleVerify = async (e) => {
+  const handleVerify = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     if (!email || !otp) {
       toast.error("Email and OTP are required!");
@@ -23,7 +23,7 @@ const VerifyEmail = () => {
       setLoading(false);
       toast.success(response.message || "Email verified successfully!");
       navigate("/login");
-    } catch (error) {
+    } catch (error: any) {
       setLoading(false);
       if (error.response) {
         toast.error(error.response.data.message || "Invalid OTP!");

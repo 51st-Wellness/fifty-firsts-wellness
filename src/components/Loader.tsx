@@ -1,7 +1,7 @@
 import React from "react";
 
 // Animated loader for suspense fallbacks and route-level loading states
-const Loader = () => {
+const Loader: React.FC = () => {
   return (
     <div className="min-h-[60vh] w-full flex items-center justify-center">
       <div className="relative">

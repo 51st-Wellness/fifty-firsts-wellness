@@ -5,12 +5,12 @@ import { Link, useNavigate } from "react-router-dom";
 import toast from "react-hot-toast";
 import { forgetPassword } from "../api/auth.api";
 
-const ForgotPassword = () => {
-  const [email, setEmail] = useState("");
-  const [loading, setLoading] = useState(false);
+const ForgotPassword: React.FC = () => {
+  const [email, setEmail] = useState<string>("");
+  const [loading, setLoading] = useState<boolean>(false);
   const navigate = useNavigate();
 
-  const handleSubmit = async (e) => {
+  const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
 
     if (!email) {
@@ -30,7 +30,7 @@ const ForgotPassword = () => {
         navigate("/reset-password", { state: { email } });
         // adjust route depending on your flow
       }, 1500);
-    } catch (err) {
+    } catch (err: any) {
       toast.error(err.message || "Something went wrong");
     } finally {
       setLoading(false);

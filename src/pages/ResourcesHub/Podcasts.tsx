@@ -12,7 +12,11 @@ import { RiForward10Line } from "react-icons/ri";
 import { BsCopy } from "react-icons/bs";
 import { GrBackTen } from "react-icons/gr";
 
-const Podcasts = ({ onSearch }) => {
+interface PodcastsProps {
+  onSearch?: (query: string) => void;
+}
+
+const Podcasts: React.FC<PodcastsProps> = ({ onSearch }) => {
   const [query, setQuery] = useState("");
 
   const handleSubmit = (e) => {

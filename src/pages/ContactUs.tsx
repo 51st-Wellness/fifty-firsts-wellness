@@ -11,7 +11,7 @@ import {
 } from "lucide-react";
 import Footer from "../components/Footer";
 
-const ContactUs = () => {
+const ContactUs: React.FC = () => {
   const [formData, setFormData] = useState({
     firstName: "",
     lastName: "",
@@ -20,11 +20,11 @@ const ContactUs = () => {
   });
   const [isSubmitted, setIsSubmitted] = useState(false);
 
-  const handleChange = (e) => {
+  const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
     setFormData({ ...formData, [e.target.name]: e.target.value });
   };
 
-  const handleSubmit = (e) => {
+  const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     console.log("Form Data Submitted: ", formData);
     setIsSubmitted(true);
@@ -212,7 +212,7 @@ const ContactUs = () => {
                   <textarea
                     name="message"
                     placeholder="How can we help you? Enter your message..."
-                    rows="5"
+                    rows={5}
                     value={formData.message}
                     onChange={handleChange}
                     required

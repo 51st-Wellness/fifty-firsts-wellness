@@ -1,12 +1,21 @@
-export type ResponseStatus = "success" | "error";
-export type ResponseType<T> = {
-  status: ResponseStatus;
+// Response status union to be tolerant to backend enum/value casing
+export type ResponseStatus = "SUCCESS" | "ERROR" | "success" | "error";
+
+// Generic response DTO (aligns with backend ResponseDto)
+export type ResponseDto<T = any> = {
   message: string;
-  data: T;
+  status: ResponseStatus;
+  data?: T;
+  error?: {
+    cause: unknown;
+    name: string;
+    path: string;
+    statusCode: number;
+  };
 };
 
-export type PaginatedResponseType<T> = ResponseType<{
-  // T represents the type of entity in the items array
+// Paginated response DTO (aligns with backend PaginationResponseDto)
+export type PaginationResponseDto<T> = ResponseDto<{
   items: T[];
   pagination: {
     total: number;

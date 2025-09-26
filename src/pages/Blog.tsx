@@ -12,10 +12,14 @@ import {
 } from "lucide-react";
 import Footer from "../components/Footer";
 
-const Blog = ({ onSearch }) => {
-  const [query, setQuery] = useState("");
+interface BlogProps {
+  onSearch?: (query: string) => void;
+}
 
-  const handleSubmit = (e) => {
+const Blog: React.FC<BlogProps> = ({ onSearch }) => {
+  const [query, setQuery] = useState<string>("");
+
+  const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     if (onSearch) onSearch(query);
   };

@@ -6,15 +6,19 @@ import { Search } from "lucide-react";
 import { MdOutlineExpandMore } from "react-icons/md";
 import Footer from "../components/Footer";
 
-const Membership = ({ onSearch }) => {
-  const [activeTab, setActiveTab] = useState("personal");
-  const [query, setQuery] = useState("");
+interface MembershipProps {
+  onSearch?: (query: string) => void;
+}
 
-  const handleSubmit = (e) => {
+const Membership: React.FC<MembershipProps> = ({ onSearch }) => {
+  const [activeTab, setActiveTab] = useState<string>("personal");
+  const [query, setQuery] = useState<string>("");
+
+  const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     if (onSearch) onSearch(query);
   };
-  const plans = {
+  const plans: Record<string, any[]> = {
     personal: [
       {
         id: "embrace",

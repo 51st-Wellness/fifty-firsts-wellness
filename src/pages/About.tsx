@@ -7,7 +7,7 @@ import youtube from "../assets/images/youtube.png";
 import mapbase from "../assets/images/mapbase.png";
 import Footer from "../components/Footer";
 
-const About = () => {
+const About: React.FC = () => {
   return (
     <main className="">
       {/* About Section */}

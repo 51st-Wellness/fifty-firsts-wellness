@@ -2,8 +2,23 @@ import React from "react";
 import { CiShoppingCart } from "react-icons/ci";
 import StarRating from "./StarRating";
 
+interface StoreItem {
+  id?: string;
+  name?: string;
+  price?: number;
+  display?: {
+    url?: string;
+  };
+  images?: string[];
+}
+
+interface StoreItemCardProps {
+  item: StoreItem;
+  onAddToCart?: (item: StoreItem) => void;
+}
+
 // Reusable card for rendering a single store item
-const StoreItemCard = ({ item, onAddToCart }) => {
+const StoreItemCard: React.FC<StoreItemCardProps> = ({ item, onAddToCart }) => {
   const imageUrl = item?.display?.url || item?.images?.[0] || "";
   const title = item?.name || "Product";
   const price = item?.price ?? 0;

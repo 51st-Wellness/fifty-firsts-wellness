@@ -5,7 +5,7 @@ import meditate from "../../assets/images/meditate.png";
 import stare from "../../assets/images/stare.png";
 import sleep from "../../assets/images/sleep.png";
 
-const PersonalWellnessProgrammes = () => {
+const BusinessWellnessProgrammes: React.FC = () => {
   return (
     <main className="">
       {/* Header Section */}
@@ -13,7 +13,7 @@ const PersonalWellnessProgrammes = () => {
         {/* Left Content */}
         <div className="flex flex-col gap-4 w-full md:w-1/2 text-center md:text-left">
           <div className="text-2xl sm:text-4xl lg:text-6xl font-semibold">
-            Personal Wellness Programmes
+            Business Wellness Programmes
           </div>
           <div className="text-sm sm:text-base text-[#475464]">
             Choose a program designed to support your unique wellness goals —
@@ -107,4 +107,4 @@ const PersonalWellnessProgrammes = () => {
   );
 };
 
-export default PersonalWellnessProgrammes;
+export default BusinessWellnessProgrammes;

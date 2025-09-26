@@ -5,30 +5,50 @@ import Footer from "../components/Footer";
 import StoreItemCard from "../components/StoreItemCard";
 import { fetchStoreItems } from "../api/marketplace.api";
 
-const MarketPlace = ({ onSearch }) => {
-  const [query, setQuery] = useState("");
-  const [openFilter, setOpenFilter] = useState(null); // "product" | null
-  const [items, setItems] = useState([]);
-  const [page, setPage] = useState(1);
-  const [pageSize] = useState(12);
-  const [hasMore, setHasMore] = useState(true);
-  const [loading, setLoading] = useState(false);
+interface StoreItem {
+  productId?: string;
+  id?: string;
+  name?: string;
+  price?: number;
+  display?: {
+    url?: string;
+  };
+  images?: string[];
+}
 
-  const loadItems = async (opts = {}) => {
+interface MarketPlaceProps {
+  onSearch?: (query: string) => void;
+}
+
+const MarketPlace: React.FC<MarketPlaceProps> = ({ onSearch }) => {
+  const [query, setQuery] = useState<string>("");
+  const [openFilter, setOpenFilter] = useState<string | null>(null); // "product" | null
+  const [items, setItems] = useState<StoreItem[]>([]);
+  const [page, setPage] = useState<number>(1);
+  const [pageSize] = useState<number>(12);
+  const [hasMore, setHasMore] = useState<boolean>(true);
+  const [loading, setLoading] = useState<boolean>(false);
+
+  const loadItems = async (opts: any = {}) => {
     setLoading(true);
     try {
-      const { items: newItems, pagination } = await fetchStoreItems({
+      const response = await fetchStoreItems({
         page: opts.page ?? page,
         limit: pageSize,
         search: opts.search ?? (query || undefined),
         isPublished: true,
       });
-      if (opts.reset) {
-        setItems(newItems);
-      } else {
-        setItems((prev) => [...prev, ...newItems]);
+      
+      if (response?.data) {
+        const { items: newItems, pagination } = response.data;
+        
+        if (opts.reset) {
+          setItems(newItems);
+        } else {
+          setItems((prev) => [...prev, ...newItems]);
+        }
+        setHasMore(Boolean(pagination?.hasMore));
       }
-      setHasMore(Boolean(pagination?.hasMore));
     } catch (e) {
       // noop
     } finally {
@@ -36,7 +56,7 @@ const MarketPlace = ({ onSearch }) => {
     }
   };
 
-  const handleSubmit = (e) => {
+  const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     if (onSearch) onSearch(query);
     setPage(1);
@@ -130,7 +150,7 @@ const MarketPlace = ({ onSearch }) => {
           </div>
           <section className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
             {items.map((item) => (
-              <StoreItemCard key={item.productId} item={item} />
+              <StoreItemCard key={item.productId || item.id} item={item} />
             ))}
             {!loading && items.length === 0 && (
               <div className="col-span-full text-center text-gray-500">

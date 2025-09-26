@@ -5,13 +5,13 @@ import toast from "react-hot-toast";
 import logo from "../assets/images/logo.png";
 import { resetPassword as resetPasswordApi } from "../api/auth.api";
 
-const ResetPassword = () => {
-  const [password, setPassword] = useState("");
-  const [confirmPassword, setConfirmPassword] = useState("");
-  const [showPassword, setShowPassword] = useState(false);
-  const [showConfirmPassword, setShowConfirmPassword] = useState(false);
-  const [otp, setOtp] = useState(""); // user enters OTP
-  const [email, setEmail] = useState(""); // could be auto-filled from forgot password flow
+const ResetPassword: React.FC = () => {
+  const [password, setPassword] = useState<string>("");
+  const [confirmPassword, setConfirmPassword] = useState<string>("");
+  const [showPassword, setShowPassword] = useState<boolean>(false);
+  const [showConfirmPassword, setShowConfirmPassword] = useState<boolean>(false);
+  const [otp, setOtp] = useState<string>(""); // user enters OTP
+  const [email, setEmail] = useState<string>(""); // could be auto-filled from forgot password flow
 
   const navigate = useNavigate();
   const location = useLocation();
@@ -23,7 +23,7 @@ const ResetPassword = () => {
     }
   }, [location]);
 
-  const handleSubmit = async (e) => {
+  const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
 
     if (!otp) {
@@ -47,7 +47,7 @@ const ResetPassword = () => {
       setTimeout(() => {
         navigate("/login");
       }, 2000);
-    } catch (err) {
+    } catch (err: any) {
       console.error(err);
       toast.error(err.response?.data?.message || "Failed to reset password");
     }

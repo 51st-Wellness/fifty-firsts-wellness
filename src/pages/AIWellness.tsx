@@ -9,7 +9,7 @@ import {
   RefreshCw,
 } from "lucide-react";
 
-const AIWellness = () => {
+const AIWellness: React.FC = () => {
   const [selectedPrompt, setSelectedPrompt] = useState("");
   const [userInput, setUserInput] = useState("");
   const [isLoading, setIsLoading] = useState(false);

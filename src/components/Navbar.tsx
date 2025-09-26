@@ -3,7 +3,7 @@ import { Link } from "react-router-dom";
 import { Menu, X, ChevronDown } from "lucide-react";
 import Logo from "../assets/images/logo.png";
 
-const Navbar = () => {
+const Navbar: React.FC = () => {
   const [menuOpen, setMenuOpen] = useState(false);
   const [servicesOpen, setServicesOpen] = useState(false);
   const [resourcesOpen, setResourcesOpen] = useState(false);
@@ -18,12 +18,12 @@ const Navbar = () => {
   })();
 
   // Single ref for the entire navbar (used to detect clicks outside)
-  const navRef = useRef(null);
+  const navRef = useRef<HTMLElement>(null);
 
   // Close menus when clicking/tapping outside the navbar
   useEffect(() => {
-    const handleClickOutside = (event) => {
-      if (navRef.current && !navRef.current.contains(event.target)) {
+    const handleClickOutside = (event: MouseEvent | TouchEvent) => {
+      if (navRef.current && !navRef.current.contains(event.target as Node)) {
         setMenuOpen(false);
         setServicesOpen(false);
         setResourcesOpen(false);

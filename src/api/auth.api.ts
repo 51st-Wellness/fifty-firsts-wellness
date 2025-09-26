@@ -1,9 +1,13 @@
 import http from "./http";
+import type { ResponseDto } from "../types/response.types";
 
 // Login
-export const login = async (payload: { email: string; password: string }) => {
+export const login = async (payload: {
+  email: string;
+  password: string;
+}): Promise<ResponseDto<{ token: string }>> => {
   const { data } = await http().post("/auth/login", payload);
-  return data;
+  return data as ResponseDto<{ token: string }>;
 };
 
 // Sign up a new user
@@ -17,21 +21,26 @@ export const signUp = async (payload: {
   address: string;
   bio?: string;
   role: string;
-}) => {
+}): Promise<ResponseDto<{ email: string }>> => {
   const { data } = await http().post("/auth/signup", payload);
-  return data;
+  return data as ResponseDto<{ email: string }>;
 };
 
 // Verify email OTP
-export const verifyOtp = async (payload: { email: string; otp: string }) => {
+export const verifyOtp = async (payload: {
+  email: string;
+  otp: string;
+}): Promise<ResponseDto<null>> => {
   const { data } = await http().post("/auth/verify-email", payload);
-  return data;
+  return data as ResponseDto<null>;
 };
 
 // Request forgot password
-export const forgetPassword = async (email: string) => {
+export const forgetPassword = async (
+  email: string
+): Promise<ResponseDto<null>> => {
   const { data } = await http().post("/auth/forget-password", { email });
-  return data;
+  return data as ResponseDto<null>;
 };
 
 // Reset password
@@ -39,7 +48,7 @@ export const resetPassword = async (payload: {
   email: string;
   otp: string;
   newPassword: string;
-}) => {
+}): Promise<ResponseDto<null>> => {
   const { data } = await http().post("/auth/reset-password", payload);
-  return data;
+  return data as ResponseDto<null>;
 };

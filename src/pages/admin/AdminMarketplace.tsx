@@ -1,5 +1,37 @@
-import React, { useEffect, useMemo, useState } from "react";
-import * as Dialog from "@radix-ui/react-dialog";
+import React, { useEffect, useState, useCallback } from "react";
+import {
+  Dialog,
+  DialogTitle,
+  DialogContent,
+  DialogActions,
+  Button,
+  TextField,
+  Box,
+  Typography,
+  Grid,
+  Card,
+  CardMedia,
+  CardContent,
+  IconButton,
+  Chip,
+  FormControlLabel,
+  Switch,
+  Alert,
+  CircularProgress,
+  Divider,
+  ImageList,
+  ImageListItem,
+} from "@mui/material";
+import {
+  Add as AddIcon,
+  Edit as EditIcon,
+  Delete as DeleteIcon,
+  CloudUpload as UploadIcon,
+  Close as CloseIcon,
+  Image as ImageIcon,
+  VideoLibrary as VideoIcon,
+} from "@mui/icons-material";
+import toast from "react-hot-toast";
 import {
   fetchStoreItems,
   fetchStoreItemById,
@@ -7,13 +39,15 @@ import {
   updateStoreItem,
   deleteStoreItem,
 } from "../../api/marketplace.api";
+import type { StoreItem } from "../../types/marketplace.types";
 
-// Marketplace admin with two-pane layout: list + details
-const AdminMarketplace = () => {
+// Enhanced marketplace admin with Material UI dialogs and full CRUD support
+const AdminMarketplace: React.FC = () => {
+  // State for items list
   const [query, setQuery] = useState({ page: 1, limit: 12, search: "" });
   const [loading, setLoading] = useState(false);
-  const [items, setItems] = useState([]);
-  const [selected, setSelected] = useState(null);
+  const [items, setItems] = useState<StoreItem[]>([]);
+  const [selected, setSelected] = useState<StoreItem | null>(null);
   const [pagination, setPagination] = useState({
     total: 0,
     page: 1,
@@ -21,327 +55,814 @@ const AdminMarketplace = () => {
     totalPages: 0,
   });
 
-  const debouncedSearch = useDebounce(query.search, 350);
-
-  useEffect(() => {
-    let mounted = true;
-    setLoading(true);
-    fetchStoreItems({ ...query, search: debouncedSearch })
-      .then((res) => {
-        if (!mounted) return;
-        setItems(res.items);
-        setPagination(res.pagination);
-        if (res.items.length && !selected) setSelected(res.items[0]);
-      })
-      .finally(() => mounted && setLoading(false));
-    return () => {
-      mounted = false;
-    };
-  }, [query.page, query.limit, debouncedSearch]);
-
-  const onSelect = async (item) => {
-    setSelected(item);
-    try {
-      const full = await fetchStoreItemById(item.productId || item.id);
-      if (full) setSelected(full);
-    } catch {}
-  };
-
-  const [showForm, setShowForm] = useState(false);
-  const [form, setForm] = useState({
-    name: "",
-    price: 0,
-    stock: 0,
-    description: "",
-  });
+  // Dialog state
+  const [dialogOpen, setDialogOpen] = useState(false);
+  const [dialogMode, setDialogMode] = useState<"create" | "edit">("create");
   const [submitting, setSubmitting] = useState(false);
 
-  const openCreate = () => {
-    setForm({ name: "", price: 0, stock: 0, description: "" });
-    setShowForm(true);
-  };
-  const openEdit = () => {
-    if (!selected) return;
-    setForm({
-      name: selected.name || "",
-      price: selected.price || 0,
-      stock: selected.stock || 0,
-      description: selected.description || "",
-    });
-    setShowForm(true);
+  // Form state
+  const [formData, setFormData] = useState({
+    name: "",
+    description: "",
+    price: 0,
+    stock: 0,
+    tags: [] as string[],
+    isFeatured: false,
+    isPublished: false,
+  });
+  const [tagInput, setTagInput] = useState("");
+  const [displayFile, setDisplayFile] = useState<File | null>(null);
+  const [imageFiles, setImageFiles] = useState<File[]>([]);
+  const [displayPreview, setDisplayPreview] = useState<string>("");
+  const [imagePreviews, setImagePreviews] = useState<string[]>([]);
+
+  const debouncedSearch = useDebounce(query.search, 350);
+
+  // Load items from API
+  const loadItems = useCallback(async () => {
+    setLoading(true);
+    try {
+      const response = await fetchStoreItems({
+        ...query,
+        search: debouncedSearch || undefined,
+      });
+      setItems(response.data?.items || []);
+      setPagination(response.data?.pagination || pagination);
+
+      // Auto-select first item if none selected
+      if (response.data?.items?.length && !selected) {
+        setSelected(response.data.items[0]);
+      }
+    } catch (error) {
+      console.error("Failed to load items:", error);
+      toast.error("Failed to load store items");
+    } finally {
+      setLoading(false);
+    }
+  }, [query.page, query.limit, debouncedSearch]);
+
+  useEffect(() => {
+    loadItems();
+  }, [loadItems]);
+
+  // Select item and fetch full details
+  const onSelectItem = async (item: StoreItem) => {
+    setSelected(item);
+    try {
+      const response = await fetchStoreItemById(item.productId);
+      if (response.data) {
+        setSelected(response.data);
+      }
+    } catch (error) {
+      console.error("Failed to fetch item details:", error);
+    }
   };
 
-  const submitForm = async () => {
+  // Open create dialog
+  const openCreateDialog = () => {
+    setFormData({
+      name: "",
+      description: "",
+      price: 0,
+      stock: 0,
+      tags: [],
+      isFeatured: false,
+      isPublished: false,
+    });
+    setTagInput("");
+    setDisplayFile(null);
+    setImageFiles([]);
+    setDisplayPreview("");
+    setImagePreviews([]);
+    setDialogMode("create");
+    setDialogOpen(true);
+  };
+
+  // Open edit dialog with pre-filled data
+  const openEditDialog = () => {
+    if (!selected) return;
+
+    setFormData({
+      name: selected.name || "",
+      description: selected.description || "",
+      price: selected.price || 0,
+      stock: selected.stock || 0,
+      tags: selected.tags || [],
+      isFeatured: selected.isFeatured || false,
+      isPublished: selected.isPublished || false,
+    });
+    setTagInput("");
+    setDisplayFile(null);
+    setImageFiles([]);
+    setDisplayPreview(selected.display?.url || "");
+    setImagePreviews(selected.images || []);
+    setDialogMode("edit");
+    setDialogOpen(true);
+  };
+
+  // Handle file selection for display image/video
+  const handleDisplayFileChange = (
+    event: React.ChangeEvent<HTMLInputElement>
+  ) => {
+    const file = event.target.files?.[0];
+    if (file) {
+      setDisplayFile(file);
+      const preview = URL.createObjectURL(file);
+      setDisplayPreview(preview);
+    }
+  };
+
+  // Handle multiple image files selection
+  const handleImageFilesChange = (
+    event: React.ChangeEvent<HTMLInputElement>
+  ) => {
+    const files = Array.from(event.target.files || []);
+    setImageFiles(files);
+
+    // Create previews
+    const previews = files.map((file) => URL.createObjectURL(file));
+    setImagePreviews(previews);
+  };
+
+  // Add tag to form
+  const addTag = () => {
+    if (tagInput.trim() && !formData.tags.includes(tagInput.trim())) {
+      setFormData((prev) => ({
+        ...prev,
+        tags: [...prev.tags, tagInput.trim()],
+      }));
+      setTagInput("");
+    }
+  };
+
+  // Remove tag from form
+  const removeTag = (tagToRemove: string) => {
+    setFormData((prev) => ({
+      ...prev,
+      tags: prev.tags.filter((tag) => tag !== tagToRemove),
+    }));
+  };
+
+  // Submit form (create or update)
+  const handleSubmit = async () => {
+    if (!formData.name.trim()) {
+      toast.error("Name is required");
+      return;
+    }
+    if (formData.price < 0) {
+      toast.error("Price must be positive");
+      return;
+    }
+    if (formData.stock < 0) {
+      toast.error("Stock must be positive");
+      return;
+    }
+
     setSubmitting(true);
     try {
-      if (selected && selected.productId) {
-        const updated = await updateStoreItem(selected.productId, form);
-        setSelected(updated);
-      } else {
-        await createStoreItem(form);
+      // Prepare form data for multipart upload
+      const submitData = new FormData();
+      submitData.append("name", formData.name);
+      submitData.append("description", formData.description);
+      submitData.append("price", formData.price.toString());
+      submitData.append("stock", formData.stock.toString());
+      submitData.append("isFeatured", formData.isFeatured.toString());
+      submitData.append("isPublished", formData.isPublished.toString());
+
+      // Add tags
+      formData.tags.forEach((tag) => {
+        submitData.append("tags", tag);
+      });
+
+      // Add display file if selected
+      if (displayFile) {
+        submitData.append("display", displayFile);
       }
-      // refresh list
-      const res = await fetchStoreItems({ ...query, search: debouncedSearch });
-      setItems(res.items);
-      setPagination(res.pagination);
-      setShowForm(false);
+
+      // Add image files if selected
+      imageFiles.forEach((file) => {
+        submitData.append("images", file);
+      });
+
+      if (dialogMode === "create") {
+        await createStoreItem(submitData as any);
+        toast.success("Store item created successfully");
+      } else if (selected) {
+        await updateStoreItem(selected.productId, submitData as any);
+        toast.success("Store item updated successfully");
+      }
+
+      // Refresh the items list
+      await loadItems();
+      setDialogOpen(false);
+    } catch (error) {
+      console.error("Failed to save item:", error);
+      toast.error(
+        `Failed to ${dialogMode === "create" ? "create" : "update"} item`
+      );
     } finally {
       setSubmitting(false);
     }
   };
 
-  const onDelete = async () => {
+  // Delete item
+  const handleDelete = async () => {
     if (!selected?.productId) return;
-    if (!confirm("Delete this item?")) return;
-    await deleteStoreItem(selected.productId);
-    const res = await fetchStoreItems({ ...query, search: debouncedSearch });
-    setItems(res.items);
-    setPagination(res.pagination);
-    setSelected(null);
+
+    if (!confirm("Are you sure you want to delete this item?")) return;
+
+    try {
+      await deleteStoreItem(selected.productId);
+      toast.success("Store item deleted successfully");
+      await loadItems();
+      setSelected(null);
+    } catch (error) {
+      console.error("Failed to delete item:", error);
+      toast.error("Failed to delete item");
+    }
   };
 
   return (
-    <div className="grid grid-cols-12 gap-6">
-      <section className="col-span-5 bg-white border border-gray-200 rounded-lg overflow-hidden">
-        <div className="p-3 border-b border-gray-100 flex gap-2 items-center">
-          <input
-            value={query.search}
-            onChange={(e) =>
-              setQuery((q) => ({ ...q, search: e.target.value, page: 1 }))
-            }
-            placeholder="Search items…"
-            className="w-full rounded-md border-gray-200 focus:border-indigo-500 focus:ring-indigo-500 text-sm"
-          />
-          <select
-            value={query.limit}
-            onChange={(e) =>
-              setQuery((q) => ({
-                ...q,
-                limit: Number(e.target.value),
-                page: 1,
-              }))
-            }
-            className="rounded-md border-gray-200 text-sm"
-          >
-            <option value={12}>12</option>
-            <option value={24}>24</option>
-            <option value={48}>48</option>
-          </select>
-          <button
-            onClick={openCreate}
-            className="ml-2 px-3 py-2 rounded-md bg-indigo-600 text-white text-sm"
-          >
-            New Item
-          </button>
-        </div>
+    <Box sx={{ p: 3 }}>
+      <Box
+        sx={{
+          display: "flex",
+          justifyContent: "space-between",
+          alignItems: "center",
+          mb: 3,
+        }}
+      >
+        <Typography variant="h4" component="h1">
+          Marketplace Management
+        </Typography>
+        <Button
+          variant="contained"
+          startIcon={<AddIcon />}
+          onClick={openCreateDialog}
+          sx={{ bgcolor: "indigo.600", "&:hover": { bgcolor: "indigo.700" } }}
+        >
+          Add New Item
+        </Button>
+      </Box>
 
-        <div className="max-h-[70vh] overflow-auto divide-y divide-gray-100">
-          {loading && items.length === 0 ? (
-            <div className="p-6 text-sm text-gray-500">Loading items…</div>
-          ) : items.length === 0 ? (
-            <div className="p-6 text-sm text-gray-500">No items found</div>
-          ) : (
-            items.map((it) => (
-              <button
-                key={it.productId || it.id}
-                onClick={() => onSelect(it)}
-                className={`w-full text-left px-4 py-3 hover:bg-gray-50 ${
-                  (selected?.productId || selected?.id) ===
-                  (it.productId || it.id)
-                    ? "bg-indigo-50"
-                    : ""
-                }`}
-              >
-                <div className="flex items-center gap-3">
-                  <div className="h-12 w-12 bg-gray-100 rounded-md overflow-hidden">
-                    {it.display?.url ? (
-                      <img
-                        src={it.display.url}
-                        alt={it.name}
-                        className="h-full w-full object-cover"
-                      />
-                    ) : null}
-                  </div>
-                  <div>
-                    <div className="font-medium text-gray-900 text-sm">
-                      {it.name}
-                    </div>
-                    <div className="text-xs text-gray-500">
-                      ${it.price ?? "—"}
-                    </div>
-                  </div>
-                </div>
-              </button>
-            ))
-          )}
-        </div>
-        <div className="p-3 border-t border-gray-100 text-xs text-gray-500">
-          Page {pagination.page} of {Math.max(1, pagination.totalPages)} •{" "}
-          {pagination.total} items
-        </div>
-      </section>
+      <Grid container spacing={3}>
+        {/* Items List */}
+        <Grid item xs={12} md={5}>
+          <Card>
+            <Box sx={{ p: 2, borderBottom: 1, borderColor: "divider" }}>
+              <TextField
+                fullWidth
+                size="small"
+                placeholder="Search items..."
+                value={query.search}
+                onChange={(e) =>
+                  setQuery((q) => ({ ...q, search: e.target.value, page: 1 }))
+                }
+              />
+            </Box>
 
-      <section className="col-span-7 bg-white border border-gray-200 rounded-lg relative">
-        {!selected ? (
-          <div className="p-6 text-sm text-gray-500">
-            Select an item to view details
-          </div>
-        ) : (
-          <div className="grid grid-cols-12 gap-6 p-6">
-            <div className="col-span-6">
-              <div className="aspect-square bg-gray-100 rounded-lg overflow-hidden">
-                {selected.display?.url ? (
-                  <img
-                    src={selected.display.url}
-                    alt={selected.name}
-                    className="h-full w-full object-cover"
-                  />
-                ) : null}
-              </div>
-              {Array.isArray(selected.images) && selected.images.length > 0 ? (
-                <div className="mt-3 flex gap-2 overflow-auto">
-                  {selected.images.map((img, idx) => (
-                    <img
-                      key={idx}
-                      src={img}
-                      alt="thumb"
-                      className="h-14 w-14 rounded object-cover border"
-                    />
-                  ))}
-                </div>
-              ) : null}
-            </div>
-            <div className="col-span-6">
-              <h3 className="text-xl font-semibold text-gray-900">
-                {selected.name}
-              </h3>
-              <div className="mt-1 text-sm text-gray-500">
-                {selected.description || "No description"}
-              </div>
-              <div className="mt-4 flex items-center gap-4">
-                <span className="text-2xl font-semibold text-indigo-700">
-                  ${selected.price ?? "—"}
-                </span>
-                <span className="text-sm text-gray-500">
-                  Stock: {selected.stock ?? "—"}
-                </span>
-              </div>
-              {selected.tags?.length ? (
-                <div className="mt-4 flex flex-wrap gap-2">
-                  {selected.tags.map((t, i) => (
-                    <span
-                      key={i}
-                      className="px-2 py-0.5 rounded-full bg-indigo-50 text-indigo-700 text-xs"
-                    >
-                      {t}
-                    </span>
-                  ))}
-                </div>
-              ) : null}
-              <div className="mt-6 flex gap-3">
-                <button
-                  onClick={openEdit}
-                  className="px-3 py-2 rounded-md bg-indigo-600 text-white text-sm"
-                >
-                  Edit
-                </button>
-                <button
-                  onClick={onDelete}
-                  className="px-3 py-2 rounded-md bg-white border text-sm"
-                >
-                  Delete
-                </button>
-              </div>
-            </div>
-          </div>
-        )}
-        <Dialog.Root open={showForm} onOpenChange={setShowForm}>
-          <Dialog.Portal>
-            <Dialog.Overlay className="fixed inset-0 bg-black/30" />
-            <Dialog.Content className="fixed left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 w-[95vw] max-w-lg rounded-lg border bg-white p-5 shadow-xl">
-              <Dialog.Title className="text-lg font-semibold">
-                {selected ? "Edit Store Item" : "Create Store Item"}
-              </Dialog.Title>
-              <div className="mt-4 space-y-3">
-                <label className="block">
-                  <span className="block text-sm text-gray-600">Name</span>
-                  <input
-                    value={form.name}
-                    onChange={(e) => setForm({ ...form, name: e.target.value })}
-                    className="mt-1 w-full rounded-md border-gray-200 focus:border-indigo-500 focus:ring-indigo-500 text-sm"
-                  />
-                </label>
-                <div className="grid grid-cols-2 gap-3">
-                  <label className="block">
-                    <span className="block text-sm text-gray-600">Price</span>
-                    <input
-                      type="number"
-                      value={form.price}
-                      onChange={(e) =>
-                        setForm({ ...form, price: Number(e.target.value) })
-                      }
-                      className="mt-1 w-full rounded-md border-gray-200 focus:border-indigo-500 focus:ring-indigo-500 text-sm"
-                    />
-                  </label>
-                  <label className="block">
-                    <span className="block text-sm text-gray-600">Stock</span>
-                    <input
-                      type="number"
-                      value={form.stock}
-                      onChange={(e) =>
-                        setForm({ ...form, stock: Number(e.target.value) })
-                      }
-                      className="mt-1 w-full rounded-md border-gray-200 focus:border-indigo-500 focus:ring-indigo-500 text-sm"
-                    />
-                  </label>
-                </div>
-                <label className="block">
-                  <span className="block text-sm text-gray-600">
-                    Description
-                  </span>
-                  <textarea
-                    value={form.description}
-                    onChange={(e) =>
-                      setForm({ ...form, description: e.target.value })
+            <Box sx={{ maxHeight: "70vh", overflow: "auto" }}>
+              {loading && items.length === 0 ? (
+                <Box sx={{ p: 3, textAlign: "center" }}>
+                  <CircularProgress size={24} />
+                  <Typography variant="body2" sx={{ mt: 1 }}>
+                    Loading items...
+                  </Typography>
+                </Box>
+              ) : items.length === 0 ? (
+                <Box sx={{ p: 3, textAlign: "center" }}>
+                  <Typography variant="body2" color="text.secondary">
+                    No items found
+                  </Typography>
+                </Box>
+              ) : (
+                items.map((item) => (
+                  <Card
+                    key={item.productId}
+                    variant={
+                      selected?.productId === item.productId
+                        ? "outlined"
+                        : "elevation"
                     }
-                    className="mt-1 w-full rounded-md border-gray-200 focus:border-indigo-500 focus:ring-indigo-500 text-sm"
-                    rows={3}
-                  />
-                </label>
-              </div>
-              <div className="mt-5 flex justify-end gap-2">
-                <Dialog.Close asChild>
-                  <button
-                    className="px-3 py-2 rounded-md bg-white border text-sm"
-                    disabled={submitting}
+                    sx={{
+                      m: 1,
+                      cursor: "pointer",
+                      bgcolor:
+                        selected?.productId === item.productId
+                          ? "action.selected"
+                          : "background.paper",
+                      "&:hover": { bgcolor: "action.hover" },
+                    }}
+                    onClick={() => onSelectItem(item)}
                   >
-                    Cancel
-                  </button>
-                </Dialog.Close>
-                <button
-                  onClick={submitForm}
-                  className="px-3 py-2 rounded-md bg-indigo-600 text-white text-sm"
-                  disabled={submitting}
+                    <Box sx={{ display: "flex", p: 2 }}>
+                      <Box
+                        sx={{
+                          width: 60,
+                          height: 60,
+                          bgcolor: "grey.100",
+                          borderRadius: 1,
+                          overflow: "hidden",
+                          mr: 2,
+                          display: "flex",
+                          alignItems: "center",
+                          justifyContent: "center",
+                        }}
+                      >
+                        {item.display?.url ? (
+                          <img
+                            src={item.display.url}
+                            alt={item.name}
+                            style={{
+                              width: "100%",
+                              height: "100%",
+                              objectFit: "cover",
+                            }}
+                          />
+                        ) : (
+                          <ImageIcon color="disabled" />
+                        )}
+                      </Box>
+                      <Box sx={{ flexGrow: 1 }}>
+                        <Typography
+                          variant="subtitle2"
+                          sx={{ fontWeight: 600 }}
+                        >
+                          {item.name}
+                        </Typography>
+                        <Typography variant="body2" color="text.secondary">
+                          ${item.price}
+                        </Typography>
+                        <Box sx={{ display: "flex", gap: 1, mt: 0.5 }}>
+                          {item.isFeatured && (
+                            <Chip
+                              label="Featured"
+                              size="small"
+                              color="primary"
+                            />
+                          )}
+                          {item.isPublished && (
+                            <Chip
+                              label="Published"
+                              size="small"
+                              color="success"
+                            />
+                          )}
+                        </Box>
+                      </Box>
+                    </Box>
+                  </Card>
+                ))
+              )}
+            </Box>
+
+            <Box sx={{ p: 2, borderTop: 1, borderColor: "divider" }}>
+              <Typography variant="caption" color="text.secondary">
+                Page {pagination.page} of {Math.max(1, pagination.totalPages)} •{" "}
+                {pagination.total} items
+              </Typography>
+            </Box>
+          </Card>
+        </Grid>
+
+        {/* Item Details */}
+        <Grid item xs={12} md={7}>
+          <Card sx={{ height: "fit-content" }}>
+            {!selected ? (
+              <Box sx={{ p: 4, textAlign: "center" }}>
+                <Typography variant="body1" color="text.secondary">
+                  Select an item to view details
+                </Typography>
+              </Box>
+            ) : (
+              <CardContent>
+                <Box
+                  sx={{
+                    display: "flex",
+                    justifyContent: "space-between",
+                    alignItems: "start",
+                    mb: 2,
+                  }}
                 >
-                  {submitting ? "Saving…" : "Save"}
-                </button>
-              </div>
-            </Dialog.Content>
-          </Dialog.Portal>
-        </Dialog.Root>
-      </section>
-    </div>
+                  <Typography variant="h5" component="h2">
+                    {selected.name}
+                  </Typography>
+                  <Box sx={{ display: "flex", gap: 1 }}>
+                    <IconButton onClick={openEditDialog} color="primary">
+                      <EditIcon />
+                    </IconButton>
+                    <IconButton onClick={handleDelete} color="error">
+                      <DeleteIcon />
+                    </IconButton>
+                  </Box>
+                </Box>
+
+                <Grid container spacing={3}>
+                  <Grid item xs={12} md={6}>
+                    {/* Display Image/Video */}
+                    <Box
+                      sx={{
+                        aspectRatio: "1",
+                        bgcolor: "grey.100",
+                        borderRadius: 2,
+                        overflow: "hidden",
+                        display: "flex",
+                        alignItems: "center",
+                        justifyContent: "center",
+                        mb: 2,
+                      }}
+                    >
+                      {selected.display?.url ? (
+                        selected.display.type === "video" ? (
+                          <video
+                            src={selected.display.url}
+                            controls
+                            style={{
+                              width: "100%",
+                              height: "100%",
+                              objectFit: "cover",
+                            }}
+                          />
+                        ) : (
+                          <img
+                            src={selected.display.url}
+                            alt={selected.name}
+                            style={{
+                              width: "100%",
+                              height: "100%",
+                              objectFit: "cover",
+                            }}
+                          />
+                        )
+                      ) : (
+                        <ImageIcon sx={{ fontSize: 64, color: "grey.400" }} />
+                      )}
+                    </Box>
+
+                    {/* Additional Images */}
+                    {selected.images && selected.images.length > 0 && (
+                      <ImageList cols={4} gap={8}>
+                        {selected.images.map((img, idx) => (
+                          <ImageListItem key={idx}>
+                            <img
+                              src={img}
+                              alt={`Additional ${idx + 1}`}
+                              style={{
+                                width: "100%",
+                                height: "60px",
+                                objectFit: "cover",
+                                borderRadius: 4,
+                              }}
+                            />
+                          </ImageListItem>
+                        ))}
+                      </ImageList>
+                    )}
+                  </Grid>
+
+                  <Grid item xs={12} md={6}>
+                    <Typography variant="body1" sx={{ mb: 2 }}>
+                      {selected.description || "No description provided"}
+                    </Typography>
+
+                    <Box sx={{ mb: 2 }}>
+                      <Typography
+                        variant="h4"
+                        color="primary"
+                        sx={{ fontWeight: 600 }}
+                      >
+                        ${selected.price}
+                      </Typography>
+                      <Typography variant="body2" color="text.secondary">
+                        Stock: {selected.stock} items
+                      </Typography>
+                    </Box>
+
+                    {/* Tags */}
+                    {selected.tags && selected.tags.length > 0 && (
+                      <Box sx={{ mb: 2 }}>
+                        <Typography variant="subtitle2" sx={{ mb: 1 }}>
+                          Tags:
+                        </Typography>
+                        <Box sx={{ display: "flex", flexWrap: "wrap", gap: 1 }}>
+                          {selected.tags.map((tag, idx) => (
+                            <Chip
+                              key={idx}
+                              label={tag}
+                              size="small"
+                              variant="outlined"
+                            />
+                          ))}
+                        </Box>
+                      </Box>
+                    )}
+
+                    {/* Status */}
+                    <Box sx={{ display: "flex", gap: 1 }}>
+                      {selected.isFeatured && (
+                        <Chip label="Featured" color="primary" />
+                      )}
+                      {selected.isPublished ? (
+                        <Chip label="Published" color="success" />
+                      ) : (
+                        <Chip label="Draft" color="default" />
+                      )}
+                    </Box>
+                  </Grid>
+                </Grid>
+              </CardContent>
+            )}
+          </Card>
+        </Grid>
+      </Grid>
+
+      {/* Create/Edit Dialog */}
+      <Dialog
+        open={dialogOpen}
+        onClose={() => setDialogOpen(false)}
+        maxWidth="md"
+        fullWidth
+      >
+        <DialogTitle>
+          {dialogMode === "create"
+            ? "Create New Store Item"
+            : "Edit Store Item"}
+        </DialogTitle>
+
+        <DialogContent>
+          <Box sx={{ pt: 1 }}>
+            <Grid container spacing={2}>
+              {/* Basic Information */}
+              <Grid item xs={12}>
+                <TextField
+                  fullWidth
+                  label="Name"
+                  value={formData.name}
+                  onChange={(e) =>
+                    setFormData((prev) => ({ ...prev, name: e.target.value }))
+                  }
+                  required
+                />
+              </Grid>
+
+              <Grid item xs={12}>
+                <TextField
+                  fullWidth
+                  label="Description"
+                  multiline
+                  rows={3}
+                  value={formData.description}
+                  onChange={(e) =>
+                    setFormData((prev) => ({
+                      ...prev,
+                      description: e.target.value,
+                    }))
+                  }
+                />
+              </Grid>
+
+              <Grid item xs={6}>
+                <TextField
+                  fullWidth
+                  label="Price"
+                  type="number"
+                  inputProps={{ min: 0, step: 0.01 }}
+                  value={formData.price}
+                  onChange={(e) =>
+                    setFormData((prev) => ({
+                      ...prev,
+                      price: Number(e.target.value),
+                    }))
+                  }
+                  required
+                />
+              </Grid>
+
+              <Grid item xs={6}>
+                <TextField
+                  fullWidth
+                  label="Stock"
+                  type="number"
+                  inputProps={{ min: 0 }}
+                  value={formData.stock}
+                  onChange={(e) =>
+                    setFormData((prev) => ({
+                      ...prev,
+                      stock: Number(e.target.value),
+                    }))
+                  }
+                  required
+                />
+              </Grid>
+
+              {/* Tags */}
+              <Grid item xs={12}>
+                <Box sx={{ mb: 1 }}>
+                  <Typography variant="subtitle2">Tags</Typography>
+                </Box>
+                <Box sx={{ display: "flex", gap: 1, mb: 1 }}>
+                  <TextField
+                    size="small"
+                    placeholder="Add tag"
+                    value={tagInput}
+                    onChange={(e) => setTagInput(e.target.value)}
+                    onKeyPress={(e) => e.key === "Enter" && addTag()}
+                  />
+                  <Button onClick={addTag} variant="outlined" size="small">
+                    Add
+                  </Button>
+                </Box>
+                <Box sx={{ display: "flex", flexWrap: "wrap", gap: 1 }}>
+                  {formData.tags.map((tag, idx) => (
+                    <Chip
+                      key={idx}
+                      label={tag}
+                      onDelete={() => removeTag(tag)}
+                      size="small"
+                    />
+                  ))}
+                </Box>
+              </Grid>
+
+              {/* File Uploads */}
+              <Grid item xs={12}>
+                <Divider sx={{ my: 2 }} />
+                <Typography variant="subtitle1" sx={{ mb: 2 }}>
+                  Media Files
+                </Typography>
+
+                {/* Display File */}
+                <Box sx={{ mb: 2 }}>
+                  <Typography variant="subtitle2" sx={{ mb: 1 }}>
+                    Display Image/Video (Required for new items)
+                  </Typography>
+                  <Button
+                    variant="outlined"
+                    component="label"
+                    startIcon={<UploadIcon />}
+                    fullWidth
+                  >
+                    Choose Display File
+                    <input
+                      type="file"
+                      hidden
+                      accept="image/*,video/*"
+                      onChange={handleDisplayFileChange}
+                    />
+                  </Button>
+                  {displayPreview && (
+                    <Box
+                      sx={{
+                        mt: 1,
+                        position: "relative",
+                        display: "inline-block",
+                      }}
+                    >
+                      {displayFile?.type.startsWith("video/") ? (
+                        <video
+                          src={displayPreview}
+                          style={{
+                            width: 100,
+                            height: 100,
+                            objectFit: "cover",
+                            borderRadius: 4,
+                          }}
+                        />
+                      ) : (
+                        <img
+                          src={displayPreview}
+                          alt="Display preview"
+                          style={{
+                            width: 100,
+                            height: 100,
+                            objectFit: "cover",
+                            borderRadius: 4,
+                          }}
+                        />
+                      )}
+                    </Box>
+                  )}
+                </Box>
+
+                {/* Additional Images */}
+                <Box sx={{ mb: 2 }}>
+                  <Typography variant="subtitle2" sx={{ mb: 1 }}>
+                    Additional Images (Optional, max 5)
+                  </Typography>
+                  <Button
+                    variant="outlined"
+                    component="label"
+                    startIcon={<ImageIcon />}
+                    fullWidth
+                  >
+                    Choose Images
+                    <input
+                      type="file"
+                      hidden
+                      accept="image/*"
+                      multiple
+                      onChange={handleImageFilesChange}
+                    />
+                  </Button>
+                  {imagePreviews.length > 0 && (
+                    <Box
+                      sx={{ mt: 1, display: "flex", flexWrap: "wrap", gap: 1 }}
+                    >
+                      {imagePreviews.map((preview, idx) => (
+                        <img
+                          key={idx}
+                          src={preview}
+                          alt={`Preview ${idx + 1}`}
+                          style={{
+                            width: 60,
+                            height: 60,
+                            objectFit: "cover",
+                            borderRadius: 4,
+                          }}
+                        />
+                      ))}
+                    </Box>
+                  )}
+                </Box>
+              </Grid>
+
+              {/* Options */}
+              <Grid item xs={12}>
+                <Divider sx={{ my: 2 }} />
+                <FormControlLabel
+                  control={
+                    <Switch
+                      checked={formData.isFeatured}
+                      onChange={(e) =>
+                        setFormData((prev) => ({
+                          ...prev,
+                          isFeatured: e.target.checked,
+                        }))
+                      }
+                    />
+                  }
+                  label="Featured Item"
+                />
+              </Grid>
+
+              <Grid item xs={12}>
+                <FormControlLabel
+                  control={
+                    <Switch
+                      checked={formData.isPublished}
+                      onChange={(e) =>
+                        setFormData((prev) => ({
+                          ...prev,
+                          isPublished: e.target.checked,
+                        }))
+                      }
+                    />
+                  }
+                  label="Published"
+                />
+              </Grid>
+            </Grid>
+          </Box>
+        </DialogContent>
+
+        <DialogActions>
+          <Button onClick={() => setDialogOpen(false)} disabled={submitting}>
+            Cancel
+          </Button>
+          <Button
+            onClick={handleSubmit}
+            variant="contained"
+            disabled={submitting}
+            sx={{ bgcolor: "indigo.600", "&:hover": { bgcolor: "indigo.700" } }}
+          >
+            {submitting ? <CircularProgress size={20} sx={{ mr: 1 }} /> : null}
+            {submitting
+              ? "Saving..."
+              : dialogMode === "create"
+              ? "Create"
+              : "Update"}
+          </Button>
+        </DialogActions>
+      </Dialog>
+    </Box>
   );
 };
 
 export default AdminMarketplace;
 
 // Debounce hook for search input
-function useDebounce(value, delay) {
-  const [debounced, setDebounced] = useState(value);
+function useDebounce<T>(value: T, delay: number): T {
+  const [debouncedValue, setDebouncedValue] = useState<T>(value);
+
   useEffect(() => {
-    const id = setTimeout(() => setDebounced(value), delay);
-    return () => clearTimeout(id);
+    const handler = setTimeout(() => {
+      setDebouncedValue(value);
+    }, delay);
+
+    return () => {
+      clearTimeout(handler);
+    };
   }, [value, delay]);
-  return debounced;
+
+  return debouncedValue;
 }

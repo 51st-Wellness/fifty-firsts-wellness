@@ -6,10 +6,14 @@ import webinar from "../../assets/images/webinars.png";
 import { GoClock } from "react-icons/go";
 import { LuCalendarDays } from "react-icons/lu";
 
-const Webinars = ({ onSearch }) => {
-  const [query, setQuery] = useState("");
+interface WebinarsProps {
+  onSearch?: (query: string) => void;
+}
 
-  const handleSubmit = (e) => {
+const Webinars: React.FC<WebinarsProps> = ({ onSearch }) => {
+  const [query, setQuery] = useState<string>("");
+
+  const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     if (onSearch) onSearch(query);
   };

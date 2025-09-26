@@ -1,7 +1,20 @@
 import React from "react";
 
-const StarRating = ({ rating = 0, outOf = 5, size = "md" }) => {
-    const sizeMap = {
+type StarSize = "sm" | "md" | "lg";
+
+interface StarRatingProps {
+  rating?: number;
+  outOf?: number;
+  size?: StarSize;
+}
+
+interface StarProps {
+  filled?: boolean;
+  half?: boolean;
+}
+
+const StarRating: React.FC<StarRatingProps> = ({ rating = 0, outOf = 5, size = "md" }) => {
+    const sizeMap: Record<StarSize, string> = {
         sm: "w-4 h-4",
         md: "w-6 h-6",
         lg: "w-8 h-8",
@@ -9,7 +22,7 @@ const StarRating = ({ rating = 0, outOf = 5, size = "md" }) => {
     const starSize = sizeMap[size] || sizeMap.md;
 
     // Single star SVG
-    const Star = ({ filled = false, half = false }) => (
+    const Star: React.FC<StarProps> = ({ filled = false, half = false }) => (
         <div className="relative inline-block">
             {/* Gray background star */}
             <svg

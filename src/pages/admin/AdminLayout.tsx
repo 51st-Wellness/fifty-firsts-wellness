@@ -2,7 +2,7 @@ import React from "react";
 import { Link, NavLink, Outlet } from "react-router-dom";
 import Logo from "../../assets/images/logo.png";
 // Layout container for all admin pages with sidebar and header
-const AdminLayout = () => {
+const AdminLayout: React.FC = () => {
   return (
     <div className="min-h-screen w-full bg-gray-50">
       <div className="grid grid-cols-[260px_1fr] min-h-screen">

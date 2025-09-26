@@ -24,13 +24,11 @@ import Loader from "./components/Loader";
 import Footer from "./components/Footer";
 
 // Admin routes (lazy loaded)
-const AdminLayout = lazy(() => import("./pages/admin/AdminLayout.tsx"));
-const AdminOverview = lazy(() => import("./pages/admin/AdminOverview.tsx"));
-const AdminMarketplace = lazy(() =>
-  import("./pages/admin/AdminMarketplace.tsx")
-);
+const AdminLayout = lazy(() => import("./pages/admin/AdminLayout"));
+const AdminOverview = lazy(() => import("./pages/admin/AdminOverview"));
+const AdminMarketplace = lazy(() => import("./pages/admin/AdminMarketplace"));
 
-function App() {
+const App: React.FC = () => {
   return (
     <div className="min-h-screen">
       {/* Hide global Navbar on admin routes */}
@@ -164,6 +162,6 @@ function App() {
       </div>
     </div>
   );
-}
+};
 
 export default App;

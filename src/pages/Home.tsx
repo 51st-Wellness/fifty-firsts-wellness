@@ -25,7 +25,7 @@ import stretch from "../assets/images/stretch.png";
 import Footer from "../components/Footer";
 
 // Home page landing component
-const Home = () => {
+const Home: React.FC = () => {
   return (
     <main className="min-h-screen bg-gradient-to-br from-gray-50 to-white">
       {/* Hero Section */}

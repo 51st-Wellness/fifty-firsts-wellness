@@ -11,7 +11,7 @@ import {
 } from "lucide-react";
 import footerlogo from "../assets/images/footerlogo.png";
 
-const Footer = () => {
+const Footer: React.FC = () => {
   return (
     <footer className="bg-gray-900 text-white w-full">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16">

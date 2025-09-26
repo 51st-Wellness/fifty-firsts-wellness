@@ -7,7 +7,7 @@ import martin4 from "../../assets/images/martin4.png";
 import comment from "../../assets/images/comment.png";
 import profilepic from "../../assets/images/profilepic.png";
 
-const WellnessProgramDetails = () => {
+const WellnessProgramDetails: React.FC = () => {
   const [formData, setFormData] = useState({
     firstName: "",
     lastName: "",
@@ -162,7 +162,7 @@ const WellnessProgramDetails = () => {
             {/* Message */}
             <textarea
               name="message"
-              rows="5"
+              rows={5}
               placeholder="How can we help you? Enter your message..."
               value={formData.message}
               onChange={handleChange}

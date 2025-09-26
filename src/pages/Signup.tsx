@@ -1,35 +1,42 @@
 import React, { useState } from "react";
-import logo from "../assets/images/logo.png"; // replace with your actual logo path
-import loginlogo from "../assets/images/loginlogo.png"; // replace with your actual logo path
+import logo from "../assets/images/logo.png"; // app logo
+import selflove from "../assets/images/selflove.png"; // hero image
 import { FiEye, FiEyeOff } from "react-icons/fi";
 import { FcGoogle } from "react-icons/fc";
 import { signUp } from "../api/auth.api";
 import toast from "react-hot-toast";
 import { useNavigate } from "react-router-dom";
+import { AxiosError } from "axios";
 
-const Signup = () => {
-  const [showPassword, setShowPassword] = useState(false);
-  const [showConfirmPassword, setShowConfirmPassword] = useState(false);
-  const [loading, setLoading] = useState(false);
+interface FormErrors {
+  [key: string]: string;
+}
+
+// Signup page component
+const Signup: React.FC = () => {
+  const [showPassword, setShowPassword] = useState<boolean>(false);
+  const [showConfirmPassword, setShowConfirmPassword] =
+    useState<boolean>(false);
+  const [loading, setLoading] = useState<boolean>(false);
 
   // Form state
-  const [email, setEmail] = useState("");
-  const [password, setPassword] = useState("");
-  const [confirmPassword, setConfirmPassword] = useState("");
-  const [firstName, setFirstName] = useState("");
-  const [lastName, setLastName] = useState("");
-  const [city, setCity] = useState("");
-  const [phone, setPhone] = useState("");
-  const [address, setAddress] = useState("");
-  const [bio, setBio] = useState("");
-  const [role, setRole] = useState("");
-  const [errors, setErrors] = useState({});
+  const [email, setEmail] = useState<string>("");
+  const [password, setPassword] = useState<string>("");
+  const [confirmPassword, setConfirmPassword] = useState<string>("");
+  const [firstName, setFirstName] = useState<string>("");
+  const [lastName, setLastName] = useState<string>("");
+  const [city, setCity] = useState<string>("");
+  const [phone, setPhone] = useState<string>("");
+  const [address, setAddress] = useState<string>("");
+  const [bio, setBio] = useState<string>("");
+  const [role, setRole] = useState<string>("");
+  const [errors, setErrors] = useState<FormErrors>({});
 
   const navigate = useNavigate();
 
-  const handleSubmit = async (e) => {
+  const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
-    const newErrors = {};
+    const newErrors: Record<string, string> = {};
 
     // Email validation
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
@@ -82,10 +89,10 @@ const Signup = () => {
 
       toast.success("Signup successful! Please check your email.");
       navigate("/verify-email", { state: { email } });
-    } catch (error) {
+    } catch (error: any) {
       setLoading(false);
-      if (error.response) {
-        toast.error(error.response.data.message || "Signup failed!");
+      if (error instanceof AxiosError) {
+        toast.error(error.response?.data?.message || "Signup failed!");
       } else {
         toast.error("Something went wrong!");
       }
@@ -98,7 +105,7 @@ const Signup = () => {
         {/* Left Image */}
         <div className="hidden md:block md:w-1/2 h-screen">
           <img
-            src={loginlogo}
+            src={selflove}
             alt="Login Illustration"
             className="h-full w-full object-cover"
           />
@@ -112,9 +119,9 @@ const Signup = () => {
           </div>
 
           {/* Card */}
-          <div className="w-full max-w-md bg-white p-6 rounded-lg shadow-sm overflow-y-auto max-h-[85vh]">
+          <div className="w-full max-w-2xl bg-white p-6 rounded-lg shadow-sm overflow-y-auto max-h-[88vh]">
             {/* Title */}
-            <h2 className="text-2xl font-bold text-gray-900">
+            <h2 className="text-3xl font-bold text-gray-900">
               Create an account!
             </h2>
             <p className="text-sm text-gray-500 mb-6">
@@ -122,7 +129,10 @@ const Signup = () => {
             </p>
 
             {/* Form */}
-            <form onSubmit={handleSubmit} className="space-y-4">
+            <form
+              onSubmit={handleSubmit}
+              className="grid grid-cols-1 md:grid-cols-2 gap-4"
+            >
               {/* First Name */}
               <div>
                 <input
@@ -152,7 +162,7 @@ const Signup = () => {
               </div>
 
               {/* Email */}
-              <div>
+              <div className="md:col-span-2">
                 <input
                   type="email"
                   placeholder="Email Address"
@@ -198,7 +208,7 @@ const Signup = () => {
               </div>
 
               {/* Address */}
-              <div>
+              <div className="md:col-span-2">
                 <input
                   type="text"
                   placeholder="Address"
@@ -212,7 +222,7 @@ const Signup = () => {
               </div>
 
               {/* Bio */}
-              <div>
+              <div className="md:col-span-2">
                 <textarea
                   placeholder="Bio"
                   value={bio}
@@ -284,7 +294,7 @@ const Signup = () => {
               <button
                 type="submit"
                 disabled={loading}
-                className="w-full bg-teal-600 text-white py-2 rounded-lg hover:bg-teal-700 transition"
+                className="md:col-span-2 w-full bg-teal-600 text-white py-2 rounded-lg hover:bg-teal-700 transition"
               >
                 {loading ? "Signing up..." : "Sign Up"}
               </button>

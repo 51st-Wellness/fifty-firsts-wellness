@@ -1,7 +1,7 @@
 import React, { useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 
-const CheckEmail = () => {
+const CheckEmail: React.FC = () => {
     const navigate = useNavigate();
 
     useEffect(() => {

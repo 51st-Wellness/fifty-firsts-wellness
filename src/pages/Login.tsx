@@ -1,24 +1,30 @@
 import React, { useEffect, useState } from "react";
-import loginlogo from "../assets/images/loginlogo.png";
+import selflove from "../assets/images/selflove.png";
 import logo from "../assets/images/logo.png";
 import { FcGoogle } from "react-icons/fc";
 import { Eye, EyeOff, ArrowRight } from "lucide-react";
 import { Link, useNavigate } from "react-router-dom";
 import { useAuth } from "../context/AuthContextProvider";
 
-const Login = () => {
-  const [formData, setFormData] = useState({
+interface FormData {
+  email: string;
+  password: string;
+}
+
+// Login page component
+const Login: React.FC = () => {
+  const [formData, setFormData] = useState<FormData>({
     email: "",
     password: "",
   });
 
-  const [showPassword, setShowPassword] = useState(false);
-  const [rememberMe, setRememberMe] = useState(false);
+  const [showPassword, setShowPassword] = useState<boolean>(false);
+  const [rememberMe, setRememberMe] = useState<boolean>(false);
 
   const { login, error } = useAuth();
   const navigate = useNavigate();
 
-  const handleLogin = async (e) => {
+  const handleLogin = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
 
     const { email, password } = formData;
@@ -37,7 +43,7 @@ const Login = () => {
     }
   };
 
-  const handleChange = (e) => {
+  const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setFormData({ ...formData, [e.target.name]: e.target.value });
   };
 
@@ -58,11 +64,11 @@ const Login = () => {
 
   return (
     <main className="min-h-screen bg-gradient-to-br from-gray-50 to-white">
-      <section className="w-full flex flex-col md:flex-row min-h-screen">
+      <section className="w-full flex flex-col md:flex-row h-screen">
         {/* Left Image (hidden on mobile) */}
         <div className="hidden md:block md:w-1/2 relative">
           <img
-            src={loginlogo}
+            src={selflove}
             alt="Login Illustration"
             className="h-full w-full object-cover"
           />
@@ -70,7 +76,7 @@ const Login = () => {
         </div>
 
         {/* Right Form */}
-        <div className="w-full md:w-1/2 flex flex-col justify-center p-8 sm:p-12 lg:p-16">
+        <div className="w-full md:w-1/2 flex flex-col justify-center p-6 sm:p-10 lg:p-16">
           <div className="max-w-md mx-auto w-full">
             <div className="flex items-center space-x-3 mb-8">
               <img className="w-12 h-12" src={logo} alt="Logo" />
@@ -79,8 +85,8 @@ const Login = () => {
               </span>
             </div>
 
-            <div className="text-center mb-8">
-              <h1 className="text-3xl sm:text-4xl font-bold text-gray-900 mb-2">
+            <div className="text-center md:text-left mb-6">
+              <h1 className="text-3xl sm:text-4xl font-bold text-gray-900 mb-1">
                 Welcome Back!
               </h1>
               <p className="text-gray-600">
@@ -88,7 +94,7 @@ const Login = () => {
               </p>
             </div>
 
-            <div className="bg-white p-8 rounded-2xl shadow-xl">
+            <div className="bg-white p-6 rounded-2xl shadow-xl">
               <form onSubmit={handleLogin} className="space-y-6">
                 {error && (
                   <div className="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded-lg text-sm">
