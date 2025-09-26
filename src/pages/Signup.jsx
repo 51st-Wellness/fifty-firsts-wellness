@@ -3,7 +3,7 @@ import logo from "../assets/images/logo.png"; // replace with your actual logo p
 import loginlogo from "../assets/images/loginlogo.png"; // replace with your actual logo path
 import { FiEye, FiEyeOff } from "react-icons/fi";
 import { FcGoogle } from "react-icons/fc";
-import { signUp } from "../services/auth";
+import { signUp } from "../api/auth.api";
 import toast from "react-hot-toast";
 import { useNavigate } from "react-router-dom";
 
@@ -92,7 +92,6 @@ const Signup = () => {
     }
   };
 
-
   return (
     <main className="w-full flex">
       <section className="w-full flex flex-col md:flex-row h-screen">
@@ -115,7 +114,9 @@ const Signup = () => {
           {/* Card */}
           <div className="w-full max-w-md bg-white p-6 rounded-lg shadow-sm overflow-y-auto max-h-[85vh]">
             {/* Title */}
-            <h2 className="text-2xl font-bold text-gray-900">Create an account!</h2>
+            <h2 className="text-2xl font-bold text-gray-900">
+              Create an account!
+            </h2>
             <p className="text-sm text-gray-500 mb-6">
               Join us now! Your wellness journey begins here.
             </p>
@@ -159,7 +160,9 @@ const Signup = () => {
                   onChange={(e) => setEmail(e.target.value)}
                   className="w-full border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-teal-500"
                 />
-                {errors.email && <p className="text-red-500 text-xs">{errors.email}</p>}
+                {errors.email && (
+                  <p className="text-red-500 text-xs">{errors.email}</p>
+                )}
               </div>
 
               {/* Phone */}
@@ -175,9 +178,10 @@ const Signup = () => {
                   }}
                   className="w-full border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-teal-500"
                 />
-                {errors.phone && <p className="text-red-500 text-xs">{errors.phone}</p>}
+                {errors.phone && (
+                  <p className="text-red-500 text-xs">{errors.phone}</p>
+                )}
               </div>
-
 
               {/* City */}
               <div>
@@ -188,7 +192,9 @@ const Signup = () => {
                   onChange={(e) => setCity(e.target.value)}
                   className="w-full border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-teal-500"
                 />
-                {errors.city && <p className="text-red-500 text-xs">{errors.city}</p>}
+                {errors.city && (
+                  <p className="text-red-500 text-xs">{errors.city}</p>
+                )}
               </div>
 
               {/* Address */}
@@ -227,7 +233,9 @@ const Signup = () => {
                   <option value="ADMIN">ADMIN</option>
                   <option value="COACH">COACH</option>
                 </select>
-                {errors.role && <p className="text-red-500 text-xs">{errors.role}</p>}
+                {errors.role && (
+                  <p className="text-red-500 text-xs">{errors.role}</p>
+                )}
               </div>
 
               {/* Password */}
@@ -266,7 +274,9 @@ const Signup = () => {
                   {showConfirmPassword ? <FiEyeOff /> : <FiEye />}
                 </span>
                 {errors.confirmPassword && (
-                  <p className="text-red-500 text-xs">{errors.confirmPassword}</p>
+                  <p className="text-red-500 text-xs">
+                    {errors.confirmPassword}
+                  </p>
                 )}
               </div>
 

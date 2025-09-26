@@ -1,3 +1,4 @@
+import React, { Suspense, lazy } from "react";
 import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
 import Navbar from "./components/Navbar";
 import Home from "./pages/Home";
@@ -19,6 +20,12 @@ import { Toaster } from "react-hot-toast";
 import ResetPassword from "./pages/ResetPassword";
 import CheckEmail from "./pages/CheckEmail";
 import VerifyEmail from "./pages/VerifyEmail";
+import Loader from "./components/Loader";
+
+// Admin routes (lazy loaded)
+const AdminLayout = lazy(() => import("./pages/AdminLayout"));
+const AdminOverview = lazy(() => import("./pages/AdminOverview"));
+const AdminMarketplace = lazy(() => import("./pages/AdminMarketplace"));
 
 function App() {
   return (
@@ -54,6 +61,33 @@ function App() {
           <Route path="/reset-password" element={<ResetPassword />} />
           <Route path="/check-email" element={<CheckEmail />} />
           <Route path="/verify-email" element={<VerifyEmail />} />
+
+          {/* Admin namespace */}
+          <Route
+            path="/admin"
+            element={
+              <Suspense fallback={<Loader />}>
+                <AdminLayout />
+              </Suspense>
+            }
+          >
+            <Route
+              path="overview"
+              element={
+                <Suspense fallback={<Loader />}>
+                  <AdminOverview />
+                </Suspense>
+              }
+            />
+            <Route
+              path="marketplace"
+              element={
+                <Suspense fallback={<Loader />}>
+                  <AdminMarketplace />
+                </Suspense>
+              }
+            />
+          </Route>
         </Routes>
       </div>
     </div>

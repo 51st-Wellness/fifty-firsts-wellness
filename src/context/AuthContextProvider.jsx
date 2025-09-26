@@ -1,6 +1,6 @@
 import { useContext, useState } from "react";
 import { AuthContext } from "./AuthContext";
-import http from "../helpers/http";
+import { login as loginApi } from "../api/auth.api";
 import { useNavigate } from "react-router-dom";
 import { toast } from "react-hot-toast";
 
@@ -19,17 +19,14 @@ export const AuthProvider = ({ children }) => {
   const login = async (email, password) => {
     setLoading(true);
     try {
-      const response = await http().post("/auth/login", {
-        password,
-        email,
-      });
+      const response = await loginApi({ email, password });
 
-      if (response.data) {
-        localStorage.setItem("token", response.data.data.token);
-        localStorage.setItem("user", JSON.stringify(response.data.data));
+      if (response?.data) {
+        localStorage.setItem("token", response.data.token);
+        localStorage.setItem("user", JSON.stringify(response.data));
         setIsLoggedIn(true);
-        setUser(response.data.data);
-        setToken(response.data.data.token);
+        setUser(response.data);
+        setToken(response.data.token);
         setLoading(false);
 
         return true; // ✅ success

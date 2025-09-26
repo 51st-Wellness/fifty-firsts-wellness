@@ -24,6 +24,7 @@ import jump from "../assets/images/jump.png";
 import stretch from "../assets/images/stretch.png";
 import Footer from "../components/Footer";
 
+// Home page landing component
 const Home = () => {
   return (
     <main className="min-h-screen bg-gradient-to-br from-gray-50 to-white">
@@ -40,12 +41,28 @@ const Home = () => {
             {/* Left Column - Text Content */}
             <div className="text-center lg:text-left">
               {/* Main Headline */}
-              <h1 className="text-4xl sm:text-5xl lg:text-6xl xl:text-7xl font-bold text-gray-900 leading-tight font-heading mb-6">
-                <span className="block text-gray-900">Transform Your</span>
-                <span className="block bg-gradient-to-r from-brand-green to-brand-green-light bg-clip-text text-transparent">
-                  Wellness Journey
+              <h1 className="text-4xl sm:text-5xl lg:text-6xl xl:text-6xl font-bold text-gray-900 leading-tight font-heading mb-6">
+                <span className="block">
+                  <span className="inline-block align-middle bg-brand-purple/30 px-3 py-1 rounded-md">
+                    RESTORE
+                  </span>
+                  <span className="ml-3 font-sans">YOUR BALANCE.</span>
                 </span>
-                <span className="block text-gray-900">Today</span>
+
+                <span className="block mt-1">
+                  <span className="mr-3 font-sans">RECLAIM YOUR</span>
+                  {/* Dramatic but refined treatment for PEACE */}
+                  <span className="relative inline-block align-middle">
+                    <span className="relative z-10 inline-block bg-brand-green/20 px-3 py-1 rounded-md font-heading tracking-wide text-[0.85em] leading-none -rotate-1 shadow-sm">
+                      PEACE
+                    </span>
+                    <span
+                      aria-hidden
+                      className="pointer-events-none absolute inset-x-1 -bottom-1 h-2 bg-brand-green/40 rounded-md blur-[2px]"
+                    ></span>
+                  </span>
+                  <span className="font-sans">.</span>
+                </span>
               </h1>
 
               {/* Subheadline */}
@@ -54,7 +71,6 @@ const Home = () => {
                 supportive community designed to help you achieve your health
                 and happiness goals.
               </p>
-
               {/* Key Benefits */}
               <div className="flex flex-wrap gap-4 mb-8 justify-center lg:justify-start">
                 <div className="flex items-center bg-white/80 backdrop-blur-sm px-4 py-2 rounded-full shadow-sm">

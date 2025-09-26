@@ -1,20 +1,52 @@
-import React, { useState } from "react";
+import React, { useEffect, useMemo, useState } from "react";
 import { Search } from "lucide-react";
-import diary from "../assets/images/diary.png";
-import skincare from "../assets/images/skincare.png";
-import bathtub from "../assets/images/bathtub.png";
-import { CiShoppingCart } from "react-icons/ci";
 import StarRating from "../components/StarRating";
 import Footer from "../components/Footer";
+import StoreItemCard from "../components/StoreItemCard";
+import { fetchStoreItems } from "../api/marketplace.api";
 
 const MarketPlace = ({ onSearch }) => {
   const [query, setQuery] = useState("");
   const [openFilter, setOpenFilter] = useState(null); // "price" | "product" | null
+  const [items, setItems] = useState([]);
+  const [page, setPage] = useState(1);
+  const [pageSize] = useState(12);
+  const [hasMore, setHasMore] = useState(true);
+  const [loading, setLoading] = useState(false);
+
+  const loadItems = async (opts = {}) => {
+    setLoading(true);
+    try {
+      const { items: newItems, pagination } = await fetchStoreItems({
+        page: opts.page ?? page,
+        limit: pageSize,
+        search: opts.search ?? (query || undefined),
+        isPublished: true,
+      });
+      if (opts.reset) {
+        setItems(newItems);
+      } else {
+        setItems((prev) => [...prev, ...newItems]);
+      }
+      setHasMore(Boolean(pagination?.hasMore));
+    } catch (e) {
+      // noop
+    } finally {
+      setLoading(false);
+    }
+  };
 
   const handleSubmit = (e) => {
     e.preventDefault();
     if (onSearch) onSearch(query);
+    setPage(1);
+    loadItems({ page: 1, search: query, reset: true });
   };
+
+  useEffect(() => {
+    loadItems({ page: 1, reset: true });
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   return (
     <main className="px-4 sm:px-6 lg:px-12 relative min-h-screen pb-20">
@@ -103,48 +135,14 @@ const MarketPlace = ({ onSearch }) => {
             Selected Products
           </div>
           <section className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
-            {Array.from({ length: 18 }, (_, idx) => {
-              const images = [diary, skincare, bathtub];
-              const img = images[idx % images.length];
-              return (
-                <article
-                  key={idx}
-                  className="flex border rounded-3xl p-4 flex-col"
-                >
-                  <img
-                    src={img}
-                    alt=""
-                    className="w-full h-auto rounded-lg object-cover"
-                  />
-                  <div className="text-lg sm:text-xl mt-2">
-                    Wellness Product Name
-                  </div>
-                  <div className="flex justify-between mt-2">
-                    <div className="text-lg sm:text-2xl font-medium">
-                      $22.50
-                    </div>
-                    <div className="flex gap-3 items-center">
-                      <div className="line-through text-sm sm:text-base">
-                        $32.50
-                      </div>
-                      <div className="text-xs sm:text-sm font-medium text-[#229EFF] bg-[#E9F5FF] py-1 px-2 rounded">
-                        -14%
-                      </div>
-                    </div>
-                  </div>
-                  <div className="flex items-center gap-2 mt-2">
-                    <StarRating rating={4.5} />
-                    <span className="text-xs sm:text-sm text-gray-500">
-                      (124 reviews)
-                    </span>
-                  </div>
-                  <button className="bg-[#4444B3] rounded-full text-white flex gap-2 items-center py-2 px-4 mt-4 text-sm sm:text-base">
-                    <CiShoppingCart className="text-lg sm:text-xl" />
-                    Add to Cart
-                  </button>
-                </article>
-              );
-            })}
+            {items.map((item) => (
+              <StoreItemCard key={item.productId} item={item} />
+            ))}
+            {!loading && items.length === 0 && (
+              <div className="col-span-full text-center text-gray-500">
+                No products found
+              </div>
+            )}
           </section>
         </section>
 
@@ -176,7 +174,9 @@ const MarketPlace = ({ onSearch }) => {
           {/* Product Range */}
           <article className="bg-[#F2F4F7] p-4 flex flex-col justify-center gap-4 mt-6 rounded-xl">
             <div className="flex items-center justify-between">
-              <div className="text-lg sm:text-xl font-medium">Product Range</div>
+              <div className="text-lg sm:text-xl font-medium">
+                Product Range
+              </div>
               <div className="flex items-center gap-2 sm:gap-3 text-sm sm:text-lg font-medium text-[#4444B3]">
                 <div className="py-1 px-3 border rounded-full border-[#4444B3]">
                   Clear
@@ -206,8 +206,16 @@ const MarketPlace = ({ onSearch }) => {
 
       {/* Load More Button */}
       <div className="flex justify-center mt-8 pb-8">
-        <button className="w-fit rounded-full text-white px-6 py-2 text-center bg-[#4444B3] text-sm sm:text-base hover:bg-[#343494] transition">
-          Load More
+        <button
+          disabled={!hasMore || loading}
+          onClick={async () => {
+            const next = page + 1;
+            setPage(next);
+            await loadItems({ page: next });
+          }}
+          className="w-fit rounded-full text-white px-6 py-2 text-center bg-[#4444B3] text-sm sm:text-base hover:bg-[#343494] transition disabled:opacity-50 disabled:cursor-not-allowed"
+        >
+          {loading ? "Loading..." : hasMore ? "Load More" : "No more items"}
         </button>
       </div>
 
@@ -260,7 +268,7 @@ const MarketPlace = ({ onSearch }) => {
         </div>
       )}
 
-      <Footer />
+      {/* <Footer /> */}
     </main>
   );
 };
