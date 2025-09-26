@@ -242,7 +242,7 @@ const Navbar: React.FC = () => {
           <div className="hidden md:flex items-center gap-3">
             {isAuthenticated && user?.role === "ADMIN" && (
               <Link
-                to="/admin/overview"
+                to="/admin"
                 className="bg-indigo-600 text-white px-4 py-2 rounded-lg hover:bg-indigo-700 transition-colors shadow-sm font-medium text-sm"
               >
                 Admin
@@ -374,6 +374,19 @@ const Navbar: React.FC = () => {
                     </ul>
                   )}
                 </li>
+
+                {/* Admin (mobile) */}
+                {isAuthenticated && user?.role === "ADMIN" && (
+                  <li>
+                    <Link
+                      to="/admin"
+                      onClick={() => setMenuOpen(false)}
+                      className="block px-6 py-3 text-white bg-indigo-600 hover:bg-indigo-700 font-medium transition-colors rounded-lg mx-4 my-2 text-center"
+                    >
+                      Admin
+                    </Link>
+                  </li>
+                )}
 
                 <li>
                   <Link

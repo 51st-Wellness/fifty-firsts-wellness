@@ -8,12 +8,15 @@ import {
   TextField,
   Box,
   Typography,
-  Grid,
   Chip,
   FormControlLabel,
   Switch,
   CircularProgress,
   Divider,
+  Tabs,
+  Tab,
+  InputAdornment,
+  Stack,
 } from "@mui/material";
 import {
   CloudUpload as UploadIcon,
@@ -55,6 +58,7 @@ const StoreItemDialog: React.FC<StoreItemDialogProps> = ({
   const [displayPreview, setDisplayPreview] = useState<string>("");
   const [imagePreviews, setImagePreviews] = useState<string[]>([]);
   const [submitting, setSubmitting] = useState(false);
+  const [tabIndex, setTabIndex] = useState(0);
 
   // Reset form when dialog opens/closes or item changes
   useEffect(() => {
@@ -208,108 +212,177 @@ const StoreItemDialog: React.FC<StoreItemDialogProps> = ({
 
       <DialogContent>
         <Box sx={{ pt: 1 }}>
-          <Grid container spacing={2}>
-            {/* Basic Information */}
-            <Grid item xs={12}>
-              <TextField
-                fullWidth
-                label="Name"
-                value={formData.name}
-                onChange={(e) =>
-                  setFormData((prev) => ({ ...prev, name: e.target.value }))
-                }
-                required
-              />
-            </Grid>
+          <Tabs
+            value={tabIndex}
+            onChange={(_, v) => setTabIndex(v)}
+            sx={{ mb: 2 }}
+            variant="fullWidth"
+          >
+            <Tab label="Details" />
+            <Tab label="Media" />
+          </Tabs>
 
-            <Grid item xs={12}>
-              <TextField
-                fullWidth
-                label="Description"
-                multiline
-                rows={3}
-                value={formData.description}
-                onChange={(e) =>
-                  setFormData((prev) => ({
-                    ...prev,
-                    description: e.target.value,
-                  }))
-                }
-              />
-            </Grid>
-
-            <Grid item xs={6}>
-              <TextField
-                fullWidth
-                label="Price"
-                type="number"
-                inputProps={{ min: 0, step: 0.01 }}
-                value={formData.price}
-                onChange={(e) =>
-                  setFormData((prev) => ({
-                    ...prev,
-                    price: Number(e.target.value),
-                  }))
-                }
-                required
-              />
-            </Grid>
-
-            <Grid item xs={6}>
-              <TextField
-                fullWidth
-                label="Stock"
-                type="number"
-                inputProps={{ min: 0 }}
-                value={formData.stock}
-                onChange={(e) =>
-                  setFormData((prev) => ({
-                    ...prev,
-                    stock: Number(e.target.value),
-                  }))
-                }
-                required
-              />
-            </Grid>
-
-            {/* Tags */}
-            <Grid item xs={12}>
-              <Box sx={{ mb: 1 }}>
-                <Typography variant="subtitle2">Tags</Typography>
-              </Box>
-              <Box sx={{ display: "flex", gap: 1, mb: 1 }}>
+          {tabIndex === 0 && (
+            <Stack spacing={2}>
+              {/* Basic Information */}
+              <Box>
                 <TextField
+                  fullWidth
                   size="small"
-                  placeholder="Add tag"
-                  value={tagInput}
-                  onChange={(e) => setTagInput(e.target.value)}
-                  onKeyPress={(e) => e.key === "Enter" && addTag()}
+                  label="Name"
+                  placeholder="e.g. Wellness Journal"
+                  value={formData.name}
+                  onChange={(e) =>
+                    setFormData((prev) => ({ ...prev, name: e.target.value }))
+                  }
+                  required
                 />
-                <Button onClick={addTag} variant="outlined" size="small">
-                  Add
-                </Button>
               </Box>
-              <Box sx={{ display: "flex", flexWrap: "wrap", gap: 1 }}>
-                {formData.tags.map((tag, idx) => (
-                  <Chip
-                    key={idx}
-                    label={tag}
-                    onDelete={() => removeTag(tag)}
-                    size="small"
-                  />
-                ))}
-              </Box>
-            </Grid>
 
-            {/* File Uploads */}
-            <Grid item xs={12}>
-              <Divider sx={{ my: 2 }} />
+              <Box
+                sx={{
+                  display: "flex",
+                  gap: 2,
+                  flexDirection: { xs: "column", md: "row" },
+                }}
+              >
+                <Box sx={{ flex: 1 }}>
+                  <TextField
+                    fullWidth
+                    size="small"
+                    label="Price"
+                    type="number"
+                    inputProps={{ min: 0, step: 0.01 }}
+                    InputProps={{
+                      startAdornment: (
+                        <InputAdornment position="start">$</InputAdornment>
+                      ),
+                    }}
+                    value={formData.price}
+                    onChange={(e) =>
+                      setFormData((prev) => ({
+                        ...prev,
+                        price: Number(e.target.value),
+                      }))
+                    }
+                    required
+                  />
+                </Box>
+                <Box sx={{ flex: 1 }}>
+                  <TextField
+                    fullWidth
+                    size="small"
+                    label="Stock"
+                    type="number"
+                    inputProps={{ min: 0 }}
+                    value={formData.stock}
+                    onChange={(e) =>
+                      setFormData((prev) => ({
+                        ...prev,
+                        stock: Number(e.target.value),
+                      }))
+                    }
+                    required
+                  />
+                </Box>
+              </Box>
+
+              <Box>
+                <TextField
+                  fullWidth
+                  label="Description"
+                  placeholder="Brief, compelling description of the product"
+                  multiline
+                  rows={3}
+                  value={formData.description}
+                  onChange={(e) =>
+                    setFormData((prev) => ({
+                      ...prev,
+                      description: e.target.value,
+                    }))
+                  }
+                />
+              </Box>
+
+              {/* Tags */}
+              <Box>
+                <Box sx={{ mb: 1 }}>
+                  <Typography variant="subtitle2">Tags</Typography>
+                </Box>
+                <Stack direction="row" spacing={1} sx={{ mb: 1 }}>
+                  <TextField
+                    size="small"
+                    placeholder="Add tag"
+                    value={tagInput}
+                    onChange={(e) => setTagInput(e.target.value)}
+                    onKeyDown={(e) => {
+                      if (e.key === "Enter") {
+                        e.preventDefault();
+                        addTag();
+                      }
+                    }}
+                  />
+                  <Button onClick={addTag} variant="outlined" size="small">
+                    Add
+                  </Button>
+                </Stack>
+                <Box sx={{ display: "flex", flexWrap: "wrap", gap: 1 }}>
+                  {formData.tags.map((tag, idx) => (
+                    <Chip
+                      key={idx}
+                      label={tag}
+                      onDelete={() => removeTag(tag)}
+                      size="small"
+                    />
+                  ))}
+                </Box>
+              </Box>
+
+              {/* Options */}
+              <Box>
+                <Divider sx={{ my: 1 }} />
+                <Stack direction="row" spacing={3}>
+                  <FormControlLabel
+                    control={
+                      <Switch
+                        checked={formData.isFeatured}
+                        onChange={(e) =>
+                          setFormData((prev) => ({
+                            ...prev,
+                            isFeatured: e.target.checked,
+                          }))
+                        }
+                      />
+                    }
+                    label="Featured Item"
+                  />
+                  <FormControlLabel
+                    control={
+                      <Switch
+                        checked={formData.isPublished}
+                        onChange={(e) =>
+                          setFormData((prev) => ({
+                            ...prev,
+                            isPublished: e.target.checked,
+                          }))
+                        }
+                      />
+                    }
+                    label="Published"
+                  />
+                </Stack>
+              </Box>
+            </Stack>
+          )}
+
+          {tabIndex === 1 && (
+            <Box>
               <Typography variant="subtitle1" sx={{ mb: 2 }}>
                 Media Files
               </Typography>
 
               {/* Display File */}
-              <Box sx={{ mb: 2 }}>
+              <Box sx={{ mb: 3 }}>
                 <Typography variant="subtitle2" sx={{ mb: 1 }}>
                   Display Image/Video (Required for new items)
                 </Typography>
@@ -339,10 +412,10 @@ const StoreItemDialog: React.FC<StoreItemDialogProps> = ({
                       <video
                         src={displayPreview}
                         style={{
-                          width: 100,
-                          height: 100,
+                          width: 140,
+                          height: 140,
                           objectFit: "cover",
-                          borderRadius: 4,
+                          borderRadius: 8,
                         }}
                       />
                     ) : (
@@ -350,10 +423,10 @@ const StoreItemDialog: React.FC<StoreItemDialogProps> = ({
                         src={displayPreview}
                         alt="Display preview"
                         style={{
-                          width: 100,
-                          height: 100,
+                          width: 140,
+                          height: 140,
                           objectFit: "cover",
-                          borderRadius: 4,
+                          borderRadius: 8,
                         }}
                       />
                     )}
@@ -362,7 +435,7 @@ const StoreItemDialog: React.FC<StoreItemDialogProps> = ({
               </Box>
 
               {/* Additional Images */}
-              <Box sx={{ mb: 2 }}>
+              <Box>
                 <Typography variant="subtitle2" sx={{ mb: 1 }}>
                   Additional Images (Optional, max 5)
                 </Typography>
@@ -391,54 +464,18 @@ const StoreItemDialog: React.FC<StoreItemDialogProps> = ({
                         src={preview}
                         alt={`Preview ${idx + 1}`}
                         style={{
-                          width: 60,
-                          height: 60,
+                          width: 80,
+                          height: 80,
                           objectFit: "cover",
-                          borderRadius: 4,
+                          borderRadius: 6,
                         }}
                       />
                     ))}
                   </Box>
                 )}
               </Box>
-            </Grid>
-
-            {/* Options */}
-            <Grid item xs={12}>
-              <Divider sx={{ my: 2 }} />
-              <FormControlLabel
-                control={
-                  <Switch
-                    checked={formData.isFeatured}
-                    onChange={(e) =>
-                      setFormData((prev) => ({
-                        ...prev,
-                        isFeatured: e.target.checked,
-                      }))
-                    }
-                  />
-                }
-                label="Featured Item"
-              />
-            </Grid>
-
-            <Grid item xs={12}>
-              <FormControlLabel
-                control={
-                  <Switch
-                    checked={formData.isPublished}
-                    onChange={(e) =>
-                      setFormData((prev) => ({
-                        ...prev,
-                        isPublished: e.target.checked,
-                      }))
-                    }
-                  />
-                }
-                label="Published"
-              />
-            </Grid>
-          </Grid>
+            </Box>
+          )}
         </Box>
       </DialogContent>
 

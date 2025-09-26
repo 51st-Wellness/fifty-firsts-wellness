@@ -84,7 +84,7 @@ export function UserAvatar({ className = "" }: UserAvatarProps) {
   return (
     <div className="relative flex items-center" ref={dropdownRef}>
       {/* Unified Container with Rounded Border */}
-      <div className="flex items-center bg-gray-50/80 hover:bg-gray-100/90 rounded-full border border-gray-200/50 shadow-sm transition-all duration-200 p-1">
+      <div className="flex items-center bg-white rounded-full border border-gray-200 shadow-sm transition-all duration-200 p-1.5">
         {/* Profile Picture with Dropdown */}
         <div className="relative">
           <button
@@ -97,14 +97,14 @@ export function UserAvatar({ className = "" }: UserAvatarProps) {
                   <img
                     src={user.profilePicture}
                     alt="Profile"
-                    className="rounded-full object-cover w-[30px] h-[30px]"
+                    className="rounded-full object-cover w-9 h-9"
                   />
                 ) : (
-                  <UserCircle className="w-[30px] h-[30px] text-brand-green" />
+                  <UserCircle className="w-9 h-9 text-brand-green" />
                 )}
               </div>
               {isProfileIncomplete && (
-                <div className="absolute -top-1 -right-1 w-4 h-4 bg-yellow-400 text-white text-xs rounded-full flex items-center justify-center font-bold">
+                <div className="absolute -top-1 -left-1 w-4 h-4 bg-yellow-400 text-white text-[10px] rounded-full flex items-center justify-center font-bold">
                   !
                 </div>
               )}
@@ -199,32 +199,30 @@ export function UserAvatar({ className = "" }: UserAvatarProps) {
         {/* Name Area with Profile Link (Desktop only) */}
         <button
           onClick={handleProfileClick}
-          className="hidden md:block pl-3 pr-4 py-1 hover:bg-gray-200/50 rounded-r-full transition-all duration-200 cursor-pointer group"
+          className="hidden md:flex items-center gap-2 pl-2 pr-3 py-1 rounded-full hover:bg-gray-100 transition-colors group"
         >
-          <div className="flex items-center gap-2">
-            <div className="flex flex-col">
-              <span className="text-sm font-medium text-gray-800 group-hover:text-gray-900">
-                {user.firstName}
+          <div className="flex flex-col items-start leading-tight">
+            <span className="text-[15px] font-semibold text-gray-800 group-hover:text-gray-900">
+              {user.firstName}
+            </span>
+            <div className="flex items-center gap-1">
+              <span className="text-[11px] text-gray-500 group-hover:text-gray-600">
+                view profile
               </span>
-              <div className="flex items-center gap-1">
-                <span className="text-xs text-gray-500 group-hover:text-gray-600">
-                  view profile
-                </span>
-                <svg
-                  xmlns="http://www.w3.org/2000/svg"
-                  width="10"
-                  height="10"
-                  viewBox="0 0 24 24"
-                  fill="none"
-                  stroke="currentColor"
-                  strokeWidth="2"
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  className="text-gray-400 group-hover:text-gray-500 transition-transform group-hover:translate-x-0.5"
-                >
-                  <polyline points="9 18 15 12 9 6"></polyline>
-                </svg>
-              </div>
+              <svg
+                xmlns="http://www.w3.org/2000/svg"
+                width="10"
+                height="10"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                strokeWidth="2"
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                className="text-gray-400 group-hover:text-gray-500 transition-transform group-hover:translate-x-0.5"
+              >
+                <polyline points="9 18 15 12 9 6"></polyline>
+              </svg>
             </div>
           </div>
         </button>
