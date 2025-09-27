@@ -25,3 +25,6 @@ dist-ssr
 src/helpers/http.js
 pnpm-lock.yaml
 temp.js
+
+
+.env
