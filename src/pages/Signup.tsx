@@ -7,10 +7,12 @@ import toast from "react-hot-toast";
 import { useNavigate } from "react-router-dom";
 import { AxiosError } from "axios";
 import { storeAuthToken } from "../lib/utils";
-
-interface FormErrors {
-  [key: string]: string;
-}
+import { useForm } from "react-hook-form";
+import { zodResolver } from "@hookform/resolvers/zod";
+import { signupSchema, SignupFormData } from "../lib/validation";
+import PhoneInput from "react-phone-number-input";
+import "react-phone-number-input/style.css";
+import "../styles/phone-input.css";
 
 // Signup page component
 const Signup: React.FC = () => {
@@ -19,77 +21,36 @@ const Signup: React.FC = () => {
     useState<boolean>(false);
   const [loading, setLoading] = useState<boolean>(false);
 
-  // Form state
-  const [email, setEmail] = useState<string>("");
-  const [password, setPassword] = useState<string>("");
-  const [confirmPassword, setConfirmPassword] = useState<string>("");
-  const [firstName, setFirstName] = useState<string>("");
-  const [lastName, setLastName] = useState<string>("");
-  const [city, setCity] = useState<string>("");
-  const [phone, setPhone] = useState<string>("");
-  const [address, setAddress] = useState<string>("");
-  const [errors, setErrors] = useState<FormErrors>({});
-
   const navigate = useNavigate();
 
-  const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
-    e.preventDefault();
-    const newErrors: Record<string, string> = {};
+  // React Hook Form setup
+  const {
+    register,
+    handleSubmit,
+    formState: { errors, isValid },
+    watch,
+    setValue,
+  } = useForm<SignupFormData>({
+    resolver: zodResolver(signupSchema),
+    mode: "onChange",
+  });
 
-    // Email validation
-    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-    if (!emailRegex.test(email)) {
-      newErrors.email = "Please enter a valid email address";
-    }
+  const watchedFields = watch();
 
-    // Phone validation
-    const phoneRegex = /^[0-9]{10,}$/;
-    if (!phoneRegex.test(phone)) {
-      newErrors.phone = "Phone must be at least 10 digits";
-    }
-
-    // Password validation
-    if (password.length < 8) {
-      newErrors.password = "Password must be at least 8 characters";
-    }
-
-    if (password !== confirmPassword) {
-      newErrors.confirmPassword = "Passwords do not match";
-    }
-
-    // Required fields
-    if (!firstName) newErrors.firstName = "First name is required";
-    if (!lastName) newErrors.lastName = "Last name is required";
-    if (!city) newErrors.city = "City is required";
-    if (!address) newErrors.address = "Address is required";
-
-    setErrors(newErrors);
-
-    if (Object.keys(newErrors).length > 0) {
-      return; // Stop if validation fails
-    }
-
+  const onSubmit = async (data: SignupFormData) => {
     setLoading(true);
     try {
-      const response = await signUp({
-        email,
-        password,
-        firstName,
-        lastName,
-        city,
-        phone,
-        address,
-        role: "user",
+      await signUp({
+        email: data.email,
+        password: data.password,
+        firstName: data.firstName,
+        lastName: data.lastName,
+        phone: data.phone,
       });
       setLoading(false);
 
-      // Store token if returned from signup
-      if (response.data?.accessToken) {
-        storeAuthToken(response.data.accessToken);
-      }
-
       toast.success("Signup successful! Please check your email.");
-      navigate("/verify-email", { state: { email } });
+      navigate("/verify-email", { state: { email: data.email } });
     } catch (error: any) {
       setLoading(false);
       if (error instanceof AxiosError) {
@@ -126,7 +87,7 @@ const Signup: React.FC = () => {
 
             {/* Form */}
             <form
-              onSubmit={handleSubmit}
+              onSubmit={handleSubmit(onSubmit)}
               className="grid grid-cols-1 md:grid-cols-2 gap-3"
             >
               {/* First Name */}
@@ -134,12 +95,19 @@ const Signup: React.FC = () => {
                 <input
                   type="text"
                   placeholder="First Name"
-                  value={firstName}
-                  onChange={(e) => setFirstName(e.target.value)}
-                  className="w-full border border-gray-300 rounded-lg px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-teal-500"
+                  {...register("firstName")}
+                  className={`w-full border rounded-lg px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-teal-500 ${
+                    errors.firstName
+                      ? "border-red-500"
+                      : watchedFields.firstName && !errors.firstName
+                      ? "border-green-500"
+                      : "border-gray-300"
+                  }`}
                 />
                 {errors.firstName && (
-                  <p className="text-red-500 text-xs">{errors.firstName}</p>
+                  <p className="text-red-500 text-xs">
+                    {errors.firstName.message}
+                  </p>
                 )}
               </div>
 
@@ -148,12 +116,19 @@ const Signup: React.FC = () => {
                 <input
                   type="text"
                   placeholder="Last Name"
-                  value={lastName}
-                  onChange={(e) => setLastName(e.target.value)}
-                  className="w-full border border-gray-300 rounded-lg px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-teal-500"
+                  {...register("lastName")}
+                  className={`w-full border rounded-lg px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-teal-500 ${
+                    errors.lastName
+                      ? "border-red-500"
+                      : watchedFields.lastName && !errors.lastName
+                      ? "border-green-500"
+                      : "border-gray-300"
+                  }`}
                 />
                 {errors.lastName && (
-                  <p className="text-red-500 text-xs">{errors.lastName}</p>
+                  <p className="text-red-500 text-xs">
+                    {errors.lastName.message}
+                  </p>
                 )}
               </div>
 
@@ -162,58 +137,38 @@ const Signup: React.FC = () => {
                 <input
                   type="email"
                   placeholder="Email Address"
-                  value={email}
-                  onChange={(e) => setEmail(e.target.value)}
-                  className="w-full border border-gray-300 rounded-lg px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-teal-500"
+                  {...register("email")}
+                  className={`w-full border rounded-lg px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-teal-500 ${
+                    errors.email
+                      ? "border-red-500"
+                      : watchedFields.email && !errors.email
+                      ? "border-green-500"
+                      : "border-gray-300"
+                  }`}
                 />
                 {errors.email && (
-                  <p className="text-red-500 text-xs">{errors.email}</p>
+                  <p className="text-red-500 text-xs">{errors.email.message}</p>
                 )}
               </div>
 
               {/* Phone */}
-              <div>
-                <input
-                  type="tel"
+              <div className="md:col-span-2">
+                <PhoneInput
+                  international
+                  defaultCountry="US"
                   placeholder="Phone Number"
-                  value={phone}
-                  onChange={(e) => {
-                    // Allow only digits
-                    const value = e.target.value.replace(/\D/g, "");
-                    setPhone(value);
-                  }}
-                  className="w-full border border-gray-300 rounded-lg px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-teal-500"
+                  value={watchedFields.phone}
+                  onChange={(value) => setValue("phone", value || "")}
+                  className={`phone-input ${
+                    errors.phone
+                      ? "error"
+                      : watchedFields.phone && !errors.phone
+                      ? "success"
+                      : ""
+                  }`}
                 />
                 {errors.phone && (
-                  <p className="text-red-500 text-xs">{errors.phone}</p>
-                )}
-              </div>
-
-              {/* City */}
-              <div>
-                <input
-                  type="text"
-                  placeholder="City"
-                  value={city}
-                  onChange={(e) => setCity(e.target.value)}
-                  className="w-full border border-gray-300 rounded-lg px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-teal-500"
-                />
-                {errors.city && (
-                  <p className="text-red-500 text-xs">{errors.city}</p>
-                )}
-              </div>
-
-              {/* Address */}
-              <div className="md:col-span-2">
-                <input
-                  type="text"
-                  placeholder="Address"
-                  value={address}
-                  onChange={(e) => setAddress(e.target.value)}
-                  className="w-full border border-gray-300 rounded-lg px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-teal-500"
-                />
-                {errors.address && (
-                  <p className="text-red-500 text-xs">{errors.address}</p>
+                  <p className="text-red-500 text-xs">{errors.phone.message}</p>
                 )}
               </div>
 
@@ -222,9 +177,14 @@ const Signup: React.FC = () => {
                 <input
                   type={showPassword ? "text" : "password"}
                   placeholder="Password"
-                  value={password}
-                  onChange={(e) => setPassword(e.target.value)}
-                  className="w-full border border-gray-300 rounded-lg px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-teal-500"
+                  {...register("password")}
+                  className={`w-full border rounded-lg px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-teal-500 ${
+                    errors.password
+                      ? "border-red-500"
+                      : watchedFields.password && !errors.password
+                      ? "border-green-500"
+                      : "border-gray-300"
+                  }`}
                 />
                 <span
                   className="absolute right-3 top-3 cursor-pointer"
@@ -233,7 +193,9 @@ const Signup: React.FC = () => {
                   {showPassword ? <FiEyeOff /> : <FiEye />}
                 </span>
                 {errors.password && (
-                  <p className="text-red-500 text-xs">{errors.password}</p>
+                  <p className="text-red-500 text-xs">
+                    {errors.password.message}
+                  </p>
                 )}
               </div>
 
@@ -242,9 +204,14 @@ const Signup: React.FC = () => {
                 <input
                   type={showConfirmPassword ? "text" : "password"}
                   placeholder="Confirm Password"
-                  value={confirmPassword}
-                  onChange={(e) => setConfirmPassword(e.target.value)}
-                  className="w-full border border-gray-300 rounded-lg px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-teal-500"
+                  {...register("confirmPassword")}
+                  className={`w-full border rounded-lg px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-teal-500 ${
+                    errors.confirmPassword
+                      ? "border-red-500"
+                      : watchedFields.confirmPassword && !errors.confirmPassword
+                      ? "border-green-500"
+                      : "border-gray-300"
+                  }`}
                 />
                 <span
                   className="absolute right-3 top-3 cursor-pointer"
@@ -254,7 +221,7 @@ const Signup: React.FC = () => {
                 </span>
                 {errors.confirmPassword && (
                   <p className="text-red-500 text-xs">
-                    {errors.confirmPassword}
+                    {errors.confirmPassword.message}
                   </p>
                 )}
               </div>
@@ -263,7 +230,7 @@ const Signup: React.FC = () => {
               <button
                 type="submit"
                 disabled={loading}
-                className="md:col-span-2 w-full bg-teal-600 text-white py-2.5 rounded-lg hover:bg-teal-700 transition text-sm font-medium"
+                className="md:col-span-2 w-full bg-teal-600 text-white py-2.5 rounded-lg hover:bg-teal-700 transition text-sm font-medium disabled:opacity-50"
               >
                 {loading ? "Signing up..." : "Sign Up"}
               </button>

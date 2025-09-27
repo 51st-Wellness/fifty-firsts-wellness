@@ -6,28 +6,34 @@ import { Eye, EyeOff, ArrowRight } from "lucide-react";
 import { Link, useNavigate } from "react-router-dom";
 import { useAuth } from "../context/AuthContextProvider";
 import Cookies from "js-cookie";
-
-interface FormData {
-  email: string;
-  password: string;
-}
+import { useForm } from "react-hook-form";
+import { zodResolver } from "@hookform/resolvers/zod";
+import { loginSchema, LoginFormData } from "../lib/validation";
 
 // Login page component
 const Login: React.FC = () => {
-  const [formData, setFormData] = useState<FormData>({
-    email: "",
-    password: "",
-  });
-
   const [showPassword, setShowPassword] = useState<boolean>(false);
   const [rememberMe, setRememberMe] = useState<boolean>(false);
 
   const { login, error } = useAuth();
   const navigate = useNavigate();
 
-  const handleLogin = async (e: React.FormEvent<HTMLFormElement>) => {
-    e.preventDefault();
-    const { email, password } = formData;
+  // React Hook Form setup
+  const {
+    register,
+    handleSubmit,
+    formState: { errors },
+    watch,
+    setValue,
+  } = useForm<LoginFormData>({
+    resolver: zodResolver(loginSchema),
+    mode: "onChange",
+  });
+
+  const watchedFields = watch();
+
+  const onSubmit = async (data: LoginFormData) => {
+    const { email, password } = data;
 
     // Handle remember me functionality
     if (rememberMe) {
@@ -44,10 +50,6 @@ const Login: React.FC = () => {
     }
   };
 
-  const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    setFormData({ ...formData, [e.target.name]: e.target.value });
-  };
-
   const togglePassword = () => {
     setShowPassword((prev) => !prev);
   };
@@ -58,10 +60,11 @@ const Login: React.FC = () => {
     const savedPassword = Cookies.get("savedPassword");
 
     if (savedEmail && savedPassword) {
-      setFormData({ email: savedEmail, password: savedPassword });
+      setValue("email", savedEmail);
+      setValue("password", savedPassword);
       setRememberMe(true);
     }
-  }, []);
+  }, [setValue]);
 
   return (
     <main className="min-h-screen bg-gradient-to-br from-gray-50 to-white">
@@ -89,7 +92,7 @@ const Login: React.FC = () => {
             </div>
 
             <div className="bg-white p-4 sm:p-5 rounded-xl shadow-lg">
-              <form onSubmit={handleLogin} className="space-y-4">
+              <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
                 {error && (
                   <div className="bg-red-50 border border-red-200 text-red-700 px-3 py-2 rounded-lg text-sm">
                     {error}
@@ -107,12 +110,21 @@ const Login: React.FC = () => {
                   <input
                     type="email"
                     id="email"
-                    name="email"
                     placeholder="Enter your email address"
-                    value={formData.email}
-                    onChange={handleChange}
-                    className="w-full border border-gray-300 rounded-lg px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-brand-green focus:border-transparent transition-colors"
+                    {...register("email")}
+                    className={`w-full border rounded-lg px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-brand-green focus:border-transparent transition-colors ${
+                      errors.email
+                        ? "border-red-500"
+                        : watchedFields.email && !errors.email
+                        ? "border-green-500"
+                        : "border-gray-300"
+                    }`}
                   />
+                  {errors.email && (
+                    <p className="text-red-500 text-xs mt-1">
+                      {errors.email.message}
+                    </p>
+                  )}
                 </div>
 
                 {/* Password */}
@@ -127,11 +139,15 @@ const Login: React.FC = () => {
                     <input
                       type={showPassword ? "text" : "password"}
                       id="password"
-                      name="password"
                       placeholder="Enter your password"
-                      value={formData.password}
-                      onChange={handleChange}
-                      className="w-full border border-gray-300 rounded-lg px-3 py-2.5 pr-10 text-sm focus:outline-none focus:ring-2 focus:ring-brand-green focus:border-transparent transition-colors"
+                      {...register("password")}
+                      className={`w-full border rounded-lg px-3 py-2.5 pr-10 text-sm focus:outline-none focus:ring-2 focus:ring-brand-green focus:border-transparent transition-colors ${
+                        errors.password
+                          ? "border-red-500"
+                          : watchedFields.password && !errors.password
+                          ? "border-green-500"
+                          : "border-gray-300"
+                      }`}
                     />
                     <button
                       type="button"
@@ -141,6 +157,11 @@ const Login: React.FC = () => {
                       {showPassword ? <EyeOff size={18} /> : <Eye size={18} />}
                     </button>
                   </div>
+                  {errors.password && (
+                    <p className="text-red-500 text-xs mt-1">
+                      {errors.password.message}
+                    </p>
+                  )}
                 </div>
 
                 <div className="flex items-center justify-between">

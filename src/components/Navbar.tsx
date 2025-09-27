@@ -4,6 +4,7 @@ import { Menu, X, ChevronDown } from "lucide-react";
 import Logo from "../assets/images/logo.png";
 import { UserAvatar } from "./UserAvatar";
 import { useAuth } from "../context/AuthContextProvider";
+import CartIcon from "./CartIcon";
 
 const Navbar: React.FC = () => {
   const [menuOpen, setMenuOpen] = useState(false);
@@ -238,7 +239,7 @@ const Navbar: React.FC = () => {
             </li> */}
           </ul>
 
-          {/* User Avatar - Right aligned */}
+          {/* User Avatar & Cart - Right aligned */}
           <div className="hidden md:flex items-center gap-3">
             {isAuthenticated && user?.role === "ADMIN" && (
               <Link
@@ -248,6 +249,7 @@ const Navbar: React.FC = () => {
                 Admin
               </Link>
             )}
+            {isAuthenticated && <CartIcon />}
             <UserAvatar />
           </div>
 
@@ -408,7 +410,12 @@ const Navbar: React.FC = () => {
                   </Link>
                 </li> */}
 
-                {/* Mobile User Avatar/Auth */}
+                {/* Mobile Cart & User Avatar/Auth */}
+                {isAuthenticated && (
+                  <li className="px-6 py-3 flex items-center justify-center">
+                    <CartIcon />
+                  </li>
+                )}
                 <li className="px-6 py-3">
                   <UserAvatar className="w-full" />
                 </li>

@@ -17,11 +17,7 @@ export const signUp = async (payload: {
   password: string;
   firstName: string;
   lastName: string;
-  city: string;
   phone: string;
-  address: string;
-  bio?: string;
-  role: string;
 }): Promise<ResponseDto<{ email: string }>> => {
   const { data } = await http.post("/auth/signup", payload);
   return data as ResponseDto<{ email: string }>;
