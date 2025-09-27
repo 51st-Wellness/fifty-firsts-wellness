@@ -1,6 +1,5 @@
 import React from "react";
 import { CiShoppingCart } from "react-icons/ci";
-import StarRating from "./StarRating";
 import type { StoreItem } from "../types/marketplace.types";
 
 interface StoreItemCardProps {
@@ -35,10 +34,6 @@ const StoreItemCard: React.FC<StoreItemCardProps> = ({ item, onAddToCart }) => {
             In stock
           </div>
         </div>
-      </div>
-      <div className="flex items-center gap-2 mt-2">
-        <StarRating rating={4.5} />
-        <span className="text-xs sm:text-sm text-gray-500">(— reviews)</span>
       </div>
       <button
         onClick={() => onAddToCart && onAddToCart(item)}

@@ -21,7 +21,6 @@ interface MarketPlaceProps {
 
 const MarketPlace: React.FC<MarketPlaceProps> = ({ onSearch }) => {
   const [query, setQuery] = useState<string>("");
-  const [openFilter, setOpenFilter] = useState<string | null>(null); // "product" | null
   const [items, setItems] = useState<StoreItemType[]>([]);
   const [page, setPage] = useState<number>(1);
   const [pageSize] = useState<number>(12);
@@ -96,28 +95,16 @@ const MarketPlace: React.FC<MarketPlaceProps> = ({ onSearch }) => {
         console.log("Loading items with params:", params);
 
         const response = await fetchStoreItems(params);
-        console.log("API Response:", response);
 
-        // Check if response is successful
-        if (response?.status?.toLowerCase() === "success" && response?.data) {
-          const { items: newItems, pagination } = response.data;
-          console.log("New items:", newItems, "Pagination:", pagination);
+        const { items: newItems, pagination } = response.data!;
 
-          if (opts.reset) {
-            setItems(newItems || []);
-          } else {
-            setItems((prev) => [...prev, ...(newItems || [])]);
-          }
-          setHasMore(Boolean(pagination?.hasMore));
-          setError(null);
+        if (opts.reset) {
+          setItems(newItems || []);
         } else {
-          console.warn("API returned non-success response:", response);
-          setError(response?.message || "Failed to load products");
-          if (opts.reset) {
-            setItems([]);
-          }
-          setHasMore(false);
+          setItems((prev) => [...prev, ...(newItems || [])]);
         }
+        setHasMore(Boolean(pagination?.hasMore));
+        setError(null);
       } catch (e: any) {
         console.error("Error loading items:", e);
         const errorMessage =
@@ -225,16 +212,6 @@ const MarketPlace: React.FC<MarketPlaceProps> = ({ onSearch }) => {
             Search
           </button>
         </form>
-
-        {/* Mobile Filter Buttons (under search bar) */}
-        <div className="mt-4 flex gap-3 lg:hidden">
-          <button
-            onClick={() => setOpenFilter("product")}
-            className="flex-1 py-2 bg-gray-100 rounded-lg font-medium"
-          >
-            Product Range
-          </button>
-        </div>
 
         {/* Categories */}
         <section className="relative mt-6 pb-4">
@@ -385,74 +362,6 @@ const MarketPlace: React.FC<MarketPlaceProps> = ({ onSearch }) => {
             {loading ? "Loading..." : hasMore ? "Load More" : "No more items"}
           </button>
         </div>
-
-        {/* Mobile Bottom Drawer */}
-        {openFilter && (
-          <div className="fixed bottom-0 left-0 w-full bg-white border-t border-gray-200 lg:hidden p-6 shadow-lg rounded-t-2xl z-50 animate-slide-up">
-            {openFilter === "product" && (
-              <div>
-                <h3 className="font-medium mb-3">Select Category</h3>
-                <div className="space-y-3 max-h-60 overflow-y-auto">
-                  <label className="flex items-center gap-2 p-2 rounded-lg hover:bg-gray-50">
-                    <input
-                      type="radio"
-                      name="category"
-                      value="All"
-                      checked={selectedCategory === "All"}
-                      onChange={() => setSelectedCategory("All")}
-                    />
-                    <span>All</span>
-                  </label>
-                  {categoriesLoading ? (
-                    <div className="space-y-2">
-                      {[...Array(3)].map((_, i) => (
-                        <div
-                          key={i}
-                          className="h-8 bg-gray-200 rounded animate-pulse"
-                        />
-                      ))}
-                    </div>
-                  ) : categoriesError ? (
-                    <div className="text-red-500 text-sm">
-                      Failed to load categories
-                    </div>
-                  ) : (
-                    categories.map((category) => (
-                      <label
-                        key={category.id}
-                        className="flex items-center gap-2 p-2 rounded-lg hover:bg-gray-50"
-                      >
-                        <input
-                          type="radio"
-                          name="category"
-                          value={category.name}
-                          checked={selectedCategory === category.name}
-                          onChange={() => setSelectedCategory(category.name)}
-                        />
-                        <span>{category.name}</span>
-                      </label>
-                    ))
-                  )}
-                </div>
-              </div>
-            )}
-            {/* Drawer Actions */}
-            <div className="flex justify-between mt-6 gap-3">
-              <button
-                onClick={() => setOpenFilter(null)}
-                className="flex-1 py-2 bg-gray-100 rounded-lg font-medium"
-              >
-                Clear
-              </button>
-              <button
-                onClick={() => setOpenFilter(null)}
-                className="flex-1 py-2 bg-[#4444B3] text-white rounded-lg font-medium"
-              >
-                Apply
-              </button>
-            </div>
-          </div>
-        )}
 
         {/* <Footer /> */}
       </div>
