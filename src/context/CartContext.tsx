@@ -202,8 +202,9 @@ export const CartProvider: React.FC<CartProviderProps> = ({ children }) => {
         dispatch({ type: "ADD_ITEM", payload: response.data });
         toast.success("Item added to cart");
 
-        // Auto-open cart to show the item was added
+        // Open the cart and refresh its contents to ensure consistency
         dispatch({ type: "SET_CART_OPEN", payload: true });
+        await refreshCart();
       }
     } catch (error: any) {
       const errorMessage =
@@ -233,6 +234,9 @@ export const CartProvider: React.FC<CartProviderProps> = ({ children }) => {
       ) {
         dispatch({ type: "UPDATE_ITEM", payload: response.data });
         toast.success("Cart updated");
+
+        // Refresh for consistency
+        await refreshCart();
       }
     } catch (error: any) {
       const errorMessage =
@@ -256,6 +260,9 @@ export const CartProvider: React.FC<CartProviderProps> = ({ children }) => {
       await cartAPI.removeFromCart(productId);
       dispatch({ type: "REMOVE_ITEM", payload: productId });
       toast.success("Item removed from cart");
+
+      // Refresh for consistency
+      await refreshCart();
     } catch (error: any) {
       const errorMessage =
         error.response?.data?.message || "Failed to remove item from cart";
@@ -278,6 +285,9 @@ export const CartProvider: React.FC<CartProviderProps> = ({ children }) => {
       await cartAPI.clearCart();
       dispatch({ type: "CLEAR_CART" });
       toast.success("Cart cleared");
+
+      // Refresh for consistency
+      await refreshCart();
     } catch (error: any) {
       const errorMessage =
         error.response?.data?.message || "Failed to clear cart";
@@ -291,8 +301,8 @@ export const CartProvider: React.FC<CartProviderProps> = ({ children }) => {
 
   // Cart visibility controls
   const toggleCart = () => {
+    // Refresh cart when opening to ensure we have latest data
     if (!state.isCartOpen) {
-      // Refresh cart when opening to ensure we have latest data
       refreshCart();
     }
     dispatch({ type: "TOGGLE_CART" });

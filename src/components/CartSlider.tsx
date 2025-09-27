@@ -56,85 +56,75 @@ const CartSlider: React.FC<CartSliderProps> = ({ isOpen, onClose }) => {
   };
 
   const CartItem: React.FC<{ item: CartItemWithRelations }> = ({ item }) => {
+    // Correctly access nested storeItem data
     const { product, quantity } = item;
-    const itemTotal = product.price * quantity;
+    const storeItem = product.storeItem;
+
+    // Return null if storeItem is missing to prevent crashes
+    if (!storeItem) {
+      return null;
+    }
+
+    const itemTotal = storeItem.price * quantity;
 
     return (
-      <div className="flex items-center gap-4 py-4 border-b border-gray-200 last:border-b-0">
+      <div className="flex items-center gap-4 py-3 px-2 bg-white rounded-xl shadow-sm">
         {/* Product Image */}
-        <div className="w-16 h-16 bg-gray-200 rounded-lg flex-shrink-0 overflow-hidden">
-          {product.imageUrl ? (
+        <div className="w-20 h-20 bg-gray-100 rounded-lg flex-shrink-0 overflow-hidden">
+          {storeItem.display?.url ? (
             <img
-              src={product.imageUrl}
-              alt={product.title}
+              src={storeItem.display.url}
+              alt={storeItem.name}
               className="w-full h-full object-cover"
             />
           ) : (
             <div className="w-full h-full flex items-center justify-center text-gray-400">
-              <ShoppingCart className="w-6 h-6" />
+              <ShoppingCart className="w-8 h-8" />
             </div>
           )}
         </div>
 
         {/* Product Details */}
         <div className="flex-1 min-w-0">
-          <h4 className="font-medium text-gray-900 text-sm line-clamp-2">
-            {product.title}
+          <h4 className="font-semibold text-gray-800 text-sm line-clamp-2">
+            {storeItem.name}
           </h4>
-          {product.description && (
-            <p className="text-xs text-gray-500 mt-1 line-clamp-1">
-              {product.description}
-            </p>
-          )}
-          <p className="text-sm font-semibold text-orange-600 mt-1">
-            {formatPrice(product.price)}
+          <p className="text-sm font-bold text-brand-green mt-1">
+            {formatPrice(storeItem.price)}
           </p>
         </div>
 
         {/* Quantity Controls */}
         <div className="flex items-center gap-2">
-          <Button
-            variant="outline"
-            size="sm"
+          <button
             onClick={() => handleQuantityChange(item.productId, quantity - 1)}
             disabled={isLoading}
-            className="h-8 w-8 p-0"
+            className="h-8 w-8 p-0 flex items-center justify-center rounded-full border bg-white hover:bg-gray-50 disabled:opacity-50"
           >
-            <Minus className="w-3 h-3" />
-          </Button>
+            <Minus className="w-4 h-4 text-gray-600" />
+          </button>
 
-          <span className="w-8 text-center text-sm font-medium">
+          <span className="w-8 text-center text-sm font-medium text-gray-800">
             {quantity}
           </span>
 
-          <Button
-            variant="outline"
-            size="sm"
+          <button
             onClick={() => handleQuantityChange(item.productId, quantity + 1)}
             disabled={isLoading}
-            className="h-8 w-8 p-0"
+            className="h-8 w-8 p-0 flex items-center justify-center rounded-full border bg-white hover:bg-gray-50 disabled:opacity-50"
           >
-            <Plus className="w-3 h-3" />
-          </Button>
+            <Plus className="w-4 h-4 text-gray-600" />
+          </button>
         </div>
 
         {/* Remove Button */}
-        <Button
-          variant="ghost"
-          size="sm"
+        <button
           onClick={() => removeFromCart(item.productId)}
           disabled={isLoading}
-          className="h-8 w-8 p-0 text-red-500 hover:text-red-700 hover:bg-red-50"
+          className="h-8 w-8 p-0 flex items-center justify-center text-red-500 hover:text-red-700 hover:bg-red-50 rounded-full"
         >
           <Trash2 className="w-4 h-4" />
-        </Button>
-
-        {/* Item Total */}
-        <div className="text-right min-w-[60px]">
-          <p className="text-sm font-semibold text-gray-900">
-            {formatPrice(itemTotal)}
-          </p>
-        </div>
+        </button>
       </div>
     );
   };
@@ -200,9 +190,8 @@ const CartSlider: React.FC<CartSliderProps> = ({ isOpen, onClose }) => {
           sx={{
             flex: 1,
             overflowY: "auto",
-            // Keep inner content padded and centered
-            px: { xs: 1.5, sm: 2 },
-            py: { xs: 1.5, sm: 2 },
+            bgcolor: "#F9FAFB", // A light grey background
+            p: 2,
           }}
         >
           {items.length === 0 ? (
@@ -218,7 +207,7 @@ const CartSlider: React.FC<CartSliderProps> = ({ isOpen, onClose }) => {
             </div>
           ) : (
             // Cart Items
-            <div className="space-y-2">
+            <div className="space-y-3">
               {items.map((item) => (
                 <CartItem key={item.id} item={item} />
               ))}
@@ -250,7 +239,7 @@ const CartSlider: React.FC<CartSliderProps> = ({ isOpen, onClose }) => {
             {/* Action Buttons */}
             <div className="space-y-2">
               <Button
-                className="w-full bg-orange-600 hover:bg-orange-700 text-white"
+                className="w-full bg-orange-600 hover:bg-orange-700 text-white font-semibold py-3 rounded-lg"
                 disabled={isLoading}
               >
                 Proceed to Checkout
@@ -258,7 +247,7 @@ const CartSlider: React.FC<CartSliderProps> = ({ isOpen, onClose }) => {
 
               <Button
                 variant="outline"
-                className="w-full text-red-600 border-red-200 hover:bg-red-50"
+                className="w-full text-red-600 border-red-200 hover:bg-red-50 font-semibold py-3 rounded-lg"
                 onClick={clearCart}
                 disabled={isLoading}
               >

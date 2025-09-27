@@ -214,7 +214,7 @@ const MarketPlace: React.FC<MarketPlaceProps> = ({ onSearch }) => {
         </form>
 
         {/* Categories */}
-        <section className="relative mt-6 pb-4 max-w-xl mx-auto">
+        <section className="relative mt-6 pb-4 w-full">
           {/* Scroll buttons for desktop */}
           {showLeftScroll && (
             <button

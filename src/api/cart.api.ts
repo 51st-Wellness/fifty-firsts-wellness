@@ -1,6 +1,6 @@
 import http from "./http";
 import type { ResponseDto } from "../types/response.types";
-import type { User } from "../types/user.types";
+import type { User, StoreItem } from "../types";
 
 // Cart-specific DTOs
 export interface AddToCartDto {
@@ -22,21 +22,19 @@ export interface CartItem {
   updatedAt: string;
 }
 
-// Product from backend (simplified for cart context)
-export interface Product {
+// This represents the structure of the 'product' object inside a cart item
+export interface ProductInCart {
   id: string;
-  title: string;
-  description?: string;
-  price: number;
-  imageUrl?: string;
-  isActive: boolean;
+  type: string;
+  pricingModel: string;
   createdAt: string;
   updatedAt: string;
+  storeItem: StoreItem | null;
 }
 
 // Cart item with full relations from backend
 export interface CartItemWithRelations extends CartItem {
-  product: Product;
+  product: ProductInCart;
   user: Pick<
     User,
     | "id"
