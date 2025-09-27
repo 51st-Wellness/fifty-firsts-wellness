@@ -1,4 +1,5 @@
 import axios from "axios";
+import Cookies from "js-cookie";
 
 const http = () => {
   let options = {
@@ -8,10 +9,9 @@ const http = () => {
       Accept: "application/json",
     },
   };
-  if (localStorage.getItem("token")) {
-    options.headers["Authorization"] = `Bearer ${localStorage.getItem(
-      "token"
-    )}`;
+  const token = Cookies.get("auth_token");
+  if (token) {
+    options.headers["Authorization"] = `Bearer ${token}`;
   }
   return axios.create(options);
 };

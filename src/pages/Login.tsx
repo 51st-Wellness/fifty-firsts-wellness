@@ -5,6 +5,7 @@ import { FcGoogle } from "react-icons/fc";
 import { Eye, EyeOff, ArrowRight } from "lucide-react";
 import { Link, useNavigate } from "react-router-dom";
 import { useAuth } from "../context/AuthContextProvider";
+import Cookies from "js-cookie";
 
 interface FormData {
   email: string;
@@ -27,6 +28,16 @@ const Login: React.FC = () => {
   const handleLogin = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     const { email, password } = formData;
+
+    // Handle remember me functionality
+    if (rememberMe) {
+      Cookies.set("savedEmail", email, { expires: 30, path: "/" });
+      Cookies.set("savedPassword", password, { expires: 30, path: "/" });
+    } else {
+      Cookies.remove("savedEmail", { path: "/" });
+      Cookies.remove("savedPassword", { path: "/" });
+    }
+
     const success = await login(email, password);
     if (success) {
       navigate("/");
@@ -43,8 +54,8 @@ const Login: React.FC = () => {
 
   // Load saved credentials if they exist
   useEffect(() => {
-    const savedEmail = localStorage.getItem("savedEmail");
-    const savedPassword = localStorage.getItem("savedPassword");
+    const savedEmail = Cookies.get("savedEmail");
+    const savedPassword = Cookies.get("savedPassword");
 
     if (savedEmail && savedPassword) {
       setFormData({ email: savedEmail, password: savedPassword });

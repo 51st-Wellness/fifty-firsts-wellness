@@ -1,4 +1,5 @@
 import axios, { type AxiosRequestConfig } from "axios";
+import { getAuthToken } from "../lib/utils";
 
 const http = () => {
   const options: AxiosRequestConfig = {
@@ -8,8 +9,7 @@ const http = () => {
       Accept: "application/json",
     },
   };
-  const token =
-    typeof window !== "undefined" ? localStorage.getItem("token") : null;
+  const token = getAuthToken();
   if (token) {
     (options.headers as Record<string, string>)[
       "Authorization"

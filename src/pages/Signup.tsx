@@ -6,6 +6,7 @@ import { signUp } from "../api/auth.api";
 import toast from "react-hot-toast";
 import { useNavigate } from "react-router-dom";
 import { AxiosError } from "axios";
+import { storeAuthToken } from "../lib/utils";
 
 interface FormErrors {
   [key: string]: string;
@@ -70,7 +71,7 @@ const Signup: React.FC = () => {
 
     setLoading(true);
     try {
-      await signUp({
+      const response = await signUp({
         email,
         password,
         firstName,
@@ -81,6 +82,11 @@ const Signup: React.FC = () => {
         role: "user",
       });
       setLoading(false);
+
+      // Store token if returned from signup
+      if (response.data?.accessToken) {
+        storeAuthToken(response.data.accessToken);
+      }
 
       toast.success("Signup successful! Please check your email.");
       navigate("/verify-email", { state: { email } });

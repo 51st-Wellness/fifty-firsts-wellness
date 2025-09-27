@@ -12,6 +12,7 @@ import type { User } from "../types/user.types";
 import type { UpdateProfilePayload } from "./AuthContext";
 import { useNavigate } from "react-router-dom";
 import { toast } from "react-hot-toast";
+import { storeAuthToken, getAuthToken, removeAuthToken } from "../lib/utils";
 
 interface AuthProviderProps {
   children: ReactNode;
@@ -33,7 +34,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
   const checkAuthStatus = async () => {
     try {
       setLoading(true);
-      const token = localStorage.getItem("token");
+      const token = getAuthToken();
 
       if (!token) {
         setIsAuthenticated(false);
@@ -50,7 +51,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
       setIsAuthenticated(true);
     } catch (error: any) {
       // Token is invalid or expired
-      localStorage.removeItem("token");
+      removeAuthToken();
       setIsAuthenticated(false);
       setUser(null);
       setError(null); // Don't show error for expired tokens
@@ -71,7 +72,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
       console.error("Error loading user profile:", error);
       if (error.response?.status === 401) {
         // Token expired, clear auth state
-        localStorage.removeItem("token");
+        removeAuthToken();
         setIsAuthenticated(false);
         setUser(null);
       }
@@ -87,7 +88,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
       const response = await loginApi({ email, password });
 
       if (response.data?.accessToken) {
-        localStorage.setItem("token", response.data.accessToken);
+        storeAuthToken(response.data.accessToken);
         setIsAuthenticated(true);
         // Set user directly from login response to avoid an immediate refetch
         if (response.data?.user) {
@@ -118,7 +119,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
       console.error("Logout error:", error);
     } finally {
       // Clear local state
-      localStorage.removeItem("token");
+      removeAuthToken();
       setUser(null);
       setIsAuthenticated(false);
       setError(null);
