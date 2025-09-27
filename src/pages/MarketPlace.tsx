@@ -214,7 +214,7 @@ const MarketPlace: React.FC<MarketPlaceProps> = ({ onSearch }) => {
         </form>
 
         {/* Categories */}
-        <section className="relative mt-6 pb-4">
+        <section className="relative mt-6 pb-4 max-w-xl mx-auto">
           {/* Scroll buttons for desktop */}
           {showLeftScroll && (
             <button
@@ -237,7 +237,7 @@ const MarketPlace: React.FC<MarketPlaceProps> = ({ onSearch }) => {
           {/* Categories container */}
           <div
             id="categories-container"
-            className="flex gap-3 items-center overflow-x-auto scrollbar-hide px-2"
+            className="flex gap-3 items-center overflow-x-auto scrollbar-hide px-2 justify-center"
             style={{ scrollbarWidth: "none", msOverflowStyle: "none" }}
           >
             {/* All category */}

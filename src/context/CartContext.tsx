@@ -165,7 +165,10 @@ export const CartProvider: React.FC<CartProviderProps> = ({ children }) => {
 
       const response = await cartAPI.getCart();
 
-      if (response.status === "SUCCESS" && response.data) {
+      if (
+        (response.status === "SUCCESS" || response.status === "success") &&
+        response.data
+      ) {
         dispatch({ type: "SET_ITEMS", payload: response.data.items });
       }
     } catch (error: any) {
@@ -192,15 +195,15 @@ export const CartProvider: React.FC<CartProviderProps> = ({ children }) => {
       const addToCartDto: AddToCartDto = { productId, quantity };
       const response = await cartAPI.addToCart(addToCartDto);
 
-      if (response.status === "SUCCESS" && response.data) {
+      if (
+        (response.status === "SUCCESS" || response.status === "success") &&
+        response.data
+      ) {
         dispatch({ type: "ADD_ITEM", payload: response.data });
         toast.success("Item added to cart");
 
-        // Auto-open cart briefly to show the item was added
+        // Auto-open cart to show the item was added
         dispatch({ type: "SET_CART_OPEN", payload: true });
-        setTimeout(() => {
-          dispatch({ type: "SET_CART_OPEN", payload: false });
-        }, 3000);
       }
     } catch (error: any) {
       const errorMessage =
@@ -224,7 +227,10 @@ export const CartProvider: React.FC<CartProviderProps> = ({ children }) => {
       const updateDto: UpdateCartItemDto = { quantity };
       const response = await cartAPI.updateCartItem(productId, updateDto);
 
-      if (response.status === "SUCCESS" && response.data) {
+      if (
+        (response.status === "SUCCESS" || response.status === "success") &&
+        response.data
+      ) {
         dispatch({ type: "UPDATE_ITEM", payload: response.data });
         toast.success("Cart updated");
       }
@@ -284,8 +290,18 @@ export const CartProvider: React.FC<CartProviderProps> = ({ children }) => {
   };
 
   // Cart visibility controls
-  const toggleCart = () => dispatch({ type: "TOGGLE_CART" });
-  const openCart = () => dispatch({ type: "SET_CART_OPEN", payload: true });
+  const toggleCart = () => {
+    if (!state.isCartOpen) {
+      // Refresh cart when opening to ensure we have latest data
+      refreshCart();
+    }
+    dispatch({ type: "TOGGLE_CART" });
+  };
+  const openCart = () => {
+    // Refresh cart when opening to ensure we have latest data
+    refreshCart();
+    dispatch({ type: "SET_CART_OPEN", payload: true });
+  };
   const closeCart = () => dispatch({ type: "SET_CART_OPEN", payload: false });
 
   // Utility functions
