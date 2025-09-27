@@ -1,20 +1,27 @@
-import axios, { type AxiosRequestConfig } from "axios";
+import axios, { type AxiosRequestConfig, type AxiosInstance } from "axios";
 import { getAuthToken } from "../lib/utils";
 
-const http = () => {
-  const options: AxiosRequestConfig = {
-    baseURL: import.meta.env.VITE_BASE_URL,
-    headers: {
-      "Content-Type": "application/json",
-      Accept: "application/json",
-    },
-  };
-  const token = getAuthToken();
-  if (token) {
-    (options.headers as Record<string, string>)[
-      "Authorization"
-    ] = `Bearer ${token}`;
+// Create axios instance with base configuration
+const httpClient: AxiosInstance = axios.create({
+  baseURL: import.meta.env.VITE_BASE_URL,
+  headers: {
+    "Content-Type": "application/json",
+    Accept: "application/json",
+  },
+});
+
+// Add request interceptor to dynamically add auth token to every request
+httpClient.interceptors.request.use(
+  (config) => {
+    const token = getAuthToken();
+    if (token) {
+      config.headers.Authorization = `Bearer ${token}`;
+    }
+    return config;
+  },
+  (error) => {
+    return Promise.reject(error);
   }
-  return axios.create(options);
-};
-export default http();
+);
+
+export default httpClient;
