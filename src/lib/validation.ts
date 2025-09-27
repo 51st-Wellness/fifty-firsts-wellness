@@ -23,6 +23,31 @@ export const loginSchema = z.object({
   password: z.string().min(1, "Password is required"),
 });
 
+// Forgot password validation schema
+export const forgotPasswordSchema = z.object({
+  email: z.string().email("Invalid email address"),
+});
+
+// Reset password validation schema
+export const resetPasswordSchema = z
+  .object({
+    email: z.string().email("Invalid email address"),
+    otp: z
+      .string()
+      .min(6, "OTP must be 6 digits")
+      .max(6, "OTP must be 6 digits"),
+    newPassword: z.string().min(8, "Password must be at least 8 characters"),
+    confirmPassword: z
+      .string()
+      .min(8, "Confirm password must be at least 8 characters"),
+  })
+  .refine((data) => data.newPassword === data.confirmPassword, {
+    message: "Passwords must match",
+    path: ["confirmPassword"],
+  });
+
 // Type inference for forms
 export type SignupFormData = z.infer<typeof signupSchema>;
 export type LoginFormData = z.infer<typeof loginSchema>;
+export type ForgotPasswordFormData = z.infer<typeof forgotPasswordSchema>;
+export type ResetPasswordFormData = z.infer<typeof resetPasswordSchema>;

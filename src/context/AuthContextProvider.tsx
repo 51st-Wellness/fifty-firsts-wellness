@@ -175,11 +175,15 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
     return false;
   };
 
+  // Check if email is verified
+  const isEmailVerified = user?.isEmailVerified ?? false;
+
   return (
     <AuthContext.Provider
       value={{
         user,
         isAuthenticated,
+        isEmailVerified,
         loading,
         error,
         login,

@@ -49,3 +49,20 @@ export const resetPassword = async (payload: {
   const { data } = await http.post("/auth/reset-password", payload);
   return data as ResponseDto<null>;
 };
+
+// Verify email with OTP
+export const verifyEmail = async (payload: {
+  email: string;
+  otp: string;
+}): Promise<ResponseDto<null>> => {
+  const { data } = await http.post("/auth/verify-email", payload);
+  return data as ResponseDto<null>;
+};
+
+// Resend email verification OTP
+export const resendVerification = async (payload: {
+  email: string;
+}): Promise<ResponseDto<null>> => {
+  const { data } = await http.post("/auth/resend-verification", payload);
+  return data as ResponseDto<null>;
+};

@@ -46,6 +46,8 @@ const Login: React.FC = () => {
 
     const success = await login(email, password);
     if (success) {
+      // Check if email is verified after successful login
+      // The AuthContext will handle the verification check
       navigate("/");
     }
   };

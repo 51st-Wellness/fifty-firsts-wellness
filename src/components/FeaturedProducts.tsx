@@ -3,6 +3,8 @@ import { ShoppingCart } from "lucide-react";
 import StoreItemCard from "./StoreItemCard";
 import { fetchStoreItems } from "../api/marketplace.api";
 import type { StoreItem } from "../types/marketplace.types";
+import { useCart } from "../context/CartContext";
+import { useAuth } from "../context/AuthContextProvider";
 
 interface FeaturedProductsProps {
   limit?: number;
@@ -50,9 +52,18 @@ const FeaturedProducts: React.FC<FeaturedProductsProps> = ({
     loadFeaturedItems();
   }, [limit]);
 
-  const handleAddToCart = (item: StoreItem) => {
-    // TODO: Implement add to cart functionality
-    console.log("Add to cart:", item);
+  const { addToCart } = useCart();
+  const { isAuthenticated } = useAuth();
+
+  const handleAddToCart = async (item: StoreItem) => {
+    if (!isAuthenticated) {
+      return;
+    }
+    try {
+      await addToCart(item.productId, 1);
+    } catch (error) {
+      console.error("Failed to add item to cart:", error);
+    }
   };
 
   if (loading) {
@@ -137,49 +148,11 @@ const FeaturedProducts: React.FC<FeaturedProductsProps> = ({
 
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-8">
         {featuredItems.map((item) => (
-          <div
-            key={item.productId}
-            className="bg-white rounded-2xl p-6 shadow-lg hover:shadow-xl transition-shadow"
-          >
-            <div className="relative mb-4">
-              {item.display?.url || item.images?.[0] ? (
-                <img
-                  src={item.display?.url || item.images?.[0]}
-                  alt={item.name}
-                  className="w-full h-48 object-cover rounded-lg"
-                />
-              ) : (
-                <div className="w-full h-48 bg-gray-100 rounded-lg flex items-center justify-center">
-                  <ShoppingCart className="w-12 h-12 text-gray-400" />
-                </div>
-              )}
-              <div className="absolute top-2 right-2 bg-red-500 text-white text-xs font-bold px-2 py-1 rounded-full">
-                Featured
-              </div>
+          <div key={item.productId} className="relative">
+            <StoreItemCard item={item} onAddToCart={handleAddToCart} />
+            <div className="absolute top-2 right-2 bg-red-500 text-white text-xs font-bold px-2 py-1 rounded-full z-10">
+              Featured
             </div>
-
-            <h3 className="text-lg font-semibold text-gray-900 mb-2">
-              {item.name}
-            </h3>
-
-            <div className="flex items-center justify-between mb-3">
-              <div className="flex items-center space-x-2">
-                <span className="text-xl font-bold text-gray-900">
-                  ${item.price.toFixed(2)}
-                </span>
-              </div>
-              <div className="text-xs sm:text-sm font-medium text-[#229EFF] bg-[#E9F5FF] py-1 px-2 rounded">
-                In stock
-              </div>
-            </div>
-
-            <button
-              onClick={() => handleAddToCart(item)}
-              className="w-full bg-brand-green text-white py-3 px-4 rounded-lg font-semibold hover:bg-brand-green-dark transition-colors flex items-center justify-center gap-2"
-            >
-              <ShoppingCart size={18} />
-              Add to Cart
-            </button>
           </div>
         ))}
       </div>

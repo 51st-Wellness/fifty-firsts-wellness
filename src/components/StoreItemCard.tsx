@@ -23,9 +23,10 @@ const StoreItemCard: React.FC<StoreItemCardProps> = ({ item, onAddToCart }) => {
     removeFromCart,
     getItemQuantity,
     isInCart,
-    isLoading,
+    isLoading: globalLoading,
   } = useCart();
   const [justAdded, setJustAdded] = useState(false);
+  const [itemLoading, setItemLoading] = useState(false);
 
   const currentQuantity = getItemQuantity(item.productId);
   const inCart = isInCart(item.productId);
@@ -37,6 +38,7 @@ const StoreItemCard: React.FC<StoreItemCardProps> = ({ item, onAddToCart }) => {
     }
 
     try {
+      setItemLoading(true);
       await addToCart(item.productId, 1);
       setJustAdded(true);
 
@@ -49,14 +51,23 @@ const StoreItemCard: React.FC<StoreItemCardProps> = ({ item, onAddToCart }) => {
       }
     } catch (error) {
       console.error("Failed to add item to cart:", error);
+    } finally {
+      setItemLoading(false);
     }
   };
 
   const handleQuantityChange = async (newQuantity: number) => {
-    if (newQuantity <= 0) {
-      await removeFromCart(item.productId);
-    } else {
-      await updateCartItem(item.productId, newQuantity);
+    try {
+      setItemLoading(true);
+      if (newQuantity <= 0) {
+        await removeFromCart(item.productId);
+      } else {
+        await updateCartItem(item.productId, newQuantity);
+      }
+    } catch (error) {
+      console.error("Failed to update cart:", error);
+    } finally {
+      setItemLoading(false);
     }
   };
 
@@ -87,14 +98,14 @@ const StoreItemCard: React.FC<StoreItemCardProps> = ({ item, onAddToCart }) => {
       {!inCart || currentQuantity === 0 ? (
         <button
           onClick={handleAddToCart}
-          disabled={isLoading || !isAuthenticated}
+          disabled={itemLoading || !isAuthenticated}
           className={`rounded-full text-white flex gap-2 items-center py-2 px-4 mt-4 text-sm sm:text-base transition-all duration-200 ${
             justAdded
               ? "bg-green-600 hover:bg-green-700"
               : "bg-[#4444B3] hover:bg-[#343494]"
           } disabled:opacity-50 disabled:cursor-not-allowed`}
         >
-          {isLoading ? (
+          {itemLoading ? (
             <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white"></div>
           ) : justAdded ? (
             <Check className="text-lg sm:text-xl" />
@@ -107,7 +118,7 @@ const StoreItemCard: React.FC<StoreItemCardProps> = ({ item, onAddToCart }) => {
         <div className="flex items-center justify-between mt-4 p-2 bg-gray-50 rounded-full">
           <button
             onClick={() => handleQuantityChange(currentQuantity - 1)}
-            disabled={isLoading}
+            disabled={itemLoading}
             className="flex items-center justify-center w-8 h-8 rounded-full bg-white border hover:bg-gray-100 disabled:opacity-50"
           >
             <Minus className="w-4 h-4" />
@@ -119,7 +130,7 @@ const StoreItemCard: React.FC<StoreItemCardProps> = ({ item, onAddToCart }) => {
 
           <button
             onClick={() => handleQuantityChange(currentQuantity + 1)}
-            disabled={isLoading}
+            disabled={itemLoading}
             className="flex items-center justify-center w-8 h-8 rounded-full bg-white border hover:bg-gray-100 disabled:opacity-50"
           >
             <Plus className="w-4 h-4" />

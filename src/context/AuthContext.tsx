@@ -14,6 +14,7 @@ export type UpdateProfilePayload = {
 interface AuthContextType {
   user: User | null;
   isAuthenticated: boolean;
+  isEmailVerified: boolean;
   loading: boolean;
   error: string | null;
   login: (email: string, password: string) => Promise<boolean>;

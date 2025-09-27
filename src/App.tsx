@@ -26,6 +26,8 @@ import { Toaster } from "react-hot-toast";
 import ResetPassword from "./pages/ResetPassword";
 import CheckEmail from "./pages/CheckEmail";
 import VerifyEmail from "./pages/VerifyEmail";
+import EmailVerification from "./pages/EmailVerification";
+import EmailVerificationGuard from "./components/EmailVerificationGuard";
 import Loader from "./components/Loader";
 import Footer from "./components/Footer";
 
@@ -142,11 +144,19 @@ const App: React.FC = () => {
           <Route path="/contact" element={<ContactUs />} />
           <Route path="/login" element={<Login />} />
           <Route path="/signup" element={<Signup />} />
-          <Route path="/profile" element={<Profile />} />
+          <Route
+            path="/profile"
+            element={
+              <EmailVerificationGuard>
+                <Profile />
+              </EmailVerificationGuard>
+            }
+          />
           <Route path="/forgot-password" element={<ForgotPassword />} />
           <Route path="/reset-password" element={<ResetPassword />} />
           <Route path="/check-email" element={<CheckEmail />} />
           <Route path="/verify-email" element={<VerifyEmail />} />
+          <Route path="/email-verification" element={<EmailVerification />} />
 
           {/* Admin namespace */}
           <Route
