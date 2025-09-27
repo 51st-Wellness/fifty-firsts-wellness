@@ -231,7 +231,7 @@ const CartSlider: React.FC<CartSliderProps> = ({ isOpen, onClose }) => {
               <span className="text-lg font-semibold text-gray-900">
                 Total:
               </span>
-              <span className="text-xl font-bold text-orange-600">
+              <span className="text-xl font-bold text-brand-green">
                 {formatPrice(totalPrice)}
               </span>
             </div>
@@ -239,7 +239,7 @@ const CartSlider: React.FC<CartSliderProps> = ({ isOpen, onClose }) => {
             {/* Action Buttons */}
             <div className="space-y-2">
               <Button
-                className="w-full bg-orange-600 hover:bg-orange-700 text-white font-semibold py-3 rounded-lg"
+                className="w-full bg-brand-green hover:bg-brand-green-dark text-white font-semibold py-3 rounded-lg"
                 disabled={isLoading}
               >
                 Proceed to Checkout
@@ -260,7 +260,7 @@ const CartSlider: React.FC<CartSliderProps> = ({ isOpen, onClose }) => {
         {/* Loading Overlay */}
         {isLoading && (
           <div className="absolute inset-0 bg-white bg-opacity-75 flex items-center justify-center">
-            <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-orange-600"></div>
+            <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-brand-green"></div>
           </div>
         )}
       </Box>
