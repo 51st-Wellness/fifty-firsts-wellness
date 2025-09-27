@@ -140,10 +140,10 @@ export const CartProvider: React.FC<CartProviderProps> = ({ children }) => {
     (total, item) => total + item.quantity,
     0
   );
-  const totalPrice = state.items.reduce(
-    (total, item) => total + item.product.price * item.quantity,
-    0
-  );
+  const totalPrice = state.items.reduce((total, item) => {
+    const price = item.product.storeItem?.price ?? 0;
+    return total + price * item.quantity;
+  }, 0);
 
   // Load cart when user logs in
   useEffect(() => {
@@ -300,18 +300,8 @@ export const CartProvider: React.FC<CartProviderProps> = ({ children }) => {
   };
 
   // Cart visibility controls
-  const toggleCart = () => {
-    // Refresh cart when opening to ensure we have latest data
-    if (!state.isCartOpen) {
-      refreshCart();
-    }
-    dispatch({ type: "TOGGLE_CART" });
-  };
-  const openCart = () => {
-    // Refresh cart when opening to ensure we have latest data
-    refreshCart();
-    dispatch({ type: "SET_CART_OPEN", payload: true });
-  };
+  const toggleCart = () => dispatch({ type: "TOGGLE_CART" });
+  const openCart = () => dispatch({ type: "SET_CART_OPEN", payload: true });
   const closeCart = () => dispatch({ type: "SET_CART_OPEN", payload: false });
 
   // Utility functions

@@ -98,14 +98,10 @@ class CartAPI {
   }
 
   // Clear entire cart
-  async clearCart(): Promise<{
-    message: string;
-    data: { deletedCount: number };
-  }> {
-    const response = await http.delete<{
-      message: string;
-      data: { deletedCount: number };
-    }>(this.baseURL);
+  async clearCart(): Promise<ResponseDto<{ deletedCount: number }>> {
+    const response = await http.delete<ResponseDto<{ deletedCount: number }>>(
+      this.baseURL
+    );
     return response.data;
   }
 }
