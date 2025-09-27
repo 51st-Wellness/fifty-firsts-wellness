@@ -28,6 +28,7 @@ export type StoreItemListParams = {
   search?: string;
   isFeatured?: boolean;
   isPublished?: boolean;
+  category?: string;
 };
 
 export type PaginationMeta = {

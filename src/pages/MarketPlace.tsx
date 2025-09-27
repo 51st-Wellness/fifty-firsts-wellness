@@ -1,9 +1,17 @@
 import React, { useEffect, useMemo, useState, useCallback } from "react";
-import { Search, AlertCircle, RefreshCw } from "lucide-react";
+import {
+  Search,
+  AlertCircle,
+  RefreshCw,
+  ChevronLeft,
+  ChevronRight,
+} from "lucide-react";
 import Footer from "../components/Footer";
 import StoreItemCard from "../components/StoreItemCard";
 import { fetchStoreItems } from "../api/marketplace.api";
+import { categoryAPI } from "../api/category.api";
 import type { StoreItem as StoreItemType } from "../types/marketplace.types";
+import type { Category } from "../types/category.types";
 
 // Using shared StoreItem type from types to match API response
 
@@ -22,6 +30,13 @@ const MarketPlace: React.FC<MarketPlaceProps> = ({ onSearch }) => {
   const [error, setError] = useState<string | null>(null);
   const [selectedCategory, setSelectedCategory] = useState<string>("All");
 
+  // Category states
+  const [categories, setCategories] = useState<Category[]>([]);
+  const [categoriesLoading, setCategoriesLoading] = useState<boolean>(false);
+  const [categoriesError, setCategoriesError] = useState<string | null>(null);
+  const [categoryScrollPosition, setCategoryScrollPosition] =
+    useState<number>(0);
+
   // Debounced search
   const [debouncedQuery, setDebouncedQuery] = useState<string>("");
 
@@ -31,6 +46,38 @@ const MarketPlace: React.FC<MarketPlaceProps> = ({ onSearch }) => {
     }, 300);
     return () => clearTimeout(timer);
   }, [query]);
+
+  // Fetch categories on component mount
+  const loadCategories = useCallback(async () => {
+    setCategoriesLoading(true);
+    setCategoriesError(null);
+
+    try {
+      const response = await categoryAPI.getAll({ service: "store" });
+      console.log("Categories response:", response);
+
+      if (response?.data) {
+        setCategories(response.data);
+        setCategoriesError(null);
+      } else {
+        setCategoriesError("Failed to load categories");
+        setCategories([]);
+      }
+    } catch (e: any) {
+      console.error("Error loading categories:", e);
+      const errorMessage =
+        e?.response?.data?.message || e?.message || "Failed to load categories";
+      setCategoriesError(errorMessage);
+      setCategories([]);
+    } finally {
+      setCategoriesLoading(false);
+    }
+  }, []);
+
+  // Load categories on mount
+  useEffect(() => {
+    loadCategories();
+  }, [loadCategories]);
 
   const loadItems = useCallback(
     async (opts: any = {}) => {
@@ -43,6 +90,7 @@ const MarketPlace: React.FC<MarketPlaceProps> = ({ onSearch }) => {
           limit: pageSize,
           search: opts.search ?? (debouncedQuery || undefined),
           isPublished: true,
+          category: selectedCategory !== "All" ? selectedCategory : undefined,
         };
 
         console.log("Loading items with params:", params);
@@ -99,6 +147,44 @@ const MarketPlace: React.FC<MarketPlaceProps> = ({ onSearch }) => {
     loadItems({ page: 1, reset: true });
   }, [debouncedQuery, selectedCategory, loadItems]);
 
+  // Category scroll functions
+  const scrollCategories = (direction: "left" | "right") => {
+    const container = document.getElementById("categories-container");
+    if (container) {
+      const scrollAmount = 200;
+      const newPosition =
+        direction === "left"
+          ? Math.max(0, categoryScrollPosition - scrollAmount)
+          : categoryScrollPosition + scrollAmount;
+
+      container.scrollTo({
+        left: newPosition,
+        behavior: "smooth",
+      });
+      setCategoryScrollPosition(newPosition);
+    }
+  };
+
+  // Check if scroll buttons should be visible
+  const [showLeftScroll, setShowLeftScroll] = useState(false);
+  const [showRightScroll, setShowRightScroll] = useState(false);
+
+  useEffect(() => {
+    const container = document.getElementById("categories-container");
+    if (container) {
+      const checkScrollButtons = () => {
+        setShowLeftScroll(categoryScrollPosition > 0);
+        setShowRightScroll(
+          categoryScrollPosition < container.scrollWidth - container.clientWidth
+        );
+      };
+
+      checkScrollButtons();
+      container.addEventListener("scroll", checkScrollButtons);
+      return () => container.removeEventListener("scroll", checkScrollButtons);
+    }
+  }, [categoryScrollPosition, categories]);
+
   return (
     <main className="min-h-screen bg-gradient-to-br from-gray-50 to-white">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pb-20">
@@ -151,29 +237,74 @@ const MarketPlace: React.FC<MarketPlaceProps> = ({ onSearch }) => {
         </div>
 
         {/* Categories */}
-        <section className="flex flex-wrap justify-center sm:justify-start gap-3 items-center mt-6 pb-4">
-          {[
-            "All",
-            "Beauty",
-            "Skincare",
-            "Supplement",
-            "Lifestyle",
-            "Self-care",
-            "Personal Growth",
-            "Mental Health",
-          ].map((cat) => (
+        <section className="relative mt-6 pb-4">
+          {/* Scroll buttons for desktop */}
+          {showLeftScroll && (
             <button
-              key={cat}
-              onClick={() => setSelectedCategory(cat)}
-              className={`py-1 px-3 text-sm font-medium rounded-full border transition-colors ${
-                selectedCategory === cat
+              onClick={() => scrollCategories("left")}
+              className="absolute left-0 top-1/2 -translate-y-1/2 z-10 bg-white shadow-lg rounded-full p-2 border border-gray-200 hover:bg-gray-50 transition-colors"
+            >
+              <ChevronLeft className="h-4 w-4 text-gray-600" />
+            </button>
+          )}
+
+          {showRightScroll && (
+            <button
+              onClick={() => scrollCategories("right")}
+              className="absolute right-0 top-1/2 -translate-y-1/2 z-10 bg-white shadow-lg rounded-full p-2 border border-gray-200 hover:bg-gray-50 transition-colors"
+            >
+              <ChevronRight className="h-4 w-4 text-gray-600" />
+            </button>
+          )}
+
+          {/* Categories container */}
+          <div
+            id="categories-container"
+            className="flex gap-3 items-center overflow-x-auto scrollbar-hide px-2"
+            style={{ scrollbarWidth: "none", msOverflowStyle: "none" }}
+          >
+            {/* All category */}
+            <button
+              onClick={() => setSelectedCategory("All")}
+              className={`py-1 px-3 text-sm font-medium rounded-full border transition-colors whitespace-nowrap flex-shrink-0 ${
+                selectedCategory === "All"
                   ? "text-[#4444B3] border-[#4444B3] bg-[#4444B3]/5"
                   : "text-gray-600 border-gray-300 hover:text-[#4444B3] hover:border-[#4444B3]"
               }`}
             >
-              {cat}
+              All
             </button>
-          ))}
+
+            {/* Dynamic categories */}
+            {categoriesLoading ? (
+              <div className="flex gap-3">
+                {[...Array(5)].map((_, i) => (
+                  <div
+                    key={i}
+                    className="h-8 w-20 bg-gray-200 rounded-full animate-pulse flex-shrink-0"
+                  />
+                ))}
+              </div>
+            ) : categoriesError ? (
+              <div className="text-red-500 text-sm">
+                Failed to load categories
+              </div>
+            ) : (
+              categories.map((category) => (
+                <button
+                  key={category.id}
+                  onClick={() => setSelectedCategory(category.name)}
+                  className={`py-1 px-3 text-sm font-medium rounded-full border transition-colors whitespace-nowrap flex-shrink-0 ${
+                    selectedCategory === category.name
+                      ? "text-[#4444B3] border-[#4444B3] bg-[#4444B3]/5"
+                      : "text-gray-600 border-gray-300 hover:text-[#4444B3] hover:border-[#4444B3]"
+                  }`}
+                >
+                  {category.name}
+                </button>
+              ))
+            )}
+          </div>
         </section>
 
         {/* Main Content */}
@@ -260,24 +391,49 @@ const MarketPlace: React.FC<MarketPlaceProps> = ({ onSearch }) => {
           <div className="fixed bottom-0 left-0 w-full bg-white border-t border-gray-200 lg:hidden p-6 shadow-lg rounded-t-2xl z-50 animate-slide-up">
             {openFilter === "product" && (
               <div>
-                <h3 className="font-medium mb-3">Select Product Range</h3>
-                <ul className="space-y-3">
-                  <li>
-                    <label className="flex items-center gap-2">
-                      <input type="checkbox" /> Skincare
-                    </label>
-                  </li>
-                  <li>
-                    <label className="flex items-center gap-2">
-                      <input type="checkbox" /> Wellness
-                    </label>
-                  </li>
-                  <li>
-                    <label className="flex items-center gap-2">
-                      <input type="checkbox" /> Bath
-                    </label>
-                  </li>
-                </ul>
+                <h3 className="font-medium mb-3">Select Category</h3>
+                <div className="space-y-3 max-h-60 overflow-y-auto">
+                  <label className="flex items-center gap-2 p-2 rounded-lg hover:bg-gray-50">
+                    <input
+                      type="radio"
+                      name="category"
+                      value="All"
+                      checked={selectedCategory === "All"}
+                      onChange={() => setSelectedCategory("All")}
+                    />
+                    <span>All</span>
+                  </label>
+                  {categoriesLoading ? (
+                    <div className="space-y-2">
+                      {[...Array(3)].map((_, i) => (
+                        <div
+                          key={i}
+                          className="h-8 bg-gray-200 rounded animate-pulse"
+                        />
+                      ))}
+                    </div>
+                  ) : categoriesError ? (
+                    <div className="text-red-500 text-sm">
+                      Failed to load categories
+                    </div>
+                  ) : (
+                    categories.map((category) => (
+                      <label
+                        key={category.id}
+                        className="flex items-center gap-2 p-2 rounded-lg hover:bg-gray-50"
+                      >
+                        <input
+                          type="radio"
+                          name="category"
+                          value={category.name}
+                          checked={selectedCategory === category.name}
+                          onChange={() => setSelectedCategory(category.name)}
+                        />
+                        <span>{category.name}</span>
+                      </label>
+                    ))
+                  )}
+                </div>
               </div>
             )}
             {/* Drawer Actions */}

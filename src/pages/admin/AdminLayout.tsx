@@ -57,6 +57,19 @@ const AdminLayout: React.FC = () => {
               Overview
             </NavLink>
             <NavLink
+              to="/admin/general"
+              className={({ isActive }) =>
+                `block px-3 py-2 rounded-md text-sm font-medium ${
+                  isActive
+                    ? "bg-indigo-50 text-indigo-700"
+                    : "text-gray-700 hover:bg-gray-100"
+                }`
+              }
+              onClick={() => setSidebarOpen(false)}
+            >
+              General
+            </NavLink>
+            <NavLink
               to="/admin/marketplace"
               className={({ isActive }) =>
                 `block px-3 py-2 rounded-md text-sm font-medium ${

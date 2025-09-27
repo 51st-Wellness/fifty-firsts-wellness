@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useCallback } from "react";
 import {
   Box,
   Typography,
@@ -13,6 +13,12 @@ import {
   Chip,
   Stack,
   Divider,
+  FormControl,
+  InputLabel,
+  Select,
+  MenuItem,
+  Tabs,
+  Tab,
 } from "@mui/material";
 import {
   Add as AddIcon,
@@ -27,14 +33,16 @@ import type { Category, CategoryService } from "../../types/category.types";
 import CategoryDialog from "./CategoryDialog";
 
 interface CategoryManagementProps {
-  service: CategoryService;
+  service?: CategoryService;
   title?: string;
+  showServiceFilter?: boolean;
 }
 
-// Component for managing categories for a specific service
+// Component for managing categories for a specific service or all services
 const CategoryManagement: React.FC<CategoryManagementProps> = ({
   service,
   title,
+  showServiceFilter = false,
 }) => {
   const [categories, setCategories] = useState<Category[]>([]);
   const [loading, setLoading] = useState(false);
@@ -44,12 +52,18 @@ const CategoryManagement: React.FC<CategoryManagementProps> = ({
   const [selectedCategory, setSelectedCategory] = useState<Category | null>(
     null
   );
+  const [selectedService, setSelectedService] = useState<
+    CategoryService | "all"
+  >(service || "all");
+  const [serviceTab, setServiceTab] = useState(0);
 
   // Load categories
-  const loadCategories = async () => {
+  const loadCategories = useCallback(async () => {
     setLoading(true);
     try {
-      const data = await categoryAPI.getAll({ service });
+      const queryParams =
+        selectedService === "all" ? {} : { service: selectedService };
+      const data = await categoryAPI.getAll(queryParams);
       setCategories(data.data);
     } catch (error: any) {
       console.error("Error loading categories:", error);
@@ -57,12 +71,12 @@ const CategoryManagement: React.FC<CategoryManagementProps> = ({
     } finally {
       setLoading(false);
     }
-  };
+  }, [selectedService]);
 
   // Initial load
   useEffect(() => {
     loadCategories();
-  }, [service]);
+  }, [loadCategories]);
 
   // Filter categories based on search term
   const filteredCategories = categories.filter(
@@ -78,6 +92,21 @@ const CategoryManagement: React.FC<CategoryManagementProps> = ({
     setSelectedCategory(null);
     setDialogMode("create");
     setDialogOpen(true);
+  };
+
+  // Handle service tab change
+  const handleServiceTabChange = (
+    event: React.SyntheticEvent,
+    newValue: number
+  ) => {
+    setServiceTab(newValue);
+    const services: (CategoryService | "all")[] = [
+      "all",
+      "store",
+      "programme",
+      "podcast",
+    ];
+    setSelectedService(services[newValue]);
   };
 
   // Handle edit category
@@ -122,9 +151,25 @@ const CategoryManagement: React.FC<CategoryManagementProps> = ({
       <Box sx={{ display: "flex", alignItems: "center", gap: 2, mb: 3 }}>
         <CategoryIcon />
         <Typography variant="h5" fontWeight="600">
-          {title || `${serviceLabels[service]} Categories`}
+          {title || "Categories"}
         </Typography>
       </Box>
+
+      {/* Service Filter Tabs */}
+      {showServiceFilter && (
+        <Box sx={{ borderBottom: 1, borderColor: "divider", mb: 3 }}>
+          <Tabs
+            value={serviceTab}
+            onChange={handleServiceTabChange}
+            aria-label="service filter tabs"
+          >
+            <Tab label="All Services" />
+            <Tab label="Store" />
+            <Tab label="Programmes" />
+            <Tab label="Podcasts" />
+          </Tabs>
+        </Box>
+      )}
 
       {/* Search and Actions */}
       <Stack direction={{ xs: "column", sm: "row" }} spacing={2} sx={{ mb: 3 }}>
@@ -169,9 +214,11 @@ const CategoryManagement: React.FC<CategoryManagementProps> = ({
             <Typography variant="body2" color="text.secondary" sx={{ mb: 2 }}>
               {searchTerm
                 ? "Try adjusting your search terms"
-                : `Create your first category for ${serviceLabels[
+                : service
+                ? `Create your first category for ${serviceLabels[
                     service
-                  ].toLowerCase()} products`}
+                  ].toLowerCase()} products`
+                : "Create your first category"}
             </Typography>
             {!searchTerm && (
               <Button
@@ -256,7 +303,7 @@ const CategoryManagement: React.FC<CategoryManagementProps> = ({
         onSuccess={handleDialogSuccess}
         category={selectedCategory}
         mode={dialogMode}
-        defaultService={service}
+        defaultService={selectedService === "all" ? undefined : selectedService}
       />
     </Box>
   );

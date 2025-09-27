@@ -32,6 +32,7 @@ import Footer from "./components/Footer";
 // Admin routes (lazy loaded)
 const AdminLayout = lazy(() => import("./pages/admin/AdminLayout"));
 const AdminOverview = lazy(() => import("./pages/admin/AdminOverview"));
+const AdminGeneral = lazy(() => import("./pages/admin/AdminGeneral"));
 const AdminMarketplace = lazy(() => import("./pages/admin/AdminMarketplace"));
 
 const App: React.FC = () => {
@@ -163,6 +164,14 @@ const App: React.FC = () => {
               element={
                 <Suspense fallback={<Loader />}>
                   <AdminOverview />
+                </Suspense>
+              }
+            />
+            <Route
+              path="general"
+              element={
+                <Suspense fallback={<Loader />}>
+                  <AdminGeneral />
                 </Suspense>
               }
             />

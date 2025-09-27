@@ -195,3 +195,12 @@ h6 {
     @apply bg-background text-foreground;
   }
 }
+
+/* Hide scrollbars for category container */
+.scrollbar-hide {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+}
+.scrollbar-hide::-webkit-scrollbar {
+  display: none;
+}

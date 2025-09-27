@@ -8,6 +8,7 @@ import {
   Mail,
 } from "lucide-react";
 import StarRating from "../components/StarRating";
+import FeaturedProducts from "../components/FeaturedProducts";
 // import family from "../assets/images/family.png";
 import womanBreathing from "../assets/images/woman-breathing.jpg";
 import serenity from "../assets/images/serenity.png";
@@ -16,9 +17,6 @@ import screenshot from "../assets/images/screenshot.png";
 import podcast from "../assets/images/podcast.png";
 import comment from "../assets/images/comment.png";
 import profilepic from "../assets/images/profilepic.png";
-import diary from "../assets/images/diary.png";
-import skincare from "../assets/images/skincare.png";
-import bathtub from "../assets/images/bathtub.png";
 import selflove from "../assets/images/selflove.png";
 import jump from "../assets/images/jump.png";
 import stretch from "../assets/images/stretch.png";
@@ -350,138 +348,8 @@ const Home: React.FC = () => {
           </div>
         </section>
 
-        {/* Products */}
-        <section className="py-20 bg-gray-50 rounded-3xl">
-          <div className="text-center mb-16">
-            <h2 className="text-3xl sm:text-4xl lg:text-5xl font-bold text-gray-900 mb-6">
-              Featured Products
-            </h2>
-            <p className="text-lg sm:text-xl text-gray-600 max-w-3xl mx-auto">
-              Discover our curated selection of wellness products designed to
-              support your health and well-being journey.
-            </p>
-          </div>
-
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-8">
-            {[
-              {
-                img: diary,
-                name: "Wellness Journal",
-                price: 22.5,
-                originalPrice: 32.5,
-                discount: 14,
-                rating: 4.5,
-                reviews: 124,
-              },
-              {
-                img: skincare,
-                name: "Organic Skincare Set",
-                price: 45.99,
-                originalPrice: 59.99,
-                discount: 23,
-                rating: 4.8,
-                reviews: 89,
-              },
-              {
-                img: bathtub,
-                name: "Relaxation Bath Kit",
-                price: 28.75,
-                originalPrice: 35.0,
-                discount: 18,
-                rating: 4.3,
-                reviews: 156,
-              },
-              {
-                img: diary,
-                name: "Mindfulness Planner",
-                price: 19.99,
-                originalPrice: 24.99,
-                discount: 20,
-                rating: 4.7,
-                reviews: 203,
-              },
-              {
-                img: skincare,
-                name: "Natural Face Mask",
-                price: 15.5,
-                originalPrice: 20.0,
-                discount: 22,
-                rating: 4.4,
-                reviews: 78,
-              },
-              {
-                img: bathtub,
-                name: "Essential Oils Bundle",
-                price: 34.99,
-                originalPrice: 42.99,
-                discount: 19,
-                rating: 4.6,
-                reviews: 142,
-              },
-              {
-                img: diary,
-                name: "Gratitude Journal",
-                price: 18.75,
-                originalPrice: 25.0,
-                discount: 25,
-                rating: 4.9,
-                reviews: 267,
-              },
-              {
-                img: skincare,
-                name: "Herbal Tea Collection",
-                price: 24.99,
-                originalPrice: 29.99,
-                discount: 17,
-                rating: 4.2,
-                reviews: 95,
-              },
-            ].map((product, idx) => (
-              <div
-                key={idx}
-                className="bg-white rounded-2xl p-6 shadow-lg hover:shadow-xl transition-shadow"
-              >
-                <div className="relative mb-4">
-                  <img
-                    src={product.img}
-                    alt={product.name}
-                    className="w-full h-48 object-cover rounded-lg"
-                  />
-                  <div className="absolute top-2 right-2 bg-red-500 text-white text-xs font-bold px-2 py-1 rounded-full">
-                    -{product.discount}%
-                  </div>
-                </div>
-
-                <h3 className="text-lg font-semibold text-gray-900 mb-2">
-                  {product.name}
-                </h3>
-
-                <div className="flex items-center justify-between mb-3">
-                  <div className="flex items-center space-x-2">
-                    <span className="text-xl font-bold text-gray-900">
-                      ${product.price}
-                    </span>
-                    <span className="text-sm text-gray-500 line-through">
-                      ${product.originalPrice}
-                    </span>
-                  </div>
-                </div>
-
-                <div className="flex items-center gap-2 mb-4">
-                  <StarRating rating={product.rating} size="sm" />
-                  <span className="text-sm text-gray-500">
-                    ({product.reviews} reviews)
-                  </span>
-                </div>
-
-                <button className="w-full bg-brand-green text-white py-3 px-4 rounded-lg font-semibold hover:bg-brand-green-dark transition-colors flex items-center justify-center gap-2">
-                  <ShoppingCart size={18} />
-                  Add to Cart
-                </button>
-              </div>
-            ))}
-          </div>
-        </section>
+        {/* Featured Products */}
+        <FeaturedProducts limit={8} />
 
         {/* Blog Section */}
         <section className="py-20">
