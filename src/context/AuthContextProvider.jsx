@@ -5,74 +5,74 @@ import { useNavigate } from "react-router-dom";
 import { toast } from "react-hot-toast";
 
 export const AuthProvider = ({ children }) => {
-    const [isLoggedIn, setIsLoggedIn] = useState(false);
-    const [loading, setLoading] = useState(false);
-    const [error, setError] = useState("");
-    const [user, setUser] = useState(() => {
-        const storedUser = localStorage.getItem("user");
-        return storedUser ? JSON.parse(storedUser) : null;
-    });
-    const [token, setToken] = useState(localStorage.getItem("token") || "");
-    const navigate = useNavigate();
+  const [isLoggedIn, setIsLoggedIn] = useState(false);
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState("");
+  const [user, setUser] = useState(() => {
+    const storedUser = localStorage.getItem("user");
+    return storedUser ? JSON.parse(storedUser) : null;
+  });
+  const [token, setToken] = useState(localStorage.getItem("token") || "");
+  const navigate = useNavigate();
 
-    const login = async (email, password) => {
-        setLoading(true);
-        try {
-            const response = await http().post("/auth/login", { email, password });
+  const login = async (email, password) => {
+    setLoading(true);
+    try {
+      const response = await http().post("/auth/login", { email, password });
 
-            if (response.data?.data?.accessToken) {
-                const { user, accessToken } = response.data.data;
+      if (response.data?.data?.accessToken) {
+        const { user, accessToken } = response.data.data;
 
-                // Save to localStorage
-                localStorage.setItem("token", accessToken);
-                localStorage.setItem("user", JSON.stringify(user));
+        // Save to localStorage
+        localStorage.setItem("token", accessToken);
+        localStorage.setItem("user", JSON.stringify(user));
 
-                // Update state
-                setIsLoggedIn(true);
-                setUser(user);
-                setToken(accessToken);
+        // Update state
+        setIsLoggedIn(true);
+        setUser(user);
+        setToken(accessToken);
 
-                toast.success("Login successful!");
-                return true; // ✅ success
-            }
-        } catch (error) {
-            if (error.response) {
-                setError(error.response.data.message);
-                toast.error(error.response.data.message);
-            }
-        } finally {
-            setLoading(false);
-        }
+        toast.success("Login successful!");
+        return true; // ✅ success
+      }
+    } catch (error) {
+      if (error.response) {
+        setError(error.response.data.message);
+        toast.error(error.response.data.message);
+      }
+    } finally {
+      setLoading(false);
+    }
 
-        return false; // ❌ failed
-    };
+    return false; // ❌ failed
+  };
 
-    const logout = () => {
-        setUser(null);
-        setToken("");
-        setIsLoggedIn(false);
-        localStorage.removeItem("token");
-        localStorage.removeItem("user");
-        navigate("/");
-    };
+  const logout = () => {
+    setUser(null);
+    setToken("");
+    setIsLoggedIn(false);
+    localStorage.removeItem("token");
+    localStorage.removeItem("user");
+    navigate("/");
+  };
 
-    return (
-        <AuthContext.Provider
-            value={{
-                user,
-                login,
-                logout,
-                isLoggedIn,
-                token,
-                loading,
-                error,
-            }}
-        >
-            {children}
-        </AuthContext.Provider>
-    );
+  return (
+    <AuthContext.Provider
+      value={{
+        user,
+        login,
+        logout,
+        isLoggedIn,
+        token,
+        loading,
+        error,
+      }}
+    >
+      {children}
+    </AuthContext.Provider>
+  );
 };
 
 export const useAuth = () => {
-    return useContext(AuthContext);
+  return useContext(AuthContext);
 };

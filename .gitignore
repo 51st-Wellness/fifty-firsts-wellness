@@ -22,3 +22,6 @@ dist-ssr
 *.njsproj
 *.sln
 *.sw?
+src/helpers/http.js
+pnpm-lock.yaml
+temp.js
