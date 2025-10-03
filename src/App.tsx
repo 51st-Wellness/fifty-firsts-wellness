@@ -10,6 +10,8 @@ import Home from "./pages/Home";
 import About from "./pages/About";
 import MarketPlace from "./pages/MarketPlace";
 import Blog from "./pages/Blog";
+import BlogList from "./pages/BlogList";
+import BlogPost from "./pages/BlogPost";
 import AIWellness from "./pages/AIWellness";
 import Membership from "./pages/Membership";
 import ContactUs from "./pages/ContactUs";
@@ -127,7 +129,18 @@ const App: React.FC = () => {
             element={
               <>
                 <Navbar />
-                <Blog />
+                <BlogList />
+                <Footer />
+              </>
+            }
+          />
+          <Route
+            path="/blog/:slug"
+            element={
+              <>
+                <Navbar />
+                <BlogPost />
+                <Footer />
               </>
             }
           />

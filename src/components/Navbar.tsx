@@ -184,6 +184,15 @@ const Navbar: React.FC = () => {
               </Link>
             </li>
 
+            <li>
+              <Link
+                to="/blog"
+                className="text-gray-700 hover:text-brand-green font-medium transition-colors px-3 py-2 rounded-lg hover:bg-brand-green/5 font-primary"
+              >
+                Blog
+              </Link>
+            </li>
+
             {/* Resources Dropdown (desktop) */}
             <li className="relative">
               <button
@@ -325,6 +334,16 @@ const Navbar: React.FC = () => {
                     className="block px-6 py-3 text-gray-700 hover:bg-brand-green/10 hover:text-brand-green font-medium transition-colors"
                   >
                     Marketplace
+                  </Link>
+                </li>
+
+                <li>
+                  <Link
+                    to="/blog"
+                    onClick={() => setMenuOpen(false)}
+                    className="block px-6 py-3 text-gray-700 hover:bg-brand-green/10 hover:text-brand-green font-medium transition-colors"
+                  >
+                    Blog
                   </Link>
                 </li>
 
