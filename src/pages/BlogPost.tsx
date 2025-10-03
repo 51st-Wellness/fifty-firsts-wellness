@@ -64,16 +64,6 @@ export default function BlogPost() {
           </div>
         )}
 
-        {/* Back Button */}
-        <div className="absolute top-6 left-6">
-          <Link
-            to="/blog"
-            className="inline-flex items-center gap-2 bg-white/90 backdrop-blur-sm text-gray-700 hover:text-brand-green px-4 py-2 rounded-full font-medium transition-colors font-primary shadow-lg"
-          >
-            ← Back to blog
-          </Link>
-        </div>
-
         {/* Article Header */}
         <div
           className={`${

@@ -54,7 +54,7 @@ const Blog: React.FC<BlogProps> = ({ onSearch }) => {
           const tags = Array.isArray(blog.tags)
             ? blog.tags
             : String(blog.tags || "")
-                .split(",")
+                .split("#")
                 .map((s) => s.trim())
                 .filter(Boolean);
           return tags.some((tag) =>
@@ -64,7 +64,7 @@ const Blog: React.FC<BlogProps> = ({ onSearch }) => {
 
   return (
     <main className="min-h-screen bg-gradient-to-br from-gray-50 to-white">
-      <div className="py-16 px-4">
+      <div className="py-16 px-16">
         {/* Header Section */}
         <div className="text-center mb-16">
           <h1 className="text-4xl sm:text-5xl lg:text-6xl font-bold text-gray-900 mb-6 font-heading">
@@ -145,7 +145,7 @@ const Blog: React.FC<BlogProps> = ({ onSearch }) => {
               const tags = Array.isArray(blog.tags)
                 ? blog.tags
                 : String(blog.tags || "")
-                    .split(",")
+                    .split("#")
                     .map((s) => s.trim())
                     .filter(Boolean);
 
@@ -224,15 +224,6 @@ const Blog: React.FC<BlogProps> = ({ onSearch }) => {
                 </Link>
               );
             })}
-          </div>
-        )}
-
-        {/* Load More Button */}
-        {!loading && filteredBlogs.length > 0 && (
-          <div className="text-center">
-            <button className="bg-brand-green text-white px-8 py-4 rounded-lg font-semibold hover:bg-brand-green-dark transition-colors shadow-lg hover:shadow-xl font-primary">
-              Load More Articles
-            </button>
           </div>
         )}
 
