@@ -25,6 +25,9 @@ export default function RichTextWrapper({ content, className }: Props) {
     };
   }, []);
 
+  // Always call useMemo hook regardless of content
+  const rendered = useMemo(() => renderBlocksFallback(content), [content]);
+
   if (!content) return null;
 
   if (BlocksRenderer) {
@@ -79,6 +82,17 @@ export default function RichTextWrapper({ content, className }: Props) {
               format: "ordered" | "unordered";
             }) =>
               format === "ordered" ? <ol>{children}</ol> : <ul>{children}</ul>,
+            link: ({
+              children,
+              url,
+            }: {
+              children: React.ReactNode;
+              url: string;
+            }) => (
+              <a href={url} target="_blank" rel="noopener noreferrer">
+                {children}
+              </a>
+            ),
           }}
           modifiers={{
             bold: ({ children }: { children: React.ReactNode }) => (
@@ -103,7 +117,6 @@ export default function RichTextWrapper({ content, className }: Props) {
   }
 
   // Fallback minimal renderer for common blocks if the package isn't available
-  const rendered = useMemo(() => renderBlocksFallback(content), [content]);
   return (
     <div className={`rt-content ${className ?? ""}`.trim()}>{rendered}</div>
   );
@@ -115,6 +128,17 @@ function renderBlocksFallback(content: any): React.ReactNode {
     switch (block.type) {
       case "paragraph":
         return <p key={idx}>{inlineChildren(block.children)}</p>;
+      case "link":
+        return (
+          <a
+            key={idx}
+            href={block.url}
+            target="_blank"
+            rel="noopener noreferrer"
+          >
+            {inlineChildren(block.children)}
+          </a>
+        );
       case "heading": {
         const level = block.level || 2;
         const kids = inlineChildren(block.children);
@@ -166,6 +190,19 @@ function renderBlocksFallback(content: any): React.ReactNode {
 function inlineChildren(children: any[]): React.ReactNode {
   if (!Array.isArray(children)) return null;
   return children.map((n, i) => {
+    // Inline link node (e.g., inside paragraph children)
+    if (n.type === "link") {
+      return (
+        <a
+          key={`a-${i}`}
+          href={n.url}
+          target="_blank"
+          rel="noopener noreferrer"
+        >
+          {inlineChildren(n.children)}
+        </a>
+      );
+    }
     let node: React.ReactNode = n.text ?? null;
     if (n.bold) node = <strong key={`b-${i}`}>{node}</strong>;
     if (n.italic) node = <em key={`i-${i}`}>{node}</em>;

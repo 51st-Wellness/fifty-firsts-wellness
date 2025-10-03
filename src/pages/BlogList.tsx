@@ -34,45 +34,54 @@ export default function BlogList() {
 
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
           {blogs.map((b) => {
-            const a = b.attributes;
-            const img = a.coverImage?.data?.attributes?.url;
+            const img =
+              b.coverImage?.url || b.coverImage?.data?.attributes?.url;
             return (
               <Link
                 key={b.id}
-                to={`/blog/${a.slug}`}
+                to={`/blog/${b.slug}`}
                 className="bg-white rounded-2xl shadow hover:shadow-lg transition overflow-hidden"
               >
                 {img && (
                   <img
                     src={mediaUrl(img)}
-                    alt={a.title}
+                    alt={b.title}
                     className="w-full h-52 object-cover"
                   />
                 )}
                 <div className="p-6">
-                  <h3 className="text-xl font-bold text-gray-900">{a.title}</h3>
-                  {a.description && (
+                  <h3 className="text-xl font-bold text-gray-900">{b.title}</h3>
+                  {b.description && (
                     <p className="text-gray-600 mt-2 line-clamp-3">
-                      {a.description}
+                      {b.description}
                     </p>
                   )}
-                  {a.publishedAt && (
+                  {b.publishedAt && (
                     <div className="text-sm text-gray-500 mt-3">
-                      {new Date(a.publishedAt).toLocaleDateString()}
+                      {new Date(b.publishedAt).toLocaleDateString()}
                     </div>
                   )}
-                  {a.tags && a.tags.length > 0 && (
-                    <div className="flex flex-wrap gap-2 mt-4">
-                      {a.tags.map((t, i) => (
-                        <span
-                          key={i}
-                          className="text-xs bg-indigo-50 text-indigo-700 px-2 py-1 rounded-full"
-                        >
-                          {t}
-                        </span>
-                      ))}
-                    </div>
-                  )}
+                  {b.tags &&
+                    (Array.isArray(b.tags)
+                      ? b.tags.length > 0
+                      : String(b.tags).length > 0) && (
+                      <div className="flex flex-wrap gap-2 mt-4">
+                        {(Array.isArray(b.tags)
+                          ? b.tags
+                          : String(b.tags)
+                              .split("#")
+                              .map((s) => s.trim())
+                              .filter(Boolean)
+                        ).map((t, i) => (
+                          <span
+                            key={i}
+                            className="text-xs bg-indigo-50 text-indigo-700 px-2 py-1 rounded-full"
+                          >
+                            {t}
+                          </span>
+                        ))}
+                      </div>
+                    )}
                 </div>
               </Link>
             );

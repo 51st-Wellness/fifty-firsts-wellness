@@ -6,29 +6,22 @@ const client = axios.create({
   baseURL: `${STRAPI_URL}/api`,
 });
 
-export type BlogAttributes = {
+export type BlogEntity = {
+  id: number;
+  documentId: string;
   title: string;
   slug: string;
   description?: string;
-  tags?: string[];
-  content: any; // Strapi Blocks content
+  tags?: string | string[];
+  content: any;
   publishedAt?: string;
+  createdAt: string;
+  updatedAt: string;
   coverImage?: {
-    data?: {
-      attributes: {
-        url: string;
-        alternativeText?: string;
-      };
-    };
-  };
-};
-
-export type BlogEntity = {
-  id: number;
-  attributes: BlogAttributes & {
-    createdAt: string;
-    updatedAt: string;
-  };
+    url?: string;
+    alternativeText?: string;
+    data?: { attributes?: { url?: string; alternativeText?: string } };
+  } | null;
 };
 
 export type Paginated<T> = {

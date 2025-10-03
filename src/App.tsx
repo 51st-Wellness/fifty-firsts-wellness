@@ -9,9 +9,9 @@ import Navbar from "./components/Navbar";
 import Home from "./pages/Home";
 import About from "./pages/About";
 import MarketPlace from "./pages/MarketPlace";
-import Blog from "./pages/Blog";
 import BlogList from "./pages/BlogList";
-import BlogPost from "./pages/BlogPost";
+// import BlogPost from "./pages/BlogPost";
+import Blog from "./pages/Blog";
 import AIWellness from "./pages/AIWellness";
 import Membership from "./pages/Membership";
 import ContactUs from "./pages/ContactUs";
@@ -32,6 +32,7 @@ import EmailVerification from "./pages/EmailVerification";
 import EmailVerificationGuard from "./components/EmailVerificationGuard";
 import Loader from "./components/Loader";
 import Footer from "./components/Footer";
+import BlogPost from "@/pages/BlogPost";
 
 // Admin routes (lazy loaded)
 const AdminLayout = lazy(() => import("./pages/admin/AdminLayout"));
@@ -129,7 +130,7 @@ const App: React.FC = () => {
             element={
               <>
                 <Navbar />
-                <BlogList />
+                <Blog />
                 <Footer />
               </>
             }

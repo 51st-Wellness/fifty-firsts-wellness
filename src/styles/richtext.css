@@ -71,3 +71,64 @@
   border-top: 1px solid #e5e7eb;
   margin: 2rem 0;
 }
+
+/* Tables */
+.rt-content table {
+  width: 100%;
+  border-collapse: collapse;
+  margin: 1.25rem 0;
+  font-size: 0.95rem;
+}
+.rt-content th,
+.rt-content td {
+  border: 1px solid #e5e7eb;
+  padding: 0.6rem 0.75rem;
+  text-align: left;
+}
+.rt-content thead th {
+  background: #f9fafb;
+  font-weight: 700;
+}
+
+/* Headings anchors spacing */
+.rt-content h1,
+.rt-content h2,
+.rt-content h3,
+.rt-content h4,
+.rt-content h5,
+.rt-content h6 {
+  scroll-margin-top: 6rem;
+}
+
+/* Images with captions */
+.rt-content figure {
+  margin: 1.25rem 0;
+}
+.rt-content figcaption {
+  text-align: center;
+  color: #6b7280;
+  font-size: 0.9rem;
+  margin-top: 0.5rem;
+}
+
+/* Callouts */
+.rt-content .callout {
+  border-left: 4px solid #6366f1;
+  background: #eef2ff;
+  padding: 0.75rem 1rem;
+  border-radius: 0.5rem;
+}
+
+/* Inline elements */
+.rt-content strong {
+  font-weight: 700;
+}
+.rt-content em {
+  font-style: italic;
+}
+.rt-content u {
+  text-decoration: underline;
+}
+.rt-content s {
+  text-decoration: line-through;
+}
