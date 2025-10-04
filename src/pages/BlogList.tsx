@@ -18,7 +18,39 @@ export default function BlogList() {
   }, []);
 
   if (loading)
-    return <div className="container mx-auto px-4 py-12">Loading blogs...</div>;
+    return (
+      <div className="container mx-auto px-4 py-12">
+        <div className="text-center mb-12">
+          <h1 className="text-4xl sm:text-5xl font-bold text-gray-900 font-heading">
+            Wellness Blog
+          </h1>
+          <p className="text-gray-600 mt-3 font-primary">
+            Your space for mindful living, balance, and self-care.
+          </p>
+        </div>
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+          {Array.from({ length: 6 }).map((_, idx) => (
+            <div
+              key={idx}
+              className="bg-white rounded-2xl overflow-hidden shadow-lg"
+            >
+              <div className="animate-pulse">
+                <div className="w-full h-48 bg-gray-200"></div>
+                <div className="p-6">
+                  <div className="h-6 bg-gray-200 rounded mb-3"></div>
+                  <div className="h-4 bg-gray-200 rounded mb-2"></div>
+                  <div className="h-4 bg-gray-200 rounded mb-4 w-2/3"></div>
+                  <div className="flex items-center justify-between">
+                    <div className="h-4 bg-gray-200 rounded w-24"></div>
+                    <div className="h-8 bg-gray-200 rounded w-20"></div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          ))}
+        </div>
+      </div>
+    );
 
   return (
     <main className="min-h-screen bg-gradient-to-br from-gray-50 to-white">

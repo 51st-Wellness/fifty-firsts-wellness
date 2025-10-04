@@ -305,9 +305,20 @@ const MarketPlace: React.FC<MarketPlaceProps> = ({ onSearch }) => {
             </div>
             <section className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
               {loading && items.length === 0 ? (
-                <div className="col-span-full text-center py-12">
-                  <div className="inline-block animate-spin rounded-full h-8 w-8 border-b-2 border-indigo-600"></div>
-                  <p className="mt-2 text-gray-500">Loading products...</p>
+                <div className="col-span-full">
+                  <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+                    {Array.from({ length: 8 }).map((_, idx) => (
+                      <div
+                        key={idx}
+                        className="bg-white rounded-2xl p-6 shadow-lg animate-pulse"
+                      >
+                        <div className="w-full h-48 bg-gray-200 rounded-lg mb-4"></div>
+                        <div className="h-6 bg-gray-200 rounded mb-2"></div>
+                        <div className="h-4 bg-gray-200 rounded mb-4"></div>
+                        <div className="h-10 bg-gray-200 rounded"></div>
+                      </div>
+                    ))}
+                  </div>
                 </div>
               ) : error ? (
                 <div className="col-span-full text-center py-12">
@@ -359,7 +370,16 @@ const MarketPlace: React.FC<MarketPlaceProps> = ({ onSearch }) => {
             }}
             className="w-fit rounded-full text-white px-6 py-2 text-center bg-[#4444B3] text-sm sm:text-base hover:bg-[#343494] transition disabled:opacity-50 disabled:cursor-not-allowed"
           >
-            {loading ? "Loading..." : hasMore ? "Load More" : "No more items"}
+            {loading ? (
+              <div className="flex items-center gap-2">
+                <div className="animate-spin rounded-full h-4 w-4 border-2 border-white border-t-transparent"></div>
+                Loading...
+              </div>
+            ) : hasMore ? (
+              "Load More"
+            ) : (
+              "No more items"
+            )}
           </button>
         </div>
 
