@@ -68,5 +68,10 @@ export default {
       },
     },
   },
-  plugins: [require("tailwindcss-animate"), require("@tailwindcss/line-clamp")],
+  plugins: [
+    // eslint-disable-next-line no-undef
+    require("tailwindcss-animate"),
+    // eslint-disable-next-line no-undef
+    require("@tailwindcss/line-clamp"),
+  ],
 };
