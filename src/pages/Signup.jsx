@@ -20,7 +20,7 @@ const Signup = () => {
   const [lastName, setLastName] = useState("");
   const [city, setCity] = useState("");
   const [phone, setPhone] = useState("");
-  const [address, setAddress] = useState("");
+  // const [address, setAddress] = useState("");
   // const [bio, setBio] = useState("");
   const [role, setRole] = useState("");
   const [errors, setErrors] = useState({});
@@ -56,7 +56,7 @@ const Signup = () => {
     if (!firstName) newErrors.firstName = "First name is required";
     if (!lastName) newErrors.lastName = "Last name is required";
     if (!city) newErrors.city = "City is required";
-    if (!address) newErrors.address = "Address is required";
+    // if (!address) newErrors.address = "Address is required";
     if (!role) newErrors.role = "Please select a role";
 
     setErrors(newErrors);
@@ -74,7 +74,7 @@ const Signup = () => {
         lastName,
         city,
         phone,
-        address,
+        // address,
         // bio,
         role,
       });
@@ -192,7 +192,7 @@ const Signup = () => {
               </div>
 
               {/* Address */}
-              <div>
+              {/* <div>
                 <input
                   type="text"
                   placeholder="Address"
@@ -203,7 +203,7 @@ const Signup = () => {
                 {errors.address && (
                   <p className="text-red-500 text-xs">{errors.address}</p>
                 )}
-              </div>
+              </div> */}
 
               {/* Bio */}
               {/* <div>
