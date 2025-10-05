@@ -8,19 +8,35 @@ const Navbar = () => {
   const [menuOpen, setMenuOpen] = useState(false);
   const [servicesOpen, setServicesOpen] = useState(false);
   const [resourcesOpen, setResourcesOpen] = useState(false);
+  const [userMenuOpen, setUserMenuOpen] = useState(false);
   const navRef = useRef(null);
+  const userMenuRef = useRef(null);
   const navigate = useNavigate();
 
   // ✅ from AuthContext
-  const { isLoggedIn, logout } = useAuth();
+  const { isLoggedIn, logout, user } = useAuth(); // ensure AuthContext provides user, firstName, lastName
 
-  // Close menus when clicking/tapping outside the navbar
+  // Generate user initials (e.g., "RO" for Ronald Okeke)
+  const getUserInitials = (firstName = "", lastName = "") => {
+    if (firstName && lastName) {
+      return `${firstName[0]}${lastName[0]}`.toUpperCase();
+    }
+    if (firstName) return firstName[0].toUpperCase();
+    return "U";
+  };
+
+  // Close menus when clicking/tapping outside
   useEffect(() => {
     const handleClickOutside = (event) => {
-      if (navRef.current && !navRef.current.contains(event.target)) {
+      if (
+        navRef.current &&
+        !navRef.current.contains(event.target) &&
+        (!userMenuRef.current || !userMenuRef.current.contains(event.target))
+      ) {
         setMenuOpen(false);
         setServicesOpen(false);
         setResourcesOpen(false);
+        setUserMenuOpen(false);
       }
     };
 
@@ -34,7 +50,7 @@ const Navbar = () => {
   }, []);
 
   const handleLogout = () => {
-    logout(); // ✅ use same logout from AuthContext
+    logout();
     navigate("/login");
   };
 
@@ -80,17 +96,26 @@ const Navbar = () => {
           {servicesOpen && (
             <ul className="absolute left-0 mt-2 w-56 bg-white border rounded-md shadow-lg z-50">
               <li>
-                <Link to="/services/personal-wellness" className="block px-4 py-2 hover:bg-indigo-50">
+                <Link
+                  to="/services/personal-wellness"
+                  className="block px-4 py-2 hover:bg-indigo-50"
+                >
                   Personal Wellness Programmes
                 </Link>
               </li>
               <li>
-                <Link to="/services/business-wellness" className="block px-4 py-2 hover:bg-indigo-50">
+                <Link
+                  to="/services/business-wellness"
+                  className="block px-4 py-2 hover:bg-indigo-50"
+                >
                   Business Wellness Programmes
                 </Link>
               </li>
               <li>
-                <Link to="/services/program-details" className="block px-4 py-2 hover:bg-indigo-50">
+                <Link
+                  to="/services/program-details"
+                  className="block px-4 py-2 hover:bg-indigo-50"
+                >
                   Wellness Program Details
                 </Link>
               </li>
@@ -106,7 +131,7 @@ const Navbar = () => {
         <li><Link to="/membership" className="hover:text-indigo-600">Membership</Link></li>
         <li><Link to="/contact" className="hover:text-indigo-600">Contact Us</Link></li>
 
-        {/* ✅ Auth Buttons */}
+        {/* ✅ User Avatar / Login */}
         {!isLoggedIn ? (
           <li>
             <Link
@@ -117,13 +142,40 @@ const Navbar = () => {
             </Link>
           </li>
         ) : (
-          <li>
+          <li ref={userMenuRef} className="relative">
+            {/* Avatar Button */}
             <button
-              onClick={handleLogout}
-              className="bg-red-500 text-white px-4 py-2 rounded-md hover:bg-red-600"
+              onClick={() => setUserMenuOpen((v) => !v)}
+              className="flex items-center gap-2 focus:outline-none"
             >
-              Logout
+              <div className="w-10 h-10 flex items-center justify-center rounded-full bg-[#006666] text-white font-semibold">
+                {getUserInitials(user?.firstName, user?.lastName)}
+              </div>
+              <span className="text-gray-800 font-medium hidden sm:inline">
+                {user?.firstName}
+              </span>
+              <span className="text-gray-500">▾</span>
             </button>
+
+            {/* Dropdown Menu */}
+            {userMenuOpen && (
+              <ul className="absolute right-0 mt-2 w-56 bg-white border rounded-md shadow-lg z-50 p-3">
+                <li className="mb-2 border-b pb-2">
+                  <p>
+                    <span className="font-medium">Name:</span>{" "}
+                    {user?.firstName} {user?.lastName}
+                  </p>
+                </li>
+                <li>
+                  <button
+                    onClick={handleLogout}
+                    className="block w-full text-left px-4 py-2 text-red-600 hover:bg-red-50 rounded-md"
+                  >
+                    Logout
+                  </button>
+                </li>
+              </ul>
+            )}
           </li>
         )}
       </ul>
@@ -131,9 +183,12 @@ const Navbar = () => {
       {/* Mobile Menu */}
       {menuOpen && (
         <ul className="absolute top-14 left-0 w-full bg-white border-t shadow-md flex flex-col space-y-2 p-4 md:hidden z-50">
-          {/* ...same links as desktop... */}
+          <li><Link to="/" onClick={() => setMenuOpen(false)}>Home</Link></li>
+          <li><Link to="/about" onClick={() => setMenuOpen(false)}>About</Link></li>
+          <li><Link to="/marketplace" onClick={() => setMenuOpen(false)}>Shop</Link></li>
+          <li><Link to="/blog" onClick={() => setMenuOpen(false)}>Blog</Link></li>
 
-          {/* ✅ Auth Buttons Mobile */}
+          {/* Auth Buttons Mobile */}
           {!isLoggedIn ? (
             <li>
               <Link

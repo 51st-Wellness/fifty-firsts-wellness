@@ -1,4 +1,4 @@
-import { useContext, useState } from "react";
+import { useContext, useState, useEffect } from "react";
 import { AuthContext } from "./AuthContext";
 import http from "../helpers/http";
 import { useNavigate } from "react-router-dom";
@@ -14,6 +14,17 @@ export const AuthProvider = ({ children }) => {
   });
   const [token, setToken] = useState(localStorage.getItem("token") || "");
   const navigate = useNavigate();
+
+  // ✅ Keep logged in after refresh
+  useEffect(() => {
+    const storedUser = localStorage.getItem("user");
+    const storedToken = localStorage.getItem("token");
+    if (storedUser && storedToken) {
+      setUser(JSON.parse(storedUser));
+      setToken(storedToken);
+      setIsLoggedIn(true);
+    }
+  }, []);
 
   const login = async (email, password) => {
     setLoading(true);
@@ -39,6 +50,8 @@ export const AuthProvider = ({ children }) => {
       if (error.response) {
         setError(error.response.data.message);
         toast.error(error.response.data.message);
+      } else {
+        toast.error("An error occurred. Please try again.");
       }
     } finally {
       setLoading(false);
@@ -73,6 +86,4 @@ export const AuthProvider = ({ children }) => {
   );
 };
 
-export const useAuth = () => {
-  return useContext(AuthContext);
-};
+export const useAuth = () => useContext(AuthContext);
