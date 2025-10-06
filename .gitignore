@@ -24,4 +24,8 @@ dist-ssr
 *.sw?
 src/helpers/http.js
 pnpm-lock.yaml
+package-lock.json
 temp.js
+
+
+.env
