@@ -1,13 +1,9 @@
-import React, { useState } from "react";
+import React, { useEffect, useMemo, useRef, useState } from "react";
 import { Search } from "lucide-react";
 import Footer from "../../components/Footer";
 import { MdOutlineExpandMore, MdSlowMotionVideo } from "react-icons/md";
 import podcast1 from "../../assets/images/podcast1.png";
-import podcast2 from "../../assets/images/podcast2.png";
-import podcast3 from "../../assets/images/podcast3.png";
-import podcast4 from "../../assets/images/podcast4.png";
-import podcast5 from "../../assets/images/podcast5.png";
-import podcast6 from "../../assets/images/podcast6.png";
+import { fetchPodcasts, type PodcastEpisode } from "@/api/podcast.api";
 import { RiForward10Line } from "react-icons/ri";
 import { BsCopy } from "react-icons/bs";
 import { GrBackTen } from "react-icons/gr";
@@ -18,6 +14,41 @@ interface PodcastsProps {
 
 const Podcasts: React.FC<PodcastsProps> = ({ onSearch }) => {
   const [query, setQuery] = useState("");
+  const [episodes, setEpisodes] = useState<PodcastEpisode[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+  const [limit, setLimit] = useState<number>(12);
+
+  useEffect(() => {
+    let mounted = true;
+    setLoading(true);
+    fetchPodcasts(limit)
+      .then((eps) => {
+        if (mounted) {
+          setEpisodes(eps);
+          setError(null);
+        }
+      })
+      .catch((e) => {
+        if (mounted) setError("Failed to load podcasts");
+      })
+      .finally(() => mounted && setLoading(false));
+    return () => {
+      mounted = false;
+    };
+  }, [limit]);
+
+  const filteredEpisodes = useMemo(() => {
+    if (!query) return episodes;
+    const q = query.toLowerCase();
+    return episodes.filter(
+      (e) =>
+        e.title.toLowerCase().includes(q) ||
+        e.description.toLowerCase().includes(q)
+    );
+  }, [episodes, query]);
+
+  const handleLoadMore = () => setLimit((l) => l + 9);
 
   const handleSubmit = (e) => {
     e.preventDefault();
@@ -90,64 +121,29 @@ const Podcasts: React.FC<PodcastsProps> = ({ onSearch }) => {
 
       {/* Podcast Section */}
       <article className="flex flex-col p-4 sm:p-6 w-full mt-6 items-center">
-        <section className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 w-full">
-          {[
-            podcast1,
-            podcast2,
-            podcast3,
-            podcast4,
-            podcast5,
-            podcast6,
-            podcast1,
-            podcast2,
-            podcast3,
-            podcast4,
-          ].map((img, idx) => (
-            <div
-              key={idx}
-              className="flex flex-col gap-2 border rounded-3xl p-4 hover:shadow-md transition bg-white"
-            >
-              <img
-                src={img}
-                alt={`Podcast ${idx + 1}`}
-                className="rounded-lg w-full h-40 sm:h-48 object-cover"
-              />
-              <div className="text-xs sm:text-sm text-gray-500 font-semibold">
-                March 4, 2025
-              </div>
-              <div className="text-base sm:text-lg lg:text-xl font-medium line-clamp-2">
-                Redefining Success in Life
-              </div>
-              <div className="text-sm sm:text-base text-[#667085] flex justify-between">
-                <span>30:23</span>
-                <span className="text-[#98A2B3]">Morning Talk</span>
-              </div>
-
-              {/* Controls */}
-              <div className="mt-2 flex justify-between items-center">
-                <button className="text-xl text-[#4444B3] hover:text-indigo-600">
-                  <MdSlowMotionVideo />
-                </button>
-                <div className="flex items-center gap-3">
-                  <button className="text-xl hover:text-indigo-600">
-                    <RiForward10Line />
-                  </button>
-                  <button className="text-xl hover:text-indigo-600">
-                    <GrBackTen />
-                  </button>
-                  <button className="text-xl hover:text-indigo-600">
-                    <BsCopy />
-                  </button>
-                </div>
-              </div>
-            </div>
-          ))}
-        </section>
+        {loading ? (
+          <div className="w-full text-center text-gray-500">
+            Loading podcasts...
+          </div>
+        ) : error ? (
+          <div className="w-full text-center text-red-500">{error}</div>
+        ) : (
+          <section className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 w-full">
+            {filteredEpisodes.map((ep) => (
+              <EpisodeCard key={ep.id} episode={ep} />
+            ))}
+          </section>
+        )}
 
         {/* Load More Button */}
-        <button className="flex rounded-full text-white justify-center mt-6 px-6 py-2 text-center bg-[#4444B3] text-sm sm:text-base hover:bg-[#343494] transition">
-          Load More
-        </button>
+        {!loading && !error && (
+          <button
+            onClick={handleLoadMore}
+            className="flex rounded-full text-white justify-center mt-6 px-6 py-2 text-center bg-[#4444B3] text-sm sm:text-base hover:bg-[#343494] transition"
+          >
+            Load More
+          </button>
+        )}
       </article>
 
       <Footer />
@@ -156,3 +152,79 @@ const Podcasts: React.FC<PodcastsProps> = ({ onSearch }) => {
 };
 
 export default Podcasts;
+
+function formatDuration(seconds?: number) {
+  if (!seconds && seconds !== 0) return "";
+  const h = Math.floor(seconds / 3600);
+  const m = Math.floor((seconds % 3600) / 60);
+  const s = Math.floor(seconds % 60);
+  return [h > 0 ? h : null, m, s]
+    .filter((v) => v !== null)
+    .map((v) => String(v).padStart(2, "0"))
+    .join(":");
+}
+
+const EpisodeCard: React.FC<{ episode: PodcastEpisode }> = ({ episode }) => {
+  const audioRef = useRef<HTMLAudioElement | null>(null);
+  const storageKey = `podcastProgress:${episode.id}`;
+
+  useEffect(() => {
+    const saved = localStorage.getItem(storageKey);
+    if (saved) {
+      try {
+        const { position } = JSON.parse(saved);
+        if (audioRef.current && typeof position === "number" && position > 0) {
+          audioRef.current.currentTime = position;
+        }
+      } catch {}
+    }
+  }, [storageKey]);
+
+  const onTimeUpdate = () => {
+    const el = audioRef.current;
+    if (!el) return;
+    const position = Math.floor(el.currentTime || 0);
+    const duration = Math.floor(el.duration || episode.duration || 0);
+    if (Number.isFinite(position)) {
+      localStorage.setItem(
+        storageKey,
+        JSON.stringify({
+          position,
+          duration,
+          updatedAt: new Date().toISOString(),
+        })
+      );
+    }
+  };
+
+  return (
+    <div className="flex flex-col gap-2 border rounded-3xl p-4 hover:shadow-md transition bg-white">
+      <img
+        src={episode.imageUrl || podcast1}
+        alt={episode.title}
+        className="rounded-lg w-full h-40 sm:h-48 object-cover"
+      />
+      <div className="text-xs sm:text-sm text-gray-500 font-semibold">
+        {episode.publishedAt
+          ? new Date(episode.publishedAt).toLocaleDateString()
+          : ""}
+      </div>
+      <div className="text-base sm:text-lg lg:text-xl font-medium line-clamp-2">
+        {episode.title}
+      </div>
+      <div className="text-sm sm:text-base text-[#667085] flex justify-between">
+        <span>{formatDuration(episode.duration)}</span>
+        <span className="text-[#98A2B3]">Podcast</span>
+      </div>
+      {episode.audioUrl && (
+        <audio
+          ref={audioRef}
+          src={episode.audioUrl}
+          controls
+          onTimeUpdate={onTimeUpdate}
+          className="mt-2"
+        />
+      )}
+    </div>
+  );
+};
