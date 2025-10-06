@@ -1,6 +1,5 @@
 import React, { useEffect, useMemo, useRef, useState } from "react";
-import { Search } from "lucide-react";
-import { MdOutlineExpandMore } from "react-icons/md";
+import { Search, Play, Clock, Calendar } from "lucide-react";
 import podcast1 from "../../assets/images/podcast1.png";
 import { fetchPodcasts, type PodcastEpisode } from "@/api/podcast.api";
 import { useNavigate } from "react-router-dom";
@@ -49,7 +48,7 @@ const Podcasts: React.FC<PodcastsProps> = ({ onSearch }) => {
   const handleLoadMore = () => setLimit((l) => l + 9);
   const hasMore = episodes.length >= limit; // heuristic since API slices by limit
 
-  const handleSubmit = (e) => {
+  const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     if (onSearch) onSearch(query);
   };
@@ -146,31 +145,54 @@ const EpisodeCard: React.FC<{ episode: PodcastEpisode }> = ({ episode }) => {
   return (
     <button
       onClick={() => navigate(`/podcasts/${encodeURIComponent(episode.id)}`)}
-      className="text-left group bg-white border rounded-3xl p-4 hover:shadow-lg transition focus:outline-none focus:ring-2 focus:ring-brand-green/30"
+      className="text-left group relative bg-gradient-to-br from-white via-brand-green/5 to-brand-purple/5 border border-gray-200 rounded-3xl p-5 hover:shadow-2xl hover:scale-[1.02] transition-all duration-300 focus:outline-none focus:ring-2 focus:ring-brand-green/30 overflow-hidden"
     >
-      <div className="relative">
+      {/* Decorative gradient overlay */}
+      <div className="absolute top-0 right-0 w-32 h-32 bg-gradient-to-br from-brand-green/10 to-brand-purple/10 rounded-full blur-3xl -z-0 group-hover:scale-150 transition-transform duration-500" />
+      
+      <div className="relative z-10">
         <img
           src={episode.imageUrl || podcast1}
           alt={episode.title}
-          className="rounded-2xl w-full h-44 object-cover"
+          className="rounded-2xl w-full h-44 object-cover shadow-md group-hover:shadow-xl transition-shadow"
         />
+        {/* Play overlay on hover */}
+        <div className="absolute inset-0 bg-gradient-to-t from-brand-green/80 via-brand-green/40 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300 rounded-2xl flex items-center justify-center">
+          <div className="bg-white rounded-full p-4 transform scale-0 group-hover:scale-100 transition-transform duration-300">
+            <Play className="w-8 h-8 text-brand-green fill-brand-green" />
+          </div>
+        </div>
       </div>
-      <div className="mt-3 text-xs sm:text-sm text-gray-500 font-semibold">
-        {episode.publishedAt
-          ? new Date(episode.publishedAt).toLocaleDateString()
-          : ""}
+      
+      <div className="relative z-10 mt-4 flex items-center gap-3 text-xs text-gray-500">
+        {episode.publishedAt && (
+          <div className="flex items-center gap-1.5">
+            <Calendar className="w-3.5 h-3.5 text-brand-green" />
+            <span>{new Date(episode.publishedAt).toLocaleDateString()}</span>
+          </div>
+        )}
+        {episode.duration && (
+          <div className="flex items-center gap-1.5">
+            <Clock className="w-3.5 h-3.5 text-brand-purple" />
+            <span>{formatDuration(episode.duration)}</span>
+          </div>
+        )}
       </div>
-      <h3 className="mt-1 text-base sm:text-lg lg:text-xl font-semibold line-clamp-2 group-hover:text-brand-green">
+      
+      <h3 className="relative z-10 mt-3 text-base sm:text-lg lg:text-xl font-heading font-bold line-clamp-2 text-gray-900 group-hover:text-brand-green transition-colors">
         {episode.title}
       </h3>
+      
       {episode.description && (
-        <p className="mt-1 text-sm text-[#667085] line-clamp-3">
+        <p className="relative z-10 mt-2 text-sm text-gray-600 line-clamp-2 font-primary">
           {episode.description.replace(/<[^>]+>/g, "")}
         </p>
       )}
-      <div className="mt-3 flex items-center justify-between text-sm text-[#667085]">
-        <span>{formatDuration(episode.duration)}</span>
-        <span className="text-[#98A2B3]">Tap to play</span>
+      
+      <div className="relative z-10 mt-4 flex items-center justify-end">
+        <span className="text-xs font-medium text-brand-green group-hover:text-brand-purple transition-colors flex items-center gap-1">
+          Tap to play <Play className="w-3 h-3" />
+        </span>
       </div>
     </button>
   );
