@@ -107,6 +107,7 @@ const PodcastDetail: React.FC = () => {
                     ref={audioRef}
                     src={episode.audioUrl}
                     controls
+                    controlsList="nodownload"
                     onTimeUpdate={onTimeUpdate}
                     className="w-full"
                   />
