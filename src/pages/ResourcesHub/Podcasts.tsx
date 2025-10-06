@@ -149,7 +149,7 @@ const EpisodeCard: React.FC<{ episode: PodcastEpisode }> = ({ episode }) => {
     >
       {/* Decorative gradient overlay */}
       <div className="absolute top-0 right-0 w-32 h-32 bg-gradient-to-br from-brand-green/10 to-brand-purple/10 rounded-full blur-3xl -z-0 group-hover:scale-150 transition-transform duration-500" />
-      
+
       <div className="relative z-10">
         <img
           src={episode.imageUrl || podcast1}
@@ -163,7 +163,7 @@ const EpisodeCard: React.FC<{ episode: PodcastEpisode }> = ({ episode }) => {
           </div>
         </div>
       </div>
-      
+
       <div className="relative z-10 mt-4 flex items-center gap-3 text-xs text-gray-500">
         {episode.publishedAt && (
           <div className="flex items-center gap-1.5">
@@ -178,17 +178,17 @@ const EpisodeCard: React.FC<{ episode: PodcastEpisode }> = ({ episode }) => {
           </div>
         )}
       </div>
-      
+
       <h3 className="relative z-10 mt-3 text-base sm:text-lg lg:text-xl font-heading font-bold line-clamp-2 text-gray-900 group-hover:text-brand-green transition-colors">
         {episode.title}
       </h3>
-      
+
       {episode.description && (
         <p className="relative z-10 mt-2 text-sm text-gray-600 line-clamp-2 font-primary">
           {episode.description.replace(/<[^>]+>/g, "")}
         </p>
       )}
-      
+
       <div className="relative z-10 mt-4 flex items-center justify-end">
         <span className="text-xs font-medium text-brand-green group-hover:text-brand-purple transition-colors flex items-center gap-1">
           Tap to play <Play className="w-3 h-3" />
