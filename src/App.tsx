@@ -21,6 +21,7 @@ import Profile from "./pages/Profile";
 import PersonalWellnessProgrammes from "./pages/service/PersonalWellnessProgrammes";
 import WellnessProgramDetails from "./pages/service/WellnessProgramDetails";
 import Podcasts from "./pages/ResourcesHub/Podcasts";
+import PodcastDetail from "./pages/ResourcesHub/PodcastDetail";
 import Webinars from "./pages/ResourcesHub/Webinars";
 import BusinessWellnessProgrammes from "./pages/service/BusinessWellnessProgrammes";
 import ForgotPassword from "./pages/ForgotPassword";
@@ -108,11 +109,22 @@ const App: React.FC = () => {
             }
           />
           <Route
-            path="/resources/podcasts"
+            path="/podcasts"
             element={
               <>
                 <Navbar />
                 <Podcasts />
+                <Footer />
+              </>
+            }
+          />
+          <Route
+            path="/podcasts/:id"
+            element={
+              <>
+                <Navbar />
+                <PodcastDetail />
+                <Footer />
               </>
             }
           />

@@ -18,3 +18,11 @@ export async function fetchPodcasts(limit?: number): Promise<PodcastEpisode[]> {
   });
   return data.episodes;
 }
+
+export async function fetchPodcastById(
+  id: string
+): Promise<PodcastEpisode | undefined> {
+  // Backend currently returns list; fetch and find by id client-side
+  const episodes = await fetchPodcasts();
+  return episodes.find((e) => e.id === id);
+}
