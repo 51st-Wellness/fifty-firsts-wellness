@@ -189,7 +189,7 @@ const Navbar: React.FC = () => {
                 to="/podcasts"
                 className="text-gray-700 hover:text-brand-green font-medium transition-colors px-3 py-2 rounded-lg hover:bg-brand-green/5 font-primary"
               >
-                Podcasts
+                Programs
               </Link>
             </li>
 
@@ -227,11 +227,11 @@ const Navbar: React.FC = () => {
                 >
                   <li>
                     <Link
-                      to="/resources/podcasts"
+                      to="/podcasts"
                       className="block px-4 py-3 text-gray-700 hover:bg-brand-green/10 hover:text-brand-green transition-colors"
                       onClick={() => setResourcesOpen(false)}
                     >
-                      Podcasts
+                      Programs
                     </Link>
                   </li>
                   <li>

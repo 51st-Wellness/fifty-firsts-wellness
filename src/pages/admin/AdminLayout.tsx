@@ -82,6 +82,19 @@ const AdminLayout: React.FC = () => {
             >
               Marketplace
             </NavLink>
+            <NavLink
+              to="/admin/programmes"
+              className={({ isActive }) =>
+                `block px-3 py-2 rounded-md text-sm font-medium ${
+                  isActive
+                    ? "bg-indigo-50 text-indigo-700"
+                    : "text-gray-700 hover:bg-gray-100"
+                }`
+              }
+              onClick={() => setSidebarOpen(false)}
+            >
+              Programmes
+            </NavLink>
           </nav>
         </aside>
 

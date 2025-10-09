@@ -40,6 +40,7 @@ const AdminLayout = lazy(() => import("./pages/admin/AdminLayout"));
 const AdminOverview = lazy(() => import("./pages/admin/AdminOverview"));
 const AdminGeneral = lazy(() => import("./pages/admin/AdminGeneral"));
 const AdminMarketplace = lazy(() => import("./pages/admin/AdminMarketplace"));
+const AdminProgrammes = lazy(() => import("./pages/admin/AdminProgrammes"));
 
 const App: React.FC = () => {
   return (
@@ -216,6 +217,14 @@ const App: React.FC = () => {
               element={
                 <Suspense fallback={<Loader />}>
                   <AdminMarketplace />
+                </Suspense>
+              }
+            />
+            <Route
+              path="programmes"
+              element={
+                <Suspense fallback={<Loader />}>
+                  <AdminProgrammes />
                 </Suspense>
               }
             />
