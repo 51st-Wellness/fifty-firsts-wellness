@@ -22,7 +22,8 @@ const Podcasts: React.FC<PodcastsProps> = ({ onSearch }) => {
     fetchPodcasts(limit)
       .then((eps) => {
         if (mounted) {
-          setEpisodes(eps);
+          const safe = Array.isArray(eps) ? eps : [];
+          setEpisodes(safe);
           setError(null);
         }
       })
@@ -36,17 +37,18 @@ const Podcasts: React.FC<PodcastsProps> = ({ onSearch }) => {
   }, [limit]);
 
   const filteredEpisodes = useMemo(() => {
-    if (!query) return episodes;
+    const base = Array.isArray(episodes) ? episodes : [];
+    if (!query) return base;
     const q = query.toLowerCase();
-    return episodes.filter(
-      (e) =>
-        e.title.toLowerCase().includes(q) ||
-        e.description.toLowerCase().includes(q)
-    );
+    return base.filter((e) => {
+      const title = (e?.title || "").toLowerCase();
+      const desc = (e?.description || "").toLowerCase();
+      return title.includes(q) || desc.includes(q);
+    });
   }, [episodes, query]);
 
   const handleLoadMore = () => setLimit((l) => l + 9);
-  const hasMore = episodes.length >= limit; // heuristic since API slices by limit
+  const hasMore = (Array.isArray(episodes) ? episodes.length : 0) >= limit; // heuristic since API slices by limit
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
@@ -107,9 +109,11 @@ const Podcasts: React.FC<PodcastsProps> = ({ onSearch }) => {
           <div className="w-full text-center text-red-500">{error}</div>
         ) : (
           <section className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 w-full">
-            {filteredEpisodes.map((ep) => (
-              <EpisodeCard key={ep.id} episode={ep} />
-            ))}
+            {(Array.isArray(filteredEpisodes) ? filteredEpisodes : []).map(
+              (ep) => (
+                <EpisodeCard key={ep.id} episode={ep} />
+              )
+            )}
           </section>
         )}
 

@@ -3,7 +3,14 @@ import { useParams, Link } from "react-router-dom";
 import { fetchPodcastById, type PodcastEpisode } from "@/api/podcast.api";
 import { TextSkeleton, CardSkeleton } from "@/components/ui/SkeletonLoader";
 import podcast1 from "@/assets/images/podcast1.png";
-import { Play, Pause, ArrowLeft, Clock, Calendar, Headphones } from "lucide-react";
+import {
+  Play,
+  Pause,
+  ArrowLeft,
+  Clock,
+  Calendar,
+  Headphones,
+} from "lucide-react";
 
 const PodcastDetail: React.FC = () => {
   const { id = "" } = useParams();
@@ -80,16 +87,16 @@ const PodcastDetail: React.FC = () => {
       <div className="absolute top-20 left-10 w-72 h-72 bg-brand-green/10 rounded-full blur-3xl" />
       <div className="absolute bottom-20 right-10 w-96 h-96 bg-brand-purple/10 rounded-full blur-3xl" />
       <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-[600px] h-[600px] bg-gradient-to-br from-brand-green/5 to-brand-purple/5 rounded-full blur-3xl" />
-      
+
       <div className="relative z-10 max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-        <Link 
-          to="/podcasts" 
+        <Link
+          to="/podcasts"
           className="inline-flex items-center gap-2 text-brand-green hover:text-brand-green-dark font-medium transition-colors group mb-6"
         >
           <ArrowLeft className="w-4 h-4 group-hover:-translate-x-1 transition-transform" />
           Back to Podcasts
         </Link>
-        
+
         {loading ? (
           <div className="grid grid-cols-1 md:grid-cols-5 gap-8">
             <CardSkeleton className="md:col-span-2" />
@@ -123,7 +130,7 @@ const PodcastDetail: React.FC = () => {
                 <h1 className="text-3xl sm:text-4xl lg:text-5xl font-heading font-bold text-gray-900 leading-tight">
                   {episode.title}
                 </h1>
-                
+
                 <div className="mt-4 flex flex-wrap items-center gap-4">
                   {episode.publishedAt && (
                     <div className="flex items-center gap-2 text-sm text-gray-600">
@@ -131,11 +138,14 @@ const PodcastDetail: React.FC = () => {
                         <Calendar className="w-4 h-4 text-brand-green" />
                       </div>
                       <span className="font-medium">
-                        {new Date(episode.publishedAt).toLocaleDateString('en-US', { 
-                          month: 'long', 
-                          day: 'numeric', 
-                          year: 'numeric' 
-                        })}
+                        {new Date(episode.publishedAt).toLocaleDateString(
+                          "en-US",
+                          {
+                            month: "long",
+                            day: "numeric",
+                            year: "numeric",
+                          }
+                        )}
                       </span>
                     </div>
                   )}
@@ -144,7 +154,9 @@ const PodcastDetail: React.FC = () => {
                       <div className="bg-brand-purple/10 p-2 rounded-lg">
                         <Clock className="w-4 h-4 text-brand-purple" />
                       </div>
-                      <span className="font-medium">{formatDuration(episode.duration)}</span>
+                      <span className="font-medium">
+                        {formatDuration(episode.duration)}
+                      </span>
                     </div>
                   )}
                 </div>
@@ -173,7 +185,7 @@ const PodcastDetail: React.FC = () => {
                         <Play className="w-8 h-8 fill-white ml-1" />
                       )}
                     </button>
-                    
+
                     <div className="flex-1">
                       <audio
                         ref={audioRef}
@@ -187,7 +199,7 @@ const PodcastDetail: React.FC = () => {
                       />
                     </div>
                   </div>
-                  
+
                   <div className="mt-4 flex items-center gap-2 text-xs text-gray-500">
                     <Headphones className="w-4 h-4 text-brand-green" />
                     <span>Your progress is saved automatically</span>
