@@ -227,6 +227,7 @@ const CreateProgrammeDialog: React.FC<CreateProgrammeDialogProps> = ({
       if (formData.description.trim()) {
         formDataToSend.append("description", formData.description.trim());
       }
+      // Append categories as a JSON string (NestJS can parse this)
       if (formData.categories.length > 0) {
         formDataToSend.append(
           "categories",

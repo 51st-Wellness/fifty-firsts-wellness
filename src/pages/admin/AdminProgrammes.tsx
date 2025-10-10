@@ -93,10 +93,15 @@ const AdminProgrammes: React.FC = () => {
   async function loadProgrammes() {
     try {
       setLoading(true);
-      const res = await fetchProgrammes({ page: 1, limit: 50 });
-      setProgrammes((res.data as any)?.items || []);
+      const res = await fetchProgrammes({
+        page: 1,
+        limit: 50,
+        isPublished: undefined, // Admin should see all programmes (published and unpublished)
+      });
+      setProgrammes(res.data.data.items || []);
     } catch (e) {
       toast.error("Failed to load programmes");
+      console.error("Error loading programmes:", e);
     } finally {
       setLoading(false);
     }
