@@ -6,6 +6,7 @@ declare global {
       "mux-player": {
         "stream-type"?: "on-demand" | "live";
         "playback-id"?: string;
+        "playback-token"?: string;
         "metadata-video-title"?: string;
         "metadata-viewer-user-id"?: string;
         controls?: boolean;

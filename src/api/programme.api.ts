@@ -18,25 +18,6 @@ export interface CreateProgrammeResponse {
   productId: string;
 }
 
-export async function createProgrammeWithVideo(
-  title: string,
-  description: string,
-  videoFile: File
-) {
-  const formData = new FormData();
-  formData.append("title", title);
-  if (description) formData.append("description", description);
-  formData.append("video", videoFile);
-
-  return http.post<{ message: string; data: any }>(
-    "/product/programme/create-with-video",
-    formData,
-    {
-      headers: { "Content-Type": "multipart/form-data" },
-    }
-  );
-}
-
 export async function fetchProgrammes(params?: {
   page?: number;
   limit?: number;
@@ -84,4 +65,52 @@ export async function fetchSecureProgrammeById(productId: string) {
     message: string;
     data: Programme & { signedPlaybackToken?: string };
   }>(`/product/programme/secure/${productId}`);
+}
+
+export async function createProgrammeDraft(title: string, videoFile: File) {
+  const formData = new FormData();
+  formData.append("title", title);
+  formData.append("video", videoFile);
+
+  return http.post<{ message: string; data: any }>(
+    "/product/programme/create-draft",
+    formData,
+    {
+      headers: { "Content-Type": "multipart/form-data" },
+    }
+  );
+}
+
+export async function updateProgrammeDetails(
+  productId: string,
+  description?: string,
+  categories?: string[],
+  isFeatured?: boolean,
+  isPublished?: boolean,
+  thumbnailFile?: File
+) {
+  const formData = new FormData();
+  if (description) formData.append("description", description);
+  if (categories && categories.length > 0) {
+    formData.append("categories", JSON.stringify(categories));
+  }
+  if (isFeatured !== undefined)
+    formData.append("isFeatured", String(isFeatured));
+  if (isPublished !== undefined)
+    formData.append("isPublished", String(isPublished));
+  if (thumbnailFile) formData.append("thumbnail", thumbnailFile);
+
+  return http.patch<{ message: string; data: any }>(
+    `/product/programme/update-details/${productId}`,
+    formData,
+    {
+      headers: { "Content-Type": "multipart/form-data" },
+    }
+  );
+}
+
+export async function deleteProgramme(productId: string) {
+  return http.delete<{ message: string; data: any }>(
+    `/product/programme/${productId}`
+  );
 }

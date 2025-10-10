@@ -10,34 +10,43 @@ import {
   EyeOff,
   Star,
   X,
+  Trash2,
 } from "lucide-react";
-import { fetchProgrammes, type Programme } from "@/api/programme.api";
+import {
+  fetchProgrammes,
+  type Programme,
+  fetchSecureProgrammeById,
+  deleteProgramme,
+} from "@/api/programme.api";
 import CreateProgrammeDialog from "@/components/admin/CreateProgrammeDialog";
-
-// Type declaration for mux-player web component
-declare global {
-  namespace JSX {
-    interface IntrinsicElements {
-      "mux-player": {
-        "stream-type"?: "on-demand" | "live";
-        "playback-id"?: string;
-        "metadata-video-title"?: string;
-        "metadata-viewer-user-id"?: string;
-        controls?: boolean;
-        style?: React.CSSProperties;
-        autoplay?: boolean;
-        muted?: boolean;
-        loop?: boolean;
-      };
-    }
-  }
-}
 
 // Mux Player Modal Component
 const MuxPlayerModal: React.FC<{
   programme: Programme | null;
   onClose: () => void;
 }> = ({ programme, onClose }) => {
+  const [playbackToken, setPlaybackToken] = useState<string | null>(null);
+  const [loadingToken, setLoadingToken] = useState(true);
+
+  useEffect(() => {
+    const fetchToken = async () => {
+      if (programme?.productId) {
+        setLoadingToken(true);
+        try {
+          const res = await fetchSecureProgrammeById(programme.productId);
+          setPlaybackToken(res.data.data.signedPlaybackToken || null);
+        } catch (error) {
+          console.error("Failed to fetch playback token", error);
+          toast.error("Could not load video.");
+        } finally {
+          setLoadingToken(false);
+        }
+      }
+    };
+
+    fetchToken();
+  }, [programme]);
+
   if (!programme || !programme.muxPlaybackId) return null;
 
   return (
@@ -56,15 +65,29 @@ const MuxPlayerModal: React.FC<{
         </div>
         <div className="p-4">
           <div className="aspect-video bg-black rounded-lg overflow-hidden mb-4">
-            {/* @ts-ignore */}
-            <mux-player
-              stream-type="on-demand"
-              playback-id={programme.muxPlaybackId}
-              metadata-video-title={programme.title}
-              metadata-viewer-user-id="admin"
-              controls
-              style={{ width: "100%", height: "100%" }}
-            />
+            {loadingToken ? (
+              <div className="w-full h-full flex items-center justify-center text-white">
+                Loading video...
+              </div>
+            ) : playbackToken ? (
+              <>
+                {/* @ts-ignore */}
+                <mux-player
+                  stream-type="on-demand"
+                  playback-id={programme.muxPlaybackId}
+                  playback-token={playbackToken}
+                  metadata-video-title={programme.title}
+                  metadata-viewer-user-id="admin"
+                  controls
+                  autoplay
+                  style={{ width: "100%", height: "100%" }}
+                />
+              </>
+            ) : (
+              <div className="w-full h-full flex items-center justify-center text-white">
+                Could not load video.
+              </div>
+            )}
           </div>
           {programme.description && (
             <div className="text-gray-600">
@@ -104,6 +127,25 @@ const AdminProgrammes: React.FC = () => {
       console.error("Error loading programmes:", e);
     } finally {
       setLoading(false);
+    }
+  }
+
+  async function handleDeleteProgramme(programme: Programme) {
+    if (
+      !confirm(
+        `Are you sure you want to delete "${programme.title}"? This action cannot be undone.`
+      )
+    ) {
+      return;
+    }
+
+    try {
+      await deleteProgramme(programme.productId);
+      toast.success("Programme deleted successfully");
+      loadProgrammes(); // Reload the list
+    } catch (e: any) {
+      console.error("Error deleting programme:", e);
+      toast.error(e?.response?.data?.message || "Failed to delete programme");
     }
   }
 
@@ -273,16 +315,27 @@ const AdminProgrammes: React.FC = () => {
                     </div>
                   )}
 
-                  <button
-                    onClick={() => {
-                      // TODO: Implement edit functionality
-                      toast("Edit functionality coming soon!", { icon: "ℹ️" });
-                    }}
-                    className="text-indigo-600 hover:text-indigo-800 font-medium flex items-center"
-                  >
-                    <Edit className="h-4 w-4 mr-1" />
-                    Edit
-                  </button>
+                  <div className="flex items-center gap-2">
+                    <button
+                      onClick={() => {
+                        // TODO: Implement edit functionality
+                        toast("Edit functionality coming soon!", {
+                          icon: "ℹ️",
+                        });
+                      }}
+                      className="text-indigo-600 hover:text-indigo-800 font-medium flex items-center"
+                    >
+                      <Edit className="h-4 w-4 mr-1" />
+                      Edit
+                    </button>
+                    <button
+                      onClick={() => handleDeleteProgramme(programme)}
+                      className="text-red-600 hover:text-red-800 font-medium flex items-center"
+                    >
+                      <Trash2 className="h-4 w-4 mr-1" />
+                      Delete
+                    </button>
+                  </div>
                 </div>
               </div>
             </div>

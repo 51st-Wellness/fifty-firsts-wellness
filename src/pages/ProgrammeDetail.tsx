@@ -15,15 +15,16 @@ import { useAuth } from "../context/AuthContextProvider";
 import Loader from "../components/Loader";
 import toast from "react-hot-toast";
 
+type ProgrammeWithToken = Programme & { signedPlaybackToken?: string };
+
 const ProgrammeDetail: React.FC = () => {
   const { productId } = useParams<{ productId: string }>();
   const navigate = useNavigate();
   const { isAuthenticated } = useAuth();
 
-  const [programme, setProgramme] = useState<Programme | null>(null);
-  const [signedPlaybackToken, setSignedPlaybackToken] = useState<
-    string | undefined
-  >();
+  const [programmeData, setProgrammeData] = useState<ProgrammeWithToken | null>(
+    null
+  );
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [isBookmarked, setIsBookmarked] = useState(false);
@@ -45,8 +46,7 @@ const ProgrammeDetail: React.FC = () => {
       if (isAuthenticated) {
         // Use secure endpoint for authenticated users
         const response = await fetchSecureProgrammeById(productId!);
-        setProgramme(response.data.data);
-        setSignedPlaybackToken(response.data.data.signedPlaybackToken);
+        setProgrammeData(response.data.data);
       } else {
         // For non-authenticated users, you might want to show a preview or redirect to login
         toast.error("Please log in to watch programmes");
@@ -87,8 +87,9 @@ const ProgrammeDetail: React.FC = () => {
     if (navigator.share) {
       try {
         await navigator.share({
-          title: programme?.title,
-          text: programme?.description || "Check out this wellness programme",
+          title: programmeData?.title,
+          text:
+            programmeData?.description || "Check out this wellness programme",
           url: window.location.href,
         });
       } catch (err) {
@@ -141,7 +142,7 @@ const ProgrammeDetail: React.FC = () => {
     );
   }
 
-  if (!programme) {
+  if (!programmeData) {
     return (
       <div className="min-h-screen bg-gradient-to-br from-gray-50 to-white flex items-center justify-center">
         <div className="text-center">
@@ -156,6 +157,8 @@ const ProgrammeDetail: React.FC = () => {
       </div>
     );
   }
+
+  const { signedPlaybackToken, ...programme } = programmeData;
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-gray-50 to-white">
@@ -177,14 +180,17 @@ const ProgrammeDetail: React.FC = () => {
             <div className="bg-white rounded-2xl shadow-lg overflow-hidden">
               {/* Video Player */}
               <div className="relative aspect-video bg-black">
-                {programme.muxPlaybackId ? (
+                {loading ? (
+                  <div className="flex items-center justify-center h-full">
+                    <div className="text-center text-white">
+                      <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-white mx-auto mb-4"></div>
+                      <p className="text-lg">Loading video...</p>
+                    </div>
+                  </div>
+                ) : programme.muxPlaybackId && signedPlaybackToken ? (
                   <MuxPlayer
                     playbackId={programme.muxPlaybackId}
-                    tokens={
-                      signedPlaybackToken
-                        ? { playback: signedPlaybackToken }
-                        : undefined
-                    }
+                    tokens={{ playback: signedPlaybackToken }}
                     metadata={{
                       video_title: programme.title,
                       viewer_user_id: "user-id", // You'd get this from auth context
@@ -201,6 +207,23 @@ const ProgrammeDetail: React.FC = () => {
                     primaryColor="#FFFFFF"
                     secondaryColor="#000000"
                   />
+                ) : !programme.muxPlaybackId ? (
+                  <div className="flex items-center justify-center h-full">
+                    <div className="text-center text-white">
+                      <Play className="w-16 h-16 mx-auto mb-4 opacity-50" />
+                      <p className="text-lg">Video is still processing</p>
+                      <p className="text-sm opacity-75">
+                        Please check back later
+                      </p>
+                    </div>
+                  </div>
+                ) : !signedPlaybackToken ? (
+                  <div className="flex items-center justify-center h-full">
+                    <div className="text-center text-white">
+                      <Play className="w-16 h-16 mx-auto mb-4 opacity-50" />
+                      <p className="text-lg">Loading video access...</p>
+                    </div>
+                  </div>
                 ) : (
                   <div className="flex items-center justify-center h-full">
                     <div className="text-center text-white">

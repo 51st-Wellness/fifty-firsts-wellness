@@ -33,8 +33,10 @@ import {
 } from "@mui/icons-material";
 import { styled } from "@mui/material/styles";
 import toast from "react-hot-toast";
-import { createProgrammeWithVideo } from "@/api/programme.api";
-import http from "@/api/http";
+import {
+  createProgrammeDraft,
+  updateProgrammeDetails,
+} from "@/api/programme.api";
 
 const VisuallyHiddenInput = styled("input")({
   clip: "rect(0 0 0 0)",
@@ -87,6 +89,18 @@ interface FormData {
   isPublished: boolean;
 }
 
+interface DraftResponse {
+  programme: {
+    productId: string;
+    title: string;
+    muxAssetId?: string;
+    muxPlaybackId?: string;
+  };
+  product: {
+    id: string;
+  };
+}
+
 const AVAILABLE_CATEGORIES = [
   "Wellness",
   "Fitness",
@@ -109,6 +123,11 @@ const CreateProgrammeDialog: React.FC<CreateProgrammeDialogProps> = ({
   const [uploading, setUploading] = useState(false);
   const [uploadProgress, setUploadProgress] = useState(0);
   const [dragActive, setDragActive] = useState(false);
+  const [draftResponse, setDraftResponse] = useState<DraftResponse | null>(
+    null
+  );
+  const [backgroundUploadComplete, setBackgroundUploadComplete] =
+    useState(false);
   const [formData, setFormData] = useState<FormData>({
     title: "",
     description: "",
@@ -124,6 +143,9 @@ const CreateProgrammeDialog: React.FC<CreateProgrammeDialogProps> = ({
   const handleClose = () => {
     if (!uploading) {
       setActiveStep(0);
+      setDraftResponse(null);
+      setBackgroundUploadComplete(false);
+      setUploadProgress(0);
       setFormData({
         title: "",
         description: "",
@@ -137,7 +159,7 @@ const CreateProgrammeDialog: React.FC<CreateProgrammeDialogProps> = ({
     }
   };
 
-  const handleNext = () => {
+  const handleNext = async () => {
     if (activeStep === 0) {
       // Validate step 1
       if (!formData.title.trim()) {
@@ -148,10 +170,13 @@ const CreateProgrammeDialog: React.FC<CreateProgrammeDialogProps> = ({
         toast.error("Please select a video file");
         return;
       }
+
+      // Start background upload
+      handleBackgroundUpload();
       setActiveStep(1);
     } else {
-      // Submit form
-      handleSubmit();
+      // Submit step 2 details
+      handleSubmitDetails();
     }
   };
 
@@ -216,61 +241,62 @@ const CreateProgrammeDialog: React.FC<CreateProgrammeDialogProps> = ({
     return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + " " + sizes[i];
   };
 
-  const handleSubmit = async () => {
+  const handleBackgroundUpload = async () => {
     setUploading(true);
     setUploadProgress(0);
 
     try {
-      // Prepare form data
-      const formDataToSend = new FormData();
-      formDataToSend.append("title", formData.title.trim());
-      if (formData.description.trim()) {
-        formDataToSend.append("description", formData.description.trim());
-      }
-      // Append categories as a JSON string (NestJS can parse this)
-      if (formData.categories.length > 0) {
-        formDataToSend.append(
-          "categories",
-          JSON.stringify(formData.categories)
-        );
-      }
-      formDataToSend.append("isFeatured", formData.isFeatured.toString());
-      formDataToSend.append("isPublished", formData.isPublished.toString());
-      formDataToSend.append("video", formData.videoFile!);
-      if (formData.thumbnailFile) {
-        formDataToSend.append("thumbnail", formData.thumbnailFile);
-      }
+      const response = await createProgrammeDraft(
+        formData.title.trim(),
+        formData.videoFile!
+      );
 
-      // Send request using http client with progress tracking
-      const response = await http.post(
-        "/product/programme/create-with-video",
-        formDataToSend,
-        {
-          headers: {
-            "Content-Type": "multipart/form-data",
-          },
-          onUploadProgress: (progressEvent) => {
-            if (progressEvent.total) {
-              const progress = Math.round(
-                (progressEvent.loaded * 100) / progressEvent.total
-              );
-              setUploadProgress(progress);
-            }
-          },
-        }
+      setDraftResponse(response.data.data);
+      setBackgroundUploadComplete(true);
+      toast.success("Video uploaded successfully! Continue with details.");
+    } catch (e: any) {
+      console.error("Failed to upload video:", e);
+      toast.error(
+        e?.response?.data?.message || e?.message || "Failed to upload video"
+      );
+      // Go back to step 1 on error
+      setActiveStep(0);
+    } finally {
+      setUploading(false);
+      setUploadProgress(0);
+    }
+  };
+
+  const handleSubmitDetails = async () => {
+    if (!draftResponse) {
+      toast.error("Please wait for video upload to complete");
+      return;
+    }
+
+    setUploading(true);
+
+    try {
+      await updateProgrammeDetails(
+        draftResponse.product.id,
+        formData.description.trim() || undefined,
+        formData.categories.length > 0 ? formData.categories : undefined,
+        formData.isFeatured,
+        formData.isPublished,
+        formData.thumbnailFile || undefined
       );
 
       toast.success("Programme created successfully!");
       handleClose();
       onSuccess();
     } catch (e: any) {
-      console.error("Failed to create programme:", e);
+      console.error("Failed to update programme details:", e);
       toast.error(
-        e?.response?.data?.message || e?.message || "Failed to create programme"
+        e?.response?.data?.message ||
+          e?.message ||
+          "Failed to update programme details"
       );
     } finally {
       setUploading(false);
-      setUploadProgress(0);
     }
   };
 
@@ -504,16 +530,33 @@ const CreateProgrammeDialog: React.FC<CreateProgrammeDialogProps> = ({
           ))}
         </Stepper>
 
-        {uploading && (
+        {uploading && activeStep === 0 && (
           <Box sx={{ mb: 3 }}>
             <Alert severity="info" sx={{ mb: 2 }}>
-              Uploading video and creating programme... Please don't close this
-              dialog.
+              Uploading video... Please don't close this dialog.
             </Alert>
             <LinearProgress variant="determinate" value={uploadProgress} />
             <Typography variant="body2" color="text.secondary" sx={{ mt: 1 }}>
               {uploadProgress}% uploaded
             </Typography>
+          </Box>
+        )}
+
+        {uploading && activeStep === 1 && (
+          <Box sx={{ mb: 3 }}>
+            <Alert severity="info" sx={{ mb: 2 }}>
+              Saving programme details...
+            </Alert>
+            <LinearProgress />
+          </Box>
+        )}
+
+        {backgroundUploadComplete && activeStep === 1 && !uploading && (
+          <Box sx={{ mb: 3 }}>
+            <Alert severity="success" sx={{ mb: 2 }}>
+              Video uploaded successfully! Fill in the details below to complete
+              your programme.
+            </Alert>
           </Box>
         )}
 
