@@ -20,6 +20,7 @@ import Signup from "./pages/Signup";
 import Profile from "./pages/Profile";
 import PersonalWellnessProgrammes from "./pages/service/PersonalWellnessProgrammes";
 import WellnessProgramDetails from "./pages/service/WellnessProgramDetails";
+import ProgrammeDetail from "./pages/ProgrammeDetail";
 import Podcasts from "./pages/ResourcesHub/Podcasts";
 import PodcastDetail from "./pages/ResourcesHub/PodcastDetail";
 import Webinars from "./pages/ResourcesHub/Webinars";
@@ -115,6 +116,16 @@ const App: React.FC = () => {
               <>
                 <Navbar />
                 <PersonalWellnessProgrammes />
+                <Footer />
+              </>
+            }
+          />
+          <Route
+            path="/programmes/:productId"
+            element={
+              <>
+                <Navbar />
+                <ProgrammeDetail />
                 <Footer />
               </>
             }

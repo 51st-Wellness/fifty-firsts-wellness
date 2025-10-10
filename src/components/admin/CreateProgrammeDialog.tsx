@@ -34,6 +34,7 @@ import {
 import { styled } from "@mui/material/styles";
 import toast from "react-hot-toast";
 import { createProgrammeWithVideo } from "@/api/programme.api";
+import http from "@/api/http";
 
 const VisuallyHiddenInput = styled("input")({
   clip: "rect(0 0 0 0)",
@@ -220,39 +221,6 @@ const CreateProgrammeDialog: React.FC<CreateProgrammeDialogProps> = ({
     setUploadProgress(0);
 
     try {
-      // Create XMLHttpRequest for progress tracking
-      const xhr = new XMLHttpRequest();
-
-      // Track upload progress
-      xhr.upload.addEventListener("progress", (e) => {
-        if (e.lengthComputable) {
-          const progress = Math.round((e.loaded / e.total) * 100);
-          setUploadProgress(progress);
-        }
-      });
-
-      // Handle completion
-      xhr.addEventListener("load", async () => {
-        if (xhr.status >= 200 && xhr.status < 300) {
-          const response = JSON.parse(xhr.responseText);
-          toast.success("Programme created successfully!");
-          handleClose();
-          onSuccess();
-        } else {
-          const error = JSON.parse(xhr.responseText);
-          throw new Error(error.message || "Upload failed");
-        }
-        setUploading(false);
-        setUploadProgress(0);
-      });
-
-      // Handle errors
-      xhr.addEventListener("error", () => {
-        toast.error("Upload failed. Please try again.");
-        setUploading(false);
-        setUploadProgress(0);
-      });
-
       // Prepare form data
       const formDataToSend = new FormData();
       formDataToSend.append("title", formData.title.trim());
@@ -272,18 +240,34 @@ const CreateProgrammeDialog: React.FC<CreateProgrammeDialogProps> = ({
         formDataToSend.append("thumbnail", formData.thumbnailFile);
       }
 
-      // Send request
-      xhr.open("POST", "/api/product/programme/create-with-video");
+      // Send request using http client with progress tracking
+      const response = await http.post(
+        "/product/programme/create-with-video",
+        formDataToSend,
+        {
+          headers: {
+            "Content-Type": "multipart/form-data",
+          },
+          onUploadProgress: (progressEvent) => {
+            if (progressEvent.total) {
+              const progress = Math.round(
+                (progressEvent.loaded * 100) / progressEvent.total
+              );
+              setUploadProgress(progress);
+            }
+          },
+        }
+      );
 
-      // Add auth header if needed
-      const token = localStorage.getItem("token");
-      if (token) {
-        xhr.setRequestHeader("Authorization", `Bearer ${token}`);
-      }
-
-      xhr.send(formDataToSend);
+      toast.success("Programme created successfully!");
+      handleClose();
+      onSuccess();
     } catch (e: any) {
-      toast.error(e?.message || "Failed to create programme");
+      console.error("Failed to create programme:", e);
+      toast.error(
+        e?.response?.data?.message || e?.message || "Failed to create programme"
+      );
+    } finally {
       setUploading(false);
       setUploadProgress(0);
     }
