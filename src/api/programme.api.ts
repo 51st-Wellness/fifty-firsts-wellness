@@ -18,13 +18,6 @@ export interface CreateProgrammeResponse {
   productId: string;
 }
 
-export async function createProgrammeUploadUrl(title: string) {
-  return http.post<{ message: string; data: CreateProgrammeResponse }>(
-    "/product/programme/create-upload-url",
-    { title }
-  );
-}
-
 export async function createProgrammeWithVideo(
   title: string,
   description: string,
@@ -84,4 +77,11 @@ export async function uploadProgrammeThumbnail(productId: string, file: File) {
       headers: { "Content-Type": "multipart/form-data" },
     }
   );
+}
+
+export async function fetchSecureProgrammeById(productId: string) {
+  return http.get<{
+    message: string;
+    data: Programme & { signedPlaybackToken?: string };
+  }>(`/product/programme/secure/${productId}`);
 }

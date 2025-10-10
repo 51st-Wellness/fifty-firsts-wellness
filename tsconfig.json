@@ -15,5 +15,5 @@
     "allowJs": true,
     "noEmit": true
   },
-  "include": ["src"]
+  "include": ["src", "src/types/**/*"]
 }
