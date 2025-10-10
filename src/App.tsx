@@ -110,6 +110,16 @@ const App: React.FC = () => {
             }
           />
           <Route
+            path="/programmes"
+            element={
+              <>
+                <Navbar />
+                <PersonalWellnessProgrammes />
+                <Footer />
+              </>
+            }
+          />
+          <Route
             path="/podcasts"
             element={
               <>

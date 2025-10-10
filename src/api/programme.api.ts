@@ -25,6 +25,25 @@ export async function createProgrammeUploadUrl(title: string) {
   );
 }
 
+export async function createProgrammeWithVideo(
+  title: string,
+  description: string,
+  videoFile: File
+) {
+  const formData = new FormData();
+  formData.append("title", title);
+  if (description) formData.append("description", description);
+  formData.append("video", videoFile);
+
+  return http.post<{ message: string; data: any }>(
+    "/product/programme/create-with-video",
+    formData,
+    {
+      headers: { "Content-Type": "multipart/form-data" },
+    }
+  );
+}
+
 export async function fetchProgrammes(params?: {
   page?: number;
   limit?: number;

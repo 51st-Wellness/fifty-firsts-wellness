@@ -186,10 +186,10 @@ const Navbar: React.FC = () => {
 
             <li>
               <Link
-                to="/podcasts"
+                to="/programmes"
                 className="text-gray-700 hover:text-brand-green font-medium transition-colors px-3 py-2 rounded-lg hover:bg-brand-green/5 font-primary"
               >
-                Programs
+                Programmes
               </Link>
             </li>
 
@@ -227,11 +227,20 @@ const Navbar: React.FC = () => {
                 >
                   <li>
                     <Link
+                      to="/programmes"
+                      className="block px-4 py-3 text-gray-700 hover:bg-brand-green/10 hover:text-brand-green transition-colors"
+                      onClick={() => setResourcesOpen(false)}
+                    >
+                      Programmes
+                    </Link>
+                  </li>
+                  <li>
+                    <Link
                       to="/podcasts"
                       className="block px-4 py-3 text-gray-700 hover:bg-brand-green/10 hover:text-brand-green transition-colors"
                       onClick={() => setResourcesOpen(false)}
                     >
-                      Programs
+                      Podcasts
                     </Link>
                   </li>
                   <li>
@@ -343,6 +352,16 @@ const Navbar: React.FC = () => {
                     className="block px-6 py-3 text-gray-700 hover:bg-brand-green/10 hover:text-brand-green font-medium transition-colors"
                   >
                     Marketplace
+                  </Link>
+                </li>
+
+                <li>
+                  <Link
+                    to="/programmes"
+                    onClick={() => setMenuOpen(false)}
+                    className="block px-6 py-3 text-gray-700 hover:bg-brand-green/10 hover:text-brand-green font-medium transition-colors"
+                  >
+                    Programmes
                   </Link>
                 </li>
 
