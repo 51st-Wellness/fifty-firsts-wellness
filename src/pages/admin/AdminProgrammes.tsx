@@ -34,7 +34,7 @@ const MuxPlayerModal: React.FC<{
         setLoadingToken(true);
         try {
           const res = await fetchSecureProgrammeById(programme.productId);
-          setPlaybackToken(res.data.data.signedPlaybackToken || null);
+          setPlaybackToken(res.playback?.signedToken || null);
         } catch (error) {
           console.error("Failed to fetch playback token", error);
           toast.error("Could not load video.");

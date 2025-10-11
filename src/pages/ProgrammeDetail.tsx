@@ -15,7 +15,9 @@ import { useAuth } from "../context/AuthContextProvider";
 import Loader from "../components/Loader";
 import toast from "react-hot-toast";
 
-type ProgrammeWithToken = Programme & { signedPlaybackToken?: string };
+type ProgrammeWithToken = Programme & {
+  playback?: { playbackId: string; signedToken: string; expiresAt: Date };
+};
 
 const ProgrammeDetail: React.FC = () => {
   const { productId } = useParams<{ productId: string }>();
@@ -46,7 +48,7 @@ const ProgrammeDetail: React.FC = () => {
       if (isAuthenticated) {
         // Use secure endpoint for authenticated users
         const response = await fetchSecureProgrammeById(productId!);
-        setProgrammeData(response.data.data);
+        setProgrammeData(response);
       } else {
         // For non-authenticated users, you might want to show a preview or redirect to login
         toast.error("Please log in to watch programmes");
@@ -158,7 +160,7 @@ const ProgrammeDetail: React.FC = () => {
     );
   }
 
-  const { signedPlaybackToken, ...programme } = programmeData;
+  const { playback, ...programme } = programmeData;
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-gray-50 to-white">
@@ -187,10 +189,10 @@ const ProgrammeDetail: React.FC = () => {
                       <p className="text-lg">Loading video...</p>
                     </div>
                   </div>
-                ) : programme.muxPlaybackId && signedPlaybackToken ? (
+                ) : programme.muxPlaybackId && playback?.signedToken ? (
                   <MuxPlayer
                     playbackId={programme.muxPlaybackId}
-                    tokens={{ playback: signedPlaybackToken }}
+                    tokens={{ playback: playback?.signedToken }}
                     metadata={{
                       video_title: programme.title,
                       viewer_user_id: "user-id", // You'd get this from auth context
@@ -217,7 +219,7 @@ const ProgrammeDetail: React.FC = () => {
                       </p>
                     </div>
                   </div>
-                ) : !signedPlaybackToken ? (
+                ) : !playback?.signedToken ? (
                   <div className="flex items-center justify-center h-full">
                     <div className="text-center text-white">
                       <Play className="w-16 h-16 mx-auto mb-4 opacity-50" />

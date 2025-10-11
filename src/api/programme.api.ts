@@ -61,10 +61,13 @@ export async function uploadProgrammeThumbnail(productId: string, file: File) {
 }
 
 export async function fetchSecureProgrammeById(productId: string) {
-  return http.get<{
+  const response = await http.get<{
     message: string;
-    data: Programme & { signedPlaybackToken?: string };
+    data: Programme & {
+      playback?: { playbackId: string; signedToken: string; expiresAt: Date };
+    };
   }>(`/product/programme/secure/${productId}`);
+  return response.data.data;
 }
 
 export async function createProgrammeDraft(title: string, videoFile: File) {
