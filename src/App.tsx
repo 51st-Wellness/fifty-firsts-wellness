@@ -46,7 +46,6 @@ const AdminProgrammes = lazy(() => import("./pages/admin/AdminProgrammes"));
 const App: React.FC = () => {
   return (
     <div className="min-h-screen">
-      {/* Hide global Navbar on admin routes */}
       {/* {location.pathname.startsWith("/admin") ? null : } */}
       <div>
         <Toaster position="top-center" />
