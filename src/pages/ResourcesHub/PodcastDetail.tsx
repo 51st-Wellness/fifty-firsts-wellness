@@ -10,6 +10,9 @@ import {
   Clock,
   Calendar,
   Headphones,
+  Volume2,
+  SkipBack,
+  SkipForward,
 } from "lucide-react";
 
 const PodcastDetail: React.FC = () => {

@@ -1,7 +1,7 @@
 import React, { useEffect, useMemo, useRef, useState } from "react";
 import { Search, Play, Clock, Calendar } from "lucide-react";
 import podcast1 from "../../assets/images/podcast1.png";
-import { fetchProgrammes, type Programme } from "@/api/programme.api";
+import { fetchPodcasts, type PodcastEpisode } from "@/api/podcast.api";
 import { useNavigate } from "react-router-dom";
 import { CardSkeleton } from "@/components/ui/SkeletonLoader";
 
@@ -11,7 +11,7 @@ interface PodcastsProps {
 
 const Podcasts: React.FC<PodcastsProps> = ({ onSearch }) => {
   const [query, setQuery] = useState("");
-  const [episodes, setEpisodes] = useState<Programme[]>([]);
+  const [episodes, setEpisodes] = useState<PodcastEpisode[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [limit, setLimit] = useState<number>(12);
@@ -19,13 +19,11 @@ const Podcasts: React.FC<PodcastsProps> = ({ onSearch }) => {
   useEffect(() => {
     let mounted = true;
     setLoading(true);
-    fetchProgrammes({ limit, page: 1, isPublished: true })
-      .then((res) => {
+    fetchPodcasts(limit)
+      .then((eps) => {
         if (mounted) {
-          const items = Array.isArray((res?.data as any)?.items)
-            ? (res.data as any).items
-            : [];
-          setEpisodes(items);
+          const safe = Array.isArray(eps) ? eps : [];
+          setEpisodes(safe);
           setError(null);
         }
       })
@@ -113,7 +111,7 @@ const Podcasts: React.FC<PodcastsProps> = ({ onSearch }) => {
           <section className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 w-full">
             {(Array.isArray(filteredEpisodes) ? filteredEpisodes : []).map(
               (ep) => (
-                <EpisodeCard key={ep.productId} episode={ep} />
+                <EpisodeCard key={ep.id} episode={ep} />
               )
             )}
           </section>
@@ -146,32 +144,22 @@ function formatDuration(seconds?: number) {
     .join(":");
 }
 
-const EpisodeCard: React.FC<{ episode: Programme }> = ({ episode }) => {
+const EpisodeCard: React.FC<{ episode: PodcastEpisode }> = ({ episode }) => {
   const navigate = useNavigate();
   return (
     <button
-      onClick={() =>
-        navigate(`/podcasts/${encodeURIComponent(episode.productId)}`)
-      }
+      onClick={() => navigate(`/podcasts/${encodeURIComponent(episode.id)}`)}
       className="text-left group relative bg-gradient-to-br from-white via-brand-green/5 to-brand-purple/5 border border-gray-200 rounded-3xl p-5 hover:shadow-2xl hover:scale-[1.02] transition-all duration-300 focus:outline-none focus:ring-2 focus:ring-brand-green/30 overflow-hidden"
     >
       {/* Decorative gradient overlay */}
       <div className="absolute top-0 right-0 w-32 h-32 bg-gradient-to-br from-brand-green/10 to-brand-purple/10 rounded-full blur-3xl -z-0 group-hover:scale-150 transition-transform duration-500" />
 
       <div className="relative z-10">
-        {episode.thumbnail ? (
-          <img
-            src={episode.thumbnail}
-            alt={episode.title}
-            className="rounded-2xl w-full h-44 object-cover shadow-md group-hover:shadow-xl transition-shadow"
-          />
-        ) : (
-          <img
-            src={podcast1}
-            alt={episode.title}
-            className="rounded-2xl w-full h-44 object-cover shadow-md group-hover:shadow-xl transition-shadow"
-          />
-        )}
+        <img
+          src={episode.imageUrl || podcast1}
+          alt={episode.title}
+          className="rounded-2xl w-full h-44 object-cover shadow-md group-hover:shadow-xl transition-shadow"
+        />
         {/* Play overlay on hover */}
         <div className="absolute inset-0 bg-gradient-to-t from-brand-green/80 via-brand-green/40 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300 rounded-2xl flex items-center justify-center">
           <div className="bg-white rounded-full p-4 transform scale-0 group-hover:scale-100 transition-transform duration-300">
@@ -181,6 +169,12 @@ const EpisodeCard: React.FC<{ episode: Programme }> = ({ episode }) => {
       </div>
 
       <div className="relative z-10 mt-4 flex items-center gap-3 text-xs text-gray-500">
+        {episode.publishedAt && (
+          <div className="flex items-center gap-1.5">
+            <Calendar className="w-3.5 h-3.5 text-brand-green" />
+            <span>{new Date(episode.publishedAt).toLocaleDateString()}</span>
+          </div>
+        )}
         {episode.duration && (
           <div className="flex items-center gap-1.5">
             <Clock className="w-3.5 h-3.5 text-brand-purple" />
