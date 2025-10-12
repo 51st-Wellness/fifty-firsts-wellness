@@ -9,6 +9,7 @@ import {
 } from "@/api/programme.api";
 import CreateProgrammeDialog from "@/components/admin/CreateProgrammeDialog";
 import AdminProgrammeCard from "@/components/admin/AdminProgrammeCard";
+import ConfirmationDialog from "@/components/admin/ConfirmationDialog";
 
 // Mux Player Modal Component
 const MuxPlayerModal: React.FC<{
@@ -101,6 +102,14 @@ const AdminProgrammes: React.FC = () => {
   const [editingProgramme, setEditingProgramme] = useState<Programme | null>(
     null
   );
+  const [deleteConfirmation, setDeleteConfirmation] = useState<{
+    isOpen: boolean;
+    programme: Programme | null;
+  }>({
+    isOpen: false,
+    programme: null,
+  });
+  const [isDeleting, setIsDeleting] = useState(false);
 
   useEffect(() => {
     loadProgrammes();
@@ -123,24 +132,33 @@ const AdminProgrammes: React.FC = () => {
     }
   }
 
-  async function handleDeleteProgramme(programme: Programme) {
-    if (
-      !confirm(
-        `Are you sure you want to delete "${programme.title}"? This action cannot be undone.`
-      )
-    ) {
-      return;
-    }
+  const handleDeleteProgramme = (programme: Programme) => {
+    setDeleteConfirmation({
+      isOpen: true,
+      programme,
+    });
+  };
+
+  const handleConfirmDelete = async () => {
+    if (!deleteConfirmation.programme) return;
 
     try {
-      await deleteProgramme(programme.productId);
+      setIsDeleting(true);
+      await deleteProgramme(deleteConfirmation.programme.productId);
       toast.success("Programme deleted successfully");
       loadProgrammes(); // Reload the list
+      setDeleteConfirmation({ isOpen: false, programme: null });
     } catch (e: any) {
       console.error("Error deleting programme:", e);
       toast.error(e?.response?.data?.message || "Failed to delete programme");
+    } finally {
+      setIsDeleting(false);
     }
-  }
+  };
+
+  const handleCancelDelete = () => {
+    setDeleteConfirmation({ isOpen: false, programme: null });
+  };
 
   const handleEditProgramme = (programme: Programme) => {
     setEditingProgramme(programme);
@@ -257,6 +275,19 @@ const AdminProgrammes: React.FC = () => {
       <MuxPlayerModal
         programme={viewingProgramme}
         onClose={() => setViewingProgramme(null)}
+      />
+
+      {/* Delete Confirmation Dialog */}
+      <ConfirmationDialog
+        isOpen={deleteConfirmation.isOpen}
+        onClose={handleCancelDelete}
+        onConfirm={handleConfirmDelete}
+        title="Delete Programme"
+        message={`Are you sure you want to delete "${deleteConfirmation.programme?.title}"? This action cannot be undone and will permanently remove the programme and all its associated data.`}
+        confirmText="Delete Programme"
+        cancelText="Cancel"
+        variant="danger"
+        isLoading={isDeleting}
       />
     </div>
   );
