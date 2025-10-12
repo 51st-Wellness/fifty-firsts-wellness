@@ -1,10 +1,12 @@
-import { useEffect, useState } from "react";
+import { useEffect, useState, useMemo } from "react";
 import { Link } from "react-router-dom";
 import { fetchBlogs, mediaUrl, type BlogEntity } from "../api/blog.api";
+import SearchBar from "../components/ui/SearchBar";
 
 export default function BlogList() {
   const [blogs, setBlogs] = useState<BlogEntity[]>([]);
   const [loading, setLoading] = useState(true);
+  const [searchQuery, setSearchQuery] = useState("");
 
   useEffect(() => {
     (async () => {
@@ -16,6 +18,17 @@ export default function BlogList() {
       }
     })();
   }, []);
+
+  // Filter blogs based on search query
+  const filteredBlogs = useMemo(() => {
+    if (!searchQuery) return blogs;
+    const query = searchQuery.toLowerCase();
+    return blogs.filter(
+      (blog) =>
+        blog.title.toLowerCase().includes(query) ||
+        (blog.description && blog.description.toLowerCase().includes(query))
+    );
+  }, [blogs, searchQuery]);
 
   if (loading)
     return (
@@ -64,8 +77,16 @@ export default function BlogList() {
           </p>
         </div>
 
+        {/* Search Bar */}
+        <SearchBar
+          query={searchQuery}
+          onQueryChange={setSearchQuery}
+          placeholder="Search blog posts..."
+          className="mb-8"
+        />
+
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-          {blogs.map((b) => {
+          {filteredBlogs.map((b) => {
             const img =
               b.coverImage?.url || b.coverImage?.data?.attributes?.url;
             return (

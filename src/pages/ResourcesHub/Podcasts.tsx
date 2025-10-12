@@ -1,9 +1,10 @@
 import React, { useEffect, useMemo, useRef, useState } from "react";
-import { Search, Play, Clock, Calendar } from "lucide-react";
+import { Play, Clock, Calendar } from "lucide-react";
 import podcast1 from "../../assets/images/podcast1.png";
 import { fetchPodcasts, type PodcastEpisode } from "@/api/podcast.api";
 import { useNavigate } from "react-router-dom";
 import { CardSkeleton } from "@/components/ui/SkeletonLoader";
+import SearchBar from "@/components/ui/SearchBar";
 
 interface PodcastsProps {
   onSearch?: (query: string) => void;
@@ -73,27 +74,13 @@ const Podcasts: React.FC<PodcastsProps> = ({ onSearch }) => {
       </article>
 
       {/* Search Bar */}
-      <form
-        onSubmit={handleSubmit}
-        className="max-w-xl mx-auto flex items-center bg-white border rounded-full shadow-sm overflow-hidden mt-6 w-full"
-      >
-        <div className="pl-4 text-gray-400">
-          <Search size={20} />
-        </div>
-        <input
-          type="text"
-          placeholder="Search podcasts..."
-          value={query}
-          onChange={(e) => setQuery(e.target.value)}
-          className="flex-1 px-3 py-2 text-sm sm:text-base focus:outline-none"
-        />
-        <button
-          type="submit"
-          className="px-4 sm:px-6 py-2 bg-indigo-600 text-white text-sm sm:text-base font-medium hover:bg-indigo-700 transition-all"
-        >
-          Search
-        </button>
-      </form>
+      <SearchBar
+        query={query}
+        onQueryChange={setQuery}
+        onSubmit={onSearch}
+        placeholder="Search podcasts..."
+        className="mt-6"
+      />
 
       {/* Removed tags/filters; keeping layout clean */}
 
@@ -121,7 +108,7 @@ const Podcasts: React.FC<PodcastsProps> = ({ onSearch }) => {
         {!loading && !error && hasMore && (
           <button
             onClick={handleLoadMore}
-            className="flex rounded-full text-white justify-center mt-6 px-6 py-2 text-center bg-[#4444B3] text-sm sm:text-base hover:bg-[#343494] transition"
+            className="flex rounded-full text-white justify-center mt-6 px-6 py-2 text-center bg-brand-green text-sm sm:text-base hover:bg-brand-green-dark transition"
           >
             Load More
           </button>

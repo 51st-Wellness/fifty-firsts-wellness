@@ -72,7 +72,8 @@ export async function uploadProgrammeThumbnail(productId: string, file: File) {
 export async function fetchSecureProgrammeById(productId: string) {
   const response = await http.get<{
     message: string;
-    data: Programme & {
+    data: {
+      programme: Programme;
       playback?: { playbackId: string; signedToken: string; expiresAt: Date };
     };
   }>(`/product/programme/secure/${productId}`);

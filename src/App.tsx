@@ -125,7 +125,6 @@ const App: React.FC = () => {
               <>
                 <Navbar />
                 <ProgrammeDetail />
-                <Footer />
               </>
             }
           />

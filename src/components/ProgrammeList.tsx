@@ -1,8 +1,11 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useCallback } from "react";
 import { MdOutlineExpandMore } from "react-icons/md";
-import { Search, Filter } from "lucide-react";
+import { Filter, ChevronLeft, ChevronRight } from "lucide-react";
 import ProgrammeCard from "./ProgrammeCard";
 import { Programme, fetchProgrammes } from "../api/programme.api";
+import { categoryAPI } from "../api/category.api";
+import type { Category } from "../types/category.types";
+import SearchBar from "./ui/SearchBar";
 import Loader from "./Loader";
 
 interface ProgrammeListProps {
@@ -22,27 +25,60 @@ const ProgrammeList: React.FC<ProgrammeListProps> = ({
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [searchTerm, setSearchTerm] = useState("");
-  const [selectedCategories, setSelectedCategories] = useState<string[]>(
-    initialCategories || []
-  );
+  const [selectedCategory, setSelectedCategory] = useState<string>("All");
   const [sortBy, setSortBy] = useState<"newest" | "oldest" | "title">("newest");
   const [page, setPage] = useState(1);
   const [hasMore, setHasMore] = useState(true);
   const [loadingMore, setLoadingMore] = useState(false);
 
-  // Available categories (you might want to fetch these from an API)
-  const availableCategories = [
-    "Stress Relief",
-    "Better Sleep",
-    "Mindfulness",
-    "Fitness",
-    "Nutrition",
-    "Mental Health",
-    "Meditation",
-    "Yoga",
-    "Wellness",
-    "Workplace",
-  ];
+  // Category states
+  const [categories, setCategories] = useState<Category[]>([]);
+  const [categoriesLoading, setCategoriesLoading] = useState<boolean>(false);
+  const [categoriesError, setCategoriesError] = useState<string | null>(null);
+  const [categoryScrollPosition, setCategoryScrollPosition] =
+    useState<number>(0);
+
+  // Debounced search
+  const [debouncedQuery, setDebouncedQuery] = useState<string>("");
+
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      setDebouncedQuery(searchTerm);
+    }, 300);
+    return () => clearTimeout(timer);
+  }, [searchTerm]);
+
+  // Fetch categories on component mount
+  const loadCategories = useCallback(async () => {
+    setCategoriesLoading(true);
+    setCategoriesError(null);
+
+    try {
+      const response = await categoryAPI.getAll({ service: "programme" });
+      console.log("Programme categories response:", response);
+
+      if (response?.data) {
+        setCategories(response.data);
+        setCategoriesError(null);
+      } else {
+        setCategoriesError("Failed to load categories");
+        setCategories([]);
+      }
+    } catch (e: any) {
+      console.error("Error loading programme categories:", e);
+      const errorMessage =
+        e?.response?.data?.message || e?.message || "Failed to load categories";
+      setCategoriesError(errorMessage);
+      setCategories([]);
+    } finally {
+      setCategoriesLoading(false);
+    }
+  }, []);
+
+  // Load categories on mount
+  useEffect(() => {
+    loadCategories();
+  }, [loadCategories]);
 
   const fetchProgrammesData = async (
     pageNum: number = 1,
@@ -59,9 +95,8 @@ const ProgrammeList: React.FC<ProgrammeListProps> = ({
         page: pageNum,
         limit: limit || 12,
         isPublished,
-        search: searchTerm || undefined,
-        categories:
-          selectedCategories.length > 0 ? selectedCategories : undefined,
+        search: debouncedQuery || undefined,
+        categories: selectedCategory !== "All" ? [selectedCategory] : undefined,
       };
 
       const response = await fetchProgrammes(params);
@@ -87,14 +122,10 @@ const ProgrammeList: React.FC<ProgrammeListProps> = ({
   useEffect(() => {
     setPage(1);
     fetchProgrammesData(1, false);
-  }, [searchTerm, selectedCategories, sortBy, isPublished]);
+  }, [debouncedQuery, selectedCategory, sortBy, isPublished]);
 
-  const handleCategoryToggle = (category: string) => {
-    setSelectedCategories((prev) =>
-      prev.includes(category)
-        ? prev.filter((c) => c !== category)
-        : [...prev, category]
-    );
+  const handleCategoryChange = (category: string) => {
+    setSelectedCategory(category);
   };
 
   const handleLoadMore = () => {
@@ -104,10 +135,48 @@ const ProgrammeList: React.FC<ProgrammeListProps> = ({
   };
 
   const clearFilters = () => {
-    setSelectedCategories([]);
+    setSelectedCategory("All");
     setSearchTerm("");
     setSortBy("newest");
   };
+
+  // Category scroll functions
+  const scrollCategories = (direction: "left" | "right") => {
+    const container = document.getElementById("programme-categories-container");
+    if (container) {
+      const scrollAmount = 200;
+      const newPosition =
+        direction === "left"
+          ? Math.max(0, categoryScrollPosition - scrollAmount)
+          : categoryScrollPosition + scrollAmount;
+
+      container.scrollTo({
+        left: newPosition,
+        behavior: "smooth",
+      });
+      setCategoryScrollPosition(newPosition);
+    }
+  };
+
+  // Check if scroll buttons should be visible
+  const [showLeftScroll, setShowLeftScroll] = useState(false);
+  const [showRightScroll, setShowRightScroll] = useState(false);
+
+  useEffect(() => {
+    const container = document.getElementById("programme-categories-container");
+    if (container) {
+      const checkScrollButtons = () => {
+        setShowLeftScroll(categoryScrollPosition > 0);
+        setShowRightScroll(
+          categoryScrollPosition < container.scrollWidth - container.clientWidth
+        );
+      };
+
+      checkScrollButtons();
+      container.addEventListener("scroll", checkScrollButtons);
+      return () => container.removeEventListener("scroll", checkScrollButtons);
+    }
+  }, [categoryScrollPosition, categories]);
 
   if (loading) {
     return (
@@ -137,112 +206,119 @@ const ProgrammeList: React.FC<ProgrammeListProps> = ({
         <>
           {/* Search Bar */}
           <div className="mb-6">
-            <div className="relative max-w-md">
-              <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-4 h-4" />
-              <input
-                type="text"
-                placeholder="Search programmes..."
-                value={searchTerm}
-                onChange={(e) => setSearchTerm(e.target.value)}
-                className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-full focus:outline-none focus:ring-2 focus:ring-[#4444B3] focus:border-transparent"
-              />
-            </div>
+            <SearchBar
+              query={searchTerm}
+              onQueryChange={setSearchTerm}
+              placeholder="Search programmes..."
+              className="mt-6"
+            />
           </div>
 
-          {/* Filters Section */}
-          <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-6 gap-4">
-            {/* Categories */}
-            <div className="flex flex-wrap gap-3 items-center">
-              <div className="flex items-center gap-2 text-sm font-medium text-gray-700">
-                <Filter className="w-4 h-4" />
-                Categories:
-              </div>
-
+          {/* Categories */}
+          <section className="relative mb-6 pb-4 w-full">
+            {/* Scroll buttons for desktop */}
+            {showLeftScroll && (
               <button
-                onClick={() => setSelectedCategories([])}
-                className={`text-sm font-medium px-3 py-1 rounded-full border transition ${
-                  selectedCategories.length === 0
-                    ? "text-[#4444B3] border-[#4444B3] bg-[#4444B3]/5"
-                    : "text-gray-600 border-gray-300 hover:border-[#4444B3] hover:text-[#4444B3]"
+                onClick={() => scrollCategories("left")}
+                className="absolute left-0 top-1/2 -translate-y-1/2 z-10 bg-white shadow-lg rounded-full p-2 border border-gray-200 hover:bg-gray-50 transition-colors"
+              >
+                <ChevronLeft className="h-4 w-4 text-gray-600" />
+              </button>
+            )}
+
+            {showRightScroll && (
+              <button
+                onClick={() => scrollCategories("right")}
+                className="absolute right-0 top-1/2 -translate-y-1/2 z-10 bg-white shadow-lg rounded-full p-2 border border-gray-200 hover:bg-gray-50 transition-colors"
+              >
+                <ChevronRight className="h-4 w-4 text-gray-600" />
+              </button>
+            )}
+
+            {/* Categories container */}
+            <div
+              id="programme-categories-container"
+              className="flex gap-3 items-center overflow-x-auto scrollbar-hide px-2 justify-center"
+              style={{ scrollbarWidth: "none", msOverflowStyle: "none" }}
+            >
+              {/* All category */}
+              <button
+                onClick={() => handleCategoryChange("All")}
+                className={`py-1 px-3 text-sm font-medium rounded-full border transition-colors whitespace-nowrap flex-shrink-0 ${
+                  selectedCategory === "All"
+                    ? "text-brand-green border-brand-green bg-brand-green/5"
+                    : "text-gray-600 border-gray-300 hover:text-brand-green hover:border-brand-green"
                 }`}
               >
                 All
               </button>
 
-              {availableCategories.map((category) => (
-                <button
-                  key={category}
-                  onClick={() => handleCategoryToggle(category)}
-                  className={`text-sm font-medium px-3 py-1 rounded-full border transition ${
-                    selectedCategories.includes(category)
-                      ? "text-[#4444B3] border-[#4444B3] bg-[#4444B3]/5"
-                      : "text-gray-600 border-gray-300 hover:border-[#4444B3] hover:text-[#4444B3]"
-                  }`}
-                >
-                  {category}
-                </button>
-              ))}
+              {/* Dynamic categories */}
+              {categoriesLoading ? (
+                <div className="flex gap-3">
+                  {[...Array(5)].map((_, i) => (
+                    <div
+                      key={i}
+                      className="h-8 w-20 bg-gray-200 rounded-full animate-pulse flex-shrink-0"
+                    />
+                  ))}
+                </div>
+              ) : categoriesError ? (
+                <div className="text-red-500 text-sm">
+                  Failed to load categories
+                </div>
+              ) : (
+                categories.map((category) => (
+                  <button
+                    key={category.id}
+                    onClick={() => handleCategoryChange(category.name)}
+                    className={`py-1 px-3 text-sm font-medium rounded-full border transition-colors whitespace-nowrap flex-shrink-0 ${
+                      selectedCategory === category.name
+                        ? "text-brand-green border-brand-green bg-brand-green/5"
+                        : "text-gray-600 border-gray-300 hover:text-brand-green hover:border-brand-green"
+                    }`}
+                  >
+                    {category.name}
+                  </button>
+                ))
+              )}
             </div>
+          </section>
 
-            {/* Sort Dropdown */}
+          {/* Sort Dropdown */}
+          <div className="flex justify-between items-center mb-6">
+            <div className="text-2xl sm:text-3xl font-medium">
+              {debouncedQuery
+                ? `Search results for "${debouncedQuery}"`
+                : selectedCategory !== "All"
+                ? `${selectedCategory} Programmes`
+                : "All Programmes"}
+            </div>
             <div className="relative">
               <select
                 value={sortBy}
                 onChange={(e) =>
                   setSortBy(e.target.value as "newest" | "oldest" | "title")
                 }
-                className="appearance-none bg-white border border-[#4444B3] text-[#4444B3] rounded-full py-2 pl-4 pr-10 text-sm font-medium focus:outline-none focus:ring-2 focus:ring-[#4444B3] cursor-pointer"
+                className="appearance-none bg-white border border-brand-green text-brand-green rounded-full py-2 pl-4 pr-10 text-sm font-medium focus:outline-none focus:ring-2 focus:ring-brand-green cursor-pointer"
               >
                 <option value="newest">Newest First</option>
                 <option value="oldest">Oldest First</option>
                 <option value="title">Title A-Z</option>
               </select>
-              <MdOutlineExpandMore className="absolute right-3 top-1/2 transform -translate-y-1/2 text-[#4444B3] pointer-events-none" />
+              <MdOutlineExpandMore className="absolute right-3 top-1/2 transform -translate-y-1/2 text-brand-green pointer-events-none" />
             </div>
           </div>
-
-          {/* Active Filters */}
-          {(selectedCategories.length > 0 || searchTerm) && (
-            <div className="mb-6 flex flex-wrap items-center gap-2">
-              <span className="text-sm text-gray-600">Active filters:</span>
-              {searchTerm && (
-                <span className="bg-[#4444B3] text-white text-xs px-2 py-1 rounded-full">
-                  Search: "{searchTerm}"
-                </span>
-              )}
-              {selectedCategories.map((category) => (
-                <span
-                  key={category}
-                  className="bg-[#4444B3] text-white text-xs px-2 py-1 rounded-full flex items-center gap-1"
-                >
-                  {category}
-                  <button
-                    onClick={() => handleCategoryToggle(category)}
-                    className="hover:bg-white hover:bg-opacity-20 rounded-full p-0.5"
-                  >
-                    ×
-                  </button>
-                </span>
-              ))}
-              <button
-                onClick={clearFilters}
-                className="text-xs text-gray-500 hover:text-gray-700 underline"
-              >
-                Clear all
-              </button>
-            </div>
-          )}
         </>
       )}
 
       {/* Results Count */}
-      <div className="mb-4 text-sm text-gray-600">
-        {programmes.length === 0
-          ? "No programmes found"
-          : `Showing ${programmes.length} programme${
-              programmes.length !== 1 ? "s" : ""
-            }`}
-      </div>
+      {!loading && !error && (
+        <div className="mb-4 text-sm text-gray-500">
+          {programmes.length}{" "}
+          {programmes.length === 1 ? "programme" : "programmes"} found
+        </div>
+      )}
 
       {/* Programme Grid */}
       {programmes.length > 0 ? (
@@ -271,7 +347,7 @@ const ProgrammeList: React.FC<ProgrammeListProps> = ({
           <button
             onClick={handleLoadMore}
             disabled={loadingMore}
-            className="bg-[#4444B3] text-white px-6 py-2 rounded-full hover:bg-[#343494] transition disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2"
+            className="bg-brand-green text-white px-6 py-2 rounded-full hover:bg-brand-green-dark transition disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2"
           >
             {loadingMore ? (
               <>

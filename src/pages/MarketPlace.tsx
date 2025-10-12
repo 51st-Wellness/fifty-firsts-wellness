@@ -1,6 +1,5 @@
 import React, { useEffect, useMemo, useState, useCallback } from "react";
 import {
-  Search,
   AlertCircle,
   RefreshCw,
   ChevronLeft,
@@ -12,6 +11,7 @@ import { fetchStoreItems } from "../api/marketplace.api";
 import { categoryAPI } from "../api/category.api";
 import type { StoreItem as StoreItemType } from "../types/marketplace.types";
 import type { Category } from "../types/category.types";
+import SearchBar from "../components/ui/SearchBar";
 
 // Using shared StoreItem type from types to match API response
 
@@ -191,27 +191,13 @@ const MarketPlace: React.FC<MarketPlaceProps> = ({ onSearch }) => {
         </article>
 
         {/* Search Bar */}
-        <form
-          onSubmit={handleSubmit}
-          className="max-w-xl mx-auto flex items-center bg-white border rounded-full shadow-sm overflow-hidden mt-6"
-        >
-          <div className="pl-4 text-gray-400">
-            <Search size={20} />
-          </div>
-          <input
-            type="text"
-            placeholder="What product are you looking for?"
-            value={query}
-            onChange={(e) => setQuery(e.target.value)}
-            className="flex-1 px-3 py-2 text-sm sm:text-base focus:outline-none"
-          />
-          <button
-            type="submit"
-            className="px-5 py-2 bg-indigo-600 text-white text-sm sm:text-base font-medium hover:bg-indigo-700 transition-all"
-          >
-            Search
-          </button>
-        </form>
+        <SearchBar
+          query={query}
+          onQueryChange={setQuery}
+          onSubmit={onSearch}
+          placeholder="What product are you looking for?"
+          className="mt-6"
+        />
 
         {/* Categories */}
         <section className="relative mt-6 pb-4 w-full">
@@ -245,8 +231,8 @@ const MarketPlace: React.FC<MarketPlaceProps> = ({ onSearch }) => {
               onClick={() => setSelectedCategory("All")}
               className={`py-1 px-3 text-sm font-medium rounded-full border transition-colors whitespace-nowrap flex-shrink-0 ${
                 selectedCategory === "All"
-                  ? "text-[#4444B3] border-[#4444B3] bg-[#4444B3]/5"
-                  : "text-gray-600 border-gray-300 hover:text-[#4444B3] hover:border-[#4444B3]"
+                  ? "text-brand-green border-brand-green bg-brand-green/5"
+                  : "text-gray-600 border-gray-300 hover:text-brand-green hover:border-brand-green"
               }`}
             >
               All
@@ -273,8 +259,8 @@ const MarketPlace: React.FC<MarketPlaceProps> = ({ onSearch }) => {
                   onClick={() => setSelectedCategory(category.name)}
                   className={`py-1 px-3 text-sm font-medium rounded-full border transition-colors whitespace-nowrap flex-shrink-0 ${
                     selectedCategory === category.name
-                      ? "text-[#4444B3] border-[#4444B3] bg-[#4444B3]/5"
-                      : "text-gray-600 border-gray-300 hover:text-[#4444B3] hover:border-[#4444B3]"
+                      ? "text-brand-green border-brand-green bg-brand-green/5"
+                      : "text-gray-600 border-gray-300 hover:text-brand-green hover:border-brand-green"
                   }`}
                 >
                   {category.name}
@@ -330,7 +316,7 @@ const MarketPlace: React.FC<MarketPlaceProps> = ({ onSearch }) => {
                     <p className="text-gray-500 mb-4">{error}</p>
                     <button
                       onClick={() => loadItems({ page: 1, reset: true })}
-                      className="bg-indigo-600 text-white px-4 py-2 rounded-lg hover:bg-indigo-700 transition-colors flex items-center gap-2"
+                      className="bg-brand-green text-white px-4 py-2 rounded-lg hover:bg-brand-green-dark transition-colors flex items-center gap-2"
                     >
                       <RefreshCw className="h-4 w-4" />
                       Try Again
@@ -368,7 +354,7 @@ const MarketPlace: React.FC<MarketPlaceProps> = ({ onSearch }) => {
               setPage(next);
               await loadItems({ page: next });
             }}
-            className="w-fit rounded-full text-white px-6 py-2 text-center bg-[#4444B3] text-sm sm:text-base hover:bg-[#343494] transition disabled:opacity-50 disabled:cursor-not-allowed"
+            className="w-fit rounded-full text-white px-6 py-2 text-center bg-brand-green text-sm sm:text-base hover:bg-brand-green-dark transition disabled:opacity-50 disabled:cursor-not-allowed"
           >
             {loading ? (
               <div className="flex items-center gap-2">

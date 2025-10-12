@@ -63,12 +63,12 @@ const ProgrammeCard: React.FC<ProgrammeCardProps> = ({ programme }) => {
         )}
 
         {/* Featured Badge */}
-        {programme.isFeatured && (
+        {/* {programme.isFeatured && (
           <div className="absolute top-3 left-3 bg-gradient-to-r from-amber-500 to-orange-500 text-white text-xs px-2.5 py-1.5 rounded-full font-medium flex items-center gap-1 shadow-lg">
             <Star className="w-3 h-3 fill-current" />
             Featured
           </div>
-        )}
+        )} */}
 
         {/* Status Badge */}
         <div className="absolute bottom-3 left-3">
@@ -126,13 +126,6 @@ const ProgrammeCard: React.FC<ProgrammeCardProps> = ({ programme }) => {
             )}
           </div>
         )}
-
-        {/* Call to Action */}
-        <div className="flex items-center justify-end mt-auto pt-2">
-          <span className="text-xs font-medium text-indigo-600 group-hover:text-purple-600 transition-colors flex items-center gap-1.5">
-            Watch Now <Play className="w-3 h-3" />
-          </span>
-        </div>
       </div>
     </article>
   );
