@@ -35,7 +35,7 @@ import EmailVerificationGuard from "./components/EmailVerificationGuard";
 import Loader from "./components/Loader";
 import Footer from "./components/Footer";
 import BlogPost from "@/pages/BlogPost";
-import Home2 from "./pages/Home.jsx";
+import Home2 from "./pages/HomePage.jsx";
 
 // Admin routes (lazy loaded)
 const AdminLayout = lazy(() => import("./pages/admin/AdminLayout"));
