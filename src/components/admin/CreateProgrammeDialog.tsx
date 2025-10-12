@@ -183,12 +183,13 @@ const CreateProgrammeDialog: React.FC<CreateProgrammeDialogProps> = ({
   }, [editProgramme, open, isEditMode]);
 
   const handleClose = () => {
-    if (!uploading && !savingDetails) {
+    if (!savingDetails) {
       setActiveStep(0);
       setDraftResponse(null);
       setBackgroundUploadComplete(false);
       setUploadProgress(0);
       setSavingDetails(false);
+      setUploading(false); // Reset upload state
       setFormData({
         title: "",
         description: "",
@@ -202,7 +203,7 @@ const CreateProgrammeDialog: React.FC<CreateProgrammeDialogProps> = ({
     }
   };
 
-  const handleNext = async () => {
+  const handleNext = () => {
     if (isEditMode) {
       // In edit mode, we only have one step - submit details
       handleSubmitDetails();
@@ -217,7 +218,7 @@ const CreateProgrammeDialog: React.FC<CreateProgrammeDialogProps> = ({
         return;
       }
 
-      // Start background upload (non-blocking) and immediately proceed to step 2
+      // Start background upload (truly non-blocking) and immediately proceed to step 2
       handleBackgroundUpload();
       setActiveStep(1);
       toast.success(
@@ -290,30 +291,35 @@ const CreateProgrammeDialog: React.FC<CreateProgrammeDialogProps> = ({
     return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + " " + sizes[i];
   };
 
-  const handleBackgroundUpload = async () => {
-    setUploading(true);
-    setUploadProgress(0);
-
-    try {
-      const response = await createProgrammeDraft(
-        formData.title.trim(),
-        formData.videoFile!
-      );
-
-      setDraftResponse(response.data.data);
-      setBackgroundUploadComplete(true);
-      toast.success("Video uploaded successfully! Continue with details.");
-    } catch (e: any) {
-      console.error("Failed to upload video:", e);
-      toast.error(
-        e?.response?.data?.message || e?.message || "Failed to upload video"
-      );
-      // Go back to step 1 on error
-      setActiveStep(0);
-    } finally {
-      setUploading(false);
+  const handleBackgroundUpload = () => {
+    // Start the upload in the background without blocking UI
+    const uploadAsync = async () => {
+      setUploading(true);
       setUploadProgress(0);
-    }
+
+      try {
+        const response = await createProgrammeDraft(
+          formData.title.trim(),
+          formData.videoFile!
+        );
+
+        setDraftResponse(response.data.data);
+        setBackgroundUploadComplete(true);
+        toast.success("Video uploaded successfully!");
+      } catch (e: any) {
+        console.error("Failed to upload video:", e);
+        toast.error(
+          e?.response?.data?.message || e?.message || "Failed to upload video"
+        );
+        // Don't go back to step 1 - let user stay on step 2 and retry
+      } finally {
+        setUploading(false);
+        setUploadProgress(0);
+      }
+    };
+
+    // Start upload immediately but don't await it
+    uploadAsync();
   };
 
   const handleSubmitDetails = async () => {
@@ -407,7 +413,7 @@ const CreateProgrammeDialog: React.FC<CreateProgrammeDialogProps> = ({
               onClick={() =>
                 setFormData((prev) => ({ ...prev, videoFile: null }))
               }
-              disabled={uploading}
+              disabled={savingDetails}
             >
               <Delete />
             </IconButton>
@@ -438,7 +444,7 @@ const CreateProgrammeDialog: React.FC<CreateProgrammeDialogProps> = ({
               type="file"
               accept="video/*"
               onChange={handleVideoFileSelect}
-              disabled={uploading}
+              disabled={savingDetails}
             />
           </DropZone>
         )}
@@ -459,7 +465,7 @@ const CreateProgrammeDialog: React.FC<CreateProgrammeDialogProps> = ({
           }
           margin="normal"
           required
-          disabled={uploading}
+          disabled={savingDetails}
         />
       )}
 
@@ -473,7 +479,7 @@ const CreateProgrammeDialog: React.FC<CreateProgrammeDialogProps> = ({
         margin="normal"
         multiline
         rows={4}
-        disabled={uploading}
+        disabled={savingDetails}
       />
 
       <FormControl fullWidth margin="normal">
@@ -498,7 +504,7 @@ const CreateProgrammeDialog: React.FC<CreateProgrammeDialogProps> = ({
               ))}
             </Box>
           )}
-          disabled={uploading}
+          disabled={savingDetails}
         >
           {AVAILABLE_CATEGORIES.map((category) => (
             <MenuItem key={category} value={category}>
@@ -528,7 +534,7 @@ const CreateProgrammeDialog: React.FC<CreateProgrammeDialogProps> = ({
               onClick={() =>
                 setFormData((prev) => ({ ...prev, thumbnailFile: null }))
               }
-              disabled={uploading}
+              disabled={savingDetails}
             >
               <Delete />
             </IconButton>
@@ -540,7 +546,7 @@ const CreateProgrammeDialog: React.FC<CreateProgrammeDialogProps> = ({
             startIcon={<ImageIcon />}
             fullWidth
             sx={{ py: 2 }}
-            disabled={uploading}
+            disabled={savingDetails}
           >
             Upload Thumbnail
             <VisuallyHiddenInput
@@ -563,7 +569,7 @@ const CreateProgrammeDialog: React.FC<CreateProgrammeDialogProps> = ({
                   isFeatured: e.target.checked,
                 }))
               }
-              disabled={uploading}
+              disabled={savingDetails}
             />
           }
           label="Featured Programme"
@@ -579,7 +585,7 @@ const CreateProgrammeDialog: React.FC<CreateProgrammeDialogProps> = ({
                   isPublished: e.target.checked,
                 }))
               }
-              disabled={uploading}
+              disabled={savingDetails}
             />
           }
           label="Publish Immediately"
@@ -594,7 +600,7 @@ const CreateProgrammeDialog: React.FC<CreateProgrammeDialogProps> = ({
       onClose={handleClose}
       maxWidth="md"
       fullWidth
-      disableEscapeKeyDown={uploading || savingDetails}
+      disableEscapeKeyDown={savingDetails}
     >
       <DialogTitle
         sx={{
@@ -604,7 +610,7 @@ const CreateProgrammeDialog: React.FC<CreateProgrammeDialogProps> = ({
         }}
       >
         {isEditMode ? "Edit Programme" : "Create New Programme"}
-        <IconButton onClick={handleClose} disabled={uploading || savingDetails}>
+        <IconButton onClick={handleClose} disabled={savingDetails}>
           <Close />
         </IconButton>
       </DialogTitle>
@@ -666,12 +672,12 @@ const CreateProgrammeDialog: React.FC<CreateProgrammeDialogProps> = ({
       </DialogContent>
 
       <DialogActions sx={{ px: 3, pb: 3 }}>
-        <Button onClick={handleClose} disabled={uploading || savingDetails}>
+        <Button onClick={handleClose} disabled={savingDetails}>
           Cancel
         </Button>
 
         {!isEditMode && activeStep > 0 && (
-          <Button onClick={handleBack} disabled={uploading || savingDetails}>
+          <Button onClick={handleBack} disabled={savingDetails}>
             Back
           </Button>
         )}

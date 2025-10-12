@@ -69,21 +69,6 @@ const ProgrammeCard: React.FC<ProgrammeCardProps> = ({ programme }) => {
             Featured
           </div>
         )} */}
-
-        {/* Status Badge */}
-        <div className="absolute bottom-3 left-3">
-          {programme.isPublished ? (
-            <div className="flex items-center gap-1.5 text-xs text-green-700 bg-green-100/90 backdrop-blur-sm px-2.5 py-1.5 rounded-full shadow-sm">
-              <Eye className="w-3 h-3" />
-              Published
-            </div>
-          ) : (
-            <div className="flex items-center gap-1.5 text-xs text-gray-600 bg-gray-100/90 backdrop-blur-sm px-2.5 py-1.5 rounded-full shadow-sm">
-              <Eye className="w-3 h-3" />
-              Draft
-            </div>
-          )}
-        </div>
       </div>
 
       {/* Content */}
