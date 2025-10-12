@@ -67,7 +67,6 @@ const App: React.FC = () => {
               <>
                 <Navbar />
                 <Home2 />
-                <Footer />
               </>
             }
           />
