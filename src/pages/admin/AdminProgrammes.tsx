@@ -178,20 +178,30 @@ const AdminProgrammes: React.FC = () => {
 
   return (
     <div className="p-4 md:p-6 max-w-7xl mx-auto">
-      <div className="flex items-center justify-between mb-6">
+      <div className="flex items-start justify-between mb-6 gap-4">
         <div>
           <h1 className="text-3xl font-bold text-gray-900">Programmes</h1>
           <p className="text-gray-600 mt-1">
             {programmes.length} programme{programmes.length !== 1 ? "s" : ""}
           </p>
         </div>
-        <button
-          onClick={() => setCreateDialogOpen(true)}
-          className="flex items-center gap-2 px-4 py-2 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 transition-colors"
-        >
-          <Plus className="h-5 w-5" />
-          Create Programme
-        </button>
+        <div className="flex items-center">
+          {/* Plus icon always aligned right */}
+          <button
+            onClick={() => setCreateDialogOpen(true)}
+            className="flex items-center justify-center px-3 py-2 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 transition-colors sm:hidden"
+            aria-label="Create Programme"
+          >
+            <Plus className="h-5 w-5" />
+          </button>
+          <button
+            onClick={() => setCreateDialogOpen(true)}
+            className="hidden sm:flex items-center gap-2 px-4 py-2 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 transition-colors"
+          >
+            <Plus className="h-5 w-5" />
+            Create Programme
+          </button>
+        </div>
       </div>
 
       {programmes.length === 0 ? (

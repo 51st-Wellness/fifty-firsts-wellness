@@ -132,6 +132,7 @@ const CreateProgrammeDialog: React.FC<CreateProgrammeDialogProps> = ({
   );
   const [backgroundUploadComplete, setBackgroundUploadComplete] =
     useState(false);
+  const [savingDetails, setSavingDetails] = useState(false);
   const [formData, setFormData] = useState<FormData>({
     title: "",
     description: "",
@@ -182,11 +183,12 @@ const CreateProgrammeDialog: React.FC<CreateProgrammeDialogProps> = ({
   }, [editProgramme, open, isEditMode]);
 
   const handleClose = () => {
-    if (!uploading) {
+    if (!uploading && !savingDetails) {
       setActiveStep(0);
       setDraftResponse(null);
       setBackgroundUploadComplete(false);
       setUploadProgress(0);
+      setSavingDetails(false);
       setFormData({
         title: "",
         description: "",
@@ -215,9 +217,12 @@ const CreateProgrammeDialog: React.FC<CreateProgrammeDialogProps> = ({
         return;
       }
 
-      // Start background upload
+      // Start background upload (non-blocking) and immediately proceed to step 2
       handleBackgroundUpload();
       setActiveStep(1);
+      toast.success(
+        "Video upload started! You can continue filling details while it uploads."
+      );
     } else {
       // Submit step 2 details
       handleSubmitDetails();
@@ -312,12 +317,32 @@ const CreateProgrammeDialog: React.FC<CreateProgrammeDialogProps> = ({
   };
 
   const handleSubmitDetails = async () => {
+    // If not in edit mode and upload is still in progress, wait for it
+    if (!isEditMode && !draftResponse && uploading) {
+      toast("Waiting for video upload to complete...", { icon: "⏳" });
+      // We'll wait for the upload to complete by checking draftResponse
+      const waitForUpload = () => {
+        return new Promise<void>((resolve) => {
+          const checkUpload = () => {
+            if (draftResponse || !uploading) {
+              resolve();
+            } else {
+              setTimeout(checkUpload, 500); // Check every 500ms
+            }
+          };
+          checkUpload();
+        });
+      };
+
+      await waitForUpload();
+    }
+
     if (!draftResponse) {
-      toast.error("Please wait for video upload to complete");
+      toast.error("Video upload failed. Please try again.");
       return;
     }
 
-    setUploading(true);
+    setSavingDetails(true);
 
     try {
       await updateProgrammeDetails(
@@ -344,7 +369,7 @@ const CreateProgrammeDialog: React.FC<CreateProgrammeDialogProps> = ({
           "Failed to update programme details"
       );
     } finally {
-      setUploading(false);
+      setSavingDetails(false);
     }
   };
 
@@ -359,19 +384,6 @@ const CreateProgrammeDialog: React.FC<CreateProgrammeDialogProps> = ({
         }
         margin="normal"
         required
-        disabled={uploading}
-      />
-
-      <TextField
-        fullWidth
-        label="Description"
-        value={formData.description}
-        onChange={(e) =>
-          setFormData((prev) => ({ ...prev, description: e.target.value }))
-        }
-        margin="normal"
-        multiline
-        rows={4}
         disabled={uploading}
       />
 
@@ -582,7 +594,7 @@ const CreateProgrammeDialog: React.FC<CreateProgrammeDialogProps> = ({
       onClose={handleClose}
       maxWidth="md"
       fullWidth
-      disableEscapeKeyDown={uploading}
+      disableEscapeKeyDown={uploading || savingDetails}
     >
       <DialogTitle
         sx={{
@@ -592,7 +604,7 @@ const CreateProgrammeDialog: React.FC<CreateProgrammeDialogProps> = ({
         }}
       >
         {isEditMode ? "Edit Programme" : "Create New Programme"}
-        <IconButton onClick={handleClose} disabled={uploading}>
+        <IconButton onClick={handleClose} disabled={uploading || savingDetails}>
           <Close />
         </IconButton>
       </DialogTitle>
@@ -606,6 +618,7 @@ const CreateProgrammeDialog: React.FC<CreateProgrammeDialogProps> = ({
           ))}
         </Stepper>
 
+        {/* Show upload progress when on step 1 and uploading */}
         {uploading && activeStep === 0 && (
           <Box sx={{ mb: 3 }}>
             <Alert severity="info" sx={{ mb: 2 }}>
@@ -618,21 +631,30 @@ const CreateProgrammeDialog: React.FC<CreateProgrammeDialogProps> = ({
           </Box>
         )}
 
-        {uploading && activeStep === 1 && (
+        {/* Show background upload status on step 2 */}
+        {activeStep === 1 && !isEditMode && (
+          <Box sx={{ mb: 3 }}>
+            {uploading && !backgroundUploadComplete ? (
+              <Alert severity="info" sx={{ mb: 2 }}>
+                Video is uploading in the background... You can fill in the
+                details below.
+              </Alert>
+            ) : backgroundUploadComplete ? (
+              <Alert severity="success" sx={{ mb: 2 }}>
+                Video uploaded successfully! Fill in the details below to
+                complete your programme.
+              </Alert>
+            ) : null}
+          </Box>
+        )}
+
+        {/* Show saving progress when submitting details */}
+        {savingDetails && (
           <Box sx={{ mb: 3 }}>
             <Alert severity="info" sx={{ mb: 2 }}>
               Saving programme details...
             </Alert>
             <LinearProgress />
-          </Box>
-        )}
-
-        {backgroundUploadComplete && activeStep === 1 && !uploading && (
-          <Box sx={{ mb: 3 }}>
-            <Alert severity="success" sx={{ mb: 2 }}>
-              Video uploaded successfully! Fill in the details below to complete
-              your programme.
-            </Alert>
           </Box>
         )}
 
@@ -644,12 +666,12 @@ const CreateProgrammeDialog: React.FC<CreateProgrammeDialogProps> = ({
       </DialogContent>
 
       <DialogActions sx={{ px: 3, pb: 3 }}>
-        <Button onClick={handleClose} disabled={uploading}>
+        <Button onClick={handleClose} disabled={uploading || savingDetails}>
           Cancel
         </Button>
 
         {!isEditMode && activeStep > 0 && (
-          <Button onClick={handleBack} disabled={uploading}>
+          <Button onClick={handleBack} disabled={uploading || savingDetails}>
             Back
           </Button>
         )}
@@ -658,16 +680,18 @@ const CreateProgrammeDialog: React.FC<CreateProgrammeDialogProps> = ({
           onClick={handleNext}
           variant="contained"
           disabled={
-            uploading ||
             (!isEditMode &&
               activeStep === 0 &&
-              (!formData.title.trim() || !formData.videoFile))
+              (!formData.title.trim() || !formData.videoFile)) ||
+            savingDetails // Only disable when saving details
           }
         >
           {isEditMode
             ? "Update Programme"
             : activeStep === steps.length - 1
-            ? "Create Programme"
+            ? savingDetails
+              ? "Saving..."
+              : "Create Programme"
             : "Next"}
         </Button>
       </DialogActions>
