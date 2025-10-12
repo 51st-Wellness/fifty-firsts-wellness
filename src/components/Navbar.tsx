@@ -186,15 +186,6 @@ const Navbar: React.FC = () => {
 
             <li>
               <Link
-                to="/programmes"
-                className="text-gray-700 hover:text-brand-green font-medium transition-colors px-3 py-2 rounded-lg hover:bg-brand-green/5 font-primary"
-              >
-                Programmes
-              </Link>
-            </li>
-
-            <li>
-              <Link
                 to="/blog"
                 className="text-gray-700 hover:text-brand-green font-medium transition-colors px-3 py-2 rounded-lg hover:bg-brand-green/5 font-primary"
               >
@@ -243,7 +234,7 @@ const Navbar: React.FC = () => {
                       Podcasts
                     </Link>
                   </li>
-                  <li>
+                  {/* <li>
                     <Link
                       to="/resources/webinars"
                       className="block px-4 py-3 text-gray-700 hover:bg-brand-green/10 hover:text-brand-green transition-colors"
@@ -251,7 +242,7 @@ const Navbar: React.FC = () => {
                     >
                       Webinars
                     </Link>
-                  </li>
+                  </li> */}
                 </ul>
               )}
             </li>

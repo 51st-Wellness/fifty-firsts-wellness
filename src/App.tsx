@@ -135,7 +135,7 @@ const App: React.FC = () => {
               <>
                 <Navbar />
                 <Podcasts />
-                <Footer />
+                {/* <Footer /> */}
               </>
             }
           />

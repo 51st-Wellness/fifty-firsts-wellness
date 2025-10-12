@@ -1,4 +1,4 @@
-import React, { useState, useCallback } from "react";
+import React, { useState, useCallback, useEffect } from "react";
 import {
   Dialog,
   DialogTitle,
@@ -36,6 +36,8 @@ import toast from "react-hot-toast";
 import {
   createProgrammeDraft,
   updateProgrammeDetails,
+  fetchProgrammeForEdit,
+  type Programme,
 } from "@/api/programme.api";
 
 const VisuallyHiddenInput = styled("input")({
@@ -74,6 +76,7 @@ interface CreateProgrammeDialogProps {
   open: boolean;
   onClose: () => void;
   onSuccess: () => void;
+  editProgramme?: Programme | null; // If provided, dialog is in edit mode
 }
 
 interface FormData {
@@ -118,6 +121,7 @@ const CreateProgrammeDialog: React.FC<CreateProgrammeDialogProps> = ({
   open,
   onClose,
   onSuccess,
+  editProgramme,
 }) => {
   const [activeStep, setActiveStep] = useState(0);
   const [uploading, setUploading] = useState(false);
@@ -138,7 +142,44 @@ const CreateProgrammeDialog: React.FC<CreateProgrammeDialogProps> = ({
     isPublished: false,
   });
 
-  const steps = ["Video & Basic Info", "Details & Publishing"];
+  const steps = editProgramme
+    ? ["Details & Publishing"]
+    : ["Video & Basic Info", "Details & Publishing"];
+  const isEditMode = !!editProgramme;
+
+  // Initialize form data when in edit mode
+  useEffect(() => {
+    if (editProgramme && open) {
+      setFormData({
+        title: editProgramme.title || "",
+        description: editProgramme.description || "",
+        videoFile: null, // Can't edit video file in edit mode
+        categories: editProgramme.categories || [],
+        thumbnailFile: null,
+        isFeatured: editProgramme.isFeatured || false,
+        isPublished: editProgramme.isPublished || false,
+      });
+
+      // In edit mode, skip to step 2 (details)
+      setActiveStep(isEditMode ? 0 : 0);
+
+      // Set draft response for edit mode
+      if (isEditMode) {
+        setDraftResponse({
+          programme: {
+            productId: editProgramme.productId,
+            title: editProgramme.title,
+            muxAssetId: "",
+            muxPlaybackId: editProgramme.muxPlaybackId || "",
+          },
+          product: {
+            id: editProgramme.productId,
+          },
+        });
+        setBackgroundUploadComplete(true);
+      }
+    }
+  }, [editProgramme, open, isEditMode]);
 
   const handleClose = () => {
     if (!uploading) {
@@ -160,7 +201,10 @@ const CreateProgrammeDialog: React.FC<CreateProgrammeDialogProps> = ({
   };
 
   const handleNext = async () => {
-    if (activeStep === 0) {
+    if (isEditMode) {
+      // In edit mode, we only have one step - submit details
+      handleSubmitDetails();
+    } else if (activeStep === 0) {
       // Validate step 1
       if (!formData.title.trim()) {
         toast.error("Please enter a title");
@@ -285,7 +329,11 @@ const CreateProgrammeDialog: React.FC<CreateProgrammeDialogProps> = ({
         formData.thumbnailFile || undefined
       );
 
-      toast.success("Programme created successfully!");
+      toast.success(
+        isEditMode
+          ? "Programme updated successfully!"
+          : "Programme created successfully!"
+      );
       handleClose();
       onSuccess();
     } catch (e: any) {
@@ -388,6 +436,34 @@ const CreateProgrammeDialog: React.FC<CreateProgrammeDialogProps> = ({
 
   const renderStep2 = () => (
     <Box sx={{ mt: 2 }}>
+      {/* Title field for edit mode */}
+      {isEditMode && (
+        <TextField
+          fullWidth
+          label="Programme Title"
+          value={formData.title}
+          onChange={(e) =>
+            setFormData((prev) => ({ ...prev, title: e.target.value }))
+          }
+          margin="normal"
+          required
+          disabled={uploading}
+        />
+      )}
+
+      <TextField
+        fullWidth
+        label="Description"
+        value={formData.description}
+        onChange={(e) =>
+          setFormData((prev) => ({ ...prev, description: e.target.value }))
+        }
+        margin="normal"
+        multiline
+        rows={4}
+        disabled={uploading}
+      />
+
       <FormControl fullWidth margin="normal">
         <InputLabel>Categories</InputLabel>
         <Select
@@ -515,7 +591,7 @@ const CreateProgrammeDialog: React.FC<CreateProgrammeDialogProps> = ({
           justifyContent: "space-between",
         }}
       >
-        Create New Programme
+        {isEditMode ? "Edit Programme" : "Create New Programme"}
         <IconButton onClick={handleClose} disabled={uploading}>
           <Close />
         </IconButton>
@@ -560,7 +636,11 @@ const CreateProgrammeDialog: React.FC<CreateProgrammeDialogProps> = ({
           </Box>
         )}
 
-        {activeStep === 0 ? renderStep1() : renderStep2()}
+        {isEditMode
+          ? renderStep2()
+          : activeStep === 0
+          ? renderStep1()
+          : renderStep2()}
       </DialogContent>
 
       <DialogActions sx={{ px: 3, pb: 3 }}>
@@ -568,7 +648,7 @@ const CreateProgrammeDialog: React.FC<CreateProgrammeDialogProps> = ({
           Cancel
         </Button>
 
-        {activeStep > 0 && (
+        {!isEditMode && activeStep > 0 && (
           <Button onClick={handleBack} disabled={uploading}>
             Back
           </Button>
@@ -579,11 +659,16 @@ const CreateProgrammeDialog: React.FC<CreateProgrammeDialogProps> = ({
           variant="contained"
           disabled={
             uploading ||
-            (activeStep === 0 &&
+            (!isEditMode &&
+              activeStep === 0 &&
               (!formData.title.trim() || !formData.videoFile))
           }
         >
-          {activeStep === steps.length - 1 ? "Create Programme" : "Next"}
+          {isEditMode
+            ? "Update Programme"
+            : activeStep === steps.length - 1
+            ? "Create Programme"
+            : "Next"}
         </Button>
       </DialogActions>
     </Dialog>

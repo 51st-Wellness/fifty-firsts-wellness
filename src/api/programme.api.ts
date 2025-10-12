@@ -10,6 +10,9 @@ export interface Programme {
   isPublished: boolean;
   isFeatured: boolean;
   muxPlaybackId?: string | null;
+
+  createdAt: number;
+  updatedAt: number;
 }
 
 export interface CreateProgrammeResponse {
@@ -44,6 +47,12 @@ export async function fetchProgrammes(params?: {
 export async function fetchProgrammeById(productId: string) {
   return http.get<{ message: string; data: Programme }>(
     `/product/programme/${productId}`
+  );
+}
+
+export async function fetchProgrammeForEdit(productId: string) {
+  return http.get<{ message: string; data: Programme }>(
+    `/product/programme/admin/${productId}`
   );
 }
 

@@ -149,54 +149,60 @@ const EpisodeCard: React.FC<{ episode: PodcastEpisode }> = ({ episode }) => {
   return (
     <button
       onClick={() => navigate(`/podcasts/${encodeURIComponent(episode.id)}`)}
-      className="text-left group relative bg-gradient-to-br from-white via-brand-green/5 to-brand-purple/5 border border-gray-200 rounded-3xl p-5 hover:shadow-2xl hover:scale-[1.02] transition-all duration-300 focus:outline-none focus:ring-2 focus:ring-brand-green/30 overflow-hidden"
+      className="text-left group relative bg-gradient-to-br from-white via-emerald-50/30 to-teal-50/30 border border-gray-200 rounded-3xl p-5 hover:shadow-2xl hover:scale-[1.02] hover:border-emerald-300 transition-all duration-300 focus:outline-none focus:ring-2 focus:ring-emerald-300/50 overflow-hidden"
     >
       {/* Decorative gradient overlay */}
-      <div className="absolute top-0 right-0 w-32 h-32 bg-gradient-to-br from-brand-green/10 to-brand-purple/10 rounded-full blur-3xl -z-0 group-hover:scale-150 transition-transform duration-500" />
+      <div className="absolute top-0 right-0 w-32 h-32 bg-gradient-to-br from-emerald-100/40 to-teal-100/40 rounded-full blur-3xl -z-0 group-hover:scale-150 transition-transform duration-500" />
 
-      <div className="relative z-10">
+      <div className="relative z-10 mb-4">
         <img
           src={episode.imageUrl || podcast1}
           alt={episode.title}
-          className="rounded-2xl w-full h-44 object-cover shadow-md group-hover:shadow-xl transition-shadow"
+          className="rounded-2xl w-full h-44 object-cover shadow-md group-hover:shadow-xl transition-all duration-300 group-hover:scale-105"
         />
         {/* Play overlay on hover */}
-        <div className="absolute inset-0 bg-gradient-to-t from-brand-green/80 via-brand-green/40 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300 rounded-2xl flex items-center justify-center">
-          <div className="bg-white rounded-full p-4 transform scale-0 group-hover:scale-100 transition-transform duration-300">
-            <Play className="w-8 h-8 text-brand-green fill-brand-green" />
+        <div className="absolute inset-0 bg-gradient-to-t from-emerald-600/80 via-emerald-600/40 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300 rounded-2xl flex items-center justify-center">
+          <div className="bg-white rounded-full p-4 transform scale-0 group-hover:scale-100 transition-transform duration-300 shadow-lg">
+            <Play className="w-8 h-8 text-emerald-600 fill-emerald-600" />
           </div>
         </div>
-      </div>
 
-      <div className="relative z-10 mt-4 flex items-center gap-3 text-xs text-gray-500">
-        {episode.publishedAt && (
-          <div className="flex items-center gap-1.5">
-            <Calendar className="w-3.5 h-3.5 text-brand-green" />
-            <span>{new Date(episode.publishedAt).toLocaleDateString()}</span>
-          </div>
-        )}
+        {/* Duration Badge */}
         {episode.duration && (
-          <div className="flex items-center gap-1.5">
-            <Clock className="w-3.5 h-3.5 text-brand-purple" />
+          <div className="absolute top-3 right-3 bg-black/70 backdrop-blur-sm text-white text-xs px-2.5 py-1.5 rounded-full flex items-center gap-1.5 shadow-lg">
+            <Clock className="w-3 h-3" />
             <span>{formatDuration(episode.duration)}</span>
           </div>
         )}
       </div>
 
-      <h3 className="relative z-10 mt-3 text-base sm:text-lg lg:text-xl font-heading font-bold line-clamp-2 text-gray-900 group-hover:text-brand-green transition-colors">
-        {episode.title}
-      </h3>
+      <div className="relative z-10 flex flex-col gap-3">
+        {/* Metadata */}
+        <div className="flex items-center gap-3 text-xs text-gray-500">
+          {episode.publishedAt && (
+            <div className="flex items-center gap-1.5">
+              <Calendar className="w-3.5 h-3.5 text-emerald-500" />
+              <span>{new Date(episode.publishedAt).toLocaleDateString()}</span>
+            </div>
+          )}
+        </div>
 
-      {episode.description && (
-        <p className="relative z-10 mt-2 text-sm text-gray-600 line-clamp-2 font-primary">
-          {episode.description.replace(/<[^>]+>/g, "")}
-        </p>
-      )}
+        <h3 className="text-lg font-bold text-gray-900 line-clamp-2 group-hover:text-emerald-600 transition-colors leading-tight">
+          {episode.title}
+        </h3>
 
-      <div className="relative z-10 mt-4 flex items-center justify-end">
-        <span className="text-xs font-medium text-brand-green group-hover:text-brand-purple transition-colors flex items-center gap-1">
-          Tap to play <Play className="w-3 h-3" />
-        </span>
+        {episode.description && (
+          <p className="text-sm text-gray-600 line-clamp-2 leading-relaxed">
+            {episode.description.replace(/<[^>]+>/g, "")}
+          </p>
+        )}
+
+        {/* Call to Action */}
+        <div className="flex items-center justify-end mt-auto pt-2">
+          <span className="text-xs font-medium text-emerald-600 group-hover:text-teal-600 transition-colors flex items-center gap-1.5">
+            Listen Now <Play className="w-3 h-3" />
+          </span>
+        </div>
       </div>
     </button>
   );

@@ -1,17 +1,6 @@
 import { useEffect, useState } from "react";
 import toast from "react-hot-toast";
-import {
-  Video,
-  Edit,
-  Plus,
-  Play,
-  Clock,
-  Eye,
-  EyeOff,
-  Star,
-  X,
-  Trash2,
-} from "lucide-react";
+import { Video, Plus, X } from "lucide-react";
 import {
   fetchProgrammes,
   type Programme,
@@ -19,6 +8,7 @@ import {
   deleteProgramme,
 } from "@/api/programme.api";
 import CreateProgrammeDialog from "@/components/admin/CreateProgrammeDialog";
+import AdminProgrammeCard from "@/components/admin/AdminProgrammeCard";
 
 // Mux Player Modal Component
 const MuxPlayerModal: React.FC<{
@@ -108,6 +98,9 @@ const AdminProgrammes: React.FC = () => {
     null
   );
   const [createDialogOpen, setCreateDialogOpen] = useState(false);
+  const [editingProgramme, setEditingProgramme] = useState<Programme | null>(
+    null
+  );
 
   useEffect(() => {
     loadProgrammes();
@@ -148,6 +141,18 @@ const AdminProgrammes: React.FC = () => {
       toast.error(e?.response?.data?.message || "Failed to delete programme");
     }
   }
+
+  const handleEditProgramme = (programme: Programme) => {
+    setEditingProgramme(programme);
+  };
+
+  const handleViewProgramme = (programme: Programme) => {
+    setViewingProgramme(programme);
+  };
+
+  const handleCloseEditDialog = () => {
+    setEditingProgramme(null);
+  };
 
   if (loading) {
     return (
@@ -209,136 +214,13 @@ const AdminProgrammes: React.FC = () => {
       ) : (
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
           {programmes.map((programme) => (
-            <div
+            <AdminProgrammeCard
               key={programme.productId}
-              className="bg-white rounded-xl border overflow-hidden hover:shadow-lg transition-all duration-200"
-            >
-              {/* Thumbnail */}
-              <div className="aspect-video bg-gray-100 relative group">
-                {programme.thumbnail ? (
-                  <img
-                    src={programme.thumbnail}
-                    alt={programme.title}
-                    className="w-full h-full object-cover"
-                  />
-                ) : (
-                  <div className="w-full h-full flex items-center justify-center text-gray-400">
-                    <Video className="h-12 w-12" />
-                  </div>
-                )}
-
-                {/* Play Overlay */}
-                {programme.muxPlaybackId && (
-                  <div className="absolute inset-0 bg-black bg-opacity-0 group-hover:bg-opacity-30 transition-all duration-200 flex items-center justify-center">
-                    <button
-                      onClick={() => setViewingProgramme(programme)}
-                      className="opacity-0 group-hover:opacity-100 bg-white bg-opacity-90 hover:bg-opacity-100 rounded-full p-3 transition-all duration-200 transform scale-90 group-hover:scale-100"
-                    >
-                      <Play className="h-6 w-6 text-gray-800 ml-0.5" />
-                    </button>
-                  </div>
-                )}
-
-                {/* Status Badges */}
-                <div className="absolute top-3 left-3 flex flex-col gap-1">
-                  <span
-                    className={`inline-flex items-center px-2 py-1 rounded-full text-xs font-medium ${
-                      programme.isPublished
-                        ? "bg-green-100 text-green-800"
-                        : "bg-yellow-100 text-yellow-800"
-                    }`}
-                  >
-                    {programme.isPublished ? (
-                      <>
-                        <Eye className="h-3 w-3 mr-1" />
-                        Published
-                      </>
-                    ) : (
-                      <>
-                        <EyeOff className="h-3 w-3 mr-1" />
-                        Draft
-                      </>
-                    )}
-                  </span>
-
-                  {programme.isFeatured && (
-                    <span className="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-purple-100 text-purple-800">
-                      <Star className="h-3 w-3 mr-1" />
-                      Featured
-                    </span>
-                  )}
-                </div>
-              </div>
-
-              {/* Content */}
-              <div className="p-4">
-                <h3 className="font-semibold text-gray-900 mb-2 line-clamp-2">
-                  {programme.title}
-                </h3>
-
-                {programme.description && (
-                  <p className="text-sm text-gray-600 mb-3 line-clamp-2">
-                    {programme.description}
-                  </p>
-                )}
-
-                {/* Categories */}
-                {programme.categories && programme.categories.length > 0 && (
-                  <div className="flex flex-wrap gap-1 mb-3">
-                    {programme.categories.slice(0, 2).map((category) => (
-                      <span
-                        key={category}
-                        className="inline-block px-2 py-1 text-xs bg-gray-100 text-gray-700 rounded"
-                      >
-                        {category}
-                      </span>
-                    ))}
-                    {programme.categories.length > 2 && (
-                      <span className="inline-block px-2 py-1 text-xs bg-gray-100 text-gray-700 rounded">
-                        +{programme.categories.length - 2} more
-                      </span>
-                    )}
-                  </div>
-                )}
-
-                <div className="flex items-center justify-between text-sm text-gray-500">
-                  {typeof programme.duration === "number" &&
-                  programme.duration > 0 ? (
-                    <div className="flex items-center">
-                      <Clock className="h-4 w-4 mr-1" />
-                      {Math.round(programme.duration / 60)} min
-                    </div>
-                  ) : (
-                    <div className="flex items-center text-yellow-600">
-                      <Clock className="h-4 w-4 mr-1" />
-                      Processing...
-                    </div>
-                  )}
-
-                  <div className="flex items-center gap-2">
-                    <button
-                      onClick={() => {
-                        // TODO: Implement edit functionality
-                        toast("Edit functionality coming soon!", {
-                          icon: "ℹ️",
-                        });
-                      }}
-                      className="text-indigo-600 hover:text-indigo-800 font-medium flex items-center"
-                    >
-                      <Edit className="h-4 w-4 mr-1" />
-                      Edit
-                    </button>
-                    <button
-                      onClick={() => handleDeleteProgramme(programme)}
-                      className="text-red-600 hover:text-red-800 font-medium flex items-center"
-                    >
-                      <Trash2 className="h-4 w-4 mr-1" />
-                      Delete
-                    </button>
-                  </div>
-                </div>
-              </div>
-            </div>
+              programme={programme}
+              onView={handleViewProgramme}
+              onEdit={handleEditProgramme}
+              onDelete={handleDeleteProgramme}
+            />
           ))}
         </div>
       )}
@@ -348,6 +230,17 @@ const AdminProgrammes: React.FC = () => {
         open={createDialogOpen}
         onClose={() => setCreateDialogOpen(false)}
         onSuccess={loadProgrammes}
+      />
+
+      {/* Edit Programme Dialog */}
+      <CreateProgrammeDialog
+        open={!!editingProgramme}
+        onClose={handleCloseEditDialog}
+        onSuccess={() => {
+          loadProgrammes();
+          handleCloseEditDialog();
+        }}
+        editProgramme={editingProgramme}
       />
 
       {/* Mux Player Modal */}
