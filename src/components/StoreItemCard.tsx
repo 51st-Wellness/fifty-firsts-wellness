@@ -84,14 +84,14 @@ const StoreItemCard: React.FC<StoreItemCardProps> = ({ item, onAddToCart }) => {
   return (
     <>
       <article
-        className="group relative bg-gradient-to-br from-white via-blue-50/30 to-indigo-50/30 border border-gray-200 rounded-3xl p-5 hover:shadow-2xl hover:scale-[1.02] hover:border-indigo-300 transition-all duration-300 cursor-pointer overflow-hidden focus:outline-none focus:ring-2 focus:ring-indigo-300/50 flex flex-col h-full"
+        className="group relative bg-gradient-to-br from-white via-blue-50/30 to-indigo-50/30 border border-gray-200 rounded-3xl p-4 hover:shadow-2xl hover:scale-[1.02] hover:border-indigo-300 transition-all duration-300 cursor-pointer overflow-hidden focus:outline-none focus:ring-2 focus:ring-indigo-300/50 flex flex-col h-full"
         onClick={handleCardClick}
       >
         {/* Decorative gradient overlay */}
         <div className="absolute top-0 right-0 w-32 h-32 bg-gradient-to-br from-indigo-100/40 to-blue-100/40 rounded-full blur-3xl -z-0 group-hover:scale-150 transition-transform duration-500" />
 
         {/* Image Container - Fixed at top */}
-        <div className="relative z-10 overflow-hidden rounded-2xl mb-4">
+        <div className="relative z-10 overflow-hidden rounded-2xl mb-3">
           {imageUrl ? (
             <img
               src={imageUrl}
@@ -103,13 +103,6 @@ const StoreItemCard: React.FC<StoreItemCardProps> = ({ item, onAddToCart }) => {
               <CiShoppingCart className="w-12 h-12 text-gray-400" />
             </div>
           )}
-
-          {/* View overlay on hover */}
-          <div className="absolute inset-0 bg-gradient-to-t from-indigo-600/80 via-indigo-600/40 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300 rounded-2xl flex items-center justify-center">
-            <div className="bg-white rounded-full p-4 transform scale-0 group-hover:scale-100 transition-transform duration-300 shadow-lg">
-              <Eye className="w-8 h-8 text-indigo-600" />
-            </div>
-          </div>
 
           {/* Featured Badge */}
           {item.isFeatured && (
@@ -134,22 +127,22 @@ const StoreItemCard: React.FC<StoreItemCardProps> = ({ item, onAddToCart }) => {
         </div>
 
         {/* Content - Flexible grow area */}
-        <div className="relative z-10 flex flex-col gap-3 flex-1">
+        <div className="relative z-10 flex flex-col gap-2 flex-1">
           {/* Categories */}
           {item.categories && item.categories.length > 0 && (
             <div className="flex gap-2 flex-wrap">
               {item.categories.slice(0, 2).map((category, index) => (
                 <span
                   key={index}
-                  className="text-xs font-medium text-indigo-700 bg-indigo-100 px-2.5 py-1 rounded-full flex items-center gap-1"
+                  className="text-[10px] font-medium text-indigo-700 bg-indigo-100 px-2.5 py-1 rounded-full flex items-center gap-1"
                 >
                   <Tag className="w-3 h-3" />
                   {category}
                 </span>
               ))}
               {item.categories.length > 2 && (
-                <span className="text-xs font-medium text-gray-500 bg-gray-100 px-2.5 py-1 rounded-full">
-                  +{item.categories.length - 2} more
+                <span className="text-[10px] font-medium text-gray-500 bg-gray-100 px-2.5 py-1 rounded-full">
+                  +{item.categories.length - 2}
                 </span>
               )}
             </div>
@@ -166,13 +159,10 @@ const StoreItemCard: React.FC<StoreItemCardProps> = ({ item, onAddToCart }) => {
           )}
 
           {/* Price and Cart Controls - Fixed at bottom */}
-          <div className="mt-auto pt-3 space-y-3">
+          <div className="mt-auto pt-2 space-y-2">
             <div className="flex items-center justify-between">
               <div className="text-2xl font-bold text-indigo-600">
                 ${price.toFixed(2)}
-              </div>
-              <div className="text-xs font-medium text-indigo-600 group-hover:text-purple-600 transition-colors flex items-center gap-1">
-                View Details <Eye className="w-3 h-3" />
               </div>
             </div>
 
