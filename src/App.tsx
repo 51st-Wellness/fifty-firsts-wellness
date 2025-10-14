@@ -32,6 +32,7 @@ import CheckEmail from "./pages/CheckEmail";
 import VerifyEmail from "./pages/VerifyEmail";
 import EmailVerification from "./pages/EmailVerification";
 import EmailVerificationGuard from "./components/EmailVerificationGuard";
+import AdminGuard from "./components/AdminGuard";
 import Loader from "./components/Loader";
 import Footer from "./components/Footer";
 import BlogPost from "@/pages/BlogPost";
@@ -218,9 +219,11 @@ const App: React.FC = () => {
           <Route
             path="/admin"
             element={
-              <Suspense fallback={<Loader />}>
-                <AdminLayout />
-              </Suspense>
+              <AdminGuard>
+                <Suspense fallback={<Loader />}>
+                  <AdminLayout />
+                </Suspense>
+              </AdminGuard>
             }
           >
             {/* Redirect /admin to /admin/overview by default */}
