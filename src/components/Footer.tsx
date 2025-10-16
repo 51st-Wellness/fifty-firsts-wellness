@@ -107,6 +107,14 @@ const Footer: React.FC = () => {
                   Membership
                 </Link>
               </li>
+              <li>
+                <Link
+                  to="/subscription"
+                  className="text-gray-400 hover:text-brand-green transition-colors"
+                >
+                  Subscription
+                </Link>
+              </li>
             </ul>
           </div>
 
