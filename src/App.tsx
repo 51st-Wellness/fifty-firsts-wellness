@@ -39,6 +39,7 @@ import Footer from "./components/Footer";
 import BlogPost from "@/pages/BlogPost";
 import Home2 from "./pages/HomePage.jsx";
 import PaymentCancel from "./pages/PaymentCancel";
+import PaymentSuccess from "./pages/PaymentSuccess";
 import NotFound from "./pages/NotFound";
 
 // Admin routes (lazy loaded)
@@ -236,6 +237,16 @@ const App: React.FC = () => {
               </>
             }
           />
+          <Route
+            path="/payment/success"
+            element={
+              <>
+                <Navbar />
+                <PaymentSuccess />
+                <Footer />
+              </>
+            }
+          />
 
           {/* Admin namespace */}
           <Route
@@ -283,7 +294,7 @@ const App: React.FC = () => {
               }
             />
           </Route>
-          
+
           {/* 404 Catch-all route - must be last */}
           <Route
             path="*"
