@@ -36,7 +36,7 @@ import AdminGuard from "./components/AdminGuard";
 import Loader from "./components/Loader";
 import Footer from "./components/Footer";
 import BlogPost from "@/pages/BlogPost";
-import Home2 from "./pages/HomePage.jsx";
+// Removed legacy HomePage.jsx import
 
 // Admin routes (lazy loaded)
 const AdminLayout = lazy(() => import("./pages/admin/AdminLayout"));
@@ -62,15 +62,7 @@ const App: React.FC = () => {
               </>
             }
           />
-          <Route
-            path="/homepage"
-            element={
-              <>
-                <Navbar />
-                <Home2 />
-              </>
-            }
-          />
+          {/** Removed legacy /homepage route that referenced HomePage.jsx */}
           <Route
             path="/about"
             element={
