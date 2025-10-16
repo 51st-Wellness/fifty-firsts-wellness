@@ -14,6 +14,7 @@ import BlogList from "./pages/BlogList";
 import Blog from "./pages/Blog";
 import AIWellness from "./pages/AIWellness";
 import Membership from "./pages/Membership";
+import Subscriptions from "./pages/Subscriptions";
 import ContactUs from "./pages/ContactUs";
 import Login from "./pages/Login";
 import Signup from "./pages/Signup";
@@ -37,6 +38,8 @@ import Loader from "./components/Loader";
 import Footer from "./components/Footer";
 import BlogPost from "@/pages/BlogPost";
 import Home2 from "./pages/HomePage.jsx";
+import PaymentCancel from "./pages/PaymentCancel";
+import NotFound from "./pages/NotFound";
 
 // Admin routes (lazy loaded)
 const AdminLayout = lazy(() => import("./pages/admin/AdminLayout"));
@@ -198,6 +201,15 @@ const App: React.FC = () => {
             }
           />
           <Route path="/membership" element={<Membership />} />
+          <Route
+            path="/subscriptions"
+            element={
+              <>
+                <Navbar />
+                <Subscriptions />
+              </>
+            }
+          />
           <Route path="/contact" element={<ContactUs />} />
           <Route path="/login" element={<Login />} />
           <Route path="/signup" element={<Signup />} />
@@ -214,6 +226,16 @@ const App: React.FC = () => {
           <Route path="/check-email" element={<CheckEmail />} />
           <Route path="/verify-email" element={<VerifyEmail />} />
           <Route path="/email-verification" element={<EmailVerification />} />
+          <Route
+            path="/payment/cancel"
+            element={
+              <>
+                <Navbar />
+                <PaymentCancel />
+                <Footer />
+              </>
+            }
+          />
 
           {/* Admin namespace */}
           <Route
@@ -261,6 +283,18 @@ const App: React.FC = () => {
               }
             />
           </Route>
+          
+          {/* 404 Catch-all route - must be last */}
+          <Route
+            path="*"
+            element={
+              <>
+                <Navbar />
+                <NotFound />
+                <Footer />
+              </>
+            }
+          />
         </Routes>
       </div>
     </div>
