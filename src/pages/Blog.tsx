@@ -26,6 +26,7 @@ const Blog: React.FC<BlogProps> = ({ onSearch }) => {
   const [sortOpen, setSortOpen] = useState(false);
   const [sortLabel, setSortLabel] = useState("Newest First");
   const sortRef = useRef<HTMLDivElement>(null);
+  const [visibleCount, setVisibleCount] = useState(9);
 
   useEffect(() => {
     const now = new Date().toISOString();
@@ -36,6 +37,9 @@ const Blog: React.FC<BlogProps> = ({ onSearch }) => {
       { id: "d4", title: "Team activities that boost morale", description: "Build connection and energy with simple group practices.", publishedAt: now, image: martin4, tags: ["Team", "Workplace"] },
       { id: "d5", title: "Healthy routines for busy people", description: "Sustainable habits that work with your schedule.", publishedAt: now, image: martin2, tags: ["Habits", "Wellness", "Fitness"] },
       { id: "d6", title: "How to build a positive work culture", description: "Culture starts with care—here’s how to design it.", publishedAt: now, image: martin3, tags: ["Culture", "Workplace"] },
+      { id: "d7", title: "Quick desk stretches for less tension", description: "Ease shoulder and neck strain in 2 minutes.", publishedAt: now, image: martin1, tags: ["Wellness", "Lifestyle"] },
+      { id: "d8", title: "Nutritious snacks that actually satisfy", description: "Smart picks to keep your energy steady.", publishedAt: now, image: martin2, tags: ["Nutrition"] },
+      { id: "d9", title: "Breathing exercises to reset in 60 seconds", description: "Simple breathwork you can do anywhere.", publishedAt: now, image: martin3, tags: ["Mindfulness", "Mental Health"] },
     ]);
   }, []);
 
@@ -63,20 +67,51 @@ const Blog: React.FC<BlogProps> = ({ onSearch }) => {
     "Fitness",
   ];
 
-  const filteredBlogs =
-    selectedCategory === "All Articles"
-      ? blogs
-      : blogs.filter((blog) => {
-          const tags = Array.isArray(blog.tags)
-            ? blog.tags
-            : String(blog.tags || "")
-                .split("#")
-                .map((s) => s.trim())
-                .filter(Boolean);
-          return tags.some((tag) =>
-            tag.toLowerCase().includes(selectedCategory.toLowerCase())
-          );
-        });
+  // compute category + search + sort
+  const filteredBlogs = React.useMemo(() => {
+    let list = [...blogs];
+    // category filter
+    if (selectedCategory !== "All Articles") {
+      list = list.filter((blog) => {
+        const tags = Array.isArray(blog.tags)
+          ? blog.tags
+          : String(blog.tags || "")
+              .split("#")
+              .map((s) => s.trim())
+              .filter(Boolean);
+        return tags.some((tag) =>
+          tag.toLowerCase().includes(selectedCategory.toLowerCase())
+        );
+      });
+    }
+    // search filter (title + description + tags)
+    const q = query.trim().toLowerCase();
+    if (q) {
+      list = list.filter((b) => {
+        const tags = (Array.isArray(b.tags) ? b.tags : [])
+          .join(" ")
+          .toLowerCase();
+        return (
+          b.title.toLowerCase().includes(q) ||
+          (b.description || "").toLowerCase().includes(q) ||
+          tags.includes(q)
+        );
+      });
+    }
+    // sort
+    if (sortLabel === "Newest First") {
+      list.sort((a, b) =>
+        (b.publishedAt || "").localeCompare(a.publishedAt || "")
+      );
+    } else if (sortLabel === "Oldest First") {
+      list.sort((a, b) =>
+        (a.publishedAt || "").localeCompare(b.publishedAt || "")
+      );
+    } else if (sortLabel === "A-Z Title") {
+      list.sort((a, b) => a.title.localeCompare(b.title));
+    }
+    return list;
+  }, [blogs, selectedCategory, query, sortLabel]);
 
   const demoPosts = [
     { id: "d1", title: "10 Innovative workplace wellness tips: Unlocking Happiness at Work", image: martin1 },
@@ -207,8 +242,17 @@ const Blog: React.FC<BlogProps> = ({ onSearch }) => {
             ))}
           </div>
         ) : (
+          <section
+            className="w-full min-h-screen"
+            style={{
+              backgroundImage: 'url(/assets/general-background.svg)',
+              backgroundRepeat: 'no-repeat',
+              backgroundSize: 'cover',
+              backgroundPosition: 'center',
+            }}
+          >
           <div className="max-w-7xl mx-auto px-6 sm:px-10 lg:px-16 pt-8 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 mb-12">
-            {filteredBlogs.map((blog) => {
+            {filteredBlogs.slice(0, visibleCount).map((blog) => {
               const img = blog.image;
               let tags = Array.isArray(blog.tags)
                 ? blog.tags
@@ -222,16 +266,16 @@ const Blog: React.FC<BlogProps> = ({ onSearch }) => {
 
               return (
                 <Link key={blog.id} to={`/blog/${blog.slug}`} className="group">
-                  <article className="bg-white rounded-2xl shadow-sm border border-gray-200">
+                  <article className="bg-white rounded-3xl shadow-sm border border-gray-200">
                     <div className="p-3">
                       {img ? (
                         <img
                           src={img}
                           alt={blog.title}
-                          className="w-full h-56 object-cover rounded-xl"
+                          className="w-full h-56 object-cover rounded-2xl"
                         />
                       ) : (
-                        <div className="w-full h-56 bg-gradient-to-br from-brand-green/20 to-brand-purple/20 flex items-center justify-center rounded-xl">
+                        <div className="w-full h-56 bg-gradient-to-br from-brand-green/20 to-brand-purple/20 flex items-center justify-center rounded-2xl">
                           <div className="text-brand-green text-4xl font-heading">
                             {blog.title.charAt(0)}
                           </div>
@@ -246,7 +290,7 @@ const Blog: React.FC<BlogProps> = ({ onSearch }) => {
                           {new Date(blog.publishedAt).toLocaleDateString()}
                         </div>
                       )}
-                      <h3 className="text-xl font-bold text-gray-900 mb-2 leading-tight font-heading group-hover:text-brand-green transition-colors min-h-[56px] line-clamp-2">
+                      <h3 className="text-xl font-semibold text-gray-900 mb-2 leading-tight group-hover:text-brand-green transition-colors min-h-[56px] line-clamp-2" style={{ fontFamily: '"League Spartan", sans-serif' }}>
                         {blog.title}
                       </h3>
 
@@ -277,6 +321,19 @@ const Blog: React.FC<BlogProps> = ({ onSearch }) => {
               );
             })}
           </div>
+          {/* Load More inside the background section */}
+          <div className="max-w-7xl mx-auto px-6 sm:px-10 lg:px-16 py-12 flex justify-center">
+            <button
+              type="button"
+              onClick={() => setVisibleCount((v) => Math.min(v + 6, filteredBlogs.length))}
+              disabled={visibleCount >= filteredBlogs.length}
+              className={`px-6 py-3 rounded-full text-white bg-[#4444B3] transition-opacity ${visibleCount >= filteredBlogs.length ? 'opacity-50 cursor-not-allowed' : 'hover:opacity-90'}`}
+              style={{ fontFamily: '"League Spartan", sans-serif' }}
+            >
+              {visibleCount >= filteredBlogs.length ? 'No More Articles' : 'Load More'}
+            </button>
+          </div>
+          </section>
         )}
 
         {!loading && filteredBlogs.length === 0 && (
