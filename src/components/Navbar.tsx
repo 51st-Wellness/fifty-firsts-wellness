@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useRef } from "react";
-import { Link } from "react-router-dom";
+import { Link, NavLink } from "react-router-dom";
 import { Menu, X, ChevronDown } from "lucide-react";
-import Logo from "../assets/images/logo.png";
+import Logo from "../assets/images/logo-with-name.png";
 import { UserAvatar } from "./UserAvatar";
 import { useAuth } from "../context/AuthContextProvider";
 import CartIcon from "./CartIcon";
@@ -85,27 +85,17 @@ const Navbar: React.FC = () => {
   return (
     <nav
       ref={navRef}
-      className="bg-white shadow-lg border-b border-gray-100 sticky top-0 z-50"
+      className="bg-white border-b border-gray-100 sticky top-0 z-50"
     >
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex justify-between items-center h-16">
           {/* Logo */}
-          <Link to="/" className="flex items-center space-x-3 group">
-            <div className="relative">
-              <img
-                src={Logo}
-                alt="Fifty Firsts Wellness"
-                className="h-12 w-12 transition-transform group-hover:scale-105"
-              />
-            </div>
-            <div className="hidden sm:block">
-              <span className="text-2xl font-bold text-gray-900 group-hover:text-brand-green transition-colors font-heading">
-                Fifty Firsts Wellness
-              </span>
-              <div className="text-xs text-brand-green font-medium uppercase tracking-wider font-primary">
-                Wellness Solutions
-              </div>
-            </div>
+          <Link to="/" className="flex items-center group">
+            <img
+              src={Logo}
+              alt="Fifty Firsts Wellness"
+              className="h-10 sm:h-12 w-auto transition-transform group-hover:scale-[1.01]"
+            />
           </Link>
 
           {/* Hamburger (Mobile) */}
@@ -121,13 +111,21 @@ const Navbar: React.FC = () => {
 
           {/* Desktop Menu - Centered */}
           <ul className="hidden md:flex space-x-6 items-center absolute left-1/2 transform -translate-x-1/2">
+            <li>
+              <Link
+                to="/about"
+                className="text-gray-700 hover:text-brand-green font-medium transition-colors px-3 py-2 rounded-lg font-primary"
+              >
+                About
+              </Link>
+            </li>
             {/* Services Dropdown (desktop) */}
             <li className="relative">
               <button
                 type="button"
                 onMouseEnter={handleServicesMouseEnter}
                 onMouseLeave={handleServicesMouseLeave}
-                className="flex items-center space-x-1 text-gray-700 hover:text-brand-green font-medium transition-colors px-3 py-2 rounded-lg hover:bg-brand-green/5 font-primary"
+                className="flex items-center space-x-1 text-gray-700 hover:text-brand-green font-medium transition-colors px-3 py-2 rounded-lg font-primary"
                 aria-expanded={servicesOpen}
               >
                 <span>Services</span>
@@ -147,7 +145,7 @@ const Navbar: React.FC = () => {
                   <li>
                     <Link
                       to="/services/personal-wellness"
-                      className="block px-4 py-3 text-gray-700 hover:bg-brand-green/10 hover:text-brand-green transition-colors"
+                      className="block px-4 py-3 text-gray-700  hover:text-brand-green transition-colors"
                       onClick={() => setServicesOpen(false)}
                     >
                       Personal Wellness Programmes
@@ -156,7 +154,7 @@ const Navbar: React.FC = () => {
                   <li>
                     <Link
                       to="/services/business-wellness"
-                      className="block px-4 py-3 text-gray-700 hover:bg-brand-green/10 hover:text-brand-green transition-colors"
+                      className="block px-4 py-3 text-gray-700  hover:text-brand-green transition-colors"
                       onClick={() => setServicesOpen(false)}
                     >
                       Business Wellness Programmes
@@ -165,7 +163,7 @@ const Navbar: React.FC = () => {
                   <li>
                     <Link
                       to="/services/program-details"
-                      className="block px-4 py-3 text-gray-700 hover:bg-brand-green/10 hover:text-brand-green transition-colors"
+                      className="block px-4 py-3 text-gray-700  hover:text-brand-green transition-colors"
                       onClick={() => setServicesOpen(false)}
                     >
                       Wellness Program Details
@@ -176,21 +174,14 @@ const Navbar: React.FC = () => {
             </li>
 
             <li>
-              <Link
+              <NavLink
                 to="/marketplace"
-                className="text-gray-700 hover:text-brand-green font-medium transition-colors px-3 py-2 rounded-lg hover:bg-brand-green/5 font-primary"
+                className={({ isActive }) =>
+                  `text-gray-700 hover:text-brand-green font-medium transition-colors px-3 py-2 font-primary relative group ${isActive ? 'after:absolute after:left-1/2 after:-translate-x-1/2 after:-bottom-1 after:h-0.5 after:w-12 after:bg-brand-green after:transition-all after:duration-300' : 'after:absolute after:left-1/2 after:-translate-x-1/2 after:-bottom-1 after:h-0.5 after:w-0 group-hover:after:w-12 after:bg-brand-green after:transition-all after:duration-300'}`
+                }
               >
                 Marketplace
-              </Link>
-            </li>
-
-            <li>
-              <Link
-                to="/blog"
-                className="text-gray-700 hover:text-brand-green font-medium transition-colors px-3 py-2 rounded-lg hover:bg-brand-green/5 font-primary"
-              >
-                Blog
-              </Link>
+              </NavLink>
             </li>
 
             {/* Resources Dropdown (desktop) */}
@@ -199,7 +190,7 @@ const Navbar: React.FC = () => {
                 type="button"
                 onMouseEnter={handleResourcesMouseEnter}
                 onMouseLeave={handleResourcesMouseLeave}
-                className="flex items-center space-x-1 text-gray-700 hover:text-brand-green font-medium transition-colors px-3 py-2 rounded-lg hover:bg-brand-green/5 font-primary"
+                className="flex items-center space-x-1 text-gray-700 hover:text-brand-green font-medium transition-colors px-3 py-2 rounded-lg font-primary"
                 aria-expanded={resourcesOpen}
               >
                 <span>Resources</span>
@@ -218,17 +209,17 @@ const Navbar: React.FC = () => {
                 >
                   <li>
                     <Link
-                      to="/programmes"
-                      className="block px-4 py-3 text-gray-700 hover:bg-brand-green/10 hover:text-brand-green transition-colors"
+                      to="/resources/webinars"
+                      className="block px-4 py-3 text-gray-700  hover:text-brand-green transition-colors"
                       onClick={() => setResourcesOpen(false)}
                     >
-                      Programmes
+                      Webinars
                     </Link>
                   </li>
                   <li>
                     <Link
                       to="/podcasts"
-                      className="block px-4 py-3 text-gray-700 hover:bg-brand-green/10 hover:text-brand-green transition-colors"
+                      className="block px-4 py-3 text-gray-700  hover:text-brand-green transition-colors"
                       onClick={() => setResourcesOpen(false)}
                     >
                       Podcasts
@@ -237,7 +228,7 @@ const Navbar: React.FC = () => {
                   {/* <li>
                     <Link
                       to="/resources/webinars"
-                      className="block px-4 py-3 text-gray-700 hover:bg-brand-green/10 hover:text-brand-green transition-colors"
+                      className="block px-4 py-3 text-gray-700  hover:text-brand-green transition-colors"
                       onClick={() => setResourcesOpen(false)}
                     >
                       Webinars
@@ -247,14 +238,25 @@ const Navbar: React.FC = () => {
               )}
             </li>
 
-            {/* <li>
+            <li>
+              <NavLink
+                to="/blog"
+                className={({ isActive }) =>
+                  `text-gray-700 hover:text-brand-green font-medium transition-colors px-3 py-2 font-primary relative group ${isActive ? 'after:absolute after:left-1/2 after:-translate-x-1/2 after:-bottom-1 after:h-0.5 after:w-12 after:bg-brand-green after:transition-all after:duration-300' : 'after:absolute after:left-1/2 after:-translate-x-1/2 after:-bottom-1 after:h-0.5 after:w-0 group-hover:after:w-12 after:bg-brand-green after:transition-all after:duration-300'}`
+                }
+              >
+                Blog
+              </NavLink>
+            </li>
+
+            <li>
               <Link
                 to="/contact"
-                className="text-gray-700 hover:text-brand-green font-medium transition-colors px-3 py-2 rounded-lg hover:bg-brand-green/5 font-primary"
+                className="text-gray-700 hover:text-brand-green font-medium transition-colors px-3 py-2 rounded-lg font-primary"
               >
                 Contact
               </Link>
-            </li> */}
+            </li>
           </ul>
 
           {/* User Avatar & Cart - Right aligned */}
@@ -283,7 +285,7 @@ const Navbar: React.FC = () => {
                       setServicesOpen((v) => !v);
                       setResourcesOpen(false);
                     }}
-                    className="w-full flex items-center justify-between px-6 py-3 text-gray-700 hover:bg-brand-green/10 hover:text-brand-green font-medium transition-colors"
+                    className="w-full flex items-center justify-between px-6 py-3 text-gray-700  hover:text-brand-green font-medium transition-colors"
                     aria-expanded={servicesOpen}
                   >
                     <span>Services</span>
@@ -303,7 +305,7 @@ const Navbar: React.FC = () => {
                             setMenuOpen(false);
                             setServicesOpen(false);
                           }}
-                          className="block px-8 py-3 text-gray-600 hover:bg-brand-green/10 hover:text-brand-green transition-colors"
+                          className="block px-8 py-3 text-gray-600  hover:text-brand-green transition-colors"
                         >
                           Personal Wellness Programmes
                         </Link>
@@ -315,7 +317,7 @@ const Navbar: React.FC = () => {
                             setMenuOpen(false);
                             setServicesOpen(false);
                           }}
-                          className="block px-8 py-3 text-gray-600 hover:bg-brand-green/10 hover:text-brand-green transition-colors"
+                          className="block px-8 py-3 text-gray-600  hover:text-brand-green transition-colors"
                         >
                           Business Wellness Programmes
                         </Link>
@@ -327,7 +329,7 @@ const Navbar: React.FC = () => {
                             setMenuOpen(false);
                             setServicesOpen(false);
                           }}
-                          className="block px-8 py-3 text-gray-600 hover:bg-brand-green/10 hover:text-brand-green transition-colors"
+                          className="block px-8 py-3 text-gray-600  hover:text-brand-green transition-colors"
                         >
                           Wellness Program Details
                         </Link>
@@ -340,7 +342,7 @@ const Navbar: React.FC = () => {
                   <Link
                     to="/marketplace"
                     onClick={() => setMenuOpen(false)}
-                    className="block px-6 py-3 text-gray-700 hover:bg-brand-green/10 hover:text-brand-green font-medium transition-colors"
+                    className="block px-6 py-3 text-gray-700  hover:text-brand-green font-medium transition-colors"
                   >
                     Marketplace
                   </Link>
@@ -348,11 +350,11 @@ const Navbar: React.FC = () => {
 
                 <li>
                   <Link
-                    to="/programmes"
+                    to="/resources/webinars"
                     onClick={() => setMenuOpen(false)}
-                    className="block px-6 py-3 text-gray-700 hover:bg-brand-green/10 hover:text-brand-green font-medium transition-colors"
+                    className="block px-6 py-3 text-gray-700  hover:text-brand-green font-medium transition-colors"
                   >
-                    Programmes
+                    Webinars
                   </Link>
                 </li>
 
@@ -404,7 +406,7 @@ const Navbar: React.FC = () => {
                             setMenuOpen(false);
                             setResourcesOpen(false);
                           }}
-                          className="block px-8 py-3 text-gray-600 hover:bg-brand-green/10 hover:text-brand-green transition-colors"
+                          className="block px-8 py-3 text-gray-600  hover:text-brand-green transition-colors"
                         >
                           Podcasts
                         </Link>
@@ -416,7 +418,7 @@ const Navbar: React.FC = () => {
                             setMenuOpen(false);
                             setResourcesOpen(false);
                           }}
-                          className="block px-8 py-3 text-gray-600 hover:bg-brand-green/10 hover:text-brand-green transition-colors"
+                          className="block px-8 py-3 text-gray-600  hover:text-brand-green transition-colors"
                         >
                           Webinars
                         </Link>
@@ -442,21 +444,21 @@ const Navbar: React.FC = () => {
                   <Link
                     to="/ai-wellness"
                     onClick={() => setMenuOpen(false)}
-                    className="block px-6 py-3 text-gray-700 hover:bg-brand-green/10 hover:text-brand-green font-medium transition-colors"
+                    className="block px-6 py-3 text-gray-700  hover:text-brand-green font-medium transition-colors"
                   >
                     AI Wellness
                   </Link>
                 </li>
 
-                {/* <li>
+                <li>
                   <Link
                     to="/contact"
                     onClick={() => setMenuOpen(false)}
-                    className="block px-6 py-3 text-gray-700 hover:bg-brand-green/10 hover:text-brand-green font-medium transition-colors"
+                    className="block px-6 py-3 text-gray-700  hover:text-brand-green font-medium transition-colors"
                   >
                     Contact
                   </Link>
-                </li> */}
+                </li>
 
                 {/* Mobile Cart & User Avatar/Auth */}
                 {isAuthenticated && (

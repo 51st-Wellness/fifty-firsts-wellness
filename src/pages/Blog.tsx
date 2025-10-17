@@ -1,27 +1,17 @@
 import React, { useState, useEffect, useRef } from "react";
 import { Link } from "react-router-dom";
 import { Search, ChevronDown, Calendar, Tag } from "lucide-react";
-import martin1 from "../assets/images/martin1.png";
-import martin2 from "../assets/images/martin2.png";
-import martin3 from "../assets/images/martin3.png";
-import martin4 from "../assets/images/martin4.png";
+import { fetchBlogs, mediaUrl, type BlogEntity, type Paginated } from "@/api/blog.api";
 
 interface BlogProps { onSearch?: (query: string) => void; }
 
-type LocalBlog = {
-  id: string;
-  title: string;
-  description: string;
-  publishedAt?: string;
-  image: string;
-  tags?: string[];
-  slug?: string;
-};
-
 const Blog: React.FC<BlogProps> = ({ onSearch }) => {
   const [query, setQuery] = useState<string>("");
-  const [blogs, setBlogs] = useState<LocalBlog[]>([]);
-  const [loading, setLoading] = useState(false);
+  const [blogs, setBlogs] = useState<BlogEntity[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [page, setPage] = useState(1);
+  const pageSize = 9;
+  const [total, setTotal] = useState(0);
   const [selectedCategory, setSelectedCategory] = useState("All Articles");
   const [sortOpen, setSortOpen] = useState(false);
   const [sortLabel, setSortLabel] = useState("Newest First");
@@ -29,19 +19,20 @@ const Blog: React.FC<BlogProps> = ({ onSearch }) => {
   const [visibleCount, setVisibleCount] = useState(9);
 
   useEffect(() => {
-    const now = new Date().toISOString();
-    setBlogs([
-      { id: "d1", title: "10 Innovative workplace wellness tips: Unlocking Happiness at Work", description: "Discover practical and creative ways to boost morale, reduce stress, and create a happier, healthier work environment.", publishedAt: now, image: martin1, tags: ["Wellness", "Mindfulness", "Workplace"] },
-      { id: "d2", title: "Practical wellness hacks you can start today", description: "Actionable tips to feel better and do better—starting now.", publishedAt: now, image: martin2, tags: ["Wellness", "Lifestyle", "Nutrition"] },
-      { id: "d3", title: "Mindful breaks: restoring focus at work", description: "Short pauses that bring clarity and calm to your day.", publishedAt: now, image: martin3, tags: ["Mindfulness", "Focus", "Mental Health"] },
-      { id: "d4", title: "Team activities that boost morale", description: "Build connection and energy with simple group practices.", publishedAt: now, image: martin4, tags: ["Team", "Workplace"] },
-      { id: "d5", title: "Healthy routines for busy people", description: "Sustainable habits that work with your schedule.", publishedAt: now, image: martin2, tags: ["Habits", "Wellness", "Fitness"] },
-      { id: "d6", title: "How to build a positive work culture", description: "Culture starts with care—here’s how to design it.", publishedAt: now, image: martin3, tags: ["Culture", "Workplace"] },
-      { id: "d7", title: "Quick desk stretches for less tension", description: "Ease shoulder and neck strain in 2 minutes.", publishedAt: now, image: martin1, tags: ["Wellness", "Lifestyle"] },
-      { id: "d8", title: "Nutritious snacks that actually satisfy", description: "Smart picks to keep your energy steady.", publishedAt: now, image: martin2, tags: ["Nutrition"] },
-      { id: "d9", title: "Breathing exercises to reset in 60 seconds", description: "Simple breathwork you can do anywhere.", publishedAt: now, image: martin3, tags: ["Mindfulness", "Mental Health"] },
-    ]);
-  }, []);
+    let mounted = true;
+    setLoading(true);
+    fetchBlogs(page, pageSize)
+      .then((res) => {
+        if (!mounted) return;
+        const next = Array.isArray(res?.data) ? res.data : [];
+        setBlogs((prev) => (page === 1 ? next : [...prev, ...next]));
+        const t = res?.meta?.pagination?.total || 0;
+        setTotal(t);
+      })
+      .catch(() => {})
+      .finally(() => mounted && setLoading(false));
+    return () => { mounted = false; };
+  }, [page]);
 
   // Close sort menu on outside click
   useEffect(() => {
@@ -73,22 +64,22 @@ const Blog: React.FC<BlogProps> = ({ onSearch }) => {
     // category filter
     if (selectedCategory !== "All Articles") {
       list = list.filter((blog) => {
-        const tags = Array.isArray(blog.tags)
-          ? blog.tags
-          : String(blog.tags || "")
-              .split("#")
-              .map((s) => s.trim())
-              .filter(Boolean);
-        return tags.some((tag) =>
-          tag.toLowerCase().includes(selectedCategory.toLowerCase())
-        );
-      });
+          const tags = Array.isArray(blog.tags)
+            ? blog.tags as string[]
+            : String(blog.tags || "")
+                .split("#")
+                .map((s) => s.trim())
+                .filter(Boolean);
+          return tags.some((tag) =>
+            tag.toLowerCase().includes(selectedCategory.toLowerCase())
+          );
+        });
     }
     // search filter (title + description + tags)
     const q = query.trim().toLowerCase();
     if (q) {
       list = list.filter((b) => {
-        const tags = (Array.isArray(b.tags) ? b.tags : [])
+        const tags = (Array.isArray(b.tags) ? (b.tags as string[]) : [])
           .join(" ")
           .toLowerCase();
         return (
@@ -113,14 +104,7 @@ const Blog: React.FC<BlogProps> = ({ onSearch }) => {
     return list;
   }, [blogs, selectedCategory, query, sortLabel]);
 
-  const demoPosts = [
-    { id: "d1", title: "10 Innovative workplace wellness tips: Unlocking Happiness at Work", image: martin1 },
-    { id: "d2", title: "Practical wellness hacks you can start today", image: martin2 },
-    { id: "d3", title: "Mindful breaks: restoring focus at work", image: martin3 },
-    { id: "d4", title: "Team activities that boost morale", image: martin4 },
-    { id: "d5", title: "Healthy routines for busy people", image: martin2 },
-    { id: "d6", title: "How to build a positive work culture", image: martin3 },
-  ];
+  // removed demo posts now that API is connected
 
   return (
     <main className="min-h-screen bg-white">
@@ -141,7 +125,7 @@ const Blog: React.FC<BlogProps> = ({ onSearch }) => {
           <p className="text-sm sm:text-base text-gray-600 max-w-3xl" style={{ fontFamily: '"League Spartan", sans-serif' }}>
             Your space for mindful living, balance, and self-care.
           </p>
-          {/* Search Bar */}
+        {/* Search Bar */}
           <div className="max-w-3xl mt-6">
           <form
             onSubmit={handleSubmit}
@@ -158,7 +142,7 @@ const Blog: React.FC<BlogProps> = ({ onSearch }) => {
               className="flex-1 px-3 py-3 text-base focus:outline-none"
             />
           </form>
-          </div>
+        </div>
 
           {/* Filter Section in hero */}
           <div className="flex flex-col sm:flex-row justify-between items-center mt-6 mb-2 gap-6">
@@ -251,9 +235,23 @@ const Blog: React.FC<BlogProps> = ({ onSearch }) => {
               backgroundPosition: 'center',
             }}
           >
-          <div className="max-w-7xl mx-auto px-6 sm:px-10 lg:px-16 pt-8 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 mb-12">
+          <div className="max-w-7xl mx-auto px-6 sm:px-10 lg:px-16 pt-8">
+            {filteredBlogs.length === 0 ? (
+              <div className="py-20 text-center">
+                <div className="text-2xl font-semibold text-white mb-2" style={{ fontFamily: '\"League Spartan\", sans-serif' }}>No articles found</div>
+                <p className="text-white/80 mb-6">Try another search or switch categories.</p>
+                <button
+                  type="button"
+                  onClick={() => { setSelectedCategory('All Articles'); setQuery(''); }}
+                  className="px-4 py-2 rounded-full border border-gray-300 bg-white text-sm hover:bg-gray-50"
+                >
+                  Reset filters
+                </button>
+              </div>
+            ) : (
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 mb-12">
             {filteredBlogs.slice(0, visibleCount).map((blog) => {
-              const img = blog.image;
+              const img = mediaUrl((blog.coverImage as any)?.data?.attributes?.url || (blog.coverImage as any)?.url);
               let tags = Array.isArray(blog.tags)
                 ? blog.tags
                 : String(blog.tags || "")
@@ -320,25 +318,25 @@ const Blog: React.FC<BlogProps> = ({ onSearch }) => {
                 </Link>
               );
             })}
+            </div>
+            )}
           </div>
           {/* Load More inside the background section */}
-          <div className="max-w-7xl mx-auto px-6 sm:px-10 lg:px-16 py-12 flex justify-center">
-            <button
-              type="button"
-              onClick={() => setVisibleCount((v) => Math.min(v + 6, filteredBlogs.length))}
-              disabled={visibleCount >= filteredBlogs.length}
-              className={`px-6 py-3 rounded-full text-white bg-[#4444B3] transition-opacity ${visibleCount >= filteredBlogs.length ? 'opacity-50 cursor-not-allowed' : 'hover:opacity-90'}`}
-              style={{ fontFamily: '"League Spartan", sans-serif' }}
-            >
-              {visibleCount >= filteredBlogs.length ? 'No More Articles' : 'Load More'}
-            </button>
-          </div>
+          {filteredBlogs.length > 0 && blogs.length < total && (
+            <div className="max-w-7xl mx-auto px-6 sm:px-10 lg:px-16 pb-16 flex justify-center">
+              <button
+                type="button"
+                onClick={() => setPage((p) => p + 1)}
+                className="px-6 py-3 rounded-full text-white bg-[#4444B3] hover:opacity-90 transition-opacity"
+                style={{ fontFamily: '\"League Spartan\", sans-serif' }}
+              >
+                Load More
+              </button>
+            </div>
+          )}
           </section>
         )}
 
-        {!loading && filteredBlogs.length === 0 && (
-          <div className="max-w-7xl mx-auto px-6 sm:px-10 lg:px-16 pt-8 text-gray-600">No articles found for "{selectedCategory}".</div>
-        )}
     </main>
   );
 };
