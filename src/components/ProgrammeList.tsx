@@ -26,7 +26,6 @@ const ProgrammeList: React.FC<ProgrammeListProps> = ({
   const [programmes, setProgrammes] = useState<Programme[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
-  const [isUnauthorized, setIsUnauthorized] = useState(false);
   const [searchTerm, setSearchTerm] = useState("");
   const [selectedCategory, setSelectedCategory] = useState<string>("All");
   const [sortBy, setSortBy] = useState<"newest" | "oldest" | "title">("newest");
@@ -113,18 +112,10 @@ const ProgrammeList: React.FC<ProgrammeListProps> = ({
 
       setHasMore(pagination.hasMore);
       setError(null);
-      setIsUnauthorized(false);
     } catch (err: any) {
       console.error("Error fetching programmes:", err);
 
-      // Check if it's a 401 unauthorized error
-      if (err?.response?.status === 401) {
-        setIsUnauthorized(true);
-        setError(null);
-      } else {
-        setError("Failed to fetch programmes. Please try again.");
-        setIsUnauthorized(false);
-      }
+      setError("Failed to fetch programmes. Please try again.");
     } finally {
       setLoading(false);
       setLoadingMore(false);
@@ -194,29 +185,6 @@ const ProgrammeList: React.FC<ProgrammeListProps> = ({
     return (
       <div className="flex justify-center items-center py-12">
         <Loader />
-      </div>
-    );
-  }
-
-  if (isUnauthorized) {
-    return (
-      <div className="text-center py-12">
-        <div className="mb-6">
-          <div className="text-6xl mb-4">🔒</div>
-          <h3 className="text-xl font-semibold text-gray-800 mb-2">
-            Authentication Required
-          </h3>
-          <p className="text-gray-600 mb-6 max-w-md mx-auto">
-            You need to be logged in to view these programmes. Please sign in to
-            continue.
-          </p>
-        </div>
-        <button
-          onClick={() => navigate("/login")}
-          className="bg-[#4444B3] text-white px-6 py-3 rounded-full hover:bg-[#343494] transition font-medium"
-        >
-          Sign In
-        </button>
       </div>
     );
   }
