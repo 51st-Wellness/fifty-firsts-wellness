@@ -64,7 +64,9 @@ export async function fetchBlogs(page = 1, pageSize = 9) {
       "pagination[page]": page,
       "pagination[pageSize]": pageSize,
       "filters[publishedAt][$notNull]": true,
-      populate: "coverImage,authors.picture",
+      "populate[0]": "coverImage",
+      "populate[1]": "authors",
+      "populate[2]": "authors.picture",
       sort: "publishedAt:desc",
     },
   });
@@ -76,7 +78,9 @@ export async function fetchBlogBySlug(slug: string) {
     params: {
       "filters[slug][$eq]": slug,
       "filters[publishedAt][$notNull]": true,
-      populate: "coverImage,authors.picture",
+      "populate[0]": "coverImage",
+      "populate[1]": "authors",
+      "populate[2]": "authors.picture",
       sort: "publishedAt:desc",
     },
   });
