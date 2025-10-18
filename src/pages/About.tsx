@@ -5,7 +5,6 @@ import art1 from "../assets/images/art1.png";
 import art2 from "../assets/images/art2.png";
 import youtube from "../assets/images/youtube.png";
 import mapbase from "../assets/images/mapbase.png";
-import Footer from "../components/Footer";
 
 const About: React.FC = () => {
   return (
@@ -230,8 +229,6 @@ const About: React.FC = () => {
           </div>
         </div>
       </div>
-
-      <Footer />
     </main>
   );
 };

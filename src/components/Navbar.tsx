@@ -98,16 +98,19 @@ const Navbar: React.FC = () => {
             />
           </Link>
 
-          {/* Hamburger (Mobile) */}
-          <button
-            type="button"
-            className="md:hidden p-2 rounded-lg hover:bg-gray-100 transition-colors"
-            onClick={() => setMenuOpen((v) => !v)}
-            aria-expanded={menuOpen}
-            aria-label="Toggle menu"
-          >
-            {menuOpen ? <X size={24} /> : <Menu size={24} />}
-          </button>
+          {/* Mobile: Cart Icon + Hamburger */}
+          <div className="flex items-center gap-2 md:hidden">
+            <CartIcon />
+            <button
+              type="button"
+              className="p-2 rounded-lg hover:bg-gray-100 transition-colors"
+              onClick={() => setMenuOpen((v) => !v)}
+              aria-expanded={menuOpen}
+              aria-label="Toggle menu"
+            >
+              {menuOpen ? <X size={24} /> : <Menu size={24} />}
+            </button>
+          </div>
 
           {/* Desktop Menu - Centered */}
           <ul className="hidden md:flex space-x-6 items-center absolute left-1/2 transform -translate-x-1/2">
@@ -248,14 +251,6 @@ const Navbar: React.FC = () => {
 
           {/* User Avatar & Cart - Right aligned */}
           <div className="hidden md:flex items-center gap-3">
-            {isAuthenticated && user?.role === "ADMIN" && (
-              <Link
-                to="/admin"
-                className="bg-indigo-600 text-white px-4 py-2 rounded-lg hover:bg-indigo-700 transition-colors shadow-sm font-medium text-sm"
-              >
-                Admin
-              </Link>
-            )}
             {isAuthenticated && <CartIcon />}
             <UserAvatar />
           </div>
@@ -447,12 +442,7 @@ const Navbar: React.FC = () => {
                   </Link>
                 </li>
 
-                {/* Mobile Cart & User Avatar/Auth */}
-                {isAuthenticated && (
-                  <li className="px-6 py-3 flex items-center justify-center">
-                    <CartIcon />
-                  </li>
-                )}
+                {/* Mobile User Avatar/Auth */}
                 <li className="px-6 py-3">
                   <UserAvatar className="w-full" />
                 </li>

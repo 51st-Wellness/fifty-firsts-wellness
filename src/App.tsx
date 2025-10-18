@@ -1,9 +1,10 @@
-import React, { Suspense, lazy } from "react";
+import React, { Suspense, lazy, useEffect } from "react";
 import {
   BrowserRouter as Router,
   Routes,
   Route,
   Navigate,
+  useLocation,
 } from "react-router-dom";
 import Navbar from "./components/Navbar";
 import Home from "./pages/Home";
@@ -49,12 +50,28 @@ const AdminGeneral = lazy(() => import("./pages/admin/AdminGeneral"));
 const AdminMarketplace = lazy(() => import("./pages/admin/AdminMarketplace"));
 const AdminProgrammes = lazy(() => import("./pages/admin/AdminProgrammes"));
 
+// Scroll to top component
+const ScrollToTop: React.FC = () => {
+  const { pathname } = useLocation();
+
+  useEffect(() => {
+    window.scrollTo({
+      top: 0,
+      left: 0,
+      behavior: "smooth",
+    });
+  }, [pathname]);
+
+  return null;
+};
+
 const App: React.FC = () => {
   return (
     <div className="min-h-screen">
       {/* {location.pathname.startsWith("/admin") ? null : } */}
       <div>
         <Toaster position="top-center" />
+        <ScrollToTop />
         <Routes>
           <Route
             path="/"

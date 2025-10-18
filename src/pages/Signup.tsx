@@ -74,7 +74,9 @@ const Signup: React.FC = () => {
         <div className="w-full max-w-md mx-auto">
           {/* Logo */}
           <div className="mb-8">
-            <img src={logo} alt="Fifty Firsts Wellness" className="h-12 w-auto" />
+            <Link to="/">
+              <img src={logo} alt="Fifty Firsts Wellness" className="h-12 w-auto hover:opacity-80 transition-opacity cursor-pointer" />
+            </Link>
           </div>
 
           {/* Header */}

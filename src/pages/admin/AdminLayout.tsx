@@ -1,11 +1,19 @@
 import React, { useState } from "react";
-import { Link, NavLink, Outlet } from "react-router-dom";
-import { Menu, X } from "lucide-react";
+import { Link, NavLink, Outlet, useNavigate } from "react-router-dom";
+import { Menu, X, LogOut, Home } from "lucide-react";
 import Logo from "../../assets/images/logo.png";
+import { useAuth } from "../../context/AuthContextProvider";
 
 // Layout container for all admin pages with responsive sidebar
 const AdminLayout: React.FC = () => {
   const [sidebarOpen, setSidebarOpen] = useState(false);
+  const { logout, user } = useAuth();
+  const navigate = useNavigate();
+
+  const handleLogout = async () => {
+    await logout();
+    navigate("/");
+  };
 
   return (
     <div className="min-h-screen w-full bg-gray-50">
@@ -42,59 +50,80 @@ const AdminLayout: React.FC = () => {
               <X size={20} />
             </button>
           </div>
-          <nav className="p-3 space-y-1">
-            <NavLink
-              to="/admin"
-              className={({ isActive }) =>
-                `block px-3 py-2 rounded-md text-sm font-medium ${
-                  isActive
-                    ? "bg-indigo-50 text-indigo-700"
-                    : "text-gray-700 hover:bg-gray-100"
-                }`
-              }
-              onClick={() => setSidebarOpen(false)}
-            >
-              Overview
-            </NavLink>
-            <NavLink
-              to="/admin/general"
-              className={({ isActive }) =>
-                `block px-3 py-2 rounded-md text-sm font-medium ${
-                  isActive
-                    ? "bg-indigo-50 text-indigo-700"
-                    : "text-gray-700 hover:bg-gray-100"
-                }`
-              }
-              onClick={() => setSidebarOpen(false)}
-            >
-              General
-            </NavLink>
-            <NavLink
-              to="/admin/marketplace"
-              className={({ isActive }) =>
-                `block px-3 py-2 rounded-md text-sm font-medium ${
-                  isActive
-                    ? "bg-indigo-50 text-indigo-700"
-                    : "text-gray-700 hover:bg-gray-100"
-                }`
-              }
-              onClick={() => setSidebarOpen(false)}
-            >
-              Marketplace
-            </NavLink>
-            <NavLink
-              to="/admin/programmes"
-              className={({ isActive }) =>
-                `block px-3 py-2 rounded-md text-sm font-medium ${
-                  isActive
-                    ? "bg-indigo-50 text-indigo-700"
-                    : "text-gray-700 hover:bg-gray-100"
-                }`
-              }
-              onClick={() => setSidebarOpen(false)}
-            >
-              Programmes
-            </NavLink>
+          <nav className="p-3 space-y-1 flex flex-col h-[calc(100vh-4rem)]">
+            <div className="flex-1 space-y-1">
+              <NavLink
+                to="/admin"
+                className={({ isActive }) =>
+                  `block px-3 py-2 rounded-md text-sm font-medium ${
+                    isActive
+                      ? "bg-indigo-50 text-indigo-700"
+                      : "text-gray-700 hover:bg-gray-100"
+                  }`
+                }
+                onClick={() => setSidebarOpen(false)}
+              >
+                Overview
+              </NavLink>
+              <NavLink
+                to="/admin/general"
+                className={({ isActive }) =>
+                  `block px-3 py-2 rounded-md text-sm font-medium ${
+                    isActive
+                      ? "bg-indigo-50 text-indigo-700"
+                      : "text-gray-700 hover:bg-gray-100"
+                  }`
+                }
+                onClick={() => setSidebarOpen(false)}
+              >
+                General
+              </NavLink>
+              <NavLink
+                to="/admin/marketplace"
+                className={({ isActive }) =>
+                  `block px-3 py-2 rounded-md text-sm font-medium ${
+                    isActive
+                      ? "bg-indigo-50 text-indigo-700"
+                      : "text-gray-700 hover:bg-gray-100"
+                  }`
+                }
+                onClick={() => setSidebarOpen(false)}
+              >
+                Marketplace
+              </NavLink>
+              <NavLink
+                to="/admin/programmes"
+                className={({ isActive }) =>
+                  `block px-3 py-2 rounded-md text-sm font-medium ${
+                    isActive
+                      ? "bg-indigo-50 text-indigo-700"
+                      : "text-gray-700 hover:bg-gray-100"
+                  }`
+                }
+                onClick={() => setSidebarOpen(false)}
+              >
+                Programmes
+              </NavLink>
+            </div>
+
+            {/* Bottom section with user info and logout */}
+            <div className="border-t border-gray-200 pt-3 space-y-1">
+              <Link
+                to="/"
+                className="flex items-center gap-2 px-3 py-2 rounded-md text-sm font-medium text-gray-700 hover:bg-gray-100"
+                onClick={() => setSidebarOpen(false)}
+              >
+                <Home size={16} />
+                Back to Site
+              </Link>
+              <button
+                onClick={handleLogout}
+                className="w-full flex items-center gap-2 px-3 py-2 rounded-md text-sm font-medium text-red-600 hover:bg-red-50 transition-colors"
+              >
+                <LogOut size={16} />
+                Logout
+              </button>
+            </div>
           </nav>
         </aside>
 
@@ -112,7 +141,19 @@ const AdminLayout: React.FC = () => {
               <h1 className="text-lg font-semibold text-gray-900">Dashboard</h1>
             </div>
             <div className="flex items-center gap-3">
-              <span className="text-sm text-gray-500">Admin Console</span>
+              {user && (
+                <span className="text-sm text-gray-600 hidden sm:inline">
+                  {user.firstName} {user.lastName}
+                </span>
+              )}
+              <button
+                onClick={handleLogout}
+                className="flex items-center gap-2 px-3 py-1.5 rounded-md text-sm font-medium text-red-600 hover:bg-red-50 transition-colors"
+                title="Logout"
+              >
+                <LogOut size={16} />
+                <span className="hidden sm:inline">Logout</span>
+              </button>
             </div>
           </header>
           <div className="flex-1 p-4 md:p-6">

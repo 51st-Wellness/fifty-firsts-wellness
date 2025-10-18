@@ -226,7 +226,7 @@ export default function BlogPost() {
 
           {/* Right Column - Sidebar */}
           <div className="lg:col-span-1">
-            <div className="sticky top-16">
+            <div className="sticky top-20">
               <div className="bg-white rounded-3xl shadow-sm border border-gray-200 p-6">
                 {/* Tags */}
                 <div className="mb-6">

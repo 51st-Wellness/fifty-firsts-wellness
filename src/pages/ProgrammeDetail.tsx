@@ -1,13 +1,13 @@
 import React, { useState, useEffect } from "react";
-import { useParams, useNavigate } from "react-router-dom";
+import { useParams, useNavigate, Link } from "react-router-dom";
 import {
-  ArrowLeft,
+  ChevronRight,
   Clock,
   Eye,
   Tag,
   Share2,
-  Bookmark,
   Play,
+  Calendar,
 } from "lucide-react";
 import MuxPlayer from "@mux/mux-player-react";
 import { Programme, fetchSecureProgrammeById } from "../api/programme.api";
@@ -30,7 +30,6 @@ const ProgrammeDetail: React.FC = () => {
   );
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
-  const [isBookmarked, setIsBookmarked] = useState(false);
 
   useEffect(() => {
     if (!productId) {
@@ -108,17 +107,9 @@ const ProgrammeDetail: React.FC = () => {
     }
   };
 
-  const handleBookmark = () => {
-    // This would typically make an API call to bookmark/unbookmark
-    setIsBookmarked(!isBookmarked);
-    toast.success(
-      isBookmarked ? "Removed from bookmarks" : "Added to bookmarks"
-    );
-  };
-
   if (loading) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-gray-50 to-white flex items-center justify-center">
+      <div className="min-h-screen bg-white flex items-center justify-center">
         <Loader />
       </div>
     );
@@ -126,7 +117,7 @@ const ProgrammeDetail: React.FC = () => {
 
   if (error) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-gray-50 to-white flex items-center justify-center">
+      <div className="min-h-screen bg-white flex items-center justify-center">
         <div className="text-center max-w-md mx-auto px-4">
           <div className="text-red-600 mb-4 text-lg">{error}</div>
           <div className="space-y-3">
@@ -144,7 +135,7 @@ const ProgrammeDetail: React.FC = () => {
 
   if (!programmeData) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-gray-50 to-white flex items-center justify-center">
+      <div className="min-h-screen bg-white flex items-center justify-center">
         <div className="text-center">
           <div className="text-gray-600 mb-4">Programme not found</div>
         </div>
@@ -153,161 +144,159 @@ const ProgrammeDetail: React.FC = () => {
   }
 
   const { playback, programme } = programmeData;
-  console.log("programmeData", programmeData);
-  console.log("programme", programme);
-  console.log("playback", playback);
+  
   return (
-    <div className="min-h-screen bg-black">
-      {/* Back Button - Floating */}
-      <div className="absolute top-4 left-4 z-50">
-        <button
-          onClick={() => navigate("/programmes")}
-          className="inline-flex items-center gap-2 bg-black/50 backdrop-blur-md text-white hover:bg-black/70 font-medium transition-all group px-4 py-2 rounded-full border border-white/20"
-        >
-          <ArrowLeft className="w-4 h-4 group-hover:-translate-x-1 transition-transform" />
-          Back to Programmes
-        </button>
-      </div>
+    <div className="min-h-screen bg-white">
+      <div className="max-w-7xl mx-auto px-6 sm:px-10 lg:px-16 py-6">
+        {/* Breadcrumb Navigation */}
+        <nav className="flex items-center gap-2 text-sm mb-6">
+          <Link to="/" className="text-gray-600 hover:text-brand-green transition-colors">
+            Home
+          </Link>
+          <ChevronRight className="w-4 h-4 text-gray-400" />
+          <Link to="/resources/webinars" className="text-gray-600 hover:text-brand-green transition-colors">
+            Webinars
+          </Link>
+          <ChevronRight className="w-4 h-4 text-gray-400" />
+          <span className="text-brand-green font-medium">{programme.title}</span>
+        </nav>
 
-      {/* Main Video Container - Full Screen */}
-      <div className="relative h-screen">
-        {/* Video Player - Takes most of the screen */}
-        <div className="h-[75vh] bg-black">
-          {programme.muxPlaybackId && playback?.signedToken ? (
-            <MuxPlayer
-              playbackId={programme.muxPlaybackId}
-              tokens={{ playback: playback?.signedToken }}
-              metadata={{
-                video_title: programme.title,
-                viewer_user_id: "user-id",
-              }}
-              streamType="on-demand"
-              autoPlay={false}
-              muted={false}
-              style={{
-                width: "100%",
-                height: "100%",
-              }}
-              accentColor="#00969b"
-              primaryColor="#FFFFFF"
-              secondaryColor="#000000"
-            />
-          ) : !programme.muxPlaybackId ? (
-            <div className="flex items-center justify-center h-full bg-black">
-              <div className="text-center text-white">
-                <Play className="w-20 h-20 mx-auto mb-6 opacity-50" />
-                <p className="text-xl mb-2">Video is still processing</p>
-                <p className="text-sm opacity-75">Please check back later</p>
-              </div>
-            </div>
-          ) : !playback?.signedToken ? (
-            <div className="flex items-center justify-center h-full bg-black">
-              <div className="text-center text-white">
-                <Play className="w-20 h-20 mx-auto mb-6 opacity-50" />
-                <p className="text-xl">Loading video access...</p>
-              </div>
-            </div>
-          ) : (
-            <div className="flex items-center justify-center h-full bg-black">
-              <div className="text-center text-white">
-                <Play className="w-20 h-20 mx-auto mb-6 opacity-50" />
-                <p className="text-xl">Video not available</p>
-              </div>
-            </div>
-          )}
-        </div>
-
-        {/* Programme Details - Bottom Section */}
-        <div className="h-[25vh] bg-gradient-to-t from-gray-900 to-gray-800 text-white overflow-y-auto">
-          <div className="max-w-6xl mx-auto px-6 py-6">
-            {/* Title and Badge */}
-            <div className="flex items-start justify-between mb-4">
-              <div className="flex-1">
-                <div className="flex items-center gap-3 mb-3">
-                  <div className="bg-brand-green/20 backdrop-blur-sm px-3 py-1 rounded-full border border-brand-green/30">
-                    <div className="flex items-center gap-2">
-                      <Play className="w-3 h-3 text-brand-green" />
-                      <span className="text-xs font-medium text-brand-green">
-                        Programme
-                      </span>
-                    </div>
+        {/* Main Content: Video Left, Info Right */}
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 lg:gap-8">
+          {/* Left Column - Video */}
+          <div className="lg:col-span-2">
+            {/* Video Player */}
+            <div className="bg-black rounded-2xl overflow-hidden shadow-lg mb-6" style={{ aspectRatio: '16/9' }}>
+              {programme.muxPlaybackId && playback?.signedToken ? (
+                <MuxPlayer
+                  playbackId={programme.muxPlaybackId}
+                  tokens={{ playback: playback?.signedToken }}
+                  metadata={{
+                    video_title: programme.title,
+                    viewer_user_id: "user-id",
+                  }}
+                  streamType="on-demand"
+                  autoPlay={false}
+                  muted={false}
+                  style={{
+                    width: "100%",
+                    height: "100%",
+                  }}
+                  accentColor="#0E7777"
+                  primaryColor="#FFFFFF"
+                  secondaryColor="#000000"
+                />
+              ) : !programme.muxPlaybackId ? (
+                <div className="flex items-center justify-center h-full bg-black">
+                  <div className="text-center text-white">
+                    <Play className="w-16 h-16 mx-auto mb-4 opacity-50" />
+                    <p className="text-lg mb-2">Video is still processing</p>
+                    <p className="text-sm opacity-75">Please check back later</p>
                   </div>
-                  {programme.isFeatured && (
-                    <div className="bg-brand-purple/20 backdrop-blur-sm px-3 py-1 rounded-full border border-brand-purple/30">
-                      <span className="text-xs font-medium text-brand-purple">
-                        Featured
-                      </span>
-                    </div>
-                  )}
                 </div>
-
-                <h1 className="text-2xl sm:text-3xl font-heading font-bold mb-3 leading-tight">
-                  {programme.title}
-                </h1>
-
-                {/* Metadata */}
-                <div className="flex flex-wrap items-center gap-4 text-sm text-gray-300 mb-4">
-                  {programme.duration && (
-                    <div className="flex items-center gap-2">
-                      <Clock className="w-4 h-4 text-brand-green" />
-                      <span>{formatDuration(programme.duration)}</span>
-                    </div>
-                  )}
-                  {programme.categories && programme.categories.length > 0 && (
-                    <div className="flex items-center gap-2">
-                      <Tag className="w-4 h-4 text-brand-green" />
-                      <span>{programme.categories[0]}</span>
-                    </div>
-                  )}
+              ) : !playback?.signedToken ? (
+                <div className="flex items-center justify-center h-full bg-black">
+                  <div className="text-center text-white">
+                    <Play className="w-16 h-16 mx-auto mb-4 opacity-50" />
+                    <p className="text-lg">Loading video access...</p>
+                  </div>
                 </div>
+              ) : (
+                <div className="flex items-center justify-center h-full bg-black">
+                  <div className="text-center text-white">
+                    <Play className="w-16 h-16 mx-auto mb-4 opacity-50" />
+                    <p className="text-lg">Video not available</p>
+                  </div>
+                </div>
+              )}
+            </div>
+
+            {/* Title and Description */}
+            <div>
+              <h1 
+                className="text-2xl sm:text-3xl font-bold text-gray-900 mb-4 leading-tight"
+                style={{ fontFamily: '"League Spartan", sans-serif' }}
+              >
+                {programme.title}
+              </h1>
+
+              {/* Metadata Row */}
+              <div className="flex flex-wrap items-center gap-4 text-sm text-gray-600 mb-6 pb-6 border-b border-gray-200">
+                {programme.createdAt && (
+                  <div className="flex items-center gap-2">
+                    <Calendar className="w-4 h-4" />
+                    <span>{new Date(programme.createdAt).toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' })}</span>
+                  </div>
+                )}
+                {programme.duration && (
+                  <div className="flex items-center gap-2">
+                    <Clock className="w-4 h-4" />
+                    <span>{formatDuration(programme.duration)}</span>
+                  </div>
+                )}
               </div>
+
+              {/* Description */}
+              {programme.description && (
+                <div className="mb-6">
+                  <h2 
+                    className="text-lg font-semibold text-gray-900 mb-3"
+                    style={{ fontFamily: '"League Spartan", sans-serif' }}
+                  >
+                    About this webinar
+                  </h2>
+                  <p className="text-gray-700 leading-relaxed">
+                    {programme.description}
+                  </p>
+                </div>
+              )}
+            </div>
+          </div>
+
+          {/* Right Column - Info Sidebar */}
+          <div className="lg:col-span-1">
+            <div className="bg-gray-50 rounded-2xl p-6 sticky top-6">
+              {/* Featured Badge */}
+              {programme.isFeatured && (
+                <div className="inline-flex items-center gap-2 bg-brand-green/10 text-brand-green px-3 py-1.5 rounded-full text-sm font-medium mb-4">
+                  <Tag className="w-4 h-4" />
+                  Featured
+                </div>
+              )}
+
+              {/* Categories */}
+              {programme.categories && programme.categories.length > 0 && (
+                <div className="mb-6">
+                  <h3 
+                    className="text-sm font-semibold text-gray-900 mb-3"
+                    style={{ fontFamily: '"League Spartan", sans-serif' }}
+                  >
+                    Categories
+                  </h3>
+                  <div className="flex flex-wrap gap-2">
+                    {programme.categories.map((category, index) => (
+                      <span
+                        key={index}
+                        className="bg-white text-gray-700 px-3 py-1.5 rounded-full text-sm border border-gray-200"
+                      >
+                        {category}
+                      </span>
+                    ))}
+                  </div>
+                </div>
+              )}
 
               {/* Action Buttons */}
-              <div className="flex items-center gap-3 ml-6">
-                <button
-                  onClick={handleBookmark}
-                  className={`p-3 rounded-full transition-all ${
-                    isBookmarked
-                      ? "bg-brand-green text-white"
-                      : "bg-white/10 text-white hover:bg-white/20 backdrop-blur-sm border border-white/20"
-                  }`}
-                  title={isBookmarked ? "Remove bookmark" : "Bookmark"}
-                >
-                  <Bookmark className="w-5 h-5" />
-                </button>
-
+              <div className="space-y-3 pt-6 border-t border-gray-200">
                 <button
                   onClick={handleShare}
-                  className="p-3 rounded-full bg-white/10 text-white hover:bg-white/20 transition-all backdrop-blur-sm border border-white/20"
-                  title="Share"
+                  className="w-full flex items-center justify-center gap-2 px-4 py-3 rounded-full bg-white text-gray-700 border border-gray-300 hover:border-brand-green hover:text-brand-green font-medium transition-all"
                 >
                   <Share2 className="w-5 h-5" />
+                  Share
                 </button>
               </div>
             </div>
-
-            {/* Description */}
-            {programme.description && (
-              <div className="mb-4">
-                <p className="text-gray-300 leading-relaxed text-sm sm:text-base">
-                  {programme.description}
-                </p>
-              </div>
-            )}
-
-            {/* Categories */}
-            {programme.categories && programme.categories.length > 0 && (
-              <div className="flex flex-wrap gap-2">
-                {programme.categories.map((category, index) => (
-                  <span
-                    key={index}
-                    className="bg-white/10 text-white px-3 py-1 rounded-full text-xs font-medium backdrop-blur-sm border border-white/20"
-                  >
-                    {category}
-                  </span>
-                ))}
-              </div>
-            )}
           </div>
         </div>
       </div>
