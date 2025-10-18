@@ -8,7 +8,7 @@ const Footer: React.FC = () => {
     <footer className="text-white w-full" style={{ backgroundColor: '#006666' }}>
       <div className="max-w-7xl mx-auto px-6 sm:px-10 lg:px-16 py-12 sm:py-16">
         {/* Main Footer Content */}
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-8 lg:gap-12 mb-12">
+        <div className="grid grid-cols-2 lg:grid-cols-5 gap-8 lg:gap-12 mb-12">
           {/* Company */}
           <div>
             <h3 className="text-base font-semibold mb-4" style={{ fontFamily: '"League Spartan", sans-serif' }}>Company</h3>

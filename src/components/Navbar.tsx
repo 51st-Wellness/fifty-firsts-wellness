@@ -120,7 +120,7 @@ const Navbar: React.FC = () => {
               </Link>
             </li>
             {/* Services Dropdown (desktop) */}
-            <li className="relative">
+            {/* <li className="relative">
               <button
                 type="button"
                 onMouseEnter={handleServicesMouseEnter}
@@ -171,17 +171,15 @@ const Navbar: React.FC = () => {
                   </li>
                 </ul>
               )}
-            </li>
+            </li> */}
 
             <li>
-              <NavLink
+              <Link
                 to="/marketplace"
-                className={({ isActive }) =>
-                  `text-gray-700 hover:text-brand-green font-medium transition-colors px-3 py-2 font-primary relative group ${isActive ? 'after:absolute after:left-1/2 after:-translate-x-1/2 after:-bottom-1 after:h-0.5 after:w-12 after:bg-brand-green after:transition-all after:duration-300' : 'after:absolute after:left-1/2 after:-translate-x-1/2 after:-bottom-1 after:h-0.5 after:w-0 group-hover:after:w-12 after:bg-brand-green after:transition-all after:duration-300'}`
-                }
+                className="text-gray-700 hover:text-brand-green font-medium transition-colors px-3 py-2 font-primary"
               >
                 Marketplace
-              </NavLink>
+              </Link>
             </li>
 
             {/* Resources Dropdown (desktop) */}
@@ -285,7 +283,7 @@ const Navbar: React.FC = () => {
                 </div>
                 
               <ul className="flex flex-col py-4 px-2">
-                {/* Services Submenu (mobile) */}
+                {/* Services Submenu (mobile)
                 <li>
                   <button
                     type="button"
@@ -344,6 +342,16 @@ const Navbar: React.FC = () => {
                       </li>
                     </ul>
                   )}
+                </li> */}
+
+                <li>
+                  <Link
+                    to="/about"
+                    onClick={() => setMenuOpen(false)}
+                    className="block px-6 py-3 text-gray-700  hover:text-brand-green font-medium transition-colors"
+                  >
+                    About
+                  </Link>
                 </li>
 
                 <li>
@@ -417,20 +425,9 @@ const Navbar: React.FC = () => {
                   )}
                 </li>
 
-                {/* Admin (mobile) */}
-                {isAuthenticated && user?.role === "ADMIN" && (
-                  <li>
-                    <Link
-                      to="/admin"
-                      onClick={() => setMenuOpen(false)}
-                      className="block px-6 py-3 text-white bg-indigo-600 hover:bg-indigo-700 font-medium transition-colors rounded-lg mx-4 my-2 text-center"
-                    >
-                      Admin
-                    </Link>
-                  </li>
-                )}
+               
 
-                <li>
+                {/* <li>
                   <Link
                     to="/ai-wellness"
                     onClick={() => setMenuOpen(false)}
@@ -438,7 +435,7 @@ const Navbar: React.FC = () => {
                   >
                     AI Wellness
                   </Link>
-                </li>
+                </li> */}
 
                 <li>
                   <Link

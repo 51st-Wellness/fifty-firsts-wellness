@@ -1,5 +1,5 @@
 import React, { useEffect, useMemo, useRef, useState } from "react";
-import { Play, Pause, VolumeX, Volume, Volume1, Volume2, Search, ChevronDown, SkipBack, SkipForward, Copy } from "lucide-react";
+import { Play, Pause, VolumeX, Volume, Volume1, Volume2, Search, ChevronDown, SkipBack, SkipForward, Copy, ListFilter } from "lucide-react";
 import podcast1 from "../../assets/images/podcast1.png";
 import { fetchPodcasts, type PodcastEpisode } from "@/api/podcast.api";
 import { useNavigate } from "react-router-dom";
@@ -68,13 +68,13 @@ const Podcasts: React.FC<PodcastsProps> = ({ onSearch }) => {
   const filteredEpisodes = useMemo(() => {
     const base = Array.isArray(episodes) ? episodes : [];
     const byQuery = (() => {
-      if (!query) return base;
-      const q = query.toLowerCase();
-      return base.filter((e) => {
-        const title = (e?.title || "").toLowerCase();
-        const desc = (e?.description || "").toLowerCase();
-        return title.includes(q) || desc.includes(q);
-      });
+    if (!query) return base;
+    const q = query.toLowerCase();
+    return base.filter((e) => {
+      const title = (e?.title || "").toLowerCase();
+      const desc = (e?.description || "").toLowerCase();
+      return title.includes(q) || desc.includes(q);
+    });
     })();
     const byCategory = selectedCategory === "All"
       ? byQuery
@@ -120,45 +120,85 @@ const Podcasts: React.FC<PodcastsProps> = ({ onSearch }) => {
 
           {/* Controls: Search, Categories, Sort */}
           <div className="mt-6 flex flex-col gap-4">
-            {/* Search - left aligned, no button (like blog) */}
+            {/* Search Bar and Filter Icon (Mobile) */}
             <div className="w-full max-w-xl">
-              <div className="bg-white rounded-xl overflow-hidden focus-within:border-[#4444B3] transition-colors flex items-center">
-              <div className="pl-4 text-gray-400">
-                  <Search size={20} />
+              <div className="flex items-center gap-3">
+                <div className="flex-1 bg-white rounded-xl overflow-hidden focus-within:border-[#4444B3] transition-colors flex items-center">
+                  <div className="pl-4 text-gray-400">
+                    <Search size={20} />
+        </div>
+                  <input
+                    value={query}
+                    onChange={(e) => setQuery(e.target.value)}
+                    placeholder="What podcast are you looking for?"
+                    className="w-full px-4 py-3 outline-none text-sm bg-white"
+                    style={{ fontFamily: '"League Spartan", sans-serif' }}
+                  />
                 </div>
-                <input
-                  value={query}
-                  onChange={(e) => setQuery(e.target.value)}
-                  placeholder="What podcast are you looking for?"
-                  className="w-full px-4 py-3 outline-none text-sm"
-                  style={{ fontFamily: '"League Spartan", sans-serif' }}
-                />
                 
+                {/* Mobile Filter Icon */}
+                <div className="md:hidden relative" ref={sortRef}>
+                  <button
+                    type="button"
+                    onClick={() => setSortOpen((o) => !o)}
+                    className="flex items-center justify-center w-12 h-12 bg-white border rounded-full transition-colors text-[#4444B3] border-[#4444B3]"
+                  >
+                    <ListFilter size={20} />
+                  </button>
+                  {sortOpen && (
+                    <div className="absolute right-0 mt-2 w-44 bg-white border border-gray-200 rounded-xl shadow-md z-50 overflow-hidden">
+                      {["Newest First", "Oldest First", "A-Z Title"].map((opt) => (
+                        <button
+                          key={opt}
+                          type="button"
+                          onClick={() => {
+                            setSortLabel(opt);
+                            setSortOpen(false);
+                          }}
+                          className={`w-full text-left px-4 py-2 text-sm hover:bg-gray-50 ${sortLabel === opt ? 'text-[#4444B3]' : 'text-gray-700'}`}
+                          style={{ fontFamily: '"League Spartan", sans-serif' }}
+                        >
+                          {opt}
+                        </button>
+                      ))}
+                    </div>
+                  )}
+                </div>
               </div>
             </div>
 
             {/* Categories and Sort */}
-            <div className="flex flex-wrap items-center justify-between gap-3">
-              <div className="flex flex-wrap gap-2">
-                {categories.map((cat) => (
-                  <button
-                    key={cat}
-                    type="button"
-                    onClick={() => setSelectedCategory(cat)}
-                    className={`px-3 py-1.5 rounded-full border text-sm ${selectedCategory === cat ? 'text-[#4444B3] border-[#4444B3]' : 'text-gray-600 border-gray-300'} transition-colors`}
-                    style={{ fontFamily: '"League Spartan", sans-serif' }}
-                  >
-                    {cat}
-                  </button>
-                ))}
+            <div className="flex flex-col md:flex-row items-center justify-between gap-3">
+              {/* Categories - Horizontally Scrollable */}
+              <div 
+                className="w-full md:flex-1 overflow-x-auto scrollbar-hide"
+                style={{ 
+                  scrollbarWidth: 'none',
+                  msOverflowStyle: 'none',
+                  WebkitOverflowScrolling: 'touch'
+                }}
+              >
+                <div className="flex gap-2 pb-2" style={{ minWidth: 'min-content' }}>
+                  {categories.map((cat) => (
+                    <button
+                      key={cat}
+                      type="button"
+                      onClick={() => setSelectedCategory(cat)}
+                      className={`px-3 py-1.5 rounded-full border text-sm whitespace-nowrap flex-shrink-0 ${selectedCategory === cat ? 'text-[#4444B3] border-[#4444B3]' : 'text-gray-600 border-gray-300'} transition-colors`}
+                      style={{ fontFamily: '"League Spartan", sans-serif' }}
+                    >
+                      {cat}
+                    </button>
+                  ))}
+                </div>
               </div>
 
-              {/* Sort Dropdown */}
-              <div className="relative" ref={sortRef}>
+              {/* Sort Dropdown - Desktop Only */}
+              <div className="hidden md:block relative" ref={sortRef}>
                 <button
                   type="button"
                   onClick={() => setSortOpen((o) => !o)}
-                  className="bg-white border rounded-full px-4 py-2 text-sm text-[#4444B3] border-[#4444B3] flex items-center gap-2"
+                  className="bg-white border rounded-full px-4 py-2 text-sm text-[#4444B3] border-[#4444B3] flex items-center gap-2 whitespace-nowrap"
                   style={{ fontFamily: '"League Spartan", sans-serif' }}
                 >
                   {sortLabel}
@@ -183,7 +223,7 @@ const Podcasts: React.FC<PodcastsProps> = ({ onSearch }) => {
             </div>
           </div>
         </div>
-      </section>
+          </section>
 
       {/* Articles Grid with background that kisses footer */}
       <section
@@ -195,12 +235,12 @@ const Podcasts: React.FC<PodcastsProps> = ({ onSearch }) => {
           backgroundPosition: 'center',
         }}
       >
-        <div className="max-w-7xl mx-auto px-6 sm:px-10 lg:px-16 pt-8">
+        <div className="max-w-7xl mx-auto px-10 sm:px-10 lg:px-16 pt-8 pb-8">
           {loading ? (
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+            <div className="grid grid-cols-2 md:grid-cols-2 lg:grid-cols-4 gap-4 lg:gap-6">
               {Array.from({ length: 9 }).map((_, i) => <CardSkeleton key={i} />)}
             </div>
-          ) : error ? (
+        ) : error ? (
             <div className="text-center text-red-500">{error}</div>
           ) : filteredEpisodes.length === 0 ? (
             <div className="flex flex-col items-center justify-center py-20 text-center">
@@ -217,26 +257,26 @@ const Podcasts: React.FC<PodcastsProps> = ({ onSearch }) => {
               </div>
             </div>
           ) : (
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+            <div className="grid grid-cols-2 md:grid-cols-2 lg:grid-cols-4 gap-4 lg:gap-6">
               {filteredEpisodes.slice(0, visibleCount).map((ep) => (
                 <EpisodeCard key={ep.id} episode={ep} />
               ))}
             </div>
-          )}
-        </div>
+        )}
 
         {/* Load More inside background */}
         {!loading && !error && hasMore && (
-          <div className="max-w-7xl mx-auto px-6 sm:px-10 lg:px-16 py-12 flex justify-center">
-            <button
-              onClick={handleLoadMore}
+          <div className="pt-10 flex justify-center">
+          <button
+            onClick={handleLoadMore}
               className="px-6 py-3 rounded-full text-white bg-[#4444B3] hover:opacity-90 transition-opacity"
               style={{ fontFamily: '"League Spartan", sans-serif' }}
-            >
-              Load More
-            </button>
+          >
+            Load More
+          </button>
           </div>
         )}
+        </div>
       </section>
       <Footer />
     </main>
@@ -265,18 +305,18 @@ const EpisodeCard: React.FC<{ episode: PodcastEpisode }> = ({ episode }) => {
   return (
     <div className="text-left group bg-white border border-gray-200 rounded-3xl shadow-sm overflow-hidden">
       <div className="w-full text-left">
-        <div className="p-3">
+        <div className="p-2 lg:p-3">
           <div className="relative">
-            <img
-              src={episode.imageUrl || podcast1}
-              alt={episode.title}
-              className="w-full h-40 md:h-40 lg:h-40 object-cover rounded-2xl"
-            />
+        <img
+          src={episode.imageUrl || podcast1}
+          alt={episode.title}
+              className="w-full h-28 md:h-32 lg:h-40 object-cover rounded-2xl"
+        />
           </div>
         </div>
-        <div className="px-5">
+        <div className="px-3 lg:px-5">
           <h3
-            className="text-lg md:text-lg lg:text-base font-semibold text-gray-900 mb-3 leading-tight line-clamp-2"
+            className="text-sm md:text-base lg:text-base font-semibold text-gray-900 mb-2 lg:mb-3 leading-tight line-clamp-2"
             style={{ fontFamily: '"League Spartan", sans-serif' }}
           >
             {episode.title}
@@ -301,21 +341,21 @@ const EpisodeCard: React.FC<{ episode: PodcastEpisode }> = ({ episode }) => {
         </div>
       </div>
       {/* Bottom bar */}
-      <div className="px-5 pb-5">
+      <div className="px-3 lg:px-5 pb-3 lg:pb-5">
         <div className="flex items-end justify-between">
           {/* Left: timestamp up, play down */}
-          <div className="flex flex-col gap-2">
+          <div className="flex flex-col gap-1 lg:gap-2">
             <div className="text-xs text-gray-700 font-medium">{formatDuration(duration || episode.duration)}</div>
-            <div className="flex items-center gap-3">
+            <div className="flex items-center gap-1.5 lg:gap-3">
               <button
                 onClick={() => {
                   const a = audioRef.current; if (!a) return;
                   a.currentTime = Math.max(0, a.currentTime - 10);
                 }}
-                className="p-1 rounded-full hover:bg-gray-100"
+                className="p-0.5 lg:p-1 rounded-full hover:bg-gray-100"
                 aria-label="Back 10s"
               >
-                <SkipBack className="w-4 h-4" />
+                <SkipBack className="w-3 h-3 lg:w-4 lg:h-4" />
               </button>
               <button
                 onClick={() => {
@@ -323,20 +363,20 @@ const EpisodeCard: React.FC<{ episode: PodcastEpisode }> = ({ episode }) => {
                   if (isPlaying) { a.pause(); setIsPlaying(false); }
                   else { a.play().then(() => setIsPlaying(true)).catch(() => {}); }
                 }}
-                className="p-1 rounded-full hover:bg-gray-100"
+                className="p-0.5 lg:p-1 rounded-full hover:bg-gray-100"
                 aria-label="Play/Pause"
               >
-                {isPlaying ? <Pause className="w-5 h-5" /> : <Play className="w-5 h-5" />}
+                {isPlaying ? <Pause className="w-4 h-4 lg:w-5 lg:h-5" /> : <Play className="w-4 h-4 lg:w-5 lg:h-5" />}
               </button>
               <button
                 onClick={() => {
                   const a = audioRef.current; if (!a) return;
                   a.currentTime = Math.min(a.duration || 1e9, a.currentTime + 10);
                 }}
-                className="p-1 rounded-full hover:bg-gray-100"
+                className="p-0.5 lg:p-1 rounded-full hover:bg-gray-100"
                 aria-label="Forward 10s"
               >
-                <SkipForward className="w-4 h-4" />
+                <SkipForward className="w-3 h-3 lg:w-4 lg:h-4" />
               </button>
               {/* Volume cycle button */}
               <button
@@ -349,28 +389,28 @@ const EpisodeCard: React.FC<{ episode: PodcastEpisode }> = ({ episode }) => {
                   if (next === 0) { a.muted = true; }
                   else { a.muted = false; a.volume = next/100; }
                 }}
-                className="p-1 rounded-full hover:bg-gray-100"
+                className="p-0.5 lg:p-1 rounded-full hover:bg-gray-100"
                 aria-label="Volume"
               >
                 {volumeLevel === 0 ? (
-                  <VolumeX className="w-5 h-5" />
+                  <VolumeX className="w-4 h-4 lg:w-5 lg:h-5" />
                 ) : volumeLevel === 25 ? (
-                  <Volume className="w-5 h-5" />
+                  <Volume className="w-4 h-4 lg:w-5 lg:h-5" />
                 ) : volumeLevel === 50 ? (
-                  <Volume1 className="w-5 h-5" />
+                  <Volume1 className="w-4 h-4 lg:w-5 lg:h-5" />
                 ) : volumeLevel === 75 ? (
-                  <Volume2 className="w-5 h-5" />
+                  <Volume2 className="w-4 h-4 lg:w-5 lg:h-5" />
                 ) : (
-                  <Volume2 className="w-5 h-5" />
+                  <Volume2 className="w-4 h-4 lg:w-5 lg:h-5" />
                 )}
               </button>
             </div>
           </div>
           {/* Right: category text then controls */}
-          <div className="flex flex-col items-end gap-2">
-            <div className="text-sm text-gray-500">{episode.category || 'Morning Talk'}</div>
-            <div className="flex items-center gap-3 text-gray-700">
-              <button className="p-1 rounded-full hover:bg-gray-100"><Copy className="w-5 h-5" /></button>
+          <div className="flex flex-col items-end gap-1 lg:gap-2">
+            <div className="text-[10px] lg:text-sm text-gray-500 whitespace-nowrap">{episode.category || 'Morning Talk'}</div>
+            <div className="flex items-center gap-1.5 lg:gap-3 text-gray-700">
+              <button className="p-0.5 lg:p-1 rounded-full hover:bg-gray-100"><Copy className="w-4 h-4 lg:w-5 lg:h-5" /></button>
             </div>
           </div>
         </div>

@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 import { Link, useParams } from "react-router-dom";
 import { fetchBlogBySlug, mediaUrl, type BlogEntity } from "../api/blog.api";
 import RichTextWrapper from "../components/RichTextWrapper";
+import { ChevronRight } from "lucide-react";
 
 // Strapi RichText stores HTML; we render it safely and restyle with Tailwind prose classes.
 export default function BlogPost() {
@@ -65,13 +66,17 @@ export default function BlogPost() {
 
   const a = blog;
   const cover = a.coverImage?.url || a.coverImage?.data?.attributes?.url;
+  const tags = String(a.tags || "")
+    .split("#")
+    .map((s) => s.trim())
+    .filter(Boolean);
 
   return (
     <main className="min-h-screen bg-gradient-to-br from-gray-50 to-white">
       {/* Hero Section */}
       <div className="relative">
         {cover && (
-          <div className="h-96 overflow-hidden">
+          <div className="h-72 overflow-hidden">
             <img
               src={mediaUrl(cover)}
               alt={a.title}
@@ -87,27 +92,12 @@ export default function BlogPost() {
             cover ? "absolute bottom-0 left-0 right-0 p-8" : "py-16 px-8"
           }`}
         >
-          <div className="max-w-4xl mx-auto">
-            <div className="flex flex-wrap gap-2 mb-4">
-              {String(a.tags || "")
-                .split("#")
-                .map((s) => s.trim())
-                .filter(Boolean)
-                .slice(0, 3)
-                .map((t, i) => (
-                  <span
-                    key={i}
-                    className="bg-brand-green/90 text-white text-sm font-medium px-3 py-1 rounded-full font-primary"
-                  >
-                    {t}
-                  </span>
-                ))}
-            </div>
-
+          <div className="max-w-7xl mx-auto">
             <h1
-              className={`text-4xl md:text-5xl lg:text-6xl font-bold mb-4 font-heading leading-tight ${
+              className={`text-3xl md:text-4xl lg:text-5xl font-semibold mb-4 leading-tight ${
                 cover ? "text-white" : "text-gray-900"
               }`}
+              style={{ fontFamily: '"League Spartan", sans-serif' }}
             >
               {a.title}
             </h1>
@@ -156,39 +146,63 @@ export default function BlogPost() {
         </div>
       </div>
 
-      {/* Article Content */}
-      <div className="max-w-4xl mx-auto px-6 py-12">
-        <div className="bg-white rounded-2xl shadow-lg p-8 md:p-12">
-          <RichTextWrapper content={a.content as any} />
-        </div>
+      {/* Breadcrumb Navigation */}
+      <div className="max-w-7xl mx-auto px-6 py-6">
+        <nav className="flex items-center gap-2 text-sm text-gray-600">
+          <Link to="/" className="hover:text-brand-green transition-colors">
+            Home
+          </Link>
+          <ChevronRight size={16} />
+          <Link to="/blog" className="hover:text-brand-green transition-colors">
+            Blog
+          </Link>
+          <ChevronRight size={16} />
+          <span className="text-brand-green font-medium line-clamp-1">
+            {a.title}
+          </span>
+        </nav>
+      </div>
 
-        {/* Article Footer */}
-        <div className="mt-12 p-8 bg-white rounded-2xl shadow-lg">
-          <div className="flex flex-wrap gap-3 mb-6">
-            <span className="text-gray-700 font-medium font-primary">
-              Tags:
-            </span>
-            {String(a.tags || "")
-              .split("#")
-              .map((s) => s.trim())
-              .filter(Boolean)
-              .map((t, i) => (
-                <span
-                  key={i}
-                  className="bg-brand-green/10 text-brand-green text-sm font-medium px-3 py-1 rounded-full font-primary hover:bg-brand-green/20 transition-colors cursor-pointer"
-                >
-                  {t}
-                </span>
-              ))}
+      {/* Article Content - Two Column Layout */}
+      <div className="max-w-7xl mx-auto px-6 pb-12">
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+          {/* Left Column - Article Content */}
+          <div className="lg:col-span-2">
+            <RichTextWrapper content={a.content as any} />
           </div>
 
-          <div className="border-t pt-6">
-            <Link
-              to="/blog"
-              className="inline-flex items-center gap-2 bg-brand-green text-white px-6 py-3 rounded-lg font-semibold hover:bg-brand-green-dark transition-colors font-primary"
-            >
-              ← Back to All Articles
-            </Link>
+          {/* Right Column - Sidebar */}
+          <div className="lg:col-span-1">
+            <div className="sticky top-16">
+              <div className="bg-white rounded-3xl shadow-sm border border-gray-200 p-6">
+                {/* Tags */}
+                <div className="mb-6">
+                  <h3 className="text-lg font-semibold text-gray-900 mb-4" style={{ fontFamily: '"League Spartan", sans-serif' }}>
+                    Tags
+                  </h3>
+                  <div className="flex flex-wrap gap-2">
+                    {tags.map((t, i) => (
+                      <span
+                        key={i}
+                        className="bg-brand-green/10 text-brand-green text-sm font-medium px-3 py-1.5 rounded-full font-primary hover:bg-brand-green/20 transition-colors cursor-pointer"
+                      >
+                        {t}
+                      </span>
+                    ))}
+                  </div>
+                </div>
+
+                {/* Back Button */}
+                <div className="pt-6 border-t border-gray-200">
+                  <Link
+                    to="/blog"
+                    className="w-full inline-flex items-center justify-center gap-2 bg-brand-green text-white px-6 py-3 rounded-full font-semibold hover:bg-brand-green-dark transition-colors font-primary"
+                  >
+                    ← Back to All Articles
+                  </Link>
+                </div>
+              </div>
+            </div>
           </div>
         </div>
       </div>

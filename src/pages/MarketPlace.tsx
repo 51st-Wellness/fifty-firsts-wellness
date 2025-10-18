@@ -2,8 +2,8 @@ import React, { useEffect, useMemo, useState, useCallback } from "react";
 import {
   AlertCircle,
   RefreshCw,
-  ChevronLeft,
-  ChevronRight,
+  Search,
+  ChevronDown,
 } from "lucide-react";
 import Footer from "../components/Footer";
 import StoreItemCard from "../components/StoreItemCard";
@@ -11,7 +11,6 @@ import { fetchStoreItems } from "../api/marketplace.api";
 import { categoryAPI } from "../api/category.api";
 import type { StoreItem as StoreItemType } from "../types/marketplace.types";
 import type { Category } from "../types/category.types";
-import SearchBar from "../components/ui/SearchBar";
 
 // Using shared StoreItem type from types to match API response
 
@@ -28,13 +27,16 @@ const MarketPlace: React.FC<MarketPlaceProps> = ({ onSearch }) => {
   const [loading, setLoading] = useState<boolean>(false);
   const [error, setError] = useState<string | null>(null);
   const [selectedCategory, setSelectedCategory] = useState<string>("All");
+  const [minPrice, setMinPrice] = useState<number>(10);
+  const [maxPrice, setMaxPrice] = useState<number>(200);
+  const [selectedRating, setSelectedRating] = useState<string>("all");
+  const [priceDropdownOpen, setPriceDropdownOpen] = useState<boolean>(false);
+  const [ratingDropdownOpen, setRatingDropdownOpen] = useState<boolean>(false);
 
   // Category states
   const [categories, setCategories] = useState<Category[]>([]);
   const [categoriesLoading, setCategoriesLoading] = useState<boolean>(false);
   const [categoriesError, setCategoriesError] = useState<string | null>(null);
-  const [categoryScrollPosition, setCategoryScrollPosition] =
-    useState<number>(0);
 
   // Debounced search
   const [debouncedQuery, setDebouncedQuery] = useState<string>("");
@@ -118,7 +120,7 @@ const MarketPlace: React.FC<MarketPlaceProps> = ({ onSearch }) => {
         setLoading(false);
       }
     },
-    [page, pageSize, debouncedQuery]
+    [page, pageSize, debouncedQuery, selectedCategory]
   );
 
   const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
@@ -132,122 +134,97 @@ const MarketPlace: React.FC<MarketPlaceProps> = ({ onSearch }) => {
   useEffect(() => {
     setPage(1);
     loadItems({ page: 1, reset: true });
-  }, [debouncedQuery, selectedCategory, loadItems]);
-
-  // Category scroll functions
-  const scrollCategories = (direction: "left" | "right") => {
-    const container = document.getElementById("categories-container");
-    if (container) {
-      const scrollAmount = 200;
-      const newPosition =
-        direction === "left"
-          ? Math.max(0, categoryScrollPosition - scrollAmount)
-          : categoryScrollPosition + scrollAmount;
-
-      container.scrollTo({
-        left: newPosition,
-        behavior: "smooth",
-      });
-      setCategoryScrollPosition(newPosition);
-    }
-  };
-
-  // Check if scroll buttons should be visible
-  const [showLeftScroll, setShowLeftScroll] = useState(false);
-  const [showRightScroll, setShowRightScroll] = useState(false);
-
-  useEffect(() => {
-    const container = document.getElementById("categories-container");
-    if (container) {
-      const checkScrollButtons = () => {
-        setShowLeftScroll(categoryScrollPosition > 0);
-        setShowRightScroll(
-          categoryScrollPosition < container.scrollWidth - container.clientWidth
-        );
-      };
-
-      checkScrollButtons();
-      container.addEventListener("scroll", checkScrollButtons);
-      return () => container.removeEventListener("scroll", checkScrollButtons);
-    }
-  }, [categoryScrollPosition, categories]);
+  }, [debouncedQuery, selectedCategory]);
 
   return (
-    <main className="min-h-screen bg-gradient-to-br from-gray-50 to-white">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pb-20">
-        {/* Header Section */}
-        <article className="flex flex-col-reverse md:flex-row justify-between items-center md:items-start w-full gap-6 pt-20">
-          {/* Left Content */}
-          <div className="flex flex-col gap-4 w-full md:w-1/2 text-center md:text-left">
-            <div className="text-3xl sm:text-4xl lg:text-6xl font-semibold">
-              Marketplace
-            </div>
-            <div className="text-sm sm:text-base text-[#475464]">
-              Explore thoughtfully curated wellness products designed to nourish
-              your body, calm your mind, and support your everyday self-care
-              rituals.
-            </div>
-          </div>
-        </article>
-
-        {/* Search Bar */}
-        <SearchBar
-          query={query}
-          onQueryChange={setQuery}
-          onSubmit={onSearch}
-          placeholder="What product are you looking for?"
-          className="mt-6"
+    <main className="relative min-h-screen pb-0 bg-[#F7F8FA]">
+      {/* Hero Section */}
+      <section className="relative w-full">
+        <img
+          src="/assets/Vector.svg"
+          alt="Decoration"
+          className="pointer-events-none select-none absolute right-0 top-0 w-40 sm:w-48 md:w-56 lg:w-64"
         />
+        <div className="max-w-7xl mx-auto px-6 sm:px-10 lg:px-16 py-10 sm:py-12 lg:py-16">
+          <h1 className="text-3xl sm:text-4xl lg:text-5xl font-semibold mb-3" style={{ fontFamily: '"League Spartan", sans-serif' }}>
+              Marketplace
+          </h1>
+          <p className="text-sm sm:text-base text-[#475464] leading-relaxed max-w-3xl">
+            Explore thoughtfully curated wellness products designed to nourish your body, calm your mind, and support your everyday self-care rituals.
+          </p>
 
-        {/* Categories */}
-        <section className="relative mt-6 pb-4 w-full">
-          {/* Scroll buttons for desktop */}
-          {showLeftScroll && (
+          {/* Search Bar */}
+          <div className="mt-6 max-w-xl">
+            <form onSubmit={handleSubmit} className="flex items-center bg-white rounded-xl overflow-hidden focus-within:border-[#4444B3] transition-colors">
+              <div className="pl-4 text-gray-400">
+                <Search size={20} />
+            </div>
+              <input
+                type="text"
+                placeholder="What product are you looking for?"
+                value={query}
+                onChange={(e) => setQuery(e.target.value)}
+                className="flex-1 px-3 py-3 text-base focus:outline-none bg-white"
+              />
+            </form>
+          </div>
+
+          {/* Mobile Filter Buttons - Below Search Bar */}
+          <div className="mt-4 flex gap-2 md:hidden">
             <button
-              onClick={() => scrollCategories("left")}
-              className="absolute left-0 top-1/2 -translate-y-1/2 z-10 bg-white shadow-lg rounded-full p-2 border border-gray-200 hover:bg-gray-50 transition-colors"
+              onClick={() => setPriceDropdownOpen(true)}
+              className="px-4 py-2 rounded-full border border-[#4444B3] text-[#4444B3] text-sm hover:bg-[#4444B3]/5 transition-colors flex items-center gap-2"
+              style={{ fontFamily: '"League Spartan", sans-serif' }}
             >
-              <ChevronLeft className="h-4 w-4 text-gray-600" />
+              Price Range
+              <ChevronDown className="w-4 h-4" />
             </button>
-          )}
 
-          {showRightScroll && (
             <button
-              onClick={() => scrollCategories("right")}
-              className="absolute right-0 top-1/2 -translate-y-1/2 z-10 bg-white shadow-lg rounded-full p-2 border border-gray-200 hover:bg-gray-50 transition-colors"
+              onClick={() => setRatingDropdownOpen(true)}
+              className="px-4 py-2 rounded-full border border-[#4444B3] text-[#4444B3] text-sm hover:bg-[#4444B3]/5 transition-colors flex items-center gap-2"
+              style={{ fontFamily: '"League Spartan", sans-serif' }}
             >
-              <ChevronRight className="h-4 w-4 text-gray-600" />
+              Product Rating
+              <ChevronDown className="w-4 h-4" />
             </button>
-          )}
+          </div>
 
-          {/* Categories container */}
-          <div
-            id="categories-container"
-            className="flex gap-3 items-center overflow-x-auto scrollbar-hide px-2 justify-center"
-            style={{ scrollbarWidth: "none", msOverflowStyle: "none" }}
-          >
+          {/* Categories */}
+          <div className="mt-6">
+            <div className="flex-1">
+              <div 
+                className="w-full overflow-x-auto scrollbar-hide"
+                style={{ 
+                  scrollbarWidth: 'none',
+                  msOverflowStyle: 'none',
+                  WebkitOverflowScrolling: 'touch'
+                }}
+              >
+                <div className="flex gap-2 pb-2" style={{ minWidth: 'min-content' }}>
             {/* All category */}
             <button
               onClick={() => setSelectedCategory("All")}
-              className={`py-1 px-3 text-sm font-medium rounded-full border transition-colors whitespace-nowrap flex-shrink-0 ${
+                    className={`px-4 py-1.5 rounded-full text-sm transition-colors border whitespace-nowrap flex-shrink-0 ${
                 selectedCategory === "All"
-                  ? "text-brand-green border-brand-green bg-brand-green/5"
-                  : "text-gray-600 border-gray-300 hover:text-brand-green hover:border-brand-green"
+                        ? "text-[#4444B3] border-[#4444B3]"
+                        : "text-gray-700 border-gray-300 hover:border-[#4444B3] hover:text-[#4444B3]"
               }`}
+                    style={{ fontFamily: '"League Spartan", sans-serif' }}
             >
               All
             </button>
 
             {/* Dynamic categories */}
             {categoriesLoading ? (
-              <div className="flex gap-3">
+                    <>
                 {[...Array(5)].map((_, i) => (
                   <div
                     key={i}
                     className="h-8 w-20 bg-gray-200 rounded-full animate-pulse flex-shrink-0"
                   />
                 ))}
-              </div>
+                    </>
             ) : categoriesError ? (
               <div className="text-red-500 text-sm">
                 Failed to load categories
@@ -257,96 +234,105 @@ const MarketPlace: React.FC<MarketPlaceProps> = ({ onSearch }) => {
                 <button
                   key={category.id}
                   onClick={() => setSelectedCategory(category.name)}
-                  className={`py-1 px-3 text-sm font-medium rounded-full border transition-colors whitespace-nowrap flex-shrink-0 ${
+                        className={`px-4 py-1.5 rounded-full text-sm transition-colors border whitespace-nowrap flex-shrink-0 ${
                     selectedCategory === category.name
-                      ? "text-brand-green border-brand-green bg-brand-green/5"
-                      : "text-gray-600 border-gray-300 hover:text-brand-green hover:border-brand-green"
+                            ? "text-[#4444B3] border-[#4444B3]"
+                            : "text-gray-700 border-gray-300 hover:border-[#4444B3] hover:text-[#4444B3]"
                   }`}
+                        style={{ fontFamily: '"League Spartan", sans-serif' }}
                 >
                   {category.name}
                 </button>
               ))
             )}
           </div>
-        </section>
-
-        {/* Main Content */}
-        <article className="w-full flex justify-center">
-          {/* Products */}
-          <section className="flex flex-col p-4 lg:p-6 w-full max-w-7xl overflow-y-auto">
-            <div className="flex justify-between items-center mb-6">
-              <div className="text-2xl sm:text-3xl font-medium">
-                {debouncedQuery
-                  ? `Search results for "${debouncedQuery}"`
-                  : selectedCategory !== "All"
-                  ? `${selectedCategory} Products`
-                  : "All Products"}
               </div>
-              {!loading && !error && (
-                <div className="text-sm text-gray-500">
-                  {items.length} {items.length === 1 ? "product" : "products"}{" "}
-                  found
-                </div>
-              )}
             </div>
-            <section className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+          </div>
+        </div>
+      </section>
+
+      {/* Products Section with Background */}
+      <section
+        className="w-full"
+        style={{
+          backgroundImage: 'url(/assets/general-background.svg)',
+          backgroundRepeat: 'no-repeat',
+          backgroundSize: 'cover',
+          backgroundPosition: 'center',
+          minHeight: 'calc(100vh - 200px)',
+        }}
+      >
+        <div className="max-w-7xl mx-auto px-6 sm:px-10 lg:px-16 pt-8 pb-8">
+          {/* Two Column Layout: Products (Left) + Filters (Right) */}
+          <div className="grid grid-cols-1 lg:grid-cols-4 gap-8">
+            {/* Products Section - Left (3 columns) */}
+            <div className="lg:col-span-3">
               {loading && items.length === 0 ? (
-                <div className="col-span-full">
-                  <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+            <div className="grid grid-cols-2 md:grid-cols-2 lg:grid-cols-3 gap-4 md:gap-6">
                     {Array.from({ length: 8 }).map((_, idx) => (
                       <div
                         key={idx}
-                        className="bg-white rounded-2xl p-6 shadow-lg animate-pulse"
+                  className="bg-white rounded-3xl shadow-sm border border-gray-200 overflow-hidden animate-pulse"
                       >
-                        <div className="w-full h-48 bg-gray-200 rounded-lg mb-4"></div>
+                  <div className="p-3">
+                    <div className="w-full h-48 bg-gray-200 rounded-2xl"></div>
+                  </div>
+                  <div className="px-6 pb-6">
                         <div className="h-6 bg-gray-200 rounded mb-2"></div>
-                        <div className="h-4 bg-gray-200 rounded mb-4"></div>
+                    <div className="h-4 bg-gray-200 rounded mb-4 w-2/3"></div>
                         <div className="h-10 bg-gray-200 rounded"></div>
-                      </div>
-                    ))}
                   </div>
                 </div>
+              ))}
+                </div>
               ) : error ? (
-                <div className="col-span-full text-center py-12">
+            <div className="py-20 text-center">
                   <div className="flex flex-col items-center">
                     <AlertCircle className="h-12 w-12 text-red-500 mb-4" />
-                    <h3 className="text-lg font-semibold text-gray-900 mb-2">
+                <h3 className="text-lg font-semibold text-white mb-2" style={{ fontFamily: '"League Spartan", sans-serif' }}>
                       Failed to load products
                     </h3>
-                    <p className="text-gray-500 mb-4">{error}</p>
+                <p className="text-white/80 mb-4">{error}</p>
                     <button
                       onClick={() => loadItems({ page: 1, reset: true })}
-                      className="bg-brand-green text-white px-4 py-2 rounded-lg hover:bg-brand-green-dark transition-colors flex items-center gap-2"
+                  className="bg-white text-[#4444B3] px-6 py-2 rounded-full hover:bg-gray-50 transition-colors flex items-center gap-2"
                     >
                       <RefreshCw className="h-4 w-4" />
                       Try Again
                     </button>
                   </div>
                 </div>
-              ) : (
-                <>
+          ) : items.length === 0 ? (
+            <div className="py-20 text-center">
+              <div className="text-2xl font-semibold text-white mb-2" style={{ fontFamily: '"League Spartan", sans-serif' }}>
+                No products found
+              </div>
+              <p className="text-white/80 mb-6">
+                Try a different search or switch categories.
+              </p>
+              <button
+                type="button"
+                onClick={() => { setSelectedCategory('All'); setQuery(''); }}
+                className="px-4 py-2 rounded-full border border-gray-300 bg-white text-sm hover:bg-gray-50"
+              >
+                Reset filters
+              </button>
+            </div>
+          ) : (
+            <div className="grid grid-cols-2 md:grid-cols-2 lg:grid-cols-3 gap-4 md:gap-6">
                   {items.map((item) => (
                     <StoreItemCard
                       key={item.productId || item.name}
                       item={item}
                     />
                   ))}
-                  {!loading && items.length === 0 && (
-                    <div className="col-span-full text-center text-gray-500 py-12">
-                      <p>No products found</p>
-                      <p className="text-sm mt-2">
-                        Try adjusting your search or check back later
-                      </p>
                     </div>
                   )}
-                </>
-              )}
-            </section>
-          </section>
-        </article>
 
         {/* Load More Button */}
-        <div className="flex justify-center mt-8 pb-8">
+          {!loading && items.length > 0 && hasMore && (
+            <div className="pt-10 flex justify-center">
           <button
             disabled={!hasMore || loading}
             onClick={async () => {
@@ -354,23 +340,283 @@ const MarketPlace: React.FC<MarketPlaceProps> = ({ onSearch }) => {
               setPage(next);
               await loadItems({ page: next });
             }}
-            className="w-fit rounded-full text-white px-6 py-2 text-center bg-brand-green text-sm sm:text-base hover:bg-brand-green-dark transition disabled:opacity-50 disabled:cursor-not-allowed"
+              className="px-6 py-3 rounded-full text-white bg-[#4444B3] hover:opacity-90 transition-opacity disabled:opacity-50 disabled:cursor-not-allowed"
+              style={{ fontFamily: '"League Spartan", sans-serif' }}
           >
             {loading ? (
               <div className="flex items-center gap-2">
                 <div className="animate-spin rounded-full h-4 w-4 border-2 border-white border-t-transparent"></div>
                 Loading...
               </div>
-            ) : hasMore ? (
+              ) : (
               "Load More"
-            ) : (
-              "No more items"
             )}
           </button>
         </div>
+          )}
+            </div>
 
-        {/* <Footer /> */}
+            {/* Filters Section - Right (Sticky) - Hidden on Mobile */}
+            <div className="hidden lg:block lg:col-span-1">
+              <div className="sticky top-20">
+                <div className="bg-white rounded-3xl shadow-sm border border-gray-200 p-6">
+                  {/* Price Range */}
+                  <div className="mb-6">
+                    <div className="flex items-center justify-between mb-4">
+                      <h3 className="text-base font-semibold text-gray-900" style={{ fontFamily: '"League Spartan", sans-serif' }}>
+                        Price Range
+                      </h3>
+                      <div className="flex items-center gap-2">
+                        <button
+                          onClick={() => {
+                            setMinPrice(10);
+                            setMaxPrice(200);
+                          }}
+                          className="px-2 py-1.5 rounded-full border border-[#4444B3] text-[#4444B3] text-xs hover:bg-[#4444B3]/5 transition-colors"
+                          style={{ fontFamily: '"League Spartan", sans-serif' }}
+                        >
+                          Clear
+                        </button>
+                        <button
+                          onClick={() => loadItems({ page: 1, reset: true })}
+                          className="px-2 py-1.5 rounded-full border border-[#4444B3] text-[#4444B3] text-xs hover:bg-[#4444B3]/5 transition-colors"
+                          style={{ fontFamily: '"League Spartan", sans-serif' }}
+                        >
+                          Apply
+                        </button>
+                      </div>
+                    </div>
+                    <div className="space-y-3">
+                      <div className="bg-gray-50 rounded-2xl p-3">
+                        <div className="text-xs text-gray-600 mb-1">Minimum Price</div>
+                        <div className="text-lg font-semibold text-gray-400">${minPrice}</div>
+                      </div>
+                      <div className="bg-gray-50 rounded-2xl p-3">
+                        <div className="text-xs text-gray-600 mb-1">Maximum Price</div>
+                        <div className="text-lg font-semibold text-gray-400">${maxPrice}</div>
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* Product Rating */}
+                  <div className="pt-6 border-t border-gray-200">
+                    <div className="flex items-center justify-between mb-4">
+                      <h3 className="text-base font-semibold text-gray-900" style={{ fontFamily: '"League Spartan", sans-serif' }}>
+                        Product Rating
+                      </h3>
+                      <div className="flex items-center gap-2">
+                        <button
+                          onClick={() => setSelectedRating('all')}
+                          className="px-2 py-1.5 rounded-full border border-[#4444B3] text-[#4444B3] text-xs hover:bg-[#4444B3]/5 transition-colors"
+                          style={{ fontFamily: '"League Spartan", sans-serif' }}
+                        >
+                          Clear
+                        </button>
+                        <button
+                          onClick={() => loadItems({ page: 1, reset: true })}
+                          className="px-2 py-1.5 rounded-full border border-[#4444B3] text-[#4444B3] text-xs hover:bg-[#4444B3]/5 transition-colors"
+                          style={{ fontFamily: '"League Spartan", sans-serif' }}
+                        >
+                          Apply
+                        </button>
+                      </div>
+                    </div>
+                    <div className="space-y-4">
+                      {[
+                        { value: "4+", label: "& Above", stars: 4 },
+                        { value: "3+", label: "& Above", stars: 3 },
+                        { value: "2+", label: "& Above", stars: 2 },
+                        { value: "1+", label: "& Above", stars: 1 },
+                      ].map((rating) => (
+                        <label key={rating.value} className="flex items-center gap-3 cursor-pointer group">
+                          <input
+                            type="radio"
+                            name="rating"
+                            value={rating.value}
+                            checked={selectedRating === rating.value}
+                            onChange={(e) => setSelectedRating(e.target.value)}
+                            className="w-5 h-5 text-[#4444B3] accent-[#4444B3] cursor-pointer"
+                          />
+                          <div className="flex items-center">
+                            {[...Array(rating.stars)].map((_, i) => (
+                              <svg key={i} className="w-4 h-4 fill-[#FFA500]" viewBox="0 0 20 20">
+                                <path d="M10 15l-5.878 3.09 1.123-6.545L.489 6.91l6.572-.955L10 0l2.939 5.955 6.572.955-4.756 4.635 1.123 6.545z" />
+                              </svg>
+                            ))}
+                            {[...Array(5 - rating.stars)].map((_, i) => (
+                              <svg key={`empty-${i}`} className="w-4 h-4 fill-gray-200" viewBox="0 0 20 20">
+                                <path d="M10 15l-5.878 3.09 1.123-6.545L.489 6.91l6.572-.955L10 0l2.939 5.955 6.572.955-4.756 4.635 1.123 6.545z" />
+                              </svg>
+                            ))}
+                            <span className="text-sm text-gray-700 ml-1">{rating.label}</span>
+                          </div>
+                        </label>
+                      ))}
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* Mobile Bottom Sheet Modal - Price Range */}
+      {priceDropdownOpen && (
+        <div className="fixed inset-0 z-50 md:hidden">
+          {/* Backdrop */}
+          <div 
+            className="absolute inset-0 bg-black/50"
+            onClick={() => setPriceDropdownOpen(false)}
+          />
+          
+          {/* Bottom Sheet */}
+          <div className="absolute bottom-0 left-0 right-0 bg-white rounded-t-3xl p-6 animate-slide-up">
+            {/* Handle */}
+            <div className="w-12 h-1 bg-gray-300 rounded-full mx-auto mb-6" />
+            
+            {/* Header */}
+            <div className="flex items-center justify-between mb-6">
+              <h3 className="text-lg font-semibold text-gray-900" style={{ fontFamily: '"League Spartan", sans-serif' }}>
+                Price Range
+              </h3>
+              <button
+                onClick={() => setPriceDropdownOpen(false)}
+                className="w-8 h-8 flex items-center justify-center rounded-full hover:bg-gray-100"
+              >
+                ✕
+              </button>
+            </div>
+
+            {/* Content */}
+            <div className="space-y-4">
+              <div className="bg-gray-50 rounded-2xl p-3">
+                <div className="text-xs text-gray-600 mb-1">Minimum Price</div>
+                <div className="text-lg font-semibold text-gray-400">${minPrice}</div>
+              </div>
+              <div className="bg-gray-50 rounded-2xl p-3">
+                <div className="text-xs text-gray-600 mb-1">Maximum Price</div>
+                <div className="text-lg font-semibold text-gray-400">${maxPrice}</div>
+              </div>
+              
+              {/* Buttons */}
+              <div className="flex gap-3 pt-4">
+                <button
+                  onClick={() => {
+                    setMinPrice(10);
+                    setMaxPrice(200);
+                    setPriceDropdownOpen(false);
+                  }}
+                  className="flex-1 px-4 py-3 rounded-full border border-[#4444B3] text-[#4444B3] text-sm hover:bg-[#4444B3]/5 transition-colors"
+                  style={{ fontFamily: '"League Spartan", sans-serif' }}
+                >
+                  Clear
+                </button>
+                <button
+                  onClick={() => {
+                    loadItems({ page: 1, reset: true });
+                    setPriceDropdownOpen(false);
+                  }}
+                  className="flex-1 px-4 py-3 rounded-full border border-[#4444B3] text-[#4444B3] text-sm hover:bg-[#4444B3]/5 transition-colors"
+                  style={{ fontFamily: '"League Spartan", sans-serif' }}
+                >
+                  Apply
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Mobile Bottom Sheet Modal - Product Rating */}
+      {ratingDropdownOpen && (
+        <div className="fixed inset-0 z-50 md:hidden">
+          {/* Backdrop */}
+          <div 
+            className="absolute inset-0 bg-black/50"
+            onClick={() => setRatingDropdownOpen(false)}
+          />
+          
+          {/* Bottom Sheet */}
+          <div className="absolute bottom-0 left-0 right-0 bg-white rounded-t-3xl p-6 animate-slide-up">
+            {/* Handle */}
+            <div className="w-12 h-1 bg-gray-300 rounded-full mx-auto mb-6" />
+            
+            {/* Header */}
+            <div className="flex items-center justify-between mb-6">
+              <h3 className="text-lg font-semibold text-gray-900" style={{ fontFamily: '"League Spartan", sans-serif' }}>
+                Product Rating
+              </h3>
+              <button
+                onClick={() => setRatingDropdownOpen(false)}
+                className="w-8 h-8 flex items-center justify-center rounded-full hover:bg-gray-100"
+              >
+                ✕
+              </button>
+            </div>
+
+            {/* Content */}
+            <div className="space-y-4 mb-6">
+              {[
+                { value: "4+", label: "& Above", stars: 4 },
+                { value: "3+", label: "& Above", stars: 3 },
+                { value: "2+", label: "& Above", stars: 2 },
+                { value: "1+", label: "& Above", stars: 1 },
+              ].map((rating) => (
+                <label key={rating.value} className="flex items-center gap-3 cursor-pointer">
+                  <input
+                    type="radio"
+                    name="rating-mobile"
+                    value={rating.value}
+                    checked={selectedRating === rating.value}
+                    onChange={(e) => setSelectedRating(e.target.value)}
+                    className="w-5 h-5 text-[#4444B3] accent-[#4444B3] cursor-pointer"
+                  />
+                  <div className="flex items-center">
+                    {[...Array(rating.stars)].map((_, i) => (
+                      <svg key={i} className="w-5 h-5 fill-[#FFA500]" viewBox="0 0 20 20">
+                        <path d="M10 15l-5.878 3.09 1.123-6.545L.489 6.91l6.572-.955L10 0l2.939 5.955 6.572.955-4.756 4.635 1.123 6.545z" />
+                      </svg>
+                    ))}
+                    {[...Array(5 - rating.stars)].map((_, i) => (
+                      <svg key={`empty-${i}`} className="w-5 h-5 fill-gray-200" viewBox="0 0 20 20">
+                        <path d="M10 15l-5.878 3.09 1.123-6.545L.489 6.91l6.572-.955L10 0l2.939 5.955 6.572.955-4.756 4.635 1.123 6.545z" />
+                      </svg>
+                    ))}
+                    <span className="text-sm text-gray-700 ml-2">{rating.label}</span>
+                  </div>
+                </label>
+              ))}
+            </div>
+            
+            {/* Buttons */}
+            <div className="flex gap-3 pt-4 border-t border-gray-200">
+              <button
+                onClick={() => {
+                  setSelectedRating('all');
+                  setRatingDropdownOpen(false);
+                }}
+                className="flex-1 px-4 py-3 rounded-full border border-[#4444B3] text-[#4444B3] text-sm hover:bg-[#4444B3]/5 transition-colors"
+                style={{ fontFamily: '"League Spartan", sans-serif' }}
+              >
+                Clear
+              </button>
+              <button
+                onClick={() => {
+                  loadItems({ page: 1, reset: true });
+                  setRatingDropdownOpen(false);
+                }}
+                className="flex-1 px-4 py-3 rounded-full border border-[#4444B3] text-sm hover:bg-[#4444B3]/5 transition-colors"
+                style={{ fontFamily: '"League Spartan", sans-serif' }}
+              >
+                Apply
+              </button>
+            </div>
+          </div>
       </div>
+      )}
+
+      <Footer />
     </main>
   );
 };

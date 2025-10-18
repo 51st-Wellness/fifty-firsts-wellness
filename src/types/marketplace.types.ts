@@ -12,6 +12,7 @@ export type StoreItem = {
   name: string;
   description?: string | null;
   price: number;
+  oldPrice?: number;
   stock: number;
   display?: StoreItemDisplay;
   images?: string[];
