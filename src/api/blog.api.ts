@@ -6,6 +6,21 @@ const client = axios.create({
   baseURL: `${STRAPI_URL}/api`,
 });
 
+export type AuthorEntity = {
+  id: number;
+  documentId: string;
+  fullName: string;
+  externalLink?: string;
+  bio?: string;
+  createdAt: string;
+  updatedAt: string;
+  picture?: {
+    url?: string;
+    alternativeText?: string;
+    data?: { attributes?: { url?: string; alternativeText?: string } };
+  } | null;
+};
+
 export type BlogEntity = {
   id: number;
   documentId: string;
@@ -22,6 +37,7 @@ export type BlogEntity = {
     alternativeText?: string;
     data?: { attributes?: { url?: string; alternativeText?: string } };
   } | null;
+  authors?: AuthorEntity[];
 };
 
 export type Paginated<T> = {
@@ -48,7 +64,7 @@ export async function fetchBlogs(page = 1, pageSize = 9) {
       "pagination[page]": page,
       "pagination[pageSize]": pageSize,
       "filters[publishedAt][$notNull]": true,
-      populate: "coverImage",
+      populate: "coverImage,authors.picture",
       sort: "publishedAt:desc",
     },
   });
@@ -60,7 +76,7 @@ export async function fetchBlogBySlug(slug: string) {
     params: {
       "filters[slug][$eq]": slug,
       "filters[publishedAt][$notNull]": true,
-      populate: "coverImage",
+      populate: "coverImage,authors.picture",
       sort: "publishedAt:desc",
     },
   });
