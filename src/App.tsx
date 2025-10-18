@@ -288,16 +288,7 @@ const App: React.FC = () => {
           </Route>
 
           {/* 404 Catch-all route - must be last */}
-          <Route
-            path="*"
-            element={
-              <>
-                <Navbar />
-                <NotFound />
-                <Footer />
-              </>
-            }
-          />
+          <Route path="*" element={<NotFound />} />
         </Routes>
       </div>
     </div>

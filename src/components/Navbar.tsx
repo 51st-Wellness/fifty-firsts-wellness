@@ -225,28 +225,17 @@ const Navbar: React.FC = () => {
                       Podcasts
                     </Link>
                   </li>
-                  {/* <li>
+                  <li>
                     <Link
-                      to="/resources/webinars"
+                      to="/blog"
                       className="block px-4 py-3 text-gray-700  hover:text-brand-green transition-colors"
                       onClick={() => setResourcesOpen(false)}
                     >
-                      Webinars
+                      Blog
                     </Link>
-                  </li> */}
+                  </li>
                 </ul>
               )}
-            </li>
-
-            <li>
-              <NavLink
-                to="/blog"
-                className={({ isActive }) =>
-                  `text-gray-700 hover:text-brand-green font-medium transition-colors px-3 py-2 font-primary relative group ${isActive ? 'after:absolute after:left-1/2 after:-translate-x-1/2 after:-bottom-1 after:h-0.5 after:w-12 after:bg-brand-green after:transition-all after:duration-300' : 'after:absolute after:left-1/2 after:-translate-x-1/2 after:-bottom-1 after:h-0.5 after:w-0 group-hover:after:w-12 after:bg-brand-green after:transition-all after:duration-300'}`
-                }
-              >
-                Blog
-              </NavLink>
             </li>
 
             <li>
@@ -273,10 +262,29 @@ const Navbar: React.FC = () => {
             <UserAvatar />
           </div>
 
-          {/* Mobile Dropdown Menu */}
+          {/* Mobile Slide-in Menu */}
           {menuOpen && (
-            <div className="absolute top-full left-0 w-full bg-white border-t border-gray-200 shadow-xl md:hidden z-50">
-              <ul className="flex flex-col py-4">
+            <>
+              {/* Backdrop */}
+              <div 
+                className="fixed inset-0 bg-black/50 md:hidden z-40"
+                onClick={() => setMenuOpen(false)}
+              />
+              
+              {/* Sidebar */}
+              <div className="fixed top-0 right-0 h-full w-80 bg-white shadow-2xl md:hidden z-50 transform transition-transform duration-300 ease-in-out overflow-y-auto animate-slide-in-right">
+                {/* Close Button */}
+                <div className="flex justify-end p-4">
+                  <button
+                    onClick={() => setMenuOpen(false)}
+                    className="p-2 rounded-lg hover:bg-gray-100 transition-colors"
+                    aria-label="Close menu"
+                  >
+                    <X size={24} className="text-gray-700" />
+                  </button>
+                </div>
+                
+              <ul className="flex flex-col py-4 px-2">
                 {/* Services Submenu (mobile) */}
                 <li>
                   <button
@@ -348,36 +356,6 @@ const Navbar: React.FC = () => {
                   </Link>
                 </li>
 
-                <li>
-                  <Link
-                    to="/resources/webinars"
-                    onClick={() => setMenuOpen(false)}
-                    className="block px-6 py-3 text-gray-700  hover:text-brand-green font-medium transition-colors"
-                  >
-                    Webinars
-                  </Link>
-                </li>
-
-                <li>
-                  <Link
-                    to="/podcasts"
-                    onClick={() => setMenuOpen(false)}
-                    className="block px-6 py-3 text-gray-700 hover:bg-brand-green/10 hover:text-brand-green font-medium transition-colors"
-                  >
-                    Podcasts
-                  </Link>
-                </li>
-
-                <li>
-                  <Link
-                    to="/blog"
-                    onClick={() => setMenuOpen(false)}
-                    className="block px-6 py-3 text-gray-700 hover:bg-brand-green/10 hover:text-brand-green font-medium transition-colors"
-                  >
-                    Blog
-                  </Link>
-                </li>
-
                 {/* Resources Submenu (mobile) */}
                 <li>
                   <button
@@ -401,7 +379,19 @@ const Navbar: React.FC = () => {
                     <ul className="bg-gray-50">
                       <li>
                         <Link
-                          to="/resources/podcasts"
+                          to="/resources/webinars"
+                          onClick={() => {
+                            setMenuOpen(false);
+                            setResourcesOpen(false);
+                          }}
+                          className="block px-8 py-3 text-gray-600  hover:text-brand-green transition-colors"
+                        >
+                          Webinars
+                        </Link>
+                      </li>
+                      <li>
+                        <Link
+                          to="/podcasts"
                           onClick={() => {
                             setMenuOpen(false);
                             setResourcesOpen(false);
@@ -413,14 +403,14 @@ const Navbar: React.FC = () => {
                       </li>
                       <li>
                         <Link
-                          to="/resources/webinars"
+                          to="/blog"
                           onClick={() => {
                             setMenuOpen(false);
                             setResourcesOpen(false);
                           }}
                           className="block px-8 py-3 text-gray-600  hover:text-brand-green transition-colors"
                         >
-                          Webinars
+                          Blog
                         </Link>
                       </li>
                     </ul>
@@ -470,7 +460,8 @@ const Navbar: React.FC = () => {
                   <UserAvatar className="w-full" />
                 </li>
               </ul>
-            </div>
+              </div>
+            </>
           )}
         </div>
       </div>

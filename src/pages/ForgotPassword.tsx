@@ -8,8 +8,7 @@ import {
 } from "../lib/validation";
 import { forgetPassword } from "../api/auth.api";
 import toast from "react-hot-toast";
-import { ArrowLeft, Mail, Send } from "lucide-react";
-import selflove from "../assets/images/selflove.png";
+import logo from "../assets/images/logo-with-name.png";
 
 const ForgotPassword: React.FC = () => {
   const [loading, setLoading] = useState<boolean>(false);
@@ -51,128 +50,96 @@ const ForgotPassword: React.FC = () => {
   };
 
   return (
-    <main className="min-h-screen bg-gradient-to-br from-gray-50 to-white">
-      <section className="w-full flex flex-col md:flex-row h-screen">
-        {/* Left Image (hidden on mobile) */}
-        <div className="hidden md:block md:w-1/2 relative">
-          <img
-            src={selflove}
-            alt="Reset Password Illustration"
-            className="h-full w-full object-cover"
-          />
-          <div className="absolute inset-0 bg-gradient-to-r from-brand-purple/20 to-brand-green/20"></div>
-        </div>
+    <main className="min-h-screen flex flex-col md:flex-row">
+      {/* Left Side - Image (hidden on mobile) */}
+      <div 
+        className="hidden md:block md:w-1/2 relative"
+        style={{
+          backgroundImage: "url(/assets/homepage/hero-bg.png)",
+          backgroundSize: "cover",
+          backgroundPosition: "center",
+        }}
+      >
+        <div className="absolute inset-0 bg-black/20" />
+      </div>
 
-        {/* Right Form */}
-        <div className="w-full md:w-1/2 flex flex-col justify-center p-4 sm:p-6 lg:p-8">
-          {/* Back Button */}
-          <button
-            onClick={() => navigate("/login")}
-            className="flex items-center gap-2 text-gray-600 hover:text-gray-800 mb-6 transition-colors self-start"
-          >
-            <ArrowLeft size={20} />
-            <span className="text-sm">Back to Login</span>
-          </button>
+      {/* Right Side - Form */}
+      <div className="w-full md:w-1/2 flex flex-col justify-center px-6 sm:px-10 lg:px-16 py-12 bg-white">
+        <div className="w-full max-w-md mx-auto">
+          {/* Logo */}
+          <div className="mb-8">
+            <img src={logo} alt="Fifty Firsts Wellness" className="h-12 w-auto" />
+          </div>
 
-          <div className="max-w-sm mx-auto w-full">
-            {/* Header */}
-            <div className="text-center mb-6">
-              <div className="w-16 h-16 bg-brand-purple/10 rounded-full flex items-center justify-center mx-auto mb-4">
-                <Mail className="w-8 h-8 text-brand-purple" />
-              </div>
-              <h1 className="text-2xl sm:text-3xl font-bold text-gray-900 mb-2">
-                Forgot Password?
-              </h1>
-              <p className="text-gray-600 text-sm">
-                No worries! Enter your email and we'll send you a reset code.
-              </p>
-            </div>
+          {/* Header */}
+          <div className="mb-8">
+            <h1 
+              className="text-3xl sm:text-4xl font-semibold text-gray-900 mb-2"
+              style={{ fontFamily: '"League Spartan", sans-serif' }}
+            >
+              Forgot Password
+            </h1>
+            <p className="text-sm text-gray-600">
+              Enter your email and we'll send you a link to reset your password
+            </p>
+          </div>
 
-            {/* Form Card */}
-            <div className="bg-white p-6 rounded-xl shadow-lg">
-              <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
-                {/* Email Input */}
-                <div>
-                  <label
-                    htmlFor="email"
-                    className="block text-sm font-medium text-gray-700 mb-2"
-                  >
-                    Email Address
-                  </label>
-                  <input
-                    type="email"
-                    id="email"
-                    placeholder="Enter your email address"
-                    {...register("email")}
-                    className={`w-full border rounded-lg px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-brand-purple transition-colors ${
-                      errors.email
-                        ? "border-red-500"
-                        : watchedFields.email && !errors.email
-                        ? "border-brand-purple"
-                        : "border-gray-300"
-                    }`}
-                  />
-                  {errors.email && (
-                    <p className="text-red-500 text-xs mt-1">
-                      {errors.email.message}
-                    </p>
-                  )}
-                </div>
-
-                {/* Submit Button */}
-                <button
-                  type="submit"
-                  disabled={loading || !watchedFields.email}
-                  className="w-full bg-brand-purple text-white py-3 rounded-lg font-medium hover:bg-brand-purple-dark transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
-                >
-                  {loading ? (
-                    <>
-                      <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
-                      Sending...
-                    </>
-                  ) : (
-                    <>
-                      <Send size={18} />
-                      Send Reset Code
-                    </>
-                  )}
-                </button>
-              </form>
-
-              {/* Divider */}
-              <div className="relative my-6">
-                <div className="absolute inset-0 flex items-center">
-                  <div className="w-full border-t border-gray-300"></div>
-                </div>
-                <div className="relative flex justify-center text-sm">
-                  <span className="px-2 bg-white text-gray-500">or</span>
-                </div>
-              </div>
-
-              {/* Back to Login */}
-              <div className="text-center">
-                <p className="text-gray-600 text-sm">
-                  Remember your password?{" "}
-                  <Link
-                    to="/login"
-                    className="text-brand-purple font-medium hover:text-brand-purple-dark transition-colors"
-                  >
-                    Sign in here
-                  </Link>
+          {/* Form */}
+          <form onSubmit={handleSubmit(onSubmit)} className="space-y-5">
+            {/* Email Input */}
+            <div>
+              <label
+                htmlFor="email"
+                className="block text-sm font-medium text-gray-700 mb-2"
+              >
+                Email
+              </label>
+              <input
+                type="email"
+                id="email"
+                placeholder="johndoe@example.com"
+                {...register("email")}
+                className={`w-full border rounded-xl px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-brand-green focus:border-transparent transition-colors ${
+                  errors.email ? "border-red-500" : "border-gray-300"
+                }`}
+              />
+              {errors.email && (
+                <p className="text-red-500 text-xs mt-1">
+                  {errors.email.message}
                 </p>
-              </div>
+              )}
             </div>
 
-            {/* Help Text */}
-            <div className="mt-6 text-center">
-              <p className="text-xs text-gray-500">
-                Check your spam folder if you don't receive the email within a
-                few minutes.
-              </p>
+            {/* Submit Button */}
+            <button
+              type="submit"
+              disabled={loading || !watchedFields.email}
+              className="w-full bg-brand-green text-white py-3 px-6 rounded-full font-semibold hover:bg-brand-green-dark transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+              style={{ fontFamily: '"League Spartan", sans-serif' }}
+            >
+              {loading ? "Sending..." : "Submit"}
+            </button>
+
+            {/* Login Link */}
+            <div className="text-center text-sm text-gray-600">
+              Remember password?{" "}
+              <Link
+                to="/login"
+                className="text-brand-green font-semibold hover:text-brand-green-dark transition-colors"
+              >
+                Login
+              </Link>
             </div>
+          </form>
+
+          {/* Help Text */}
+          <div className="mt-6 text-center">
+            <p className="text-xs text-gray-500">
+              Check your spam folder if you don't receive the email within a few minutes.
+            </p>
           </div>
         </div>
-      </section>
+      </div>
     </main>
   );
 };
