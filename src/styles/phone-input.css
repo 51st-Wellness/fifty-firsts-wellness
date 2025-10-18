@@ -1,48 +1,54 @@
 /* Custom styles for react-phone-number-input */
-.phone-input {
+.phone-input-custom {
   width: 100%;
 }
 
-.phone-input .PhoneInputInput {
+.phone-input-custom .PhoneInputInput {
   border: 1px solid #d1d5db;
-  border-radius: 0.5rem;
-  padding: 0.625rem 0.75rem;
+  border-radius: 0.75rem;
+  padding: 0.75rem 1rem;
   font-size: 0.875rem;
   outline: none;
   transition: all 0.2s;
+  width: 100%;
 }
 
-.phone-input .PhoneInputInput:focus {
-  border-color: #14b8a6;
-  box-shadow: 0 0 0 2px rgba(20, 184, 166, 0.2);
+.phone-input-custom .PhoneInputInput:focus {
+  border-color: #0E7777;
+  box-shadow: 0 0 0 2px rgba(14, 119, 119, 0.1);
+  outline: 2px solid transparent;
+  outline-offset: 2px;
 }
 
-.phone-input .PhoneInputCountrySelect {
+.phone-input-custom .PhoneInputCountry {
+  margin-right: 0.5rem;
+  padding: 0.5rem;
+}
+
+.phone-input-custom .PhoneInputCountrySelect {
   border: 1px solid #d1d5db;
-  border-radius: 0.5rem 0 0 0.5rem;
-  padding: 0.625rem 0.5rem;
+  border-radius: 0.75rem;
+  padding: 0.5rem;
   background: white;
   outline: none;
+  margin-right: 0.5rem;
 }
 
-.phone-input .PhoneInputCountrySelect:focus {
-  border-color: #14b8a6;
-  box-shadow: 0 0 0 2px rgba(20, 184, 166, 0.2);
+.phone-input-custom .PhoneInputCountrySelect:focus {
+  border-color: #0E7777;
+  box-shadow: 0 0 0 2px rgba(14, 119, 119, 0.1);
 }
 
-.phone-input .PhoneInputCountryIcon {
+.phone-input-custom .PhoneInputCountryIcon {
   width: 20px;
   height: 15px;
 }
 
 /* Error state */
-.phone-input.error .PhoneInputInput,
-.phone-input.error .PhoneInputCountrySelect {
+.phone-input-custom.border-red-500 .PhoneInputInput {
   border-color: #ef4444;
 }
 
-/* Success state */
-.phone-input.success .PhoneInputInput,
-.phone-input.success .PhoneInputCountrySelect {
-  border-color: #10b981;
+.phone-input-custom.border-red-500 .PhoneInputCountrySelect {
+  border-color: #ef4444;
 }

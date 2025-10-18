@@ -1,12 +1,11 @@
 import React, { useState } from "react";
-import selflove from "../assets/images/selflove.png"; // hero image
-import { FiEye, FiEyeOff } from "react-icons/fi";
+import logo from "../assets/images/logo-with-name.png";
+import { Eye, EyeOff } from "lucide-react";
 import { FcGoogle } from "react-icons/fc";
 import { signUp } from "../api/auth.api";
 import toast from "react-hot-toast";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, Link } from "react-router-dom";
 import { AxiosError } from "axios";
-import { storeAuthToken } from "../lib/utils";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { signupSchema, SignupFormData } from "../lib/validation";
@@ -17,8 +16,7 @@ import "../styles/phone-input.css";
 // Signup page component
 const Signup: React.FC = () => {
   const [showPassword, setShowPassword] = useState<boolean>(false);
-  const [showConfirmPassword, setShowConfirmPassword] =
-    useState<boolean>(false);
+  const [showConfirmPassword, setShowConfirmPassword] = useState<boolean>(false);
   const [loading, setLoading] = useState<boolean>(false);
 
   const navigate = useNavigate();
@@ -27,7 +25,7 @@ const Signup: React.FC = () => {
   const {
     register,
     handleSubmit,
-    formState: { errors, isValid },
+    formState: { errors },
     watch,
     setValue,
   } = useForm<SignupFormData>({
@@ -48,217 +46,258 @@ const Signup: React.FC = () => {
         phone: data.phone,
       });
       setLoading(false);
-
-      toast.success("Signup successful! Please check your email.");
-      navigate("/email-verification", { state: { email: data.email } });
-    } catch (error: any) {
+      toast.success("Account created successfully! Please check your email to verify your account.");
+      navigate("/login");
+    } catch (err) {
       setLoading(false);
-      if (error instanceof AxiosError) {
-        toast.error(error.response?.data?.message || "Signup failed!");
-      } else {
-        toast.error("Something went wrong!");
-      }
+      const error = err as AxiosError<{ message: string }>;
+      toast.error(error.response?.data?.message || "Failed to create account");
     }
   };
 
   return (
-    <main className="w-full flex">
-      <section className="w-full flex flex-col md:flex-row h-screen">
-        {/* Left Image */}
-        <div className="hidden md:block md:w-1/2 h-screen">
-          <img
-            src={selflove}
-            alt="Login Illustration"
-            className="h-full w-full object-cover"
-          />
-        </div>
+    <main className="min-h-screen flex flex-col md:flex-row">
+      {/* Left Side - Image (hidden on mobile) */}
+      <div 
+        className="hidden md:block md:w-1/2 relative"
+        style={{
+          backgroundImage: "url(/assets/homepage/hero-bg.png)",
+          backgroundSize: "cover",
+          backgroundPosition: "center",
+        }}
+      >
+        <div className="absolute inset-0 bg-black/20" />
+      </div>
 
-        {/* Right Form */}
-        <article className="w-full md:w-1/2 h-screen flex flex-col justify-center p-4 sm:p-6 bg-gray-50">
-          {/* Card */}
-          <div className="w-full max-w-xl mx-auto bg-white p-4 sm:p-6 rounded-lg shadow-sm overflow-y-auto max-h-[95vh]">
-            {/* Title */}
-            <h2 className="text-2xl font-bold text-gray-900">
-              Create an account!
-            </h2>
-            <p className="text-sm text-gray-500 mb-4">
-              Join us now! Your wellness journey begins here.
-            </p>
+      {/* Right Side - Form */}
+      <div className="w-full md:w-1/2 flex flex-col justify-center px-6 sm:px-10 lg:px-16 py-12 bg-white overflow-y-auto">
+        <div className="w-full max-w-md mx-auto">
+          {/* Logo */}
+          <div className="mb-8">
+            <img src={logo} alt="Fifty Firsts Wellness" className="h-12 w-auto" />
+          </div>
 
-            {/* Form */}
-            <form
-              onSubmit={handleSubmit(onSubmit)}
-              className="grid grid-cols-1 md:grid-cols-2 gap-3"
+          {/* Header */}
+          <div className="mb-8">
+            <h1 
+              className="text-3xl sm:text-4xl font-semibold text-gray-900 mb-2"
+              style={{ fontFamily: '"League Spartan", sans-serif' }}
             >
-              {/* First Name */}
+              Create an account
+            </h1>
+            <p className="text-sm text-gray-600">
+              Please enter your details to create your account
+            </p>
+          </div>
+
+          {/* Form */}
+          <form onSubmit={handleSubmit(onSubmit)} className="space-y-5">
+            {/* First Name and Last Name */}
+            <div className="grid grid-cols-2 gap-4">
               <div>
+                <label
+                  htmlFor="firstName"
+                  className="block text-sm font-medium text-gray-700 mb-2"
+                >
+                  First Name
+                </label>
                 <input
                   type="text"
-                  placeholder="First Name"
+                  id="firstName"
+                  placeholder="John"
                   {...register("firstName")}
-                  className={`w-full border rounded-lg px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-teal-500 ${
-                    errors.firstName
-                      ? "border-red-500"
-                      : watchedFields.firstName && !errors.firstName
-                      ? "border-green-500"
-                      : "border-gray-300"
+                  className={`w-full border rounded-xl px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-brand-green focus:border-transparent transition-colors ${
+                    errors.firstName ? "border-red-500" : "border-gray-300"
                   }`}
                 />
                 {errors.firstName && (
-                  <p className="text-red-500 text-xs">
+                  <p className="text-red-500 text-xs mt-1">
                     {errors.firstName.message}
                   </p>
                 )}
               </div>
 
-              {/* Last Name */}
               <div>
+                <label
+                  htmlFor="lastName"
+                  className="block text-sm font-medium text-gray-700 mb-2"
+                >
+                  Last Name
+                </label>
                 <input
                   type="text"
-                  placeholder="Last Name"
+                  id="lastName"
+                  placeholder="Doe"
                   {...register("lastName")}
-                  className={`w-full border rounded-lg px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-teal-500 ${
-                    errors.lastName
-                      ? "border-red-500"
-                      : watchedFields.lastName && !errors.lastName
-                      ? "border-green-500"
-                      : "border-gray-300"
+                  className={`w-full border rounded-xl px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-brand-green focus:border-transparent transition-colors ${
+                    errors.lastName ? "border-red-500" : "border-gray-300"
                   }`}
                 />
                 {errors.lastName && (
-                  <p className="text-red-500 text-xs">
+                  <p className="text-red-500 text-xs mt-1">
                     {errors.lastName.message}
                   </p>
                 )}
               </div>
+            </div>
 
-              {/* Email */}
-              <div className="md:col-span-2">
-                <input
-                  type="email"
-                  placeholder="Email Address"
-                  {...register("email")}
-                  className={`w-full border rounded-lg px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-teal-500 ${
-                    errors.email
-                      ? "border-red-500"
-                      : watchedFields.email && !errors.email
-                      ? "border-green-500"
-                      : "border-gray-300"
-                  }`}
-                />
-                {errors.email && (
-                  <p className="text-red-500 text-xs">{errors.email.message}</p>
-                )}
-              </div>
+            {/* Email */}
+            <div>
+              <label
+                htmlFor="email"
+                className="block text-sm font-medium text-gray-700 mb-2"
+              >
+                Email
+              </label>
+              <input
+                type="email"
+                id="email"
+                placeholder="johndoe@example.com"
+                {...register("email")}
+                className={`w-full border rounded-xl px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-brand-green focus:border-transparent transition-colors ${
+                  errors.email ? "border-red-500" : "border-gray-300"
+                }`}
+              />
+              {errors.email && (
+                <p className="text-red-500 text-xs mt-1">
+                  {errors.email.message}
+                </p>
+              )}
+            </div>
 
-              {/* Phone */}
-              <div className="md:col-span-2">
-                <PhoneInput
-                  international
-                  defaultCountry="US"
-                  placeholder="Phone Number"
-                  value={watchedFields.phone}
-                  onChange={(value) => setValue("phone", value || "")}
-                  className={`phone-input ${
-                    errors.phone
-                      ? "error"
-                      : watchedFields.phone && !errors.phone
-                      ? "success"
-                      : ""
-                  }`}
-                />
-                {errors.phone && (
-                  <p className="text-red-500 text-xs">{errors.phone.message}</p>
-                )}
-              </div>
+            {/* Phone Number */}
+            <div>
+              <label
+                htmlFor="phone"
+                className="block text-sm font-medium text-gray-700 mb-2"
+              >
+                Phone Number
+              </label>
+              <PhoneInput
+                international
+                defaultCountry="US"
+                value={watchedFields.phone}
+                onChange={(value) => setValue("phone", value || "")}
+                className={`phone-input-custom ${
+                  errors.phone ? "border-red-500" : "border-gray-300"
+                }`}
+              />
+              {errors.phone && (
+                <p className="text-red-500 text-xs mt-1">
+                  {errors.phone.message}
+                </p>
+              )}
+            </div>
 
-              {/* Password */}
+            {/* Password */}
+            <div>
+              <label
+                htmlFor="password"
+                className="block text-sm font-medium text-gray-700 mb-2"
+              >
+                Create Password
+              </label>
               <div className="relative">
                 <input
                   type={showPassword ? "text" : "password"}
-                  placeholder="Password"
+                  id="password"
+                  placeholder="Must be at least 8 characters"
                   {...register("password")}
-                  className={`w-full border rounded-lg px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-teal-500 ${
-                    errors.password
-                      ? "border-red-500"
-                      : watchedFields.password && !errors.password
-                      ? "border-green-500"
-                      : "border-gray-300"
+                  className={`w-full border rounded-xl px-4 py-3 pr-12 text-sm focus:outline-none focus:ring-2 focus:ring-brand-green focus:border-transparent transition-colors ${
+                    errors.password ? "border-red-500" : "border-gray-300"
                   }`}
                 />
-                <span
-                  className="absolute right-3 top-3 cursor-pointer"
+                <button
+                  type="button"
                   onClick={() => setShowPassword(!showPassword)}
+                  className="absolute right-4 top-1/2 transform -translate-y-1/2 text-gray-400 hover:text-gray-600"
                 >
-                  {showPassword ? <FiEyeOff /> : <FiEye />}
-                </span>
-                {errors.password && (
-                  <p className="text-red-500 text-xs">
-                    {errors.password.message}
-                  </p>
-                )}
+                  {showPassword ? <EyeOff size={20} /> : <Eye size={20} />}
+                </button>
               </div>
+              {errors.password && (
+                <p className="text-red-500 text-xs mt-1">
+                  {errors.password.message}
+                </p>
+              )}
+            </div>
 
-              {/* Confirm Password */}
+            {/* Confirm Password */}
+            <div>
+              <label
+                htmlFor="confirmPassword"
+                className="block text-sm font-medium text-gray-700 mb-2"
+              >
+                Confirm Password
+              </label>
               <div className="relative">
                 <input
                   type={showConfirmPassword ? "text" : "password"}
-                  placeholder="Confirm Password"
+                  id="confirmPassword"
+                  placeholder="Re-enter your password"
                   {...register("confirmPassword")}
-                  className={`w-full border rounded-lg px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-teal-500 ${
-                    errors.confirmPassword
-                      ? "border-red-500"
-                      : watchedFields.confirmPassword && !errors.confirmPassword
-                      ? "border-green-500"
-                      : "border-gray-300"
+                  className={`w-full border rounded-xl px-4 py-3 pr-12 text-sm focus:outline-none focus:ring-2 focus:ring-brand-green focus:border-transparent transition-colors ${
+                    errors.confirmPassword ? "border-red-500" : "border-gray-300"
                   }`}
                 />
-                <span
-                  className="absolute right-3 top-3 cursor-pointer"
+                <button
+                  type="button"
                   onClick={() => setShowConfirmPassword(!showConfirmPassword)}
+                  className="absolute right-4 top-1/2 transform -translate-y-1/2 text-gray-400 hover:text-gray-600"
                 >
-                  {showConfirmPassword ? <FiEyeOff /> : <FiEye />}
-                </span>
-                {errors.confirmPassword && (
-                  <p className="text-red-500 text-xs">
-                    {errors.confirmPassword.message}
-                  </p>
-                )}
+                  {showConfirmPassword ? <EyeOff size={20} /> : <Eye size={20} />}
+                </button>
               </div>
+              {errors.confirmPassword && (
+                <p className="text-red-500 text-xs mt-1">
+                  {errors.confirmPassword.message}
+                </p>
+              )}
+            </div>
 
-              {/* Submit Button */}
-              <button
-                type="submit"
-                disabled={loading}
-                className="md:col-span-2 w-full bg-teal-600 text-white py-2.5 rounded-lg hover:bg-teal-700 transition text-sm font-medium disabled:opacity-50"
-              >
-                {loading ? "Signing up..." : "Sign Up"}
-              </button>
-            </form>
+            {/* Signup Button */}
+            <button
+              type="submit"
+              disabled={loading}
+              className="w-full bg-brand-green text-white py-3 px-6 rounded-full font-semibold hover:bg-brand-green-dark transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+              style={{ fontFamily: '"League Spartan", sans-serif' }}
+            >
+              {loading ? "Creating account..." : "Signup"}
+            </button>
 
             {/* Divider */}
-            <div className="flex items-center my-3">
-              <div className="flex-grow h-px bg-gray-300"></div>
-              <span className="px-2 text-xs text-gray-400">or</span>
-              <div className="flex-grow h-px bg-gray-300"></div>
+            <div className="relative">
+              <div className="absolute inset-0 flex items-center">
+                <div className="w-full border-t border-gray-200"></div>
+              </div>
+              <div className="relative flex justify-center text-sm">
+                <span className="px-4 bg-white text-gray-500">or</span>
+              </div>
             </div>
 
             {/* Google Signup */}
-            <button className="w-full border border-[#4444B3] px-3 py-2.5 rounded-lg justify-center text-[#4444B3] text-sm font-medium flex items-center gap-2 hover:bg-[#f5f5ff] transition">
-              <FcGoogle className="text-lg" />
+            <button
+              type="button"
+              className="w-full border border-gray-300 text-gray-700 py-3 px-6 rounded-full font-medium hover:bg-gray-50 transition-colors flex items-center justify-center gap-2"
+              style={{ fontFamily: '"League Spartan", sans-serif' }}
+            >
+              <FcGoogle size={20} />
               Signup with Google
             </button>
 
             {/* Login Link */}
-            <p className="text-xs text-center text-gray-600 mt-3">
+            <div className="text-center text-sm text-gray-600">
               Already have an account?{" "}
-              <a href="/login" className="text-teal-700 font-semibold">
+              <Link
+                to="/login"
+                className="text-brand-green font-semibold hover:text-brand-green-dark transition-colors"
+              >
                 Login
-              </a>
-            </p>
-          </div>
-        </article>
-      </section>
+              </Link>
+            </div>
+          </form>
+        </div>
+      </div>
     </main>
   );
 };

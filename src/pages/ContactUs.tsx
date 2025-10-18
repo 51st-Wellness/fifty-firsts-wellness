@@ -10,6 +10,7 @@ import {
   CheckCircle,
 } from "lucide-react";
 import Footer from "../components/Footer";
+import Navbar from "../components/Navbar";
 
 const ContactUs: React.FC = () => {
   const [formData, setFormData] = useState({
@@ -37,110 +38,71 @@ const ContactUs: React.FC = () => {
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-gray-50 to-white">
+      <Navbar />
       <div className="py-16 px-4">
         {/* Header */}
-        <div className="text-center mb-16">
-          <h1 className="text-4xl sm:text-5xl lg:text-6xl font-bold text-gray-900 mb-6">
-            Get in Touch with Us
-          </h1>
-          <p className="text-lg sm:text-xl text-gray-600 max-w-3xl mx-auto">
-            We're here to help! Whether you have a question about our services,
-            need assistance with your account, or want to provide feedback, our
-            team is ready to assist you.
-          </p>
-        </div>
+        <div className="max-w-7xl mx-auto grid grid-cols-1 lg:grid-cols-2 gap-10 items-start mb-10">
+          <div>
+            <h1 className="text-4xl sm:text-5xl lg:text-6xl font-semibold text-gray-900 mb-6" style={{ fontFamily: '"League Spartan", sans-serif' }}>
+              Get in touch
+              <br />
+              with us
+            </h1>
+            <p className="text-base sm:text-lg text-gray-600 max-w-xl">
+              We're here to help! Whether you have a question about our services, need assistance with your account, or want to provide feedback, our team is ready to assist you.
+            </p>
 
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-16">
-          {/* Left Section */}
-          <div className="space-y-8">
-            {/* Contact Info Cards */}
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
-              <div className="bg-white p-6 rounded-2xl shadow-lg hover:shadow-xl transition-shadow">
-                <div className="flex items-center space-x-3 mb-4">
-                  <div className="bg-indigo-100 p-3 rounded-lg">
-                    <Mail className="w-6 h-6 text-indigo-600" />
-                  </div>
-                  <h3 className="text-lg font-semibold text-gray-900">
-                    Email Us
-                  </h3>
+            {/* Business Hours */}
+            <div className="mt-8 max-w-xl bg-gray-100 p-8 rounded-2xl">
+              <h3 className="font-semibold mb-4" style={{ fontFamily: '"League Spartan", sans-serif' }}>Business Hours</h3>
+              <div className="grid grid-cols-3 gap-6">
+                <div>
+                  <div className="text-sm text-gray-600 mb-1">Mon - Fri</div>
+                  <div className="text-sm text-gray-900">9:00am - 8:00pm</div>
                 </div>
-                <p className="text-gray-600">info@fiftyfirstswellness.com</p>
-              </div>
-
-              <div className="bg-white p-6 rounded-2xl shadow-lg hover:shadow-xl transition-shadow">
-                <div className="flex items-center space-x-3 mb-4">
-                  <div className="bg-indigo-100 p-3 rounded-lg">
-                    <Phone className="w-6 h-6 text-indigo-600" />
-                  </div>
-                  <h3 className="text-lg font-semibold text-gray-900">
-                    Call Us
-                  </h3>
+                <div>
+                  <div className="text-sm text-gray-600 mb-1">Saturday</div>
+                  <div className="text-sm text-gray-900">9:00am - 6:00pm</div>
                 </div>
-                <p className="text-gray-600">+1 (555) 123-4567</p>
-              </div>
-
-              <div className="bg-white p-6 rounded-2xl shadow-lg hover:shadow-xl transition-shadow">
-                <div className="flex items-center space-x-3 mb-4">
-                  <div className="bg-indigo-100 p-3 rounded-lg">
-                    <MapPin className="w-6 h-6 text-indigo-600" />
-                  </div>
-                  <h3 className="text-lg font-semibold text-gray-900">
-                    Visit Us
-                  </h3>
-                </div>
-                <p className="text-gray-600">
-                  123 Wellness Street, Health City, HC 12345
-                </p>
-              </div>
-
-              <div className="bg-white p-6 rounded-2xl shadow-lg hover:shadow-xl transition-shadow">
-                <div className="flex items-center space-x-3 mb-4">
-                  <div className="bg-indigo-100 p-3 rounded-lg">
-                    <Clock className="w-6 h-6 text-indigo-600" />
-                  </div>
-                  <h3 className="text-lg font-semibold text-gray-900">
-                    Business Hours
-                  </h3>
-                </div>
-                <div className="space-y-1 text-gray-600">
-                  <p>Mon - Fri: 9:00am - 8:00pm</p>
-                  <p>Saturday: 9:00am - 6:00pm</p>
-                  <p>Sunday: 9:00am - 5:00pm</p>
+                <div>
+                  <div className="text-sm text-gray-600 mb-1">Sunday</div>
+                  <div className="text-sm text-gray-900">9:00am - 5:00pm</div>
                 </div>
               </div>
             </div>
 
-            {/* Social Media */}
-            <div className="bg-white p-8 rounded-2xl shadow-lg">
-              <h3 className="text-xl font-semibold text-gray-900 mb-6">
-                Follow Us
-              </h3>
-              <div className="flex space-x-4">
-                <a
-                  href="#"
-                  className="bg-indigo-100 p-4 rounded-lg hover:bg-indigo-200 transition-colors"
-                >
-                  <Instagram className="w-6 h-6 text-indigo-600" />
-                </a>
-                <a
-                  href="#"
-                  className="bg-indigo-100 p-4 rounded-lg hover:bg-indigo-200 transition-colors"
-                >
-                  <Linkedin className="w-6 h-6 text-indigo-600" />
-                </a>
-                <a
-                  href="#"
-                  className="bg-indigo-100 p-4 rounded-lg hover:bg-indigo-200 transition-colors"
-                >
-                  <Mail className="w-6 h-6 text-indigo-600" />
-                </a>
-              </div>
+            {/* Quick contacts */}
+            <div className="mt-8 grid grid-cols-2 gap-4 max-w-md">
+              <a href="mailto:info@fiftyfirstswellness.com" className="flex items-center gap-3 text-gray-700">
+                <div className="w-10 h-10 rounded-full border-2 border-gray-300 flex items-center justify-center flex-shrink-0">
+                  <Mail className="w-5 h-5 text-gray-500" />
+                </div>
+                <span className="text-sm">Email</span>
+              </a>
+              <a href="https://linkedin.com" target="_blank" rel="noopener noreferrer" className="flex items-center gap-3 text-gray-700">
+                <div className="w-10 h-10 rounded-full border-2 border-gray-300 flex items-center justify-center flex-shrink-0">
+                  <Linkedin className="w-5 h-5 text-gray-500" />
+                </div>
+                <span className="text-sm">LinkedIn</span>
+              </a>
+              <a href="https://instagram.com" target="_blank" rel="noopener noreferrer" className="flex items-center gap-3 text-gray-700">
+                <div className="w-10 h-10 rounded-full border-2 border-gray-300 flex items-center justify-center flex-shrink-0">
+                  <Instagram className="w-5 h-5 text-gray-500" />
+                </div>
+                <span className="text-sm">Instagram</span>
+              </a>
+              <a href="tel:+44123232122" className="flex items-center gap-3 text-gray-700">
+                <div className="w-10 h-10 rounded-full border-2 border-gray-300 flex items-center justify-center flex-shrink-0">
+                  <Phone className="w-5 h-5 text-gray-500" />
+                </div>
+                <span className="text-sm">+441 2323 122</span>
+              </a>
             </div>
           </div>
 
           {/* Right Section (Form) */}
-          <div className="bg-white p-8 rounded-2xl shadow-xl">
-            <h2 className="text-2xl font-bold text-gray-900 mb-6">
+          <div className="bg-gray-100 p-8 rounded-2xl">
+            <h2 className="text-2xl font-semibold text-gray-900 mb-6" style={{ fontFamily: '"League Spartan", sans-serif' }}>
               Send us a Message
             </h2>
 
@@ -165,11 +127,11 @@ const ContactUs: React.FC = () => {
                     <input
                       type="text"
                       name="firstName"
-                      placeholder="Enter your first name"
+                      placeholder="John"
                       value={formData.firstName}
                       onChange={handleChange}
                       required
-                      className="w-full border border-gray-300 rounded-lg px-4 py-3 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent transition-colors"
+                      className="w-full bg-white border border-gray-300 rounded-xl px-4 py-3 focus:outline-none focus:ring-2 focus:ring-[#0E7777] focus:border-transparent transition-colors"
                     />
                   </div>
                   <div>
@@ -179,11 +141,11 @@ const ContactUs: React.FC = () => {
                     <input
                       type="text"
                       name="lastName"
-                      placeholder="Enter your last name"
+                      placeholder="Doe"
                       value={formData.lastName}
                       onChange={handleChange}
                       required
-                      className="w-full border border-gray-300 rounded-lg px-4 py-3 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent transition-colors"
+                      className="w-full bg-white border border-gray-300 rounded-xl px-4 py-3 focus:outline-none focus:ring-2 focus:ring-[#0E7777] focus:border-transparent transition-colors"
                     />
                   </div>
                 </div>
@@ -191,49 +153,49 @@ const ContactUs: React.FC = () => {
                 {/* Email */}
                 <div>
                   <label className="block text-sm font-semibold text-gray-700 mb-2">
-                    Email Address
+                    Email
                   </label>
                   <input
                     type="email"
                     name="email"
-                    placeholder="Enter your email address"
+                    placeholder="johndoe@example.com"
                     value={formData.email}
                     onChange={handleChange}
                     required
-                    className="w-full border border-gray-300 rounded-lg px-4 py-3 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent transition-colors"
+                    className="w-full bg-white border border-gray-300 rounded-xl px-4 py-3 focus:outline-none focus:ring-2 focus:ring-[#0E7777] focus:border-transparent transition-colors"
                   />
                 </div>
 
                 {/* Message */}
                 <div>
                   <label className="block text-sm font-semibold text-gray-700 mb-2">
-                    Message
+                    How can we help you?
                   </label>
                   <textarea
                     name="message"
-                    placeholder="How can we help you? Enter your message..."
+                    placeholder="Enter your message..."
                     rows={5}
                     value={formData.message}
                     onChange={handleChange}
                     required
-                    className="w-full border border-gray-300 rounded-lg px-4 py-3 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent transition-colors resize-none"
+                    className="w-full bg-white border border-gray-300 rounded-xl px-4 py-3 focus:outline-none focus:ring-2 focus:ring-[#0E7777] focus:border-transparent transition-colors resize-none"
                   />
                 </div>
 
                 {/* Button */}
                 <button
                   type="submit"
-                  className="w-full bg-indigo-600 text-white py-4 px-6 rounded-lg font-semibold hover:bg-indigo-700 transition-colors shadow-lg hover:shadow-xl flex items-center justify-center gap-2"
+                  className="bg-[#4444B3] text-white py-4 px-6 rounded-full font-semibold hover:opacity-90 transition-colors flex items-center gap-2"
+                  style={{ fontFamily: '"League Spartan", sans-serif' }}
                 >
-                  <Send size={20} />
                   Send Message
+                  <Send size={20} />
                 </button>
               </form>
             )}
           </div>
         </div>
       </div>
-
       <Footer />
     </div>
   );

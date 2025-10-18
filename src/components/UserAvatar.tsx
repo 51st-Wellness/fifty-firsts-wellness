@@ -57,18 +57,13 @@ export function UserAvatar({ className = "" }: UserAvatarProps) {
     );
   }
 
-  // Not authenticated - show login/signup buttons
+  // Not authenticated - show login button only
   if (!isAuthenticated || !user) {
     return (
       <div className={`flex gap-4 ${className}`}>
         <Link to="/login">
-          <button className="bg-brand-green/10 text-brand-green font-medium hover:bg-brand-green/20 hover:text-brand-green-dark transition-colors duration-300 px-4 py-2 text-sm rounded-lg">
+          <button className="bg-brand-green text-white hover:bg-brand-green-dark transition-colors duration-300 px-5 py-2 rounded-full font-medium text-sm shadow-md hover:shadow-lg">
             Login
-          </button>
-        </Link>
-        <Link to="/signup">
-          <button className="bg-brand-green text-white hover:bg-brand-green-dark transition-colors duration-300 px-5 py-2 rounded-lg font-medium text-sm shadow-md hover:shadow-lg">
-            Sign Up
           </button>
         </Link>
       </div>

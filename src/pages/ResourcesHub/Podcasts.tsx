@@ -1,26 +1,43 @@
 import React, { useEffect, useMemo, useRef, useState } from "react";
-import { Play, Clock, Calendar } from "lucide-react";
+import { Play, Pause, VolumeX, Volume, Volume1, Volume2, Search, ChevronDown, SkipBack, SkipForward, Copy, ListFilter } from "lucide-react";
 import podcast1 from "../../assets/images/podcast1.png";
 import { fetchPodcasts, type PodcastEpisode } from "@/api/podcast.api";
 import { useNavigate } from "react-router-dom";
 import { CardSkeleton } from "@/components/ui/SkeletonLoader";
 import SearchBar from "@/components/ui/SearchBar";
+import Footer from "@/components/Footer";
 
 interface PodcastsProps {
   onSearch?: (query: string) => void;
 }
+
+const categories = [
+  "All",
+  "Healthy",
+  "Social",
+  "Psychology",
+  "Health",
+  "Work",
+  "Productivity",
+  "Mindfulness",
+];
 
 const Podcasts: React.FC<PodcastsProps> = ({ onSearch }) => {
   const [query, setQuery] = useState("");
   const [episodes, setEpisodes] = useState<PodcastEpisode[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
-  const [limit, setLimit] = useState<number>(12);
+  const [visibleCount, setVisibleCount] = useState<number>(9);
+  const [selectedCategory, setSelectedCategory] = useState<string>("All");
+  const [sortOpen, setSortOpen] = useState<boolean>(false);
+  const [sortLabel, setSortLabel] = useState<string>("Newest First");
+  const sortRef = useRef<HTMLDivElement | null>(null);
 
   useEffect(() => {
     let mounted = true;
     setLoading(true);
-    fetchPodcasts(limit)
+    // Fetch a generous amount; client controls visible count
+    fetchPodcasts(60)
       .then((eps) => {
         if (mounted) {
           const safe = Array.isArray(eps) ? eps : [];
@@ -28,17 +45,29 @@ const Podcasts: React.FC<PodcastsProps> = ({ onSearch }) => {
           setError(null);
         }
       })
-      .catch((e) => {
+      .catch(() => {
         if (mounted) setError("Failed to load podcasts");
       })
       .finally(() => mounted && setLoading(false));
     return () => {
       mounted = false;
     };
-  }, [limit]);
+  }, []);
+
+  // Outside click to close sort dropdown
+  useEffect(() => {
+    function onDoc(e: MouseEvent) {
+      if (sortRef.current && !sortRef.current.contains(e.target as Node)) {
+        setSortOpen(false);
+      }
+    }
+    document.addEventListener("mousedown", onDoc);
+    return () => document.removeEventListener("mousedown", onDoc);
+  }, []);
 
   const filteredEpisodes = useMemo(() => {
     const base = Array.isArray(episodes) ? episodes : [];
+    const byQuery = (() => {
     if (!query) return base;
     const q = query.toLowerCase();
     return base.filter((e) => {
@@ -46,10 +75,26 @@ const Podcasts: React.FC<PodcastsProps> = ({ onSearch }) => {
       const desc = (e?.description || "").toLowerCase();
       return title.includes(q) || desc.includes(q);
     });
-  }, [episodes, query]);
+    })();
+    const byCategory = selectedCategory === "All"
+      ? byQuery
+      : byQuery.filter((e) => (e?.category || "").toLowerCase() === selectedCategory.toLowerCase());
 
-  const handleLoadMore = () => setLimit((l) => l + 9);
-  const hasMore = (Array.isArray(episodes) ? episodes.length : 0) >= limit; // heuristic since API slices by limit
+    const sorted = [...byCategory].sort((a, b) => {
+      if (sortLabel === "Newest First") {
+        return new Date(b.publishedAt || 0).getTime() - new Date(a.publishedAt || 0).getTime();
+      }
+      if (sortLabel === "Oldest First") {
+        return new Date(a.publishedAt || 0).getTime() - new Date(b.publishedAt || 0).getTime();
+      }
+      // A-Z Title
+      return (a.title || "").localeCompare(b.title || "");
+    });
+    return sorted;
+  }, [episodes, query, selectedCategory, sortLabel]);
+
+  const handleLoadMore = () => setVisibleCount((v) => Math.min(v + 6, filteredEpisodes.length));
+  const hasMore = filteredEpisodes.length > visibleCount;
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
@@ -57,63 +102,183 @@ const Podcasts: React.FC<PodcastsProps> = ({ onSearch }) => {
   };
 
   return (
-    <main className="relative min-h-screen pb-20 bg-gray-50 px-4 sm:px-8 lg:px-16">
-      {/* Header Section */}
-      <article className="flex flex-col-reverse md:flex-row justify-between items-center md:items-start w-full gap-6 mt-6">
-        {/* Left Content */}
-        <div className="flex flex-col gap-4 w-full md:w-1/2 text-center md:text-left">
-          <h1 className="text-3xl sm:text-4xl lg:text-6xl font-semibold">
+    <main className="relative min-h-screen pb-0 bg-[#F7F8FA]">
+      {/* Hero Section */}
+      <section className="relative w-full">
+        <img
+          src="/assets/Vector.svg"
+          alt="Decoration"
+          className="pointer-events-none select-none absolute right-0 top-0 w-40 sm:w-48 md:w-56 lg:w-64"
+        />
+        <div className="max-w-7xl mx-auto px-6 sm:px-10 lg:px-16 py-10 sm:py-12 lg:py-16">
+          <h1 className="text-3xl sm:text-4xl lg:text-5xl font-semibold mb-3" style={{ fontFamily: '"League Spartan", sans-serif' }}>
             Podcasts
           </h1>
-          <p className="text-sm sm:text-base text-[#475464] leading-relaxed">
-            Explore thoughtfully curated wellness podcasts designed to nourish
-            your body, calm your mind, and support your everyday self-care
-            rituals.
+          <p className="text-sm sm:text-base text-[#475464] leading-relaxed max-w-3xl">
+            Explore thoughtfully curated wellness podcasts designed to nourish your body, calm your mind, and support your everyday self-care rituals.
           </p>
+
+          {/* Controls: Search, Categories, Sort */}
+          <div className="mt-6 flex flex-col gap-4">
+            {/* Search Bar and Filter Icon (Mobile) */}
+            <div className="w-full max-w-xl">
+              <div className="flex items-center gap-3">
+                <div className="flex-1 bg-white rounded-xl overflow-hidden focus-within:border-[#4444B3] transition-colors flex items-center">
+                  <div className="pl-4 text-gray-400">
+                    <Search size={20} />
         </div>
-      </article>
+                  <input
+                    value={query}
+                    onChange={(e) => setQuery(e.target.value)}
+                    placeholder="What podcast are you looking for?"
+                    className="w-full px-4 py-3 outline-none text-sm bg-white"
+                    style={{ fontFamily: '"League Spartan", sans-serif' }}
+                  />
+                </div>
+                
+                {/* Mobile Filter Icon */}
+                <div className="md:hidden relative" ref={sortRef}>
+                  <button
+                    type="button"
+                    onClick={() => setSortOpen((o) => !o)}
+                    className="flex items-center justify-center w-12 h-12 bg-white border rounded-full transition-colors text-[#4444B3] border-[#4444B3]"
+                  >
+                    <ListFilter size={20} />
+                  </button>
+                  {sortOpen && (
+                    <div className="absolute right-0 mt-2 w-44 bg-white border border-gray-200 rounded-xl shadow-md z-50 overflow-hidden">
+                      {["Newest First", "Oldest First", "A-Z Title"].map((opt) => (
+                        <button
+                          key={opt}
+                          type="button"
+                          onClick={() => {
+                            setSortLabel(opt);
+                            setSortOpen(false);
+                          }}
+                          className={`w-full text-left px-4 py-2 text-sm hover:bg-gray-50 ${sortLabel === opt ? 'text-[#4444B3]' : 'text-gray-700'}`}
+                          style={{ fontFamily: '"League Spartan", sans-serif' }}
+                        >
+                          {opt}
+                        </button>
+                      ))}
+                    </div>
+                  )}
+                </div>
+              </div>
+            </div>
 
-      {/* Search Bar */}
-      <SearchBar
-        query={query}
-        onQueryChange={setQuery}
-        onSubmit={onSearch}
-        placeholder="Search podcasts..."
-        className="mt-6"
-      />
+            {/* Categories and Sort */}
+            <div className="flex flex-col md:flex-row items-center justify-between gap-3">
+              {/* Categories - Horizontally Scrollable */}
+              <div 
+                className="w-full md:flex-1 overflow-x-auto scrollbar-hide"
+                style={{ 
+                  scrollbarWidth: 'none',
+                  msOverflowStyle: 'none',
+                  WebkitOverflowScrolling: 'touch'
+                }}
+              >
+                <div className="flex gap-2 pb-2" style={{ minWidth: 'min-content' }}>
+                  {categories.map((cat) => (
+                    <button
+                      key={cat}
+                      type="button"
+                      onClick={() => setSelectedCategory(cat)}
+                      className={`px-3 py-1.5 rounded-full border text-sm whitespace-nowrap flex-shrink-0 ${selectedCategory === cat ? 'text-[#4444B3] border-[#4444B3]' : 'text-gray-600 border-gray-300'} transition-colors`}
+                      style={{ fontFamily: '"League Spartan", sans-serif' }}
+                    >
+                      {cat}
+                    </button>
+                  ))}
+                </div>
+              </div>
 
-      {/* Removed tags/filters; keeping layout clean */}
-
-      {/* Podcast Section */}
-      <article className="flex flex-col p-4 sm:p-6 w-full mt-6 items-center">
-        {loading ? (
-          <section className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 w-full">
-            {Array.from({ length: 6 }).map((_, i) => (
-              <CardSkeleton key={i} />
-            ))}
+              {/* Sort Dropdown - Desktop Only */}
+              <div className="hidden md:block relative" ref={sortRef}>
+                <button
+                  type="button"
+                  onClick={() => setSortOpen((o) => !o)}
+                  className="bg-white border rounded-full px-4 py-2 text-sm text-[#4444B3] border-[#4444B3] flex items-center gap-2 whitespace-nowrap"
+                  style={{ fontFamily: '"League Spartan", sans-serif' }}
+                >
+                  {sortLabel}
+                  <ChevronDown className={`w-4 h-4 transition-transform ${sortOpen ? 'rotate-180' : ''}`} />
+                </button>
+                {sortOpen && (
+                  <div className="absolute right-0 mt-2 w-44 bg-white border border-gray-200 rounded-xl shadow-md z-10 overflow-hidden">
+                    {["Newest First","Oldest First","A-Z Title"].map((opt) => (
+                      <button
+                        key={opt}
+                        type="button"
+                        onClick={() => { setSortLabel(opt); setSortOpen(false); }}
+                        className={`w-full text-left px-4 py-2 text-sm hover:bg-gray-50 ${sortLabel === opt ? 'text-[#4444B3]' : 'text-gray-700'}`}
+                        style={{ fontFamily: '"League Spartan", sans-serif' }}
+                      >
+                        {opt}
+                      </button>
+                    ))}
+                  </div>
+                )}
+              </div>
+            </div>
+          </div>
+        </div>
           </section>
+
+      {/* Articles Grid with background that kisses footer */}
+      <section
+        className="w-full"
+        style={{
+          backgroundImage: 'url(/assets/general-background.svg)',
+          backgroundRepeat: 'no-repeat',
+          backgroundSize: 'cover',
+          backgroundPosition: 'center',
+        }}
+      >
+        <div className="max-w-7xl mx-auto px-10 sm:px-10 lg:px-16 pt-8 pb-8">
+          {loading ? (
+            <div className="grid grid-cols-2 md:grid-cols-2 lg:grid-cols-4 gap-4 lg:gap-6">
+              {Array.from({ length: 9 }).map((_, i) => <CardSkeleton key={i} />)}
+            </div>
         ) : error ? (
-          <div className="w-full text-center text-red-500">{error}</div>
-        ) : (
-          <section className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 w-full">
-            {(Array.isArray(filteredEpisodes) ? filteredEpisodes : []).map(
-              (ep) => (
+            <div className="text-center text-red-500">{error}</div>
+          ) : filteredEpisodes.length === 0 ? (
+            <div className="flex flex-col items-center justify-center py-20 text-center">
+              <div className="text-2xl font-semibold mb-2 text-white" style={{ fontFamily: '\"League Spartan\", sans-serif' }}>No episodes found</div>
+              <p className="mb-6 text-white/80">Try a different search or switch categories.</p>
+              <div className="flex gap-3">
+                <button
+                  type="button"
+                  onClick={() => { setSelectedCategory('All'); setQuery(''); }}
+                  className="px-4 py-2 rounded-full border border-gray-300 bg-white text-sm hover:bg-gray-50"
+                >
+                  Reset filters
+                </button>
+              </div>
+            </div>
+          ) : (
+            <div className="grid grid-cols-2 md:grid-cols-2 lg:grid-cols-4 gap-4 lg:gap-6">
+              {filteredEpisodes.slice(0, visibleCount).map((ep) => (
                 <EpisodeCard key={ep.id} episode={ep} />
-              )
-            )}
-          </section>
+              ))}
+            </div>
         )}
 
-        {/* Load More Button */}
+        {/* Load More inside background */}
         {!loading && !error && hasMore && (
+          <div className="pt-10 flex justify-center">
           <button
             onClick={handleLoadMore}
-            className="flex rounded-full text-white justify-center mt-6 px-6 py-2 text-center bg-brand-green text-sm sm:text-base hover:bg-brand-green-dark transition"
+              className="px-6 py-3 rounded-full text-white bg-[#4444B3] hover:opacity-90 transition-opacity"
+              style={{ fontFamily: '"League Spartan", sans-serif' }}
           >
             Load More
           </button>
+          </div>
         )}
-      </article>
+        </div>
+      </section>
+      <Footer />
     </main>
   );
 };
@@ -132,65 +297,132 @@ function formatDuration(seconds?: number) {
 }
 
 const EpisodeCard: React.FC<{ episode: PodcastEpisode }> = ({ episode }) => {
-  const navigate = useNavigate();
+  const audioRef = React.useRef<HTMLAudioElement | null>(null);
+  const [isPlaying, setIsPlaying] = useState(false);
+  const [progress, setProgress] = useState(0); // 0-100
+  const [duration, setDuration] = useState<number>(0);
+  const [volumeLevel, setVolumeLevel] = useState<0 | 25 | 50 | 75 | 100>(75);
   return (
-    <button
-      onClick={() => navigate(`/podcasts/${encodeURIComponent(episode.id)}`)}
-      className="text-left group relative bg-gradient-to-br from-white via-emerald-50/30 to-teal-50/30 border border-gray-200 rounded-3xl p-5 hover:shadow-2xl hover:scale-[1.02] hover:border-emerald-300 transition-all duration-300 focus:outline-none focus:ring-2 focus:ring-emerald-300/50 overflow-hidden"
-    >
-      {/* Decorative gradient overlay */}
-      <div className="absolute top-0 right-0 w-32 h-32 bg-gradient-to-br from-emerald-100/40 to-teal-100/40 rounded-full blur-3xl -z-0 group-hover:scale-150 transition-transform duration-500" />
-
-      <div className="relative z-10 mb-4">
+    <div className="text-left group bg-white border border-gray-200 rounded-3xl shadow-sm overflow-hidden">
+      <div className="w-full text-left">
+        <div className="p-2 lg:p-3">
+          <div className="relative">
         <img
           src={episode.imageUrl || podcast1}
           alt={episode.title}
-          className="rounded-2xl w-full h-44 object-cover shadow-md group-hover:shadow-xl transition-all duration-300 group-hover:scale-105"
+              className="w-full h-28 md:h-32 lg:h-40 object-cover rounded-2xl"
         />
-        {/* Play overlay on hover */}
-        <div className="absolute inset-0 bg-gradient-to-t from-emerald-600/80 via-emerald-600/40 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300 rounded-2xl flex items-center justify-center">
-          <div className="bg-white rounded-full p-4 transform scale-0 group-hover:scale-100 transition-transform duration-300 shadow-lg">
-            <Play className="w-8 h-8 text-emerald-600 fill-emerald-600" />
           </div>
         </div>
-
-        {/* Duration Badge */}
-        {episode.duration && (
-          <div className="absolute top-3 right-3 bg-black/70 backdrop-blur-sm text-white text-xs px-2.5 py-1.5 rounded-full flex items-center gap-1.5 shadow-lg">
-            <Clock className="w-3 h-3" />
-            <span>{formatDuration(episode.duration)}</span>
-          </div>
-        )}
-      </div>
-
-      <div className="relative z-10 flex flex-col gap-3">
-        {/* Metadata */}
-        <div className="flex items-center gap-3 text-xs text-gray-500">
-          {episode.publishedAt && (
-            <div className="flex items-center gap-1.5">
-              <Calendar className="w-3.5 h-3.5 text-emerald-500" />
-              <span>{new Date(episode.publishedAt).toLocaleDateString()}</span>
+        <div className="px-3 lg:px-5">
+          <h3
+            className="text-sm md:text-base lg:text-base font-semibold text-gray-900 mb-2 lg:mb-3 leading-tight line-clamp-2"
+            style={{ fontFamily: '"League Spartan", sans-serif' }}
+          >
+            {episode.title}
+          </h3>
+          {(isPlaying || progress > 0) && (
+            <div className="mb-3">
+              <input
+                type="range"
+                min={0}
+                max={100}
+                value={progress}
+                onChange={(e) => {
+                  const a = audioRef.current; if (!a) return;
+                  const pct = Number(e.target.value);
+                  setProgress(pct);
+                  if (a.duration) a.currentTime = (pct / 100) * a.duration;
+                }}
+                className="w-full h-1.5 accent-emerald-600"
+              />
             </div>
           )}
         </div>
-
-        <h3 className="text-lg font-bold text-gray-900 line-clamp-2 group-hover:text-emerald-600 transition-colors leading-tight">
-          {episode.title}
-        </h3>
-
-        {episode.description && (
-          <p className="text-sm text-gray-600 line-clamp-2 leading-relaxed">
-            {episode.description.replace(/<[^>]+>/g, "")}
-          </p>
-        )}
-
-        {/* Call to Action */}
-        <div className="flex items-center justify-end mt-auto pt-2">
-          <span className="text-xs font-medium text-emerald-600 group-hover:text-teal-600 transition-colors flex items-center gap-1.5">
-            Listen Now <Play className="w-3 h-3" />
-          </span>
+      </div>
+      {/* Bottom bar */}
+      <div className="px-3 lg:px-5 pb-3 lg:pb-5">
+        <div className="flex items-end justify-between">
+          {/* Left: timestamp up, play down */}
+          <div className="flex flex-col gap-1 lg:gap-2">
+            <div className="text-xs text-gray-700 font-medium">{formatDuration(duration || episode.duration)}</div>
+            <div className="flex items-center gap-1.5 lg:gap-3">
+              <button
+                onClick={() => {
+                  const a = audioRef.current; if (!a) return;
+                  a.currentTime = Math.max(0, a.currentTime - 10);
+                }}
+                className="p-0.5 lg:p-1 rounded-full hover:bg-gray-100"
+                aria-label="Back 10s"
+              >
+                <SkipBack className="w-3 h-3 lg:w-4 lg:h-4" />
+              </button>
+              <button
+                onClick={() => {
+                  const a = audioRef.current; if (!a) return;
+                  if (isPlaying) { a.pause(); setIsPlaying(false); }
+                  else { a.play().then(() => setIsPlaying(true)).catch(() => {}); }
+                }}
+                className="p-0.5 lg:p-1 rounded-full hover:bg-gray-100"
+                aria-label="Play/Pause"
+              >
+                {isPlaying ? <Pause className="w-4 h-4 lg:w-5 lg:h-5" /> : <Play className="w-4 h-4 lg:w-5 lg:h-5" />}
+              </button>
+              <button
+                onClick={() => {
+                  const a = audioRef.current; if (!a) return;
+                  a.currentTime = Math.min(a.duration || 1e9, a.currentTime + 10);
+                }}
+                className="p-0.5 lg:p-1 rounded-full hover:bg-gray-100"
+                aria-label="Forward 10s"
+              >
+                <SkipForward className="w-3 h-3 lg:w-4 lg:h-4" />
+              </button>
+              {/* Volume cycle button */}
+              <button
+                onClick={() => {
+                  const a = audioRef.current; if (!a) return;
+                  const order: Array<0 | 25 | 50 | 75 | 100> = [0,25,50,75,100];
+                  const idx = order.indexOf(volumeLevel);
+                  const next = order[(idx + 1) % order.length];
+                  setVolumeLevel(next);
+                  if (next === 0) { a.muted = true; }
+                  else { a.muted = false; a.volume = next/100; }
+                }}
+                className="p-0.5 lg:p-1 rounded-full hover:bg-gray-100"
+                aria-label="Volume"
+              >
+                {volumeLevel === 0 ? (
+                  <VolumeX className="w-4 h-4 lg:w-5 lg:h-5" />
+                ) : volumeLevel === 25 ? (
+                  <Volume className="w-4 h-4 lg:w-5 lg:h-5" />
+                ) : volumeLevel === 50 ? (
+                  <Volume1 className="w-4 h-4 lg:w-5 lg:h-5" />
+                ) : volumeLevel === 75 ? (
+                  <Volume2 className="w-4 h-4 lg:w-5 lg:h-5" />
+                ) : (
+                  <Volume2 className="w-4 h-4 lg:w-5 lg:h-5" />
+                )}
+              </button>
+            </div>
+          </div>
+          {/* Right: category text then controls */}
+          <div className="flex flex-col items-end gap-1 lg:gap-2">
+            <div className="text-[10px] lg:text-sm text-gray-500 whitespace-nowrap">{episode.category || 'Morning Talk'}</div>
+            <div className="flex items-center gap-1.5 lg:gap-3 text-gray-700">
+              <button className="p-0.5 lg:p-1 rounded-full hover:bg-gray-100"><Copy className="w-4 h-4 lg:w-5 lg:h-5" /></button>
+            </div>
+          </div>
         </div>
       </div>
-    </button>
+      {/* audio and progress management */}
+      <audio
+        ref={audioRef}
+        src={(episode as any).audioUrl || (episode as any).audio || ''}
+        onLoadedMetadata={() => { const a=audioRef.current; if(!a) return; setDuration(a.duration || 0); }}
+        onTimeUpdate={() => { const a=audioRef.current; if(!a) return; setProgress(a.duration ? (a.currentTime / a.duration) * 100 : 0); }}
+        onEnded={() => setIsPlaying(false)}
+      />
+    </div>
   );
 };
