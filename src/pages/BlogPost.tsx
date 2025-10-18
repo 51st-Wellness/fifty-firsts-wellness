@@ -1,6 +1,11 @@
 import { useEffect, useState } from "react";
 import { Link, useParams } from "react-router-dom";
-import { fetchBlogBySlug, mediaUrl, type BlogEntity } from "../api/blog.api";
+import {
+  fetchBlogBySlug,
+  mediaUrl,
+  type BlogEntity,
+  type AuthorEntity,
+} from "../api/blog.api";
 import RichTextWrapper from "../components/RichTextWrapper";
 import { ChevronRight } from "lucide-react";
 
@@ -142,6 +147,54 @@ export default function BlogPost() {
                 5 min read
               </div>
             </div>
+
+            {/* Authors Section */}
+            {a.authors && a.authors.length > 0 && (
+              <div
+                className={`mt-6 ${cover ? "text-white/90" : "text-gray-600"}`}
+              >
+                <div className="flex items-center gap-3 flex-wrap">
+                  <span className="text-sm font-medium font-primary">
+                    {a.authors.length === 1 ? "Author:" : "Authors:"}
+                  </span>
+                  <div className="flex items-center gap-4 flex-wrap">
+                    {a.authors.map((author: AuthorEntity) => {
+                      const authorPicture =
+                        author.picture?.url ||
+                        author.picture?.data?.attributes?.url;
+                      const AuthorContent = (
+                        <div className="flex items-center gap-2 group">
+                          {authorPicture && (
+                            <img
+                              src={mediaUrl(authorPicture)}
+                              alt={author.fullName}
+                              className="w-8 h-8 rounded-full object-cover border-2 border-white/20 group-hover:border-white/40 transition-colors"
+                            />
+                          )}
+                          <span className="text-sm font-medium font-primary group-hover:underline">
+                            {author.fullName}
+                          </span>
+                        </div>
+                      );
+
+                      return author.externalLink ? (
+                        <a
+                          key={author.id}
+                          href={author.externalLink}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="transition-opacity hover:opacity-80"
+                        >
+                          {AuthorContent}
+                        </a>
+                      ) : (
+                        <div key={author.id}>{AuthorContent}</div>
+                      );
+                    })}
+                  </div>
+                </div>
+              </div>
+            )}
           </div>
         </div>
       </div>
