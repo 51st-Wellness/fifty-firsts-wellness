@@ -1,11 +1,17 @@
 import React from "react";
-import { Link } from "react-router-dom";
+import { Link, useLocation } from "react-router-dom";
 import { Instagram, Facebook, Linkedin } from "lucide-react";
 import footerlogo from "../assets/images/footerlogo.png";
 
 const Footer: React.FC = () => {
+  const location = useLocation();
+  
+  // Use #006666 for home and contact pages, #580F41 for all others
+  const isHomeOrContact = location.pathname === "/" || location.pathname === "/contact";
+  const backgroundColor = isHomeOrContact ? "#006666" : "#580F41";
+  
   return (
-    <footer className="text-white w-full" style={{ backgroundColor: '#006666' }}>
+    <footer className="text-white w-full" style={{ backgroundColor }}>
       <div className="max-w-7xl mx-auto px-6 sm:px-10 lg:px-16 py-12 sm:py-16">
         {/* Main Footer Content */}
         <div className="grid grid-cols-2 lg:grid-cols-5 gap-8 lg:gap-12 mb-12">
@@ -123,10 +129,10 @@ const Footer: React.FC = () => {
             <ul className="space-y-3 text-sm">
               <li>
                 <a
-                  href="mailto:support@fiftyfirstswellness.com"
+                  href="mailto:admin@fiftyfirstswellness.co.uk"
                   className="text-white/80 hover:text-white transition-colors"
                 >
-                  Support@fiftyfirstswellness.com
+                  admin@fiftyfirstswellness.co.uk
                 </a>
               </li>
               <li>
@@ -134,7 +140,7 @@ const Footer: React.FC = () => {
                   href="tel:+44123232122"
                   className="text-white/80 hover:text-white transition-colors"
                 >
-                  +441 2323 122
+                  +44 7515 944155
                 </a>
               </li>
               <li className="flex items-center gap-3 pt-2">

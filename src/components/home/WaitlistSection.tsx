@@ -3,16 +3,16 @@ import { Mail } from "lucide-react";
 
 const WaitlistSection: React.FC = () => {
   return (
-    <section className="w-full py-20 sm:py-24 bg-[#580F41]">
+    <section className="w-full py-12 sm:py-16 bg-[#580F41]">
       <div
-        className="max-w-7xl mx-auto px-4 rounded-3xl bg-no-repeat min-h-[420px] sm:min-h-[500px]"
+        className="max-w-7xl mx-auto px-4 rounded-3xl bg-no-repeat min-h-[320px] sm:min-h-[380px]"
         style={{
           backgroundImage: "url(/assets/homepage/waitlist-bg.svg)",
           backgroundSize: "250% 250%",
           backgroundPosition: "center",
         }}
       >
-        <div className="py-12 sm:py-16 grid grid-cols-1 lg:grid-cols-2 items-start gap-8 lg:gap-6">
+        <div className="py-8 sm:py-12 grid grid-cols-1 lg:grid-cols-2 items-start gap-8 lg:gap-6">
           <div className="lg:mr-8">
             <h2
               className="text-white text-7xl sm:text-8xl lg:text-9xl font-normal"

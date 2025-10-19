@@ -1,7 +1,6 @@
 import React, { useState, useEffect, useRef } from "react";
-import { Link, NavLink } from "react-router-dom";
+import { Link } from "react-router-dom";
 import { Menu, X, ChevronDown } from "lucide-react";
-import Logo from "../assets/images/logo-with-name.png";
 import { UserAvatar } from "./UserAvatar";
 import { useAuth } from "../context/AuthContextProvider";
 import CartIcon from "./CartIcon";
@@ -92,9 +91,9 @@ const Navbar: React.FC = () => {
           {/* Logo */}
           <Link to="/" className="flex items-center group">
             <img
-              src={Logo}
+              src="/assets/logo-with-name.png"
               alt="Fifty Firsts Wellness"
-              className="h-10 sm:h-12 w-auto transition-transform group-hover:scale-[1.01]"
+              className="h-14 sm:h-16 w-auto transition-transform group-hover:scale-[1.01]"
             />
           </Link>
 

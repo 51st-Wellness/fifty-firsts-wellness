@@ -1,4 +1,5 @@
 import React from "react";
+import { Link } from "react-router-dom";
 
 const PodcastSection: React.FC = () => {
   return (
@@ -16,17 +17,21 @@ const PodcastSection: React.FC = () => {
       />
 
       <div className="relative z-10 max-w-5xl mx-auto px-4 text-center">
-        {/* Corner icons aligned to text width */}
-        <img
-          src="/assets/homepage/podcast/mic.svg"
-          alt=""
-          className="pointer-events-none select-none absolute -top-6 -left-10 sm:-left-12 w-12 sm:w-14 opacity-80"
-        />
-        <img
-          src="/assets/homepage/podcast/speaker.svg"
-          alt=""
-          className="pointer-events-none select-none absolute -top-6 -right-10 sm:-right-12 w-12 sm:w-14 opacity-80"
-        />
+        {/* Corner icons - far apart at top left and top right */}
+        <div className="relative mb-6">
+          <img
+            src="/assets/homepage/podcast/mic.svg"
+            alt=""
+            className="pointer-events-none select-none absolute left-0 top-0 w-12 sm:w-14 opacity-80"
+          />
+          <img
+            src="/assets/homepage/podcast/speaker.svg"
+            alt=""
+            className="pointer-events-none select-none absolute right-0 top-0 w-12 sm:w-14 opacity-80"
+          />
+          {/* Spacer to maintain height */}
+          <div className="h-14 sm:h-16"></div>
+        </div>
         <h2
           className="text-white text-3xl sm:text-4xl font-normal mb-3"
           style={{ fontFamily: '"Lilita One", sans-serif' }}
@@ -50,9 +55,12 @@ const PodcastSection: React.FC = () => {
           </div>
         </div>
 
-        <button className="mt-8 bg-brand-green text-white px-6 py-3 rounded-full font-semibold hover:bg-brand-green-dark transition-colors">
+        <Link 
+          to="/podcasts"
+          className="mt-8 inline-block bg-brand-green text-white px-6 py-3 rounded-full font-semibold hover:bg-brand-green-dark transition-colors"
+        >
           Listen Now
-        </button>
+        </Link>
       </div>
     </section>
   );

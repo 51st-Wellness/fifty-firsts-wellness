@@ -9,18 +9,17 @@ type ServiceCardProps = {
 
 const ServiceCard: React.FC<ServiceCardProps> = ({ imageSrc, title, description }) => {
   return (
-    <div className="bg-white rounded-3xl shadow-xl p-4 sm:p-6 flex flex-col items-center text-center border border-gray-100">
+    <div className="bg-white rounded-3xl shadow-xl p-6 sm:p-8 flex flex-col items-center text-center border border-gray-100 h-full">
       <div className="w-full overflow-hidden rounded-2xl">
-        <img src={imageSrc} alt={title} className="w-full h-56 sm:h-60 object-cover" />
+        <img src={imageSrc} alt={title} className="w-full h-72 sm:h-80 object-cover" />
       </div>
-      <h3 className="mt-4 text-xl font-semibold text-gray-900" style={{ fontFamily: '"League Spartan", sans-serif' }}>{title}</h3>
-      <p className="mt-2 text-sm text-gray-600 leading-6">
+      <h3 className="mt-6 text-xl sm:text-2xl font-semibold text-gray-900 min-h-[64px] flex items-center justify-center" style={{ fontFamily: '"League Spartan", sans-serif' }}>{title}</h3>
+      <p className="mt-4 text-sm sm:text-base text-gray-600 leading-7 flex-grow">
         {description}
       </p>
-      <div className="mt-4 w-full flex-1" />
       <Link
         to="/marketplace"
-        className="mt-auto inline-block bg-brand-green text-white px-5 py-2 rounded-full text-sm font-semibold hover:bg-brand-green-dark transition-colors"
+        className="mt-6 inline-block bg-brand-green text-white px-6 py-3 rounded-full text-sm font-semibold hover:bg-brand-green-dark transition-colors"
       >
         Shop Now
       </Link>

@@ -4,8 +4,8 @@ type QA = { q: string; a: string };
 
 const data: QA[] = [
   {
-    q: "How long until we deliver your first blog post?",
-    a: "Really boy law county she unable her sister. Feet you off its like like six. Among sex are leave law built now. In built table in an rapid blush. Merits behind on afraid or warmly.",
+    q: "What is this Fifty Firsts Wellness about?",
+    a: "Fifty Firsts Wellness is a wellness platform offering resources, blogs, podcasts, and personalized programs to help you achieve your health and wellbeing goals.",
   },
   {
     q: "What is included in the wellness membership?",
@@ -49,16 +49,16 @@ const Item: React.FC<{ qa: QA; idx: number; open: number | null; setOpen: (n: nu
 const FAQSection: React.FC = () => {
   const [open, setOpen] = useState<number | null>(null);
   return (
-    <section className="w-full py-28 bg-white relative">
+    <section className="w-full py-24 sm:py-48 bg-white relative overflow-hidden">
       <div className="max-w-6xl mx-auto px-4 grid grid-cols-1 lg:grid-cols-12 gap-10">
         {/* Left label */}
-        <div className="lg:col-span-4 flex lg:justify-start justify-center">
+        <div className="lg:col-span-4 flex justify-center lg:justify-start items-start">
           <div
-            className="relative w-full h-72 bg-no-repeat"
+            className="relative w-72 h-72 bg-no-repeat"
             style={{
               backgroundImage: 'url(/assets/homepage/faq/faq-text-bg.svg)',
               backgroundSize: 'contain',
-              backgroundPosition: 'center',
+              backgroundPosition: 'left center',
             }}
           >
             <div className="absolute inset-0 flex items-center justify-center">
@@ -73,17 +73,23 @@ const FAQSection: React.FC = () => {
         </div>
 
         {/* Right accordion */}
-        <div
-          className="lg:col-span-8 space-y-4 bg-no-repeat"
-          style={{
-            backgroundImage: 'url(/assets/homepage/about-section-bg.svg)',
-            backgroundSize: '250% 250%',
-            backgroundPosition: 'center',
-          }}
-        >
-          {data.map((qa, idx) => (
-            <Item key={idx} qa={qa} idx={idx} open={open} setOpen={setOpen} />
-          ))}
+        <div className="lg:col-span-8 relative">
+          {/* Background splash - positioned absolutely to allow overflow */}
+          <div
+            className="absolute inset-0 -inset-x-8 -inset-y-12 sm:-inset-x-20 sm:-inset-y-24 bg-no-repeat pointer-events-none"
+            style={{
+              backgroundImage: 'url(/assets/homepage/about-section-bg.svg)',
+              backgroundSize: '140% 140%',
+              backgroundPosition: 'center',
+              zIndex: 0,
+            }}
+          />
+          {/* Accordion items on top */}
+          <div className="relative z-10 space-y-4">
+            {data.map((qa, idx) => (
+              <Item key={idx} qa={qa} idx={idx} open={open} setOpen={setOpen} />
+            ))}
+          </div>
         </div>
       </div>
     </section>

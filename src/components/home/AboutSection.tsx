@@ -3,7 +3,7 @@ import { Link } from "react-router-dom";
 
 const AboutSection: React.FC = () => {
   return (
-    <section className="w-full py-16 sm:py-20">
+    <section className="w-full py-40 sm:py-52">
       <div className="max-w-5xl mx-auto px-4 text-center bg-no-repeat"
         style={{
           backgroundImage: "url(/assets/homepage/about-section-bg.svg)",

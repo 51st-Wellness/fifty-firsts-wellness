@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 import logo from "../assets/images/logo-with-name.png";
-import { Eye, EyeOff } from "lucide-react";
+import { Eye, EyeOff, ArrowLeft } from "lucide-react";
 import { FcGoogle } from "react-icons/fc";
 import { signUp } from "../api/auth.api";
 import toast from "react-hot-toast";
@@ -66,7 +66,7 @@ const Signup: React.FC = () => {
         style={{
           backgroundImage: "url(/assets/homepage/hero-bg.png)",
           backgroundSize: "cover",
-          backgroundPosition: "center",
+          backgroundPosition: "55% center",
         }}
       >
         <div className="absolute inset-0 bg-black/20" />
@@ -76,7 +76,7 @@ const Signup: React.FC = () => {
       <div className="w-full md:w-1/2 flex flex-col justify-center px-6 sm:px-10 lg:px-16 py-12 bg-white overflow-y-auto">
         <div className="w-full max-w-md mx-auto">
           {/* Logo */}
-          <div className="mb-8">
+          <div className="mb-4">
             <Link to="/">
               <img
                 src={logo}
@@ -85,6 +85,15 @@ const Signup: React.FC = () => {
               />
             </Link>
           </div>
+
+          {/* Back Button */}
+          <button
+            onClick={() => navigate(-1)}
+            className="flex items-center gap-2 text-gray-600 hover:text-brand-green mb-8 transition-colors"
+          >
+            <ArrowLeft size={20} />
+            <span className="text-sm font-medium">Back</span>
+          </button>
 
           {/* Header */}
           <div className="mb-8">
