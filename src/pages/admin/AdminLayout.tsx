@@ -1,6 +1,15 @@
 import React, { useState } from "react";
 import { Link, NavLink, Outlet, useNavigate } from "react-router-dom";
-import { Menu, X, LogOut, Home } from "lucide-react";
+import {
+  Menu,
+  X,
+  LogOut,
+  Home,
+  Settings,
+  ShoppingCart,
+  Target,
+  Users,
+} from "lucide-react";
 import Logo from "../../assets/images/logo.png";
 import { useAuth } from "../../context/AuthContextProvider";
 
@@ -50,58 +59,70 @@ const AdminLayout: React.FC = () => {
               <X size={20} />
             </button>
           </div>
-          <nav className="p-3 space-y-1 flex flex-col h-[calc(100vh-4rem)]">
-            <div className="flex-1 space-y-1">
+          <nav className="p-4 space-y-2 flex flex-col h-[calc(100vh-4rem)]">
+            <div className="flex-1 space-y-2">
               <NavLink
                 to="/admin"
                 className={({ isActive }) =>
-                  `block px-3 py-2 rounded-md text-sm font-medium ${
+                  `flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-medium transition-all duration-200 ${
                     isActive
-                      ? "bg-indigo-50 text-indigo-700"
-                      : "text-gray-700 hover:bg-gray-100"
+                      ? "bg-teal-600 text-white shadow-lg"
+                      : "text-gray-600 hover:bg-gray-50 hover:text-gray-900"
                   }`
                 }
                 onClick={() => setSidebarOpen(false)}
               >
+                <div className="w-5 h-5 flex items-center justify-center">
+                  <Home size={18} />
+                </div>
                 Overview
               </NavLink>
               <NavLink
                 to="/admin/general"
                 className={({ isActive }) =>
-                  `block px-3 py-2 rounded-md text-sm font-medium ${
+                  `flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-medium transition-all duration-200 ${
                     isActive
-                      ? "bg-indigo-50 text-indigo-700"
-                      : "text-gray-700 hover:bg-gray-100"
+                      ? "bg-teal-600 text-white shadow-lg"
+                      : "text-gray-600 hover:bg-gray-50 hover:text-gray-900"
                   }`
                 }
                 onClick={() => setSidebarOpen(false)}
               >
+                <div className="w-5 h-5 flex items-center justify-center">
+                  <Settings size={18} />
+                </div>
                 General
               </NavLink>
               <NavLink
                 to="/admin/marketplace"
                 className={({ isActive }) =>
-                  `block px-3 py-2 rounded-md text-sm font-medium ${
+                  `flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-medium transition-all duration-200 ${
                     isActive
-                      ? "bg-indigo-50 text-indigo-700"
-                      : "text-gray-700 hover:bg-gray-100"
+                      ? "bg-teal-600 text-white shadow-lg"
+                      : "text-gray-600 hover:bg-gray-50 hover:text-gray-900"
                   }`
                 }
                 onClick={() => setSidebarOpen(false)}
               >
+                <div className="w-5 h-5 flex items-center justify-center">
+                  <ShoppingCart size={18} />
+                </div>
                 Marketplace
               </NavLink>
               <NavLink
                 to="/admin/programmes"
                 className={({ isActive }) =>
-                  `block px-3 py-2 rounded-md text-sm font-medium ${
+                  `flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-medium transition-all duration-200 ${
                     isActive
-                      ? "bg-indigo-50 text-indigo-700"
-                      : "text-gray-700 hover:bg-gray-100"
+                      ? "bg-teal-600 text-white shadow-lg"
+                      : "text-gray-600 hover:bg-gray-50 hover:text-gray-900"
                   }`
                 }
                 onClick={() => setSidebarOpen(false)}
               >
+                <div className="w-5 h-5 flex items-center justify-center">
+                  <Target size={18} />
+                </div>
                 Programmes
               </NavLink>
               {/* Only show User Management for ADMIN role */}
@@ -109,36 +130,20 @@ const AdminLayout: React.FC = () => {
                 <NavLink
                   to="/admin/users"
                   className={({ isActive }) =>
-                    `block px-3 py-2 rounded-md text-sm font-medium ${
+                    `flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-medium transition-all duration-200 ${
                       isActive
-                        ? "bg-indigo-50 text-indigo-700"
-                        : "text-gray-700 hover:bg-gray-100"
+                        ? "bg-teal-600 text-white shadow-lg"
+                        : "text-gray-600 hover:bg-gray-50 hover:text-gray-900"
                     }`
                   }
                   onClick={() => setSidebarOpen(false)}
                 >
+                  <div className="w-5 h-5 flex items-center justify-center">
+                    <Users size={18} />
+                  </div>
                   User Management
                 </NavLink>
               )}
-            </div>
-
-            {/* Bottom section with user info and logout */}
-            <div className="border-t border-gray-200 pt-3 space-y-1">
-              <Link
-                to="/"
-                className="flex items-center gap-2 px-3 py-2 rounded-md text-sm font-medium text-gray-700 hover:bg-gray-100"
-                onClick={() => setSidebarOpen(false)}
-              >
-                <Home size={16} />
-                Back to Site
-              </Link>
-              <button
-                onClick={handleLogout}
-                className="w-full flex items-center gap-2 px-3 py-2 rounded-md text-sm font-medium text-red-600 hover:bg-red-50 transition-colors"
-              >
-                <LogOut size={16} />
-                Logout
-              </button>
             </div>
           </nav>
         </aside>
