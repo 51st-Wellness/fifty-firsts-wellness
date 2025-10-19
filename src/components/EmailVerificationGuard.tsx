@@ -21,8 +21,8 @@ const EmailVerificationGuard: React.FC<EmailVerificationGuardProps> = ({
     );
   }
 
-  // If not authenticated, redirect to login
-  if (!isAuthenticated) {
+  // If not authenticated, redirect to login (unless on email verification page)
+  if (!isAuthenticated && location.pathname !== "/email-verification") {
     return <Navigate to="/login" state={{ from: location }} replace />;
   }
 

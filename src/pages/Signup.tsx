@@ -50,7 +50,7 @@ const Signup: React.FC = () => {
       toast.success(
         "Account created successfully! Please check your email to verify your account."
       );
-      navigate("/email-verification");
+      navigate("/email-verification", { state: { email: data.email } });
     } catch (err) {
       setLoading(false);
       const error = err as AxiosError<{ message: string }>;

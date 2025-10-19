@@ -3,7 +3,7 @@
 export interface UserRole {
   USER: "USER";
   ADMIN: "ADMIN";
-  COACH: "COACH";
+  MODERATOR: "MODERATOR";
 }
 
 export type User = {
@@ -14,7 +14,7 @@ export type User = {
   lastName: string;
   phone?: string | null;
   googleId?: string | null;
-  role: "USER" | "ADMIN" | "COACH";
+  role: "USER" | "ADMIN" | "MODERATOR";
   city?: string | null;
   address?: string | null;
   bio?: string | null;

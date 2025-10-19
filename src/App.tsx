@@ -31,7 +31,6 @@ import ForgotPassword from "./pages/ForgotPassword";
 import { Toaster } from "react-hot-toast";
 import ResetPassword from "./pages/ResetPassword";
 import CheckEmail from "./pages/CheckEmail";
-import VerifyEmail from "./pages/VerifyEmail";
 import EmailVerification from "./pages/EmailVerification";
 import EmailVerificationGuard from "./components/EmailVerificationGuard";
 import AdminGuard from "./components/AdminGuard";
@@ -49,6 +48,7 @@ const AdminOverview = lazy(() => import("./pages/admin/AdminOverview"));
 const AdminGeneral = lazy(() => import("./pages/admin/AdminGeneral"));
 const AdminMarketplace = lazy(() => import("./pages/admin/AdminMarketplace"));
 const AdminProgrammes = lazy(() => import("./pages/admin/AdminProgrammes"));
+const AdminUsers = lazy(() => import("./pages/admin/AdminUsers"));
 
 // Scroll to top component
 const ScrollToTop: React.FC = () => {
@@ -234,7 +234,6 @@ const App: React.FC = () => {
           <Route path="/forgot-password" element={<ForgotPassword />} />
           <Route path="/reset-password" element={<ResetPassword />} />
           <Route path="/check-email" element={<CheckEmail />} />
-          {/* <Route path="/verify-email" element={<VerifyEmail />} /> */}
           <Route path="/email-verification" element={<EmailVerification />} />
           <Route
             path="/payment/cancel"
@@ -299,6 +298,14 @@ const App: React.FC = () => {
               element={
                 <Suspense fallback={<Loader />}>
                   <AdminProgrammes />
+                </Suspense>
+              }
+            />
+            <Route
+              path="users"
+              element={
+                <Suspense fallback={<Loader />}>
+                  <AdminUsers />
                 </Suspense>
               }
             />

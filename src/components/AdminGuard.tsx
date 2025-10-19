@@ -17,8 +17,8 @@ const AdminGuard: React.FC<AdminGuardProps> = ({ children }) => {
   useEffect(() => {
     if (!authLoading && isAuthenticated && user) {
       // If user is already loaded and authenticated, check their role
-      if (user.role !== "ADMIN") {
-        // User is authenticated but not an admin
+      if (user.role !== "ADMIN" && user.role !== "MODERATOR") {
+        // User is authenticated but not an admin or moderator
         return;
       }
     } else if (!authLoading && isAuthenticated && !user) {
@@ -40,9 +40,11 @@ const AdminGuard: React.FC<AdminGuardProps> = ({ children }) => {
         return;
       }
 
-      if (userProfile.role !== "ADMIN") {
-        // User is not an admin
-        setProfileError("Access denied. Admin privileges required.");
+      if (userProfile.role !== "ADMIN" && userProfile.role !== "MODERATOR") {
+        // User is not an admin or moderator
+        setProfileError(
+          "Access denied. Admin or Moderator privileges required."
+        );
         return;
       }
     } catch (error: any) {
@@ -97,8 +99,13 @@ const AdminGuard: React.FC<AdminGuardProps> = ({ children }) => {
     );
   }
 
-  // If authenticated but not an admin, show access denied message
-  if (isAuthenticated && user && user.role !== "ADMIN") {
+  // If authenticated but not an admin or moderator, show access denied message
+  if (
+    isAuthenticated &&
+    user &&
+    user.role !== "ADMIN" &&
+    user.role !== "MODERATOR"
+  ) {
     return (
       <div className="min-h-screen flex items-center justify-center bg-gray-50">
         <div className="text-center max-w-md mx-auto px-6">
@@ -108,8 +115,8 @@ const AdminGuard: React.FC<AdminGuardProps> = ({ children }) => {
               Access Denied
             </h3>
             <p className="text-gray-600 mb-6">
-              You don't have admin privileges to access this area. Only
-              administrators can view the admin panel.
+              You don't have admin or moderator privileges to access this area.
+              Only administrators and moderators can view the admin panel.
             </p>
           </div>
           <button
@@ -171,7 +178,7 @@ const AdminGuard: React.FC<AdminGuardProps> = ({ children }) => {
     }
   }
 
-  // If user is authenticated and is an admin, render the children
+  // If user is authenticated and is an admin or moderator, render the children
   return <>{children}</>;
 };
 

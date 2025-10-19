@@ -104,6 +104,22 @@ const AdminLayout: React.FC = () => {
               >
                 Programmes
               </NavLink>
+              {/* Only show User Management for ADMIN role */}
+              {user?.role === "ADMIN" && (
+                <NavLink
+                  to="/admin/users"
+                  className={({ isActive }) =>
+                    `block px-3 py-2 rounded-md text-sm font-medium ${
+                      isActive
+                        ? "bg-indigo-50 text-indigo-700"
+                        : "text-gray-700 hover:bg-gray-100"
+                    }`
+                  }
+                  onClick={() => setSidebarOpen(false)}
+                >
+                  User Management
+                </NavLink>
+              )}
             </div>
 
             {/* Bottom section with user info and logout */}

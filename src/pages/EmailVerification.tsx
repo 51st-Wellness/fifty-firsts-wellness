@@ -47,8 +47,8 @@ const EmailVerification: React.FC = () => {
     } else if (user?.email) {
       setEmail(user.email);
     } else {
-      // If no email available, redirect to login
-      navigate("/login");
+      // If no email available, redirect to signup
+      navigate("/signup");
     }
   }, [location.state, user, navigate]);
 

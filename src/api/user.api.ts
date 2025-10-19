@@ -56,4 +56,73 @@ export const logoutUser = async (): Promise<ResponseDto<null>> => {
   return data as ResponseDto<null>;
 };
 
+// Admin/Moderator: Get all users with pagination and filters
+export const getAllUsers = async (params?: {
+  page?: number;
+  pageSize?: number;
+  search?: string;
+  role?: string;
+  isActive?: boolean;
+}): Promise<
+  ResponseDto<{
+    items: User[];
+    pagination: {
+      total: number;
+      page: number;
+      pageSize: number;
+      totalPages: number;
+      hasMore: boolean;
+      hasPrev: boolean;
+    };
+  }>
+> => {
+  const queryParams = new URLSearchParams();
+  if (params?.page) queryParams.append("page", params.page.toString());
+  if (params?.pageSize)
+    queryParams.append("pageSize", params.pageSize.toString());
+  if (params?.search) queryParams.append("search", params.search);
+  if (params?.role) queryParams.append("role", params.role);
+  if (params?.isActive !== undefined)
+    queryParams.append("isActive", params.isActive.toString());
+
+  const { data } = await http.get(`/user?${queryParams.toString()}`);
+  return data as ResponseDto<{
+    items: User[];
+    pagination: {
+      total: number;
+      page: number;
+      pageSize: number;
+      totalPages: number;
+      hasMore: boolean;
+      hasPrev: boolean;
+    };
+  }>;
+};
+
+// Admin/Moderator: Get user by ID
+export const getUserById = async (
+  id: string
+): Promise<ResponseDto<{ user: User }>> => {
+  const { data } = await http.get(`/user/${id}`);
+  return data as ResponseDto<{ user: User }>;
+};
+
+// Admin only: Toggle user active/inactive status
+export const toggleUserStatus = async (
+  id: string,
+  isActive: boolean
+): Promise<ResponseDto<{ user: User }>> => {
+  const { data } = await http.put(`/user/${id}/status`, { isActive });
+  return data as ResponseDto<{ user: User }>;
+};
+
+// Admin only: Change user role
+export const changeUserRole = async (
+  id: string,
+  role: "USER" | "ADMIN" | "MODERATOR"
+): Promise<ResponseDto<{ user: User }>> => {
+  const { data } = await http.put(`/user/role/${id}`, { role });
+  return data as ResponseDto<{ user: User }>;
+};
+
 export type { User as UserType };
