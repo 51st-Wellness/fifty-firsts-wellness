@@ -1,6 +1,7 @@
 import React from "react";
 import { Link, useLocation } from "react-router-dom";
 import { Instagram, Facebook, Linkedin } from "lucide-react";
+import { FaTiktok } from "react-icons/fa";
 import footerlogo from "../assets/images/footerlogo.png";
 
 const Footer: React.FC = () => {
@@ -145,25 +146,40 @@ const Footer: React.FC = () => {
               </li>
               <li className="flex items-center gap-3 pt-2">
                 <a
-                  href="#"
+                  href="https://www.instagram.com/fiftyfirstswellness?igsh=MTVyODk5emhtZnlyMQ=="
+                  target="_blank"
+                  rel="noopener noreferrer"
                   className="w-8 h-8 rounded-full bg-white flex items-center justify-center hover:bg-white/90 transition-colors"
                   aria-label="Instagram"
                 >
                   <Instagram size={16} className="text-brand-green" />
                 </a>
                 <a
-                  href="#"
+                  href="https://www.facebook.com/share/1BFKL2XnMg/"
+                  target="_blank"
+                  rel="noopener noreferrer"
                   className="w-8 h-8 rounded-full bg-white flex items-center justify-center hover:bg-white/90 transition-colors"
                   aria-label="Facebook"
                 >
                   <Facebook size={16} className="text-brand-green" />
                 </a>
                 <a
-                  href="#"
+                  href="https://www.linkedin.com/company/fifty-firsts-wellness/"
+                  target="_blank"
+                  rel="noopener noreferrer"
                   className="w-8 h-8 rounded-full bg-white flex items-center justify-center hover:bg-white/90 transition-colors"
                   aria-label="LinkedIn"
                 >
                   <Linkedin size={16} className="text-brand-green" />
+                </a>
+                <a
+                  href="https://www.tiktok.com/@fiftyfirstswellness?_t=ZN-90gUvPI1xWV&_r=1"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="w-8 h-8 rounded-full bg-white flex items-center justify-center hover:bg-white/90 transition-colors"
+                  aria-label="TikTok"
+                >
+                  <FaTiktok size={16} className="text-brand-green" />
                 </a>
               </li>
             </ul>

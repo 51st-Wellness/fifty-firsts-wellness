@@ -17,7 +17,7 @@ const AboutSection: React.FC = () => {
         >
           About Us
         </h2>
-        <div className="w-16 h-1 bg-brand-green-light mx-auto rounded-full mb-6" />
+        <div className="w-16 h-1 bg-brand-green-light mx-auto rounded-full mb-12" />
         <p className="text-gray-700 leading-7">
           At Fifty Firsts Wellness, we believe wellness should feel good, look good, and fit seamlessly
           into your everyday life. We’re here to make nutrition and self-care approachable, empowering,

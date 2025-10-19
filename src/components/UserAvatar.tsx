@@ -129,7 +129,7 @@ export function UserAvatar({ className = "" }: UserAvatarProps) {
                 {user.role === "ADMIN" ? (
                   <>
                     <Link
-                      to="/profile"
+                      to="/dashboard"
                       onClick={() => setIsDropdownOpen(false)}
                       className="w-full flex items-center gap-3 px-4 py-2 text-sm text-gray-700 hover:bg-gray-50 transition-colors"
                     >
@@ -152,7 +152,7 @@ export function UserAvatar({ className = "" }: UserAvatarProps) {
                   </>
                 ) : (
                   <Link
-                    to="/profile"
+                    to="/dashboard"
                     onClick={() => setIsDropdownOpen(false)}
                     className="w-full flex items-center gap-3 px-4 py-2 text-sm text-gray-700 hover:bg-gray-50 transition-colors"
                   >
@@ -185,7 +185,7 @@ export function UserAvatar({ className = "" }: UserAvatarProps) {
         <button
           onClick={() => {
             setIsDropdownOpen(false);
-            navigate(user.role === "ADMIN" ? "/admin" : "/profile");
+            navigate(user.role === "ADMIN" ? "/admin" : "/dashboard");
           }}
           className="hidden md:flex items-center pl-2 pr-3 hover:bg-gray-200/50 rounded-r-full transition-all duration-200 cursor-pointer group h-full"
         >

@@ -19,7 +19,11 @@ import Subscriptions from "./pages/Subscriptions";
 import ContactUs from "./pages/ContactUs";
 import Login from "./pages/Login";
 import Signup from "./pages/Signup";
-import Profile from "./pages/Profile";
+import DashboardLayout from "./pages/dashboard/DashboardLayout";
+import MyAccount from "./pages/dashboard/MyAccount";
+import OrdersHistory from "./pages/dashboard/OrdersHistory";
+import MyCart from "./pages/dashboard/MyCart";
+import Wishlist from "./pages/dashboard/Wishlist";
 import PersonalWellnessProgrammes from "./pages/service/PersonalWellnessProgrammes";
 import WellnessProgramDetails from "./pages/service/WellnessProgramDetails";
 import ProgrammeDetail from "./pages/ProgrammeDetail";
@@ -224,13 +228,18 @@ const App: React.FC = () => {
           <Route path="/login" element={<Login />} />
           <Route path="/signup" element={<Signup />} />
           <Route
-            path="/profile"
+            path="/dashboard"
             element={
               <EmailVerificationGuard>
-                <Profile />
+                <DashboardLayout />
               </EmailVerificationGuard>
             }
-          />
+          >
+            <Route index element={<MyAccount />} />
+            <Route path="orders" element={<OrdersHistory />} />
+            <Route path="cart" element={<MyCart />} />
+            <Route path="wishlist" element={<Wishlist />} />
+          </Route>
           <Route path="/forgot-password" element={<ForgotPassword />} />
           <Route path="/reset-password" element={<ResetPassword />} />
           <Route path="/check-email" element={<CheckEmail />} />

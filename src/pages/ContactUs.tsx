@@ -9,6 +9,7 @@ import {
   Send,
   CheckCircle,
 } from "lucide-react";
+import { FaTiktok } from "react-icons/fa";
 import Footer from "../components/Footer";
 import Navbar from "../components/Navbar";
 
@@ -79,19 +80,33 @@ const ContactUs: React.FC = () => {
                 </div>
                 <span className="text-sm">Email</span>
               </a>
-              <a href="https://linkedin.com" target="_blank" rel="noopener noreferrer" className="flex items-center gap-3 text-gray-700">
+              <a href="https://www.linkedin.com/company/fifty-firsts-wellness/" target="_blank" rel="noopener noreferrer" className="flex items-center gap-3 text-gray-700">
                 <div className="w-10 h-10 rounded-full border-2 border-gray-300 flex items-center justify-center flex-shrink-0">
                   <Linkedin className="w-5 h-5 text-gray-500" />
                 </div>
                 <span className="text-sm">LinkedIn</span>
               </a>
-              <a href="https://instagram.com" target="_blank" rel="noopener noreferrer" className="flex items-center gap-3 text-gray-700">
+              <a href="https://www.instagram.com/fiftyfirstswellness?igsh=MTVyODk5emhtZnlyMQ==" target="_blank" rel="noopener noreferrer" className="flex items-center gap-3 text-gray-700">
                 <div className="w-10 h-10 rounded-full border-2 border-gray-300 flex items-center justify-center flex-shrink-0">
                   <Instagram className="w-5 h-5 text-gray-500" />
                 </div>
                 <span className="text-sm">Instagram</span>
               </a>
-              <a href="tel:+44123232122" className="flex items-center gap-3 text-gray-700">
+              <a href="https://www.tiktok.com/@fiftyfirstswellness?_t=ZN-90gUvPI1xWV&_r=1" target="_blank" rel="noopener noreferrer" className="flex items-center gap-3 text-gray-700">
+                <div className="w-10 h-10 rounded-full border-2 border-gray-300 flex items-center justify-center flex-shrink-0">
+                  <FaTiktok className="w-5 h-5 text-gray-500" />
+                </div>
+                <span className="text-sm">TikTok</span>
+              </a>
+              <a href="https://www.facebook.com/share/1BFKL2XnMg/" target="_blank" rel="noopener noreferrer" className="flex items-center gap-3 text-gray-700">
+                <div className="w-10 h-10 rounded-full border-2 border-gray-300 flex items-center justify-center flex-shrink-0">
+                  <svg className="w-5 h-5 text-gray-500" fill="currentColor" viewBox="0 0 24 24">
+                    <path d="M24 12.073c0-6.627-5.373-12-12-12s-12 5.373-12 12c0 5.99 4.388 10.954 10.125 11.854v-8.385H7.078v-3.47h3.047V9.43c0-3.007 1.792-4.669 4.533-4.669 1.312 0 2.686.235 2.686.235v2.953H15.83c-1.491 0-1.956.925-1.956 1.874v2.25h3.328l-.532 3.47h-2.796v8.385C19.612 23.027 24 18.062 24 12.073z"/>
+                  </svg>
+                </div>
+                <span className="text-sm">Facebook</span>
+              </a>
+              <a href="tel:+4475159441555" className="flex items-center gap-3 text-gray-700">
                 <div className="w-10 h-10 rounded-full border-2 border-gray-300 flex items-center justify-center flex-shrink-0">
                   <Phone className="w-5 h-5 text-gray-500" />
                 </div>
