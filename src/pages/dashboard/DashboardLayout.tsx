@@ -33,11 +33,11 @@ const DashboardLayout: React.FC = () => {
   return (
     <>
       <Navbar />
-      <div className="min-h-screen bg-gray-50">
+      <div className="min-h-screen bg-white">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
           <div className="flex flex-col lg:flex-row gap-6">
             {/* Sidebar */}
-            <aside className="lg:w-64 flex-shrink-0">
+            <aside className="lg:w-64 flex-shrink-0 lg:sticky lg:top-20 lg:self-start">
               <div className="bg-white rounded-lg shadow-sm border border-gray-200 overflow-hidden">
                 <nav className="p-2">
                   {menuItems.map((item) => {
@@ -48,9 +48,9 @@ const DashboardLayout: React.FC = () => {
                       <Link
                         key={item.path}
                         to={item.path}
-                        className={`flex items-center gap-3 px-4 py-3 rounded-lg text-sm font-medium transition-colors ${
+                        className={`relative flex items-center gap-3 px-4 py-3 text-sm font-medium transition-colors ${
                           isActive
-                            ? "bg-gray-100 text-gray-900"
+                            ? "bg-gray-50 text-gray-900 before:absolute before:left-0 before:top-0 before:bottom-0 before:w-1 before:bg-brand-green"
                             : "text-gray-600 hover:bg-gray-50 hover:text-gray-900"
                         }`}
                       >
@@ -64,7 +64,7 @@ const DashboardLayout: React.FC = () => {
             </aside>
 
             {/* Main Content */}
-            <main className="flex-1">
+            <main className="flex-1 bg-gray-50 rounded-lg p-6">
               <Outlet />
             </main>
           </div>

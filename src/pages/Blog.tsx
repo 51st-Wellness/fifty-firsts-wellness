@@ -240,7 +240,7 @@ const Blog: React.FC<BlogProps> = ({ onSearch }) => {
             backgroundPosition: 'center',
           }}
         >
-          <div className="max-w-7xl mx-auto px-6 sm:px-10 lg:px-16 pt-8">
+          <div className="max-w-7xl mx-auto px-6 sm:px-10 lg:px-16 pt-8 pb-8">
           {loading ? (
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 mb-12">
               {Array.from({ length: 6 }).map((_, idx) => (
@@ -349,10 +349,10 @@ const Blog: React.FC<BlogProps> = ({ onSearch }) => {
             })}
             </div>
           )}
-          </div>
+
           {/* Load More inside the background section */}
           {!loading && filteredBlogs.length > 0 && blogs.length < total && (
-            <div className="max-w-7xl mx-auto px-6 sm:px-10 lg:px-16 pb-16 flex justify-center">
+            <div className="pt-10 flex justify-center">
               <button
                 type="button"
                 onClick={() => setPage((p) => p + 1)}
@@ -363,6 +363,7 @@ const Blog: React.FC<BlogProps> = ({ onSearch }) => {
               </button>
             </div>
           )}
+          </div>
         </section>
 
     </main>

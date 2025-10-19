@@ -180,7 +180,7 @@ const Webinars: React.FC<WebinarsProps> = ({ onSearch }) => {
 
       {/* Grid with background */}
       <section className="w-full" style={{ backgroundImage:'url(/assets/general-background.svg)', backgroundRepeat:'no-repeat', backgroundSize:'cover', backgroundPosition:'center' }}>
-        <div className="max-w-7xl mx-auto px-6 sm:px-10 lg:px-16 pt-8">
+        <div className="max-w-7xl mx-auto px-6 sm:px-10 lg:px-16 pt-8 pb-8">
           {loading ? (
             // Loading skeleton
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
@@ -267,18 +267,18 @@ const Webinars: React.FC<WebinarsProps> = ({ onSearch }) => {
               ))}
             </div>
           )}
-        </div>
 
-        {!loading && filtered.length > 0 && hasMore && (
-          <div className="max-w-7xl mx-auto px-6 sm:px-10 lg:px-16 pt-10 pb-16 flex justify-center">
-            <button 
-              onClick={() => setPage(p => p + 1)} 
-              className="px-6 py-3 rounded-full text-white bg-[#4444B3] hover:opacity-90 transition-opacity" 
-              style={{ fontFamily: '\"League Spartan\", sans-serif' }}>
-              Load More
-            </button>
-          </div>
-        )}
+          {!loading && filtered.length > 0 && hasMore && (
+            <div className="pt-10 flex justify-center">
+              <button 
+                onClick={() => setPage(p => p + 1)} 
+                className="px-6 py-3 rounded-full text-white bg-[#4444B3] hover:opacity-90 transition-opacity" 
+                style={{ fontFamily: '\"League Spartan\", sans-serif' }}>
+                Load More
+              </button>
+            </div>
+          )}
+        </div>
       </section>
 
       <Footer />
