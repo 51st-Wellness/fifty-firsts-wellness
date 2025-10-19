@@ -16,7 +16,8 @@ import "../styles/phone-input.css";
 // Signup page component
 const Signup: React.FC = () => {
   const [showPassword, setShowPassword] = useState<boolean>(false);
-  const [showConfirmPassword, setShowConfirmPassword] = useState<boolean>(false);
+  const [showConfirmPassword, setShowConfirmPassword] =
+    useState<boolean>(false);
   const [loading, setLoading] = useState<boolean>(false);
 
   const navigate = useNavigate();
@@ -46,8 +47,10 @@ const Signup: React.FC = () => {
         phone: data.phone,
       });
       setLoading(false);
-      toast.success("Account created successfully! Please check your email to verify your account.");
-      navigate("/login");
+      toast.success(
+        "Account created successfully! Please check your email to verify your account."
+      );
+      navigate("/email-verification");
     } catch (err) {
       setLoading(false);
       const error = err as AxiosError<{ message: string }>;
@@ -58,7 +61,7 @@ const Signup: React.FC = () => {
   return (
     <main className="min-h-screen flex flex-col md:flex-row">
       {/* Left Side - Image (hidden on mobile) */}
-      <div 
+      <div
         className="hidden md:block md:w-1/2 relative"
         style={{
           backgroundImage: "url(/assets/homepage/hero-bg.png)",
@@ -75,13 +78,17 @@ const Signup: React.FC = () => {
           {/* Logo */}
           <div className="mb-8">
             <Link to="/">
-              <img src={logo} alt="Fifty Firsts Wellness" className="h-12 w-auto hover:opacity-80 transition-opacity cursor-pointer" />
+              <img
+                src={logo}
+                alt="Fifty Firsts Wellness"
+                className="h-12 w-auto hover:opacity-80 transition-opacity cursor-pointer"
+              />
             </Link>
           </div>
 
           {/* Header */}
           <div className="mb-8">
-            <h1 
+            <h1
               className="text-3xl sm:text-4xl font-semibold text-gray-900 mb-2"
               style={{ fontFamily: '"League Spartan", sans-serif' }}
             >
@@ -239,7 +246,9 @@ const Signup: React.FC = () => {
                   placeholder="Re-enter your password"
                   {...register("confirmPassword")}
                   className={`w-full border rounded-xl px-4 py-3 pr-12 text-sm focus:outline-none focus:ring-2 focus:ring-brand-green focus:border-transparent transition-colors ${
-                    errors.confirmPassword ? "border-red-500" : "border-gray-300"
+                    errors.confirmPassword
+                      ? "border-red-500"
+                      : "border-gray-300"
                   }`}
                 />
                 <button
@@ -247,7 +256,11 @@ const Signup: React.FC = () => {
                   onClick={() => setShowConfirmPassword(!showConfirmPassword)}
                   className="absolute right-4 top-1/2 transform -translate-y-1/2 text-gray-400 hover:text-gray-600"
                 >
-                  {showConfirmPassword ? <EyeOff size={20} /> : <Eye size={20} />}
+                  {showConfirmPassword ? (
+                    <EyeOff size={20} />
+                  ) : (
+                    <Eye size={20} />
+                  )}
                 </button>
               </div>
               {errors.confirmPassword && (
