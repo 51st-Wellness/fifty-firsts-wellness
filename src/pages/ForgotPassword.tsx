@@ -8,6 +8,7 @@ import {
 } from "../lib/validation";
 import { forgetPassword } from "../api/auth.api";
 import toast from "react-hot-toast";
+import { ArrowLeft } from "lucide-react";
 import logo from "../assets/images/logo-with-name.png";
 
 const ForgotPassword: React.FC = () => {
@@ -57,7 +58,7 @@ const ForgotPassword: React.FC = () => {
         style={{
           backgroundImage: "url(/assets/homepage/hero-bg.png)",
           backgroundSize: "cover",
-          backgroundPosition: "center",
+          backgroundPosition: "55% center",
         }}
       >
         <div className="absolute inset-0 bg-black/20" />
@@ -67,9 +68,18 @@ const ForgotPassword: React.FC = () => {
       <div className="w-full md:w-1/2 flex flex-col justify-center px-6 sm:px-10 lg:px-16 py-12 bg-white">
         <div className="w-full max-w-md mx-auto">
           {/* Logo */}
-          <div className="mb-8">
+          <div className="mb-4">
             <img src={logo} alt="Fifty Firsts Wellness" className="h-12 w-auto" />
           </div>
+
+          {/* Back Button */}
+          <button
+            onClick={() => navigate(-1)}
+            className="flex items-center gap-2 text-gray-600 hover:text-brand-green mb-8 transition-colors"
+          >
+            <ArrowLeft size={20} />
+            <span className="text-sm font-medium">Back</span>
+          </button>
 
           {/* Header */}
           <div className="mb-8">

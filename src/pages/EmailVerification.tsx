@@ -7,6 +7,7 @@ import { verifyEmail, resendVerification } from "../api/auth.api";
 import { useAuth } from "../context/AuthContextProvider";
 import toast from "react-hot-toast";
 import { ArrowLeft, Mail, RefreshCw } from "lucide-react";
+import logo from "../assets/images/logo-with-name.png";
 
 // Validation schema for OTP
 const otpSchema = z.object({
@@ -117,40 +118,45 @@ const EmailVerification: React.FC = () => {
   };
 
   return (
-    <main className="min-h-screen bg-gradient-to-br from-gray-50 to-white flex items-center justify-center p-4">
+    <main className="min-h-screen bg-gradient-to-br from-[#F5F5F5] to-white flex items-center justify-center p-4">
       <div className="w-full max-w-md">
-        {/* Back Button */}
-        <button
-          onClick={() => navigate(-1)}
-          className="flex items-center gap-2 text-gray-600 hover:text-gray-800 mb-6 transition-colors"
-        >
-          <ArrowLeft size={20} />
-          <span className="text-sm">Back</span>
-        </button>
+        {/* Logo */}
+        <div className="flex justify-center mb-8">
+          <img src={logo} alt="Fifty Firsts Wellness" className="h-12" />
+        </div>
 
         {/* Verification Card */}
-        <div className="bg-white rounded-xl shadow-lg p-6 sm:p-8">
+        <div className="bg-white rounded-2xl shadow-sm border border-gray-100 p-8 sm:p-10">
+          {/* Back Button */}
+          <button
+            onClick={() => navigate(-1)}
+            className="flex items-center gap-2 text-gray-600 hover:text-brand-green mb-6 transition-colors"
+          >
+            <ArrowLeft size={20} />
+            <span className="text-sm font-medium">Back</span>
+          </button>
+
           {/* Header */}
-          <div className="text-center mb-6">
+          <div className="text-center mb-8">
             <div className="w-16 h-16 bg-brand-green/10 rounded-full flex items-center justify-center mx-auto mb-4">
               <Mail className="w-8 h-8 text-brand-green" />
             </div>
-            <h1 className="text-2xl font-bold text-gray-900 mb-2">
+            <h1 className="text-3xl font-semibold text-gray-900 mb-3" style={{ fontFamily: '"League Spartan", sans-serif' }}>
               Verify Your Email
             </h1>
-            <p className="text-gray-600 text-sm">
+            <p className="text-gray-600 text-sm leading-relaxed">
               We've sent a 6-digit verification code to
             </p>
-            <p className="text-gray-900 font-medium">{email}</p>
+            <p className="text-gray-900 font-semibold mt-1">{email}</p>
           </div>
 
           {/* OTP Form */}
-          <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
+          <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
             {/* OTP Input */}
             <div>
               <label
                 htmlFor="otp"
-                className="block text-sm font-medium text-gray-700 mb-2"
+                className="block text-sm font-semibold text-gray-700 mb-2"
               >
                 Enter Verification Code
               </label>
@@ -161,16 +167,16 @@ const EmailVerification: React.FC = () => {
                 maxLength={6}
                 {...register("otp")}
                 onChange={handleOtpChange}
-                className={`w-full border rounded-lg px-4 py-3 text-center text-lg font-mono tracking-widest focus:outline-none focus:ring-2 focus:ring-brand-green ${
+                className={`w-full border-2 rounded-xl px-4 py-3.5 text-center text-xl font-mono tracking-widest focus:outline-none focus:ring-2 focus:ring-brand-green transition-all ${
                   errors.otp
-                    ? "border-red-500"
+                    ? "border-red-500 bg-red-50"
                     : watchedFields.otp && !errors.otp
-                    ? "border-brand-green"
-                    : "border-gray-300"
+                    ? "border-brand-green bg-brand-green/5"
+                    : "border-gray-300 bg-gray-50"
                 }`}
               />
               {errors.otp && (
-                <p className="text-red-500 text-xs mt-1">
+                <p className="text-red-500 text-sm mt-2 font-medium">
                   {errors.otp.message}
                 </p>
               )}
@@ -182,26 +188,26 @@ const EmailVerification: React.FC = () => {
               disabled={
                 loading || !watchedFields.otp || watchedFields.otp.length !== 6
               }
-              className="w-full bg-brand-green text-white py-3 rounded-lg font-medium hover:bg-brand-green-dark transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+              className="w-full bg-brand-green text-white py-3.5 rounded-xl font-semibold text-base hover:bg-brand-green-dark transition-all shadow-lg hover:shadow-xl disabled:opacity-50 disabled:cursor-not-allowed disabled:shadow-none"
             >
               {loading ? "Verifying..." : "Verify Email"}
             </button>
           </form>
 
           {/* Resend Section */}
-          <div className="mt-6 pt-6 border-t border-gray-200">
-            <p className="text-center text-gray-600 text-sm mb-3">
+          <div className="mt-8 pt-6 border-t border-gray-200">
+            <p className="text-center text-gray-600 text-sm font-medium mb-4">
               Didn't receive the code?
             </p>
             <button
               onClick={handleResendOtp}
               disabled={resendLoading || resendCooldown > 0}
-              className="w-full flex items-center justify-center gap-2 text-brand-green hover:text-brand-green-dark font-medium text-sm transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+              className="w-full flex items-center justify-center gap-2 text-brand-green hover:text-brand-green-dark font-semibold text-sm py-2.5 px-4 rounded-lg hover:bg-brand-green/5 transition-all disabled:opacity-50 disabled:cursor-not-allowed"
             >
               {resendLoading ? (
-                <RefreshCw className="w-4 h-4 animate-spin" />
+                <RefreshCw className="w-5 h-5 animate-spin" />
               ) : (
-                <RefreshCw className="w-4 h-4" />
+                <RefreshCw className="w-5 h-5" />
               )}
               {resendCooldown > 0
                 ? `Resend in ${resendCooldown}s`
@@ -211,7 +217,7 @@ const EmailVerification: React.FC = () => {
 
           {/* Help Text */}
           <div className="mt-6 text-center">
-            <p className="text-xs text-gray-500">
+            <p className="text-xs text-gray-500 leading-relaxed">
               Check your spam folder if you don't see the email
             </p>
           </div>

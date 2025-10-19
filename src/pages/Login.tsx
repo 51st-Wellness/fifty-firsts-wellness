@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from "react";
 import logo from "../assets/images/logo-with-name.png";
 import { FcGoogle } from "react-icons/fc";
-import { Eye, EyeOff } from "lucide-react";
+import { Eye, EyeOff, ArrowLeft } from "lucide-react";
 import { Link, useNavigate } from "react-router-dom";
 import { useAuth } from "../context/AuthContextProvider";
 import Cookies from "js-cookie";
@@ -73,7 +73,7 @@ const Login: React.FC = () => {
         style={{
           backgroundImage: "url(/assets/homepage/hero-bg.png)",
           backgroundSize: "cover",
-          backgroundPosition: "center",
+          backgroundPosition: "55% center",
         }}
       >
         <div className="absolute inset-0 bg-black/20" />
@@ -83,11 +83,20 @@ const Login: React.FC = () => {
       <div className="w-full md:w-1/2 flex flex-col justify-center px-6 sm:px-10 lg:px-16 py-12 bg-white">
         <div className="w-full max-w-md mx-auto">
           {/* Logo */}
-          <div className="mb-8">
+          <div className="mb-4">
             <Link to="/">
               <img src={logo} alt="Fifty Firsts Wellness" className="h-12 w-auto hover:opacity-80 transition-opacity cursor-pointer" />
             </Link>
           </div>
+
+          {/* Back Button */}
+          <button
+            onClick={() => navigate(-1)}
+            className="flex items-center gap-2 text-gray-600 hover:text-brand-green mb-8 transition-colors"
+          >
+            <ArrowLeft size={20} />
+            <span className="text-sm font-medium">Back</span>
+          </button>
 
           {/* Header */}
           <div className="mb-8">
