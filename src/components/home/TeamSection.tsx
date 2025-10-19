@@ -1,24 +1,71 @@
-import React from "react";
+import React, { useState } from "react";
 
-type FrameVariant = "down" | "up"; // down: top dents downward, bottom bulges downward; up: top bulges upward, bottom dents upward
+// SVG Path Constants for the Alternating Card Shapes using clip-path
+const PATH_CONVEX_TOP = "path('M 0 20 Q 88 -10, 176 20 L 176 204 Q 88 190, 0 204 Z')"; // Top bulges up, bottom pinches in
+const PATH_CONCAVE_TOP = "path('M 0 20 Q 88 50, 176 20 L 176 204 Q 88 234, 0 204 Z')"; // Top dips down, bottom bulges out
 
-const TeamFrame: React.FC<{ variant: FrameVariant; color: string }> = ({ variant, color }) => {
+type FrameVariant = "convex" | "concave"; // convex: top bulges up; concave: top dips down
+
+const TeamFrame: React.FC<{ variant: FrameVariant; color: string; children?: React.ReactNode }> = ({ variant, color, children }) => {
+  const clipPathStyle = variant === "convex" ? PATH_CONVEX_TOP : PATH_CONCAVE_TOP;
+  
   return (
-    <svg viewBox="0 0 300 400" className="w-full h-full" preserveAspectRatio="none">
-      {variant === "down" ? (
-        // Top: concave downward. Bottom: convex downward (uses extra viewBox height for bulge)
-        <path d="M0 0 Q150 40 300 0 L300 360 Q150 400 0 360 Z" fill={color} />
-      ) : (
-        // Top: convex upward (within viewBox). Bottom: concave upward
-        <path d="M0 40 Q150 0 300 40 L300 360 Q150 320 0 360 Z" fill={color} />
-      )}
-    </svg>
+    <div
+      className="relative overflow-hidden shadow-xl"
+      style={{
+        clipPath: clipPathStyle,
+        backgroundColor: color,
+        width: '176px',
+        height: '224px',
+      }}
+    >
+      {children}
+    </div>
   );
 };
 
+const teamMembers = [
+  { name: "John Smith", role: "Company CEO", variant: "convex" as const, color: "#0FB9A5" },
+  { name: "David Johnson", role: "Co‑Founder", variant: "concave" as const, color: "#530F40" },
+  { name: "Mary Johnson", role: "Property Managers", variant: "convex" as const, color: "#007a7e" },
+  { name: "Patricia Davis", role: "Estate Consultant", variant: "concave" as const, color: "#0FB9A5" },
+];
+
 const TeamSection: React.FC = () => {
+  const [currentSlide, setCurrentSlide] = useState(0);
+  const [touchStart, setTouchStart] = useState<number | null>(null);
+  const [touchEnd, setTouchEnd] = useState<number | null>(null);
+  const totalSlides = 2; // 2 slides (showing 2 cards per slide on mobile)
+  
+  // Minimum swipe distance (in px)
+  const minSwipeDistance = 50;
+  
+  const onTouchStart = (e: React.TouchEvent) => {
+    setTouchEnd(null);
+    setTouchStart(e.targetTouches[0].clientX);
+  };
+  
+  const onTouchMove = (e: React.TouchEvent) => {
+    setTouchEnd(e.targetTouches[0].clientX);
+  };
+  
+  const onTouchEnd = () => {
+    if (!touchStart || !touchEnd) return;
+    
+    const distance = touchStart - touchEnd;
+    const isLeftSwipe = distance > minSwipeDistance;
+    const isRightSwipe = distance < -minSwipeDistance;
+    
+    if (isLeftSwipe && currentSlide < totalSlides - 1) {
+      setCurrentSlide(currentSlide + 1);
+    }
+    if (isRightSwipe && currentSlide > 0) {
+      setCurrentSlide(currentSlide - 1);
+    }
+  };
+  
   return (
-    <section className="w-full py-16 sm:py-20">
+    <section className="w-full py-40 sm:py-52">
       <div
         className="max-w-7xl mx-auto px-4 text-center bg-no-repeat"
         style={{
@@ -36,63 +83,80 @@ const TeamSection: React.FC = () => {
         <p className="max-w-3xl mx-auto text-sm sm:text-base text-gray-600 mb-10">
           Our dedicated team of experienced wellness professionals is at the heart of what we do. With deep knowledge and expertise allowing you achieve your wellness needs.
         </p>
-        <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-6 lg:gap-8 items-end">
-          <div className="text-center">
-            <div className="relative w-full h-60">
-              <TeamFrame variant="down" color="#0FB9A5" />
-              {/* <img src="/assets/homepage/team/Team-1.svg" alt="John Smith" className="absolute inset-0 m-auto h-56 object-contain" /> */}
+        
+        {/* Desktop: Show all cards in a row */}
+        <div className="hidden md:flex justify-center flex-wrap gap-x-6 gap-y-12">
+          {teamMembers.map((member, index) => (
+            <div key={index} className="flex flex-col items-center">
+              <TeamFrame variant={member.variant} color={member.color}>
+                {/* <img src="/assets/homepage/team/Team-1.svg" alt={member.name} className="w-full h-full object-cover p-2 rounded-2xl" /> */}
+              </TeamFrame>
+              <div className={member.variant === "convex" ? "-mt-3 text-center" : "mt-3 text-center"}>
+                <h3 className="text-base font-semibold text-gray-900">{member.name}</h3>
+                <p className="text-xs" style={{ color: "#580F41" }}>{member.role}</p>
+              </div>
             </div>
-            <h3 className="mt-3 text-base font-semibold text-gray-900">John Smith</h3>
-            <p className="text-xs" style={{ color: "#580F41" }}>Comany CEO</p>
-          </div>
-          <div className="text-center">
-            <div className="relative w-full h-60">
-              <TeamFrame variant="up" color="#530F40" />
-              {/* <img src="/assets/homepage/team/team-2.svg" alt="David Johnson" className="absolute inset-0 m-auto h-56 object-contain" /> */}
+          ))}
+        </div>
+
+        {/* Mobile: Carousel showing 2 cards at a time */}
+        <div 
+          className="md:hidden overflow-hidden"
+          onTouchStart={onTouchStart}
+          onTouchMove={onTouchMove}
+          onTouchEnd={onTouchEnd}
+        >
+          <div 
+            className="flex transition-transform duration-300 ease-in-out touch-pan-x"
+            style={{ transform: `translateX(-${currentSlide * 100}%)` }}
+          >
+            {/* Slide 1: First 2 members */}
+            <div className="min-w-full flex justify-center gap-6">
+              {teamMembers.slice(0, 2).map((member, index) => (
+                <div key={index} className="flex flex-col items-center">
+                  <TeamFrame variant={member.variant} color={member.color}>
+                    {/* <img src="/assets/homepage/team/Team-1.svg" alt={member.name} className="w-full h-full object-cover p-2 rounded-2xl" /> */}
+                  </TeamFrame>
+                  <div className={member.variant === "convex" ? "-mt-3 text-center" : "mt-3 text-center"}>
+                    <h3 className="text-base font-semibold text-gray-900">{member.name}</h3>
+                    <p className="text-xs" style={{ color: "#580F41" }}>{member.role}</p>
+                  </div>
+                </div>
+              ))}
             </div>
-            <h3 className="mt-3 text-base font-semibold text-gray-900">David Johnson</h3>
-            <p className="text-xs" style={{ color: "#580F41" }}>Co‑Founder</p>
-          </div>
-          <div className="text-center">
-            <div className="relative w-full h-60">
-              <TeamFrame variant="down" color="#007a7e" />
-              {/* <img src="/assets/homepage/team/team-3.svg" alt="Mary Johnson" className="absolute inset-0 m-auto h-56 object-contain" /> */}
+            
+            {/* Slide 2: Last 2 members */}
+            <div className="min-w-full flex justify-center gap-6">
+              {teamMembers.slice(2, 4).map((member, index) => (
+                <div key={index + 2} className="flex flex-col items-center">
+                  <TeamFrame variant={member.variant} color={member.color}>
+                    {/* <img src="/assets/homepage/team/Team-1.svg" alt={member.name} className="w-full h-full object-cover p-2 rounded-2xl" /> */}
+                  </TeamFrame>
+                  <div className={member.variant === "convex" ? "-mt-3 text-center" : "mt-3 text-center"}>
+                    <h3 className="text-base font-semibold text-gray-900">{member.name}</h3>
+                    <p className="text-xs" style={{ color: "#580F41" }}>{member.role}</p>
+                  </div>
+                </div>
+              ))}
             </div>
-            <h3 className="mt-3 text-base font-semibold text-gray-900">Mary Johnson</h3>image.png
-            <p className="text-xs" style={{ color: "#580F41" }}>Property Managers</p>
-          </div>
-          <div className="text-center">
-            <div className="relative w-full h-60">
-              <TeamFrame variant="up" color="#0FB9A5" />
-              {/* <img src="/assets/homepage/team/team-4.svg" alt="Patricia Davis" className="absolute inset-0 m-auto h-56 object-contain" /> */}
-            </div>
-            <h3 className="mt-3 text-base font-semibold text-gray-900">Patricia Davis</h3>
-            <p className="text-xs" style={{ color: "#580F41" }}>Estate Consultant</p>
-          </div>
-          <div className="text-center">
-            <div className="relative w-full h-60">
-              <TeamFrame variant="down" color="#530F40" />
-              {/* <img src="/assets/homepage/team/team-5.svg" alt="Grace Lee" className="absolute inset-0 m-auto h-56 object-contain" /> */}
-            </div>
-            <h3 className="mt-3 text-base font-semibold text-gray-900">Grace Lee</h3>
-            <p className="text-xs" style={{ color: "#580F41" }}>Wellness Coach</p>
           </div>
         </div>
 
-        <div className="mt-10 flex items-center justify-center gap-16">
-          <button className="w-20 h-20 rounded-full border border-brand-green text-brand-green hover:bg-brand-green hover:text-white transition-colors text-sm font-semibold flex flex-col items-center justify-center">
-            <span>Prev</span>
-            <span>&larr;</span>
-          </button>
-          <div className="flex items-center gap-2">
-            <span className="w-10 h-[2px] inline-block" style={{ backgroundColor: "#580F41" }} />
-            <span className="w-10 h-[2px] bg-gray-300 inline-block" />
-            <span className="w-10 h-[2px] bg-gray-300 inline-block" />
-          </div>
-          <button className="w-20 h-20 rounded-full border border-brand-green text-brand-green hover:bg-brand-green hover:text-white transition-colors text-sm font-semibold flex flex-col items-center justify-center">
-            <span>Next</span>
-            <span>&rarr;</span>
-          </button>
+        {/* Navigation - Indicators only on mobile */}
+        <div className="mt-10 flex md:hidden items-center justify-center gap-2">
+          {[...Array(totalSlides)].map((_, index) => (
+            <button
+              key={index}
+              onClick={() => setCurrentSlide(index)}
+              className="touch-manipulation"
+              aria-label={`Go to slide ${index + 1}`}
+            >
+              <span 
+                className="w-10 h-[2px] inline-block transition-colors"
+                style={{ backgroundColor: currentSlide === index ? "#580F41" : "#d1d5db" }}
+              />
+            </button>
+          ))}
         </div>
       </div>
     </section>

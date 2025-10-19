@@ -10,22 +10,22 @@ type BlogCardProps = {
 
 const BlogCard: React.FC<BlogCardProps> = ({ imageSrc, title, excerpt, to }) => {
   return (
-    <div className="bg-white rounded-3xl shadow-xl p-4 sm:p-6 flex flex-col items-center text-center border border-gray-100">
+    <div className="bg-white rounded-3xl shadow-xl p-6 sm:p-8 flex flex-col items-center text-center border border-gray-100">
       <div className="w-full overflow-hidden rounded-2xl">
-        <img src={imageSrc} alt={title} className="w-full h-56 sm:h-64 object-cover" />
+        <img src={imageSrc} alt={title} className="w-full h-72 sm:h-80 object-cover" />
       </div>
       <h3
-        className="mt-4 text-lg font-semibold text-gray-900 leading-snug"
+        className="mt-6 text-xl sm:text-2xl font-semibold text-gray-900 leading-snug"
         style={{ fontFamily: '"League Spartan", sans-serif' }}
       >
         {title}
       </h3>
-      <p className="mt-2 text-sm text-gray-600 leading-6">
+      <p className="mt-4 text-sm sm:text-base text-gray-600 leading-7">
         {excerpt}
       </p>
       <Link
         to={to}
-        className="mt-4 inline-block bg-brand-green text-white px-5 py-2 rounded-full text-sm font-semibold hover:bg-brand-green-dark transition-colors"
+        className="mt-6 inline-block bg-brand-green text-white px-6 py-3 rounded-full text-sm font-semibold hover:bg-brand-green-dark transition-colors"
       >
         Read More
       </Link>
@@ -44,7 +44,7 @@ const BlogSection: React.FC = () => {
         backgroundRepeat: "no-repeat",
       }}
     >
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-16 lg:pt-24">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-16 lg:pt-40">
         <div className="text-center mb-12 lg:mb-16">
           <h2
             className="text-3xl sm:text-4xl font-normal text-white"
