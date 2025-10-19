@@ -129,10 +129,10 @@ const Footer: React.FC = () => {
             <ul className="space-y-3 text-sm">
               <li>
                 <a
-                  href="mailto:support@fiftyfirstswellness.com"
+                  href="mailto:admin@fiftyfirstswellness.co.uk"
                   className="text-white/80 hover:text-white transition-colors"
                 >
-                  Support@fiftyfirstswellness.com
+                  admin@fiftyfirstswellness.co.uk
                 </a>
               </li>
               <li>
@@ -140,7 +140,7 @@ const Footer: React.FC = () => {
                   href="tel:+44123232122"
                   className="text-white/80 hover:text-white transition-colors"
                 >
-                  +441 2323 122
+                  +44 7515 944155
                 </a>
               </li>
               <li className="flex items-center gap-3 pt-2">

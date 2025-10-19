@@ -73,7 +73,7 @@ const ContactUs: React.FC = () => {
 
             {/* Quick contacts */}
             <div className="mt-8 grid grid-cols-2 gap-4 max-w-md">
-              <a href="mailto:info@fiftyfirstswellness.com" className="flex items-center gap-3 text-gray-700">
+              <a href="mailto:admin@fiftyfirstswellness.co.uk" className="flex items-center gap-3 text-gray-700">
                 <div className="w-10 h-10 rounded-full border-2 border-gray-300 flex items-center justify-center flex-shrink-0">
                   <Mail className="w-5 h-5 text-gray-500" />
                 </div>
@@ -95,7 +95,7 @@ const ContactUs: React.FC = () => {
                 <div className="w-10 h-10 rounded-full border-2 border-gray-300 flex items-center justify-center flex-shrink-0">
                   <Phone className="w-5 h-5 text-gray-500" />
                 </div>
-                <span className="text-sm">+441 2323 122</span>
+                <span className="text-sm">+44 7515 944155</span>
               </a>
             </div>
           </div>
