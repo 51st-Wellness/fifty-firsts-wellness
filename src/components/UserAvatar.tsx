@@ -2,10 +2,8 @@ import React, { useState, useRef, useEffect } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import {
   User,
-  Settings,
   LogOut,
   UserCircle,
-  ShoppingBag,
   Shield,
 } from "lucide-react";
 import { useAuth } from "../context/AuthContextProvider";
@@ -40,12 +38,6 @@ export function UserAvatar({ className = "" }: UserAvatarProps) {
   const handleLogout = async () => {
     setIsDropdownOpen(false);
     await logout();
-  };
-
-  // Handle profile navigation
-  const handleProfileClick = () => {
-    setIsDropdownOpen(false);
-    navigate("/profile");
   };
 
   // Loading state
@@ -108,7 +100,7 @@ export function UserAvatar({ className = "" }: UserAvatarProps) {
 
           {/* Dropdown Menu */}
           {isDropdownOpen && (
-            <div className="absolute right-0 mt-2 w-64 bg-white rounded-lg shadow-lg border border-gray-200 py-2 z-50">
+            <div className="absolute right-0 top-full mt-2 w-64 bg-white rounded-lg shadow-lg border border-gray-200 py-2 z-50">
               {/* User Info Header */}
               <div className="px-4 py-3 border-b border-gray-100">
                 <div className="flex items-center gap-3">
@@ -134,47 +126,45 @@ export function UserAvatar({ className = "" }: UserAvatarProps) {
 
               {/* Menu Items */}
               <div className="py-1">
-                <button
-                  onClick={handleProfileClick}
-                  className="w-full flex items-center gap-3 px-4 py-2 text-sm text-gray-700 hover:bg-gray-50 transition-colors"
-                >
-                  <User className="w-4 h-4 text-gray-500" />
-                  <span>Profile</span>
-                  {isProfileIncomplete && (
-                    <span className="ml-auto text-yellow-500 text-xs font-medium">
-                      Incomplete
-                    </span>
-                  )}
-                </button>
-
-                <Link
-                  to="/orders"
-                  onClick={() => setIsDropdownOpen(false)}
-                  className="w-full flex items-center gap-3 px-4 py-2 text-sm text-gray-700 hover:bg-gray-50 transition-colors"
-                >
-                  <ShoppingBag className="w-4 h-4 text-gray-500" />
-                  <span>My Orders</span>
-                </Link>
-
-                {user.role === "ADMIN" && (
+                {user.role === "ADMIN" ? (
+                  <>
+                    <Link
+                      to="/profile"
+                      onClick={() => setIsDropdownOpen(false)}
+                      className="w-full flex items-center gap-3 px-4 py-2 text-sm text-gray-700 hover:bg-gray-50 transition-colors"
+                    >
+                      <User className="w-4 h-4 text-gray-500" />
+                      <span>User Dashboard</span>
+                      {isProfileIncomplete && (
+                        <span className="ml-auto text-yellow-500 text-xs font-medium">
+                          Incomplete
+                        </span>
+                      )}
+                    </Link>
+                    <Link
+                      to="/admin"
+                      onClick={() => setIsDropdownOpen(false)}
+                      className="w-full flex items-center gap-3 px-4 py-2 text-sm text-gray-700 hover:bg-gray-50 transition-colors"
+                    >
+                      <Shield className="w-4 h-4 text-gray-500" />
+                      <span>Admin Dashboard</span>
+                    </Link>
+                  </>
+                ) : (
                   <Link
-                    to="/admin"
+                    to="/profile"
                     onClick={() => setIsDropdownOpen(false)}
                     className="w-full flex items-center gap-3 px-4 py-2 text-sm text-gray-700 hover:bg-gray-50 transition-colors"
                   >
-                    <Shield className="w-4 h-4 text-gray-500" />
-                    <span>Admin Dashboard</span>
+                    <User className="w-4 h-4 text-gray-500" />
+                    <span>Dashboard</span>
+                    {isProfileIncomplete && (
+                      <span className="ml-auto text-yellow-500 text-xs font-medium">
+                        Incomplete
+                      </span>
+                    )}
                   </Link>
                 )}
-
-                <Link
-                  to="/settings"
-                  onClick={() => setIsDropdownOpen(false)}
-                  className="w-full flex items-center gap-3 px-4 py-2 text-sm text-gray-700 hover:bg-gray-50 transition-colors"
-                >
-                  <Settings className="w-4 h-4 text-gray-500" />
-                  <span>Settings</span>
-                </Link>
               </div>
 
               {/* Logout */}
@@ -206,7 +196,7 @@ export function UserAvatar({ className = "" }: UserAvatarProps) {
               </span>
               <div className="flex items-center gap-0.5">
                 <span className="text-[10px] text-gray-500 group-hover:text-gray-600 leading-tight">
-                  {user.role === "ADMIN" ? "Admin dashboard" : "view profile"}
+                  {user.role === "ADMIN" ? "Admin dashboard" : "Dashboard"}
                 </span>
                 <svg
                   xmlns="http://www.w3.org/2000/svg"
