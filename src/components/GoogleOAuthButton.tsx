@@ -7,66 +7,27 @@ interface GoogleOAuthButtonProps {
   disabled?: boolean;
 }
 
-// Google OAuth button component with popup support
+// Google OAuth button component with browser redirect
 const GoogleOAuthButton: React.FC<GoogleOAuthButtonProps> = ({
   text = "Continue with Google",
   className = "",
   disabled = false,
 }) => {
-  // Handle Google OAuth popup
+  // Handle Google OAuth redirect
   const handleGoogleSignIn = () => {
     if (disabled) return;
 
-    const baseUrl = import.meta.env.VITE_BASE_URL || "http://localhost:3100";
-    const currentOrigin = window.location.origin;
-    const googleAuthUrl = `${baseUrl}/auth/google`;
-
-    // Open Google OAuth in popup
-    const popup = window.open(
-      googleAuthUrl,
-      "google-signin",
-      "width=500,height=600,scrollbars=yes,resizable=yes,left=" +
-        (window.screen.width / 2 - 250) +
-        ",top=" +
-        (window.screen.height / 2 - 300)
+    // Store current location in localStorage to redirect back after auth
+    localStorage.setItem(
+      "googleAuthRedirectUrl",
+      window.location.pathname + window.location.search
     );
 
-    // Listen for popup close
-    const checkClosed = setInterval(() => {
-      if (popup?.closed) {
-        clearInterval(checkClosed);
-        // Refresh the page to update auth status
-        window.location.reload();
-      }
-    }, 1000);
+    const baseUrl = import.meta.env.VITE_BASE_URL || "http://localhost:3100";
+    const googleAuthUrl = `${baseUrl}/auth/google`;
 
-    // Listen for messages from popup (if backend sends postMessage)
-    const handleMessage = (event: MessageEvent) => {
-      if (event.origin !== window.location.origin) return;
-
-      if (event.data.type === "GOOGLE_AUTH_SUCCESS") {
-        popup?.close();
-        clearInterval(checkClosed);
-        window.location.reload();
-      } else if (event.data.type === "GOOGLE_AUTH_ERROR") {
-        popup?.close();
-        clearInterval(checkClosed);
-        console.error("Google auth error:", event.data.error);
-      }
-    };
-
-    window.addEventListener("message", handleMessage);
-
-    // Cleanup listener when popup closes
-    const originalCheckClosed = checkClosed;
-    const enhancedCheckClosed = setInterval(() => {
-      if (popup?.closed) {
-        clearInterval(enhancedCheckClosed);
-        clearInterval(originalCheckClosed);
-        window.removeEventListener("message", handleMessage);
-        window.location.reload();
-      }
-    }, 1000);
+    // Redirect to Google OAuth
+    window.location.href = googleAuthUrl;
   };
 
   return (

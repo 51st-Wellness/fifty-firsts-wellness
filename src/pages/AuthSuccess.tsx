@@ -1,60 +1,55 @@
 import React, { useEffect } from "react";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useSearchParams } from "react-router-dom";
 import { useAuth } from "../context/AuthContextProvider";
-import toast from "react-hot-toast";
+import { storeAuthToken } from "../lib/utils";
 
 // Auth success page for handling OAuth redirects
 const AuthSuccess: React.FC = () => {
   const navigate = useNavigate();
-  const { checkAuthStatus } = useAuth();
+  const { loadUserProfile } = useAuth();
+
+  const [searchParams] = useSearchParams();
 
   useEffect(() => {
     const handleAuthSuccess = async () => {
       try {
-        // If this is a popup window, notify parent and close
-        if (window.opener) {
-          window.opener.postMessage(
-            { type: "GOOGLE_AUTH_SUCCESS" },
-            window.location.origin
-          );
-          window.close();
-          return;
+        // Extract token from URL parameters
+        const token = searchParams.get("token");
+
+        if (token) {
+          // Store the auth token
+          storeAuthToken(token);
+          await loadUserProfile();
         }
 
-        // Check auth status to update the context
-        await checkAuthStatus();
+        // Get the stored redirect URL from localStorage
+        const redirectUrl =
+          localStorage.getItem("googleAuthRedirectUrl") || "/";
 
-        // Show success message
-        toast.success("Successfully signed in with Google!");
+        // Clean up localStorage
+        localStorage.removeItem("googleAuthRedirectUrl");
 
-        // Redirect to home page
-        navigate("/", { replace: true });
+        // Redirect to the stored URL or default to home
+        const targetUrl =
+          redirectUrl &&
+          ["/login", "/signup", "/email-verification", "/"].includes(
+            redirectUrl as string
+          )
+            ? "/"
+            : redirectUrl;
+        navigate(targetUrl, { replace: true });
       } catch (error) {
         console.error("Auth success error:", error);
-
-        // If this is a popup window, notify parent of error
-        if (window.opener) {
-          window.opener.postMessage(
-            {
-              type: "GOOGLE_AUTH_ERROR",
-              error:
-                error instanceof Error
-                  ? error.message
-                  : "Authentication failed",
-            },
-            window.location.origin
-          );
-          window.close();
-          return;
-        }
-
-        toast.error("Authentication failed. Please try again.");
+        // If auth check fails, redirect to login
         navigate("/login", { replace: true });
       }
     };
 
-    handleAuthSuccess();
-  }, [navigate, checkAuthStatus]);
+    // Small delay to ensure page is fully loaded
+    const timer = setTimeout(handleAuthSuccess, 100);
+
+    return () => clearTimeout(timer);
+  }, [navigate, loadUserProfile, searchParams]);
 
   return (
     <div className="min-h-screen flex items-center justify-center bg-gray-50">
