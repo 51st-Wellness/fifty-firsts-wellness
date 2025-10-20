@@ -17,13 +17,8 @@ const AuthSuccess: React.FC = () => {
         const token = searchParams.get("token");
 
         if (token) {
-          // Store the auth token
+          // Store the auth token - the existing interceptor will automatically pick this up
           storeAuthToken(token);
-          http.interceptors.request.clear();
-          http.interceptors.request.use((config) => {
-            config.headers.Authorization = `Bearer ${token}`;
-            return config;
-          });
           await loadUserProfile();
         }
 

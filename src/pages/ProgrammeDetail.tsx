@@ -13,6 +13,7 @@ import MuxPlayer from "@mux/mux-player-react";
 import { Programme, fetchSecureProgrammeById } from "../api/programme.api";
 import { useAuth } from "../context/AuthContextProvider";
 import Loader from "../components/Loader";
+import SubscriptionRequiredModal from "../components/SubscriptionRequiredModal";
 import toast from "react-hot-toast";
 
 type ProgrammeResponse = {
@@ -30,6 +31,8 @@ const ProgrammeDetail: React.FC = () => {
   );
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [showSubscriptionModal, setShowSubscriptionModal] = useState(false);
+  const [accessError, setAccessError] = useState<string | null>(null);
 
   useEffect(() => {
     if (!productId) {
@@ -44,6 +47,8 @@ const ProgrammeDetail: React.FC = () => {
   const fetchProgrammeData = async () => {
     try {
       setLoading(true);
+      setError(null);
+      setAccessError(null);
 
       if (isAuthenticated) {
         // Use secure endpoint for authenticated users
@@ -52,22 +57,22 @@ const ProgrammeDetail: React.FC = () => {
         )) as ProgrammeResponse;
         setProgrammeData(response);
       } else {
-        // For non-authenticated users, you might want to show a preview or redirect to login
-        toast.error("Please log in to watch programmes");
-        navigate("/login");
+        // For non-authenticated users, show subscription modal
+        setShowSubscriptionModal(true);
         return;
       }
-
-      setError(null);
     } catch (err: any) {
       console.error("Error fetching programme:", err);
       if (err.response?.status === 401) {
         toast.error("Please log in to access this programme");
         navigate("/login");
       } else if (err.response?.status === 403) {
-        setError(
-          "You don't have access to this programme. Please check your subscription."
+        // User is authenticated but doesn't have subscription access
+        setAccessError(
+          err.response?.data?.message ||
+            "You need an active subscription to access this programme."
         );
+        setShowSubscriptionModal(true);
       } else {
         setError("Failed to load programme. Please try again.");
       }
@@ -127,13 +132,22 @@ const ProgrammeDetail: React.FC = () => {
             >
               Try Again
             </button>
+            <div className="text-sm text-gray-600">
+              Having trouble?{" "}
+              <Link
+                to="/subscriptions"
+                className="text-[#4444B3] hover:underline"
+              >
+                View our subscription plans
+              </Link>
+            </div>
           </div>
         </div>
       </div>
     );
   }
 
-  if (!programmeData) {
+  if (!programmeData && !showSubscriptionModal) {
     return (
       <div className="min-h-screen bg-white flex items-center justify-center">
         <div className="text-center">
@@ -143,22 +157,57 @@ const ProgrammeDetail: React.FC = () => {
     );
   }
 
-  const { playback, programme } = programmeData;
-  
+  // Show subscription modal if user doesn't have access
+  if (showSubscriptionModal && !programmeData) {
+    return (
+      <div className="min-h-screen bg-white flex items-center justify-center">
+        <div className="text-center max-w-md mx-auto px-4">
+          <div className="text-gray-600 mb-4 text-lg">
+            {accessError || "Subscription required to access this programme"}
+          </div>
+          <div className="space-y-3">
+            <button
+              onClick={() => navigate("/subscriptions")}
+              className="bg-[#4444B3] text-white px-6 py-2 rounded-full hover:bg-[#343494] transition"
+            >
+              View Subscription Plans
+            </button>
+            <button
+              onClick={() => navigate("/programmes")}
+              className="bg-gray-100 text-gray-700 px-6 py-2 rounded-full hover:bg-gray-200 transition"
+            >
+              Back to Programmes
+            </button>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
+  const { playback, programme } = programmeData!;
+
   return (
     <div className="min-h-screen bg-white">
       <div className="max-w-7xl mx-auto px-6 sm:px-10 lg:px-16 py-6">
         {/* Breadcrumb Navigation */}
         <nav className="flex items-center gap-2 text-sm mb-6">
-          <Link to="/" className="text-gray-600 hover:text-brand-green transition-colors">
+          <Link
+            to="/"
+            className="text-gray-600 hover:text-brand-green transition-colors"
+          >
             Home
           </Link>
           <ChevronRight className="w-4 h-4 text-gray-400" />
-          <Link to="/resources/webinars" className="text-gray-600 hover:text-brand-green transition-colors">
+          <Link
+            to="/resources/webinars"
+            className="text-gray-600 hover:text-brand-green transition-colors"
+          >
             Webinars
           </Link>
           <ChevronRight className="w-4 h-4 text-gray-400" />
-          <span className="text-brand-green font-medium">{programme.title}</span>
+          <span className="text-brand-green font-medium">
+            {programme.title}
+          </span>
         </nav>
 
         {/* Main Content: Video Left, Info Right */}
@@ -166,7 +215,10 @@ const ProgrammeDetail: React.FC = () => {
           {/* Left Column - Video */}
           <div className="lg:col-span-2">
             {/* Video Player */}
-            <div className="bg-black rounded-2xl overflow-hidden shadow-lg mb-6" style={{ aspectRatio: '16/9' }}>
+            <div
+              className="bg-black rounded-2xl overflow-hidden shadow-lg mb-6"
+              style={{ aspectRatio: "16/9" }}
+            >
               {programme.muxPlaybackId && playback?.signedToken ? (
                 <MuxPlayer
                   playbackId={programme.muxPlaybackId}
@@ -191,7 +243,9 @@ const ProgrammeDetail: React.FC = () => {
                   <div className="text-center text-white">
                     <Play className="w-16 h-16 mx-auto mb-4 opacity-50" />
                     <p className="text-lg mb-2">Video is still processing</p>
-                    <p className="text-sm opacity-75">Please check back later</p>
+                    <p className="text-sm opacity-75">
+                      Please check back later
+                    </p>
                   </div>
                 </div>
               ) : !playback?.signedToken ? (
@@ -213,7 +267,7 @@ const ProgrammeDetail: React.FC = () => {
 
             {/* Title and Description */}
             <div>
-              <h1 
+              <h1
                 className="text-2xl sm:text-3xl font-bold text-gray-900 mb-4 leading-tight"
                 style={{ fontFamily: '"League Spartan", sans-serif' }}
               >
@@ -225,7 +279,12 @@ const ProgrammeDetail: React.FC = () => {
                 {programme.createdAt && (
                   <div className="flex items-center gap-2">
                     <Calendar className="w-4 h-4" />
-                    <span>{new Date(programme.createdAt).toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' })}</span>
+                    <span>
+                      {new Date(programme.createdAt).toLocaleDateString(
+                        "en-US",
+                        { month: "long", day: "numeric", year: "numeric" }
+                      )}
+                    </span>
                   </div>
                 )}
                 {programme.duration && (
@@ -239,7 +298,7 @@ const ProgrammeDetail: React.FC = () => {
               {/* Description */}
               {programme.description && (
                 <div className="mb-6">
-                  <h2 
+                  <h2
                     className="text-lg font-semibold text-gray-900 mb-3"
                     style={{ fontFamily: '"League Spartan", sans-serif' }}
                   >
@@ -267,7 +326,7 @@ const ProgrammeDetail: React.FC = () => {
               {/* Categories */}
               {programme.categories && programme.categories.length > 0 && (
                 <div className="mb-6">
-                  <h3 
+                  <h3
                     className="text-sm font-semibold text-gray-900 mb-3"
                     style={{ fontFamily: '"League Spartan", sans-serif' }}
                   >
@@ -300,6 +359,13 @@ const ProgrammeDetail: React.FC = () => {
           </div>
         </div>
       </div>
+
+      {/* Subscription Modal */}
+      <SubscriptionRequiredModal
+        isOpen={showSubscriptionModal}
+        onClose={() => setShowSubscriptionModal(false)}
+        programmeTitle={programme?.title || "this programme"}
+      />
     </div>
   );
 };
