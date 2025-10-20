@@ -12,6 +12,7 @@ import { signupSchema, SignupFormData } from "../lib/validation";
 import PhoneInput from "react-phone-number-input";
 import "react-phone-number-input/style.css";
 import "../styles/phone-input.css";
+import GoogleOAuthButton from "../components/GoogleOAuthButton";
 
 // Signup page component
 const Signup: React.FC = () => {
@@ -290,24 +291,17 @@ const Signup: React.FC = () => {
             </button>
 
             {/* Divider */}
-            {/* <div className="relative">
+            <div className="relative">
               <div className="absolute inset-0 flex items-center">
                 <div className="w-full border-t border-gray-200"></div>
               </div>
               <div className="relative flex justify-center text-sm">
                 <span className="px-4 bg-white text-gray-500">or</span>
               </div>
-            </div> */}
+            </div>
 
             {/* Google Signup */}
-            {/* <button
-              type="button"
-              className="w-full border border-gray-300 text-gray-700 py-3 px-6 rounded-full font-medium hover:bg-gray-50 transition-colors flex items-center justify-center gap-2"
-              style={{ fontFamily: '"League Spartan", sans-serif' }}
-            >
-              <FcGoogle size={20} />
-              Signup with Google
-            </button> */}
+            <GoogleOAuthButton text="Sign up with Google" />
 
             {/* Login Link */}
             <div className="text-center text-sm text-gray-600">

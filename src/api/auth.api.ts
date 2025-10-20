@@ -66,3 +66,18 @@ export const resendVerification = async (payload: {
   const { data } = await http.post("/auth/resend-verification", payload);
   return data as ResponseDto<null>;
 };
+
+// Google OAuth redirect URL
+export const getGoogleAuthUrl = (): string => {
+  const baseUrl = import.meta.env.VITE_BASE_URL || "http://localhost:3100/api";
+  const currentOrigin = window.location.origin;
+  return `${baseUrl}/auth/google?origin=${encodeURIComponent(currentOrigin)}`;
+};
+
+// Google One Tap authentication
+export const googleOneTap = async (payload: {
+  token: string;
+}): Promise<ResponseDto<{ user: User; accessToken: string }>> => {
+  const { data } = await http.post("/auth/google/onetap", payload);
+  return data as ResponseDto<{ user: User; accessToken: string }>;
+};

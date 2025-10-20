@@ -45,6 +45,7 @@ import BlogPost from "@/pages/BlogPost";
 import PaymentCancel from "./pages/PaymentCancel";
 import PaymentSuccess from "./pages/PaymentSuccess";
 import NotFound from "./pages/NotFound";
+import AuthSuccess from "./pages/AuthSuccess";
 
 // Admin routes (lazy loaded)
 const AdminLayout = lazy(() => import("./pages/admin/AdminLayout"));
@@ -227,6 +228,7 @@ const App: React.FC = () => {
           <Route path="/contact" element={<ContactUs />} />
           <Route path="/login" element={<Login />} />
           <Route path="/signup" element={<Signup />} />
+          <Route path="/auth/success" element={<AuthSuccess />} />
           <Route
             path="/dashboard"
             element={

@@ -1,6 +1,6 @@
 import React, { useContext, useState, useEffect, ReactNode } from "react";
 import { AuthContext } from "./AuthContext";
-import { login as loginApi } from "../api/auth.api";
+import { login as loginApi, googleOneTap } from "../api/auth.api";
 import {
   checkAuth,
   getUserProfile,
@@ -175,6 +175,37 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
     return false;
   };
 
+  // Google One Tap login
+  const loginWithGoogle = async (token: string): Promise<boolean> => {
+    setLoading(true);
+    setError(null);
+
+    try {
+      const response = await googleOneTap({ token });
+
+      if (response.data?.accessToken) {
+        storeAuthToken(response.data.accessToken);
+        setIsAuthenticated(true);
+        // Set user directly from login response to avoid an immediate refetch
+        if (response.data?.user) {
+          setUser(response.data.user);
+        }
+
+        toast.success("Google login successful!");
+        return true;
+      }
+    } catch (error: any) {
+      const errorMessage =
+        error.response?.data?.message || "Google login failed";
+      setError(errorMessage);
+      toast.error(errorMessage);
+    } finally {
+      setLoading(false);
+    }
+
+    return false;
+  };
+
   // Check if email is verified
   const isEmailVerified = user?.isEmailVerified ?? false;
 
@@ -192,6 +223,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
         loadUserProfile,
         updateProfile,
         updateProfilePicture: updateProfilePictureHandler,
+        loginWithGoogle,
       }}
     >
       {children}

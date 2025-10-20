@@ -23,6 +23,7 @@ interface AuthContextType {
   loadUserProfile: () => Promise<void>;
   updateProfile: (payload: UpdateProfilePayload) => Promise<boolean>;
   updateProfilePicture: (file: File) => Promise<boolean>;
+  loginWithGoogle: (token: string) => Promise<boolean>;
 }
 
 export const AuthContext = createContext<AuthContextType | null>(null);

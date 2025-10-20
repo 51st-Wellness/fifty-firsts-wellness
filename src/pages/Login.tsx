@@ -4,15 +4,14 @@ import { FcGoogle } from "react-icons/fc";
 import { Eye, EyeOff, ArrowLeft } from "lucide-react";
 import { Link, useNavigate } from "react-router-dom";
 import { useAuth } from "../context/AuthContextProvider";
-import Cookies from "js-cookie";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { loginSchema, LoginFormData } from "../lib/validation";
+import GoogleOAuthButton from "../components/GoogleOAuthButton";
 
 // Login page component
 const Login: React.FC = () => {
   const [showPassword, setShowPassword] = useState<boolean>(false);
-  const [rememberMe, setRememberMe] = useState<boolean>(false);
 
   const { login, error } = useAuth();
   const navigate = useNavigate();
@@ -22,26 +21,13 @@ const Login: React.FC = () => {
     register,
     handleSubmit,
     formState: { errors },
-    watch,
-    setValue,
   } = useForm<LoginFormData>({
     resolver: zodResolver(loginSchema),
     mode: "onChange",
   });
 
-  const watchedFields = watch();
-
   const onSubmit = async (data: LoginFormData) => {
     const { email, password } = data;
-
-    // Handle remember me functionality
-    if (rememberMe) {
-      Cookies.set("savedEmail", email, { expires: 30, path: "/" });
-      Cookies.set("savedPassword", password, { expires: 30, path: "/" });
-    } else {
-      Cookies.remove("savedEmail", { path: "/" });
-      Cookies.remove("savedPassword", { path: "/" });
-    }
 
     const success = await login(email, password);
     if (success) {
@@ -53,22 +39,10 @@ const Login: React.FC = () => {
     setShowPassword((prev) => !prev);
   };
 
-  // Load saved credentials if they exist
-  useEffect(() => {
-    const savedEmail = Cookies.get("savedEmail");
-    const savedPassword = Cookies.get("savedPassword");
-
-    if (savedEmail && savedPassword) {
-      setValue("email", savedEmail);
-      setValue("password", savedPassword);
-      setRememberMe(true);
-    }
-  }, [setValue]);
-
   return (
     <main className="min-h-screen flex flex-col md:flex-row">
       {/* Left Side - Image (hidden on mobile) */}
-      <div 
+      <div
         className="hidden md:block md:w-1/2 relative"
         style={{
           backgroundImage: "url(/assets/homepage/hero-bg.png)",
@@ -85,7 +59,11 @@ const Login: React.FC = () => {
           {/* Logo */}
           <div className="mb-4">
             <Link to="/">
-              <img src={logo} alt="Fifty Firsts Wellness" className="h-12 w-auto hover:opacity-80 transition-opacity cursor-pointer" />
+              <img
+                src={logo}
+                alt="Fifty Firsts Wellness"
+                className="h-12 w-auto hover:opacity-80 transition-opacity cursor-pointer"
+              />
             </Link>
           </div>
 
@@ -100,7 +78,7 @@ const Login: React.FC = () => {
 
           {/* Header */}
           <div className="mb-8">
-            <h1 
+            <h1
               className="text-3xl sm:text-4xl font-semibold text-gray-900 mb-2"
               style={{ fontFamily: '"League Spartan", sans-serif' }}
             >
@@ -198,24 +176,17 @@ const Login: React.FC = () => {
             </button>
 
             {/* Divider */}
-            {/* <div className="relative">
+            <div className="relative">
               <div className="absolute inset-0 flex items-center">
                 <div className="w-full border-t border-gray-200"></div>
               </div>
               <div className="relative flex justify-center text-sm">
                 <span className="px-4 bg-white text-gray-500">or</span>
               </div>
-            </div> */}
+            </div>
 
             {/* Google Login */}
-            {/* <button
-              type="button"
-              className="w-full border border-gray-300 text-gray-700 py-3 px-6 rounded-full font-medium hover:bg-gray-50 transition-colors flex items-center justify-center gap-2"
-              style={{ fontFamily: '"League Spartan", sans-serif' }}
-            >
-              <FcGoogle size={20} />
-              Signup with Google
-            </button> */}
+            <GoogleOAuthButton text="Sign in with Google" />
 
             {/* Sign Up Link */}
             <div className="text-center text-sm text-gray-600">
