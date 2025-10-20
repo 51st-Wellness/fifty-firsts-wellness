@@ -1,5 +1,18 @@
 import React, { useEffect, useMemo, useRef, useState } from "react";
-import { Play, Pause, VolumeX, Volume, Volume1, Volume2, Search, ChevronDown, SkipBack, SkipForward, Copy, ListFilter } from "lucide-react";
+import {
+  Play,
+  Pause,
+  VolumeX,
+  Volume,
+  Volume1,
+  Volume2,
+  Search,
+  ChevronDown,
+  SkipBack,
+  SkipForward,
+  Copy,
+  ListFilter,
+} from "lucide-react";
 import podcast1 from "../../assets/images/podcast1.png";
 import { fetchPodcasts, type PodcastEpisode } from "@/api/podcast.api";
 import { useNavigate } from "react-router-dom";
@@ -22,6 +35,7 @@ const categories = [
   "Mindfulness",
 ];
 
+// Podcasts page listing and filtering episodes
 const Podcasts: React.FC<PodcastsProps> = ({ onSearch }) => {
   const [query, setQuery] = useState("");
   const [episodes, setEpisodes] = useState<PodcastEpisode[]>([]);
@@ -68,24 +82,35 @@ const Podcasts: React.FC<PodcastsProps> = ({ onSearch }) => {
   const filteredEpisodes = useMemo(() => {
     const base = Array.isArray(episodes) ? episodes : [];
     const byQuery = (() => {
-    if (!query) return base;
-    const q = query.toLowerCase();
-    return base.filter((e) => {
-      const title = (e?.title || "").toLowerCase();
-      const desc = (e?.description || "").toLowerCase();
-      return title.includes(q) || desc.includes(q);
-    });
+      if (!query) return base;
+      const q = query.toLowerCase();
+      return base.filter((e) => {
+        const title = (e?.title || "").toLowerCase();
+        const desc = extractPlainText(e?.description || "").toLowerCase();
+        return title.includes(q) || desc.includes(q);
+      });
     })();
-    const byCategory = selectedCategory === "All"
-      ? byQuery
-      : byQuery.filter((e) => (e?.category || "").toLowerCase() === selectedCategory.toLowerCase());
+    const byCategory =
+      selectedCategory === "All"
+        ? byQuery
+        : byQuery.filter(
+            (e) =>
+              ((e as any)?.category || "").toLowerCase() ===
+              selectedCategory.toLowerCase()
+          );
 
     const sorted = [...byCategory].sort((a, b) => {
       if (sortLabel === "Newest First") {
-        return new Date(b.publishedAt || 0).getTime() - new Date(a.publishedAt || 0).getTime();
+        return (
+          new Date(b.publishedAt || 0).getTime() -
+          new Date(a.publishedAt || 0).getTime()
+        );
       }
       if (sortLabel === "Oldest First") {
-        return new Date(a.publishedAt || 0).getTime() - new Date(b.publishedAt || 0).getTime();
+        return (
+          new Date(a.publishedAt || 0).getTime() -
+          new Date(b.publishedAt || 0).getTime()
+        );
       }
       // A-Z Title
       return (a.title || "").localeCompare(b.title || "");
@@ -93,7 +118,8 @@ const Podcasts: React.FC<PodcastsProps> = ({ onSearch }) => {
     return sorted;
   }, [episodes, query, selectedCategory, sortLabel]);
 
-  const handleLoadMore = () => setVisibleCount((v) => Math.min(v + 6, filteredEpisodes.length));
+  const handleLoadMore = () =>
+    setVisibleCount((v) => Math.min(v + 6, filteredEpisodes.length));
   const hasMore = filteredEpisodes.length > visibleCount;
 
   const handleSubmit = (e: React.FormEvent) => {
@@ -111,11 +137,16 @@ const Podcasts: React.FC<PodcastsProps> = ({ onSearch }) => {
           className="pointer-events-none select-none absolute right-0 top-0 w-40 sm:w-48 md:w-56 lg:w-64"
         />
         <div className="max-w-7xl mx-auto px-6 sm:px-10 lg:px-16 py-10 sm:py-12 lg:py-16">
-          <h1 className="text-3xl sm:text-4xl lg:text-5xl font-semibold mb-3" style={{ fontFamily: '"League Spartan", sans-serif' }}>
+          <h1
+            className="text-3xl sm:text-4xl lg:text-5xl font-semibold mb-3"
+            style={{ fontFamily: '"League Spartan", sans-serif' }}
+          >
             Podcasts
           </h1>
           <p className="text-sm sm:text-base text-[#475464] leading-relaxed max-w-3xl">
-            Explore thoughtfully curated wellness podcasts designed to nourish your body, calm your mind, and support your everyday self-care rituals.
+            Explore thoughtfully curated wellness podcasts designed to nourish
+            your body, calm your mind, and support your everyday self-care
+            rituals.
           </p>
 
           {/* Controls: Search, Categories, Sort */}
@@ -126,7 +157,7 @@ const Podcasts: React.FC<PodcastsProps> = ({ onSearch }) => {
                 <div className="flex-1 bg-white rounded-xl overflow-hidden focus-within:border-[#4444B3] transition-colors flex items-center">
                   <div className="pl-4 text-gray-400">
                     <Search size={20} />
-        </div>
+                  </div>
                   <input
                     value={query}
                     onChange={(e) => setQuery(e.target.value)}
@@ -135,7 +166,7 @@ const Podcasts: React.FC<PodcastsProps> = ({ onSearch }) => {
                     style={{ fontFamily: '"League Spartan", sans-serif' }}
                   />
                 </div>
-                
+
                 {/* Mobile Filter Icon */}
                 <div className="md:hidden relative" ref={sortRef}>
                   <button
@@ -147,20 +178,28 @@ const Podcasts: React.FC<PodcastsProps> = ({ onSearch }) => {
                   </button>
                   {sortOpen && (
                     <div className="absolute right-0 mt-2 w-44 bg-white border border-gray-200 rounded-xl shadow-md z-50 overflow-hidden">
-                      {["Newest First", "Oldest First", "A-Z Title"].map((opt) => (
-                        <button
-                          key={opt}
-                          type="button"
-                          onClick={() => {
-                            setSortLabel(opt);
-                            setSortOpen(false);
-                          }}
-                          className={`w-full text-left px-4 py-2 text-sm hover:bg-gray-50 ${sortLabel === opt ? 'text-[#4444B3]' : 'text-gray-700'}`}
-                          style={{ fontFamily: '"League Spartan", sans-serif' }}
-                        >
-                          {opt}
-                        </button>
-                      ))}
+                      {["Newest First", "Oldest First", "A-Z Title"].map(
+                        (opt) => (
+                          <button
+                            key={opt}
+                            type="button"
+                            onClick={() => {
+                              setSortLabel(opt);
+                              setSortOpen(false);
+                            }}
+                            className={`w-full text-left px-4 py-2 text-sm hover:bg-gray-50 ${
+                              sortLabel === opt
+                                ? "text-[#4444B3]"
+                                : "text-gray-700"
+                            }`}
+                            style={{
+                              fontFamily: '"League Spartan", sans-serif',
+                            }}
+                          >
+                            {opt}
+                          </button>
+                        )
+                      )}
                     </div>
                   )}
                 </div>
@@ -170,21 +209,28 @@ const Podcasts: React.FC<PodcastsProps> = ({ onSearch }) => {
             {/* Categories and Sort */}
             <div className="flex flex-col md:flex-row items-center justify-between gap-3">
               {/* Categories - Horizontally Scrollable */}
-              <div 
+              <div
                 className="w-full md:flex-1 overflow-x-auto scrollbar-hide"
-                style={{ 
-                  scrollbarWidth: 'none',
-                  msOverflowStyle: 'none',
-                  WebkitOverflowScrolling: 'touch'
+                style={{
+                  scrollbarWidth: "none",
+                  msOverflowStyle: "none",
+                  WebkitOverflowScrolling: "touch",
                 }}
               >
-                <div className="flex gap-2 pb-2" style={{ minWidth: 'min-content' }}>
+                <div
+                  className="flex gap-2 pb-2"
+                  style={{ minWidth: "min-content" }}
+                >
                   {categories.map((cat) => (
                     <button
                       key={cat}
                       type="button"
                       onClick={() => setSelectedCategory(cat)}
-                      className={`px-3 py-1.5 rounded-full border text-sm whitespace-nowrap flex-shrink-0 ${selectedCategory === cat ? 'text-[#4444B3] border-[#4444B3]' : 'text-gray-600 border-gray-300'} transition-colors`}
+                      className={`px-3 py-1.5 rounded-full border text-sm whitespace-nowrap flex-shrink-0 ${
+                        selectedCategory === cat
+                          ? "text-[#4444B3] border-[#4444B3]"
+                          : "text-gray-600 border-gray-300"
+                      } transition-colors`}
                       style={{ fontFamily: '"League Spartan", sans-serif' }}
                     >
                       {cat}
@@ -202,54 +248,79 @@ const Podcasts: React.FC<PodcastsProps> = ({ onSearch }) => {
                   style={{ fontFamily: '"League Spartan", sans-serif' }}
                 >
                   {sortLabel}
-                  <ChevronDown className={`w-4 h-4 transition-transform ${sortOpen ? 'rotate-180' : ''}`} />
+                  <ChevronDown
+                    className={`w-4 h-4 transition-transform ${
+                      sortOpen ? "rotate-180" : ""
+                    }`}
+                  />
                 </button>
                 {sortOpen && (
                   <div className="absolute right-0 mt-2 w-44 bg-white border border-gray-200 rounded-xl shadow-md z-10 overflow-hidden">
-                    {["Newest First","Oldest First","A-Z Title"].map((opt) => (
-                      <button
-                        key={opt}
-                        type="button"
-                        onClick={() => { setSortLabel(opt); setSortOpen(false); }}
-                        className={`w-full text-left px-4 py-2 text-sm hover:bg-gray-50 ${sortLabel === opt ? 'text-[#4444B3]' : 'text-gray-700'}`}
-                        style={{ fontFamily: '"League Spartan", sans-serif' }}
-                      >
-                        {opt}
-                      </button>
-                    ))}
+                    {["Newest First", "Oldest First", "A-Z Title"].map(
+                      (opt) => (
+                        <button
+                          key={opt}
+                          type="button"
+                          onClick={() => {
+                            setSortLabel(opt);
+                            setSortOpen(false);
+                          }}
+                          className={`w-full text-left px-4 py-2 text-sm hover:bg-gray-50 ${
+                            sortLabel === opt
+                              ? "text-[#4444B3]"
+                              : "text-gray-700"
+                          }`}
+                          style={{ fontFamily: '"League Spartan", sans-serif' }}
+                        >
+                          {opt}
+                        </button>
+                      )
+                    )}
                   </div>
                 )}
               </div>
             </div>
           </div>
         </div>
-          </section>
+      </section>
 
       {/* Articles Grid with background that kisses footer */}
       <section
         className="w-full"
         style={{
-          backgroundImage: 'url(/assets/general-background.svg)',
-          backgroundRepeat: 'no-repeat',
-          backgroundSize: 'cover',
-          backgroundPosition: 'center',
+          backgroundImage: "url(/assets/general-background.svg)",
+          backgroundRepeat: "no-repeat",
+          backgroundSize: "cover",
+          backgroundPosition: "center",
         }}
       >
         <div className="max-w-7xl mx-auto px-10 sm:px-10 lg:px-16 pt-8 pb-8">
           {loading ? (
             <div className="grid grid-cols-2 md:grid-cols-2 lg:grid-cols-4 gap-4 lg:gap-6">
-              {Array.from({ length: 9 }).map((_, i) => <CardSkeleton key={i} />)}
+              {Array.from({ length: 9 }).map((_, i) => (
+                <CardSkeleton key={i} />
+              ))}
             </div>
-        ) : error ? (
+          ) : error ? (
             <div className="text-center text-red-500">{error}</div>
           ) : filteredEpisodes.length === 0 ? (
             <div className="flex flex-col items-center justify-center py-20 text-center">
-              <div className="text-2xl font-semibold mb-2 text-white" style={{ fontFamily: '\"League Spartan\", sans-serif' }}>No episodes found</div>
-              <p className="mb-6 text-white/80">Try a different search or switch categories.</p>
+              <div
+                className="text-2xl font-semibold mb-2 text-white"
+                style={{ fontFamily: '"League Spartan", sans-serif' }}
+              >
+                No episodes found
+              </div>
+              <p className="mb-6 text-white/80">
+                Try a different search or switch categories.
+              </p>
               <div className="flex gap-3">
                 <button
                   type="button"
-                  onClick={() => { setSelectedCategory('All'); setQuery(''); }}
+                  onClick={() => {
+                    setSelectedCategory("All");
+                    setQuery("");
+                  }}
                   className="px-4 py-2 rounded-full border border-gray-300 bg-white text-sm hover:bg-gray-50"
                 >
                   Reset filters
@@ -262,20 +333,20 @@ const Podcasts: React.FC<PodcastsProps> = ({ onSearch }) => {
                 <EpisodeCard key={ep.id} episode={ep} />
               ))}
             </div>
-        )}
+          )}
 
-        {/* Load More inside background */}
-        {!loading && !error && hasMore && (
-          <div className="pt-10 flex justify-center">
-          <button
-            onClick={handleLoadMore}
-              className="px-6 py-3 rounded-full text-white bg-[#4444B3] hover:opacity-90 transition-opacity"
-              style={{ fontFamily: '"League Spartan", sans-serif' }}
-          >
-            Load More
-          </button>
-          </div>
-        )}
+          {/* Load More inside background */}
+          {!loading && !error && hasMore && (
+            <div className="pt-10 flex justify-center">
+              <button
+                onClick={handleLoadMore}
+                className="px-6 py-3 rounded-full text-white bg-[#4444B3] hover:opacity-90 transition-opacity"
+                style={{ fontFamily: '"League Spartan", sans-serif' }}
+              >
+                Load More
+              </button>
+            </div>
+          )}
         </div>
       </section>
       <Footer />
@@ -285,6 +356,7 @@ const Podcasts: React.FC<PodcastsProps> = ({ onSearch }) => {
 
 export default Podcasts;
 
+// Format seconds into H:MM:SS
 function formatDuration(seconds?: number) {
   if (!seconds && seconds !== 0) return "";
   const h = Math.floor(seconds / 3600);
@@ -296,6 +368,15 @@ function formatDuration(seconds?: number) {
     .join(":");
 }
 
+// Extract plain text from potential HTML content
+function extractPlainText(html?: string): string {
+  if (!html) return "";
+  const temp = document.createElement("div");
+  temp.innerHTML = html;
+  return temp.textContent || temp.innerText || "";
+}
+
+// Episode card with audio controls and description
 const EpisodeCard: React.FC<{ episode: PodcastEpisode }> = ({ episode }) => {
   const audioRef = React.useRef<HTMLAudioElement | null>(null);
   const [isPlaying, setIsPlaying] = useState(false);
@@ -307,11 +388,11 @@ const EpisodeCard: React.FC<{ episode: PodcastEpisode }> = ({ episode }) => {
       <div className="w-full text-left">
         <div className="p-2 lg:p-3">
           <div className="relative">
-        <img
-          src={episode.imageUrl || podcast1}
-          alt={episode.title}
+            <img
+              src={episode.imageUrl || podcast1}
+              alt={episode.title}
               className="w-full h-28 md:h-32 lg:h-40 object-cover rounded-2xl"
-        />
+            />
           </div>
         </div>
         <div className="px-3 lg:px-5">
@@ -321,6 +402,14 @@ const EpisodeCard: React.FC<{ episode: PodcastEpisode }> = ({ episode }) => {
           >
             {episode.title}
           </h3>
+          {/* Description */}
+          <p
+            className="text-[11px] md:text-sm text-gray-600 mb-2 lg:mb-3 leading-snug line-clamp-2"
+            style={{ fontFamily: '"League Spartan", sans-serif' }}
+            title={extractPlainText(episode.description || "")}
+          >
+            {extractPlainText(episode.description || "")}
+          </p>
           {(isPlaying || progress > 0) && (
             <div className="mb-3">
               <input
@@ -329,7 +418,8 @@ const EpisodeCard: React.FC<{ episode: PodcastEpisode }> = ({ episode }) => {
                 max={100}
                 value={progress}
                 onChange={(e) => {
-                  const a = audioRef.current; if (!a) return;
+                  const a = audioRef.current;
+                  if (!a) return;
                   const pct = Number(e.target.value);
                   setProgress(pct);
                   if (a.duration) a.currentTime = (pct / 100) * a.duration;
@@ -345,11 +435,14 @@ const EpisodeCard: React.FC<{ episode: PodcastEpisode }> = ({ episode }) => {
         <div className="flex items-end justify-between">
           {/* Left: timestamp up, play down */}
           <div className="flex flex-col gap-1 lg:gap-2">
-            <div className="text-xs text-gray-700 font-medium">{formatDuration(duration || episode.duration)}</div>
+            <div className="text-xs text-gray-700 font-medium">
+              {formatDuration(duration || episode.duration)}
+            </div>
             <div className="flex items-center gap-1.5 lg:gap-3">
               <button
                 onClick={() => {
-                  const a = audioRef.current; if (!a) return;
+                  const a = audioRef.current;
+                  if (!a) return;
                   a.currentTime = Math.max(0, a.currentTime - 10);
                 }}
                 className="p-0.5 lg:p-1 rounded-full hover:bg-gray-100"
@@ -359,19 +452,34 @@ const EpisodeCard: React.FC<{ episode: PodcastEpisode }> = ({ episode }) => {
               </button>
               <button
                 onClick={() => {
-                  const a = audioRef.current; if (!a) return;
-                  if (isPlaying) { a.pause(); setIsPlaying(false); }
-                  else { a.play().then(() => setIsPlaying(true)).catch(() => {}); }
+                  const a = audioRef.current;
+                  if (!a) return;
+                  if (isPlaying) {
+                    a.pause();
+                    setIsPlaying(false);
+                  } else {
+                    a.play()
+                      .then(() => setIsPlaying(true))
+                      .catch(() => {});
+                  }
                 }}
                 className="p-0.5 lg:p-1 rounded-full hover:bg-gray-100"
                 aria-label="Play/Pause"
               >
-                {isPlaying ? <Pause className="w-4 h-4 lg:w-5 lg:h-5" /> : <Play className="w-4 h-4 lg:w-5 lg:h-5" />}
+                {isPlaying ? (
+                  <Pause className="w-4 h-4 lg:w-5 lg:h-5" />
+                ) : (
+                  <Play className="w-4 h-4 lg:w-5 lg:h-5" />
+                )}
               </button>
               <button
                 onClick={() => {
-                  const a = audioRef.current; if (!a) return;
-                  a.currentTime = Math.min(a.duration || 1e9, a.currentTime + 10);
+                  const a = audioRef.current;
+                  if (!a) return;
+                  a.currentTime = Math.min(
+                    a.duration || 1e9,
+                    a.currentTime + 10
+                  );
                 }}
                 className="p-0.5 lg:p-1 rounded-full hover:bg-gray-100"
                 aria-label="Forward 10s"
@@ -381,13 +489,20 @@ const EpisodeCard: React.FC<{ episode: PodcastEpisode }> = ({ episode }) => {
               {/* Volume cycle button */}
               <button
                 onClick={() => {
-                  const a = audioRef.current; if (!a) return;
-                  const order: Array<0 | 25 | 50 | 75 | 100> = [0,25,50,75,100];
+                  const a = audioRef.current;
+                  if (!a) return;
+                  const order: Array<0 | 25 | 50 | 75 | 100> = [
+                    0, 25, 50, 75, 100,
+                  ];
                   const idx = order.indexOf(volumeLevel);
                   const next = order[(idx + 1) % order.length];
                   setVolumeLevel(next);
-                  if (next === 0) { a.muted = true; }
-                  else { a.muted = false; a.volume = next/100; }
+                  if (next === 0) {
+                    a.muted = true;
+                  } else {
+                    a.muted = false;
+                    a.volume = next / 100;
+                  }
                 }}
                 className="p-0.5 lg:p-1 rounded-full hover:bg-gray-100"
                 aria-label="Volume"
@@ -408,9 +523,13 @@ const EpisodeCard: React.FC<{ episode: PodcastEpisode }> = ({ episode }) => {
           </div>
           {/* Right: category text then controls */}
           <div className="flex flex-col items-end gap-1 lg:gap-2">
-            <div className="text-[10px] lg:text-sm text-gray-500 whitespace-nowrap">{episode.category || 'Morning Talk'}</div>
+            <div className="text-[10px] lg:text-sm text-gray-500 whitespace-nowrap">
+              {(episode as any).category || "Morning Talk"}
+            </div>
             <div className="flex items-center gap-1.5 lg:gap-3 text-gray-700">
-              <button className="p-0.5 lg:p-1 rounded-full hover:bg-gray-100"><Copy className="w-4 h-4 lg:w-5 lg:h-5" /></button>
+              <button className="p-0.5 lg:p-1 rounded-full hover:bg-gray-100">
+                <Copy className="w-4 h-4 lg:w-5 lg:h-5" />
+              </button>
             </div>
           </div>
         </div>
@@ -418,9 +537,17 @@ const EpisodeCard: React.FC<{ episode: PodcastEpisode }> = ({ episode }) => {
       {/* audio and progress management */}
       <audio
         ref={audioRef}
-        src={(episode as any).audioUrl || (episode as any).audio || ''}
-        onLoadedMetadata={() => { const a=audioRef.current; if(!a) return; setDuration(a.duration || 0); }}
-        onTimeUpdate={() => { const a=audioRef.current; if(!a) return; setProgress(a.duration ? (a.currentTime / a.duration) * 100 : 0); }}
+        src={(episode as any).audioUrl || (episode as any).audio || ""}
+        onLoadedMetadata={() => {
+          const a = audioRef.current;
+          if (!a) return;
+          setDuration(a.duration || 0);
+        }}
+        onTimeUpdate={() => {
+          const a = audioRef.current;
+          if (!a) return;
+          setProgress(a.duration ? (a.currentTime / a.duration) * 100 : 0);
+        }}
         onEnded={() => setIsPlaying(false)}
       />
     </div>
