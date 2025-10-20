@@ -8,6 +8,7 @@ import { useAuth } from "../context/AuthContextProvider";
 import toast from "react-hot-toast";
 import { ArrowLeft, Mail, RefreshCw } from "lucide-react";
 import logo from "../assets/images/logo-with-name.png";
+import { storeAuthToken } from "../lib/utils";
 
 // Validation schema for OTP
 const otpSchema = z.object({
@@ -72,26 +73,18 @@ const EmailVerification: React.FC = () => {
   }, []);
 
   const onSubmit = async (data: OtpFormData) => {
-    setLoading(true);
-    try {
-      await verifyEmail({
-        email,
-        otp: data.otp,
-      });
-
-      toast.success("Email verified successfully!");
-
-      // Reload user profile to get updated verification status
+    const response = await verifyEmail({
+      email,
+      otp: data.otp,
+    });
+    if (response.status === "SUCCESS") {
+      const { accessToken } = response.data!;
+      storeAuthToken(accessToken);
       await loadUserProfile();
-
-      // Redirect to home or dashboard
+      toast.success(response.message);
       navigate("/");
-    } catch (error: any) {
-      const errorMessage =
-        error.response?.data?.message || "Verification failed";
-      toast.error(errorMessage);
-    } finally {
-      setLoading(false);
+    } else {
+      toast.error((response.error?.cause as string) || "Verification failed");
     }
   };
 
@@ -141,7 +134,10 @@ const EmailVerification: React.FC = () => {
             <div className="w-16 h-16 bg-brand-green/10 rounded-full flex items-center justify-center mx-auto mb-4">
               <Mail className="w-8 h-8 text-brand-green" />
             </div>
-            <h1 className="text-3xl font-semibold text-gray-900 mb-3" style={{ fontFamily: '"League Spartan", sans-serif' }}>
+            <h1
+              className="text-3xl font-semibold text-gray-900 mb-3"
+              style={{ fontFamily: '"League Spartan", sans-serif' }}
+            >
               Verify Your Email
             </h1>
             <p className="text-gray-600 text-sm leading-relaxed">

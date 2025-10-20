@@ -54,9 +54,11 @@ export const resetPassword = async (payload: {
 export const verifyEmail = async (payload: {
   email: string;
   otp: string;
-}): Promise<ResponseDto<null>> => {
-  const { data } = await http.post("/auth/verify-email", payload);
-  return data as ResponseDto<null>;
+}): Promise<ResponseDto<{ user: User; accessToken: string }>> => {
+  const { data } = await http.post<
+    ResponseDto<{ user: User; accessToken: string }>
+  >("/auth/verify-email", payload);
+  return data;
 };
 
 // Resend email verification OTP
