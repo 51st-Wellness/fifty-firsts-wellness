@@ -5,13 +5,14 @@ type FeaturedCard = {
   title: string;
   price: string;
   oldPrice?: string;
+  image: string;
 };
 
 const cards: FeaturedCard[] = [
-  { title: "Wellness Journal/Planner", price: "$22.50", oldPrice: "$32.50" },
-  { title: "Eye Mask Sleep Support Bundle by Bundle", price: "$22.50", oldPrice: "$32.50" },
-  { title: "Aromatherapy Diffuser + Essential Oils", price: "$22.50", oldPrice: "$32.50" },
-  { title: "Eye Mask Sleep Support Bundle by Bundle", price: "$22.50", oldPrice: "$32.50" },
+  { title: "Wellness Wear and Hoodies", price: "$22.50", oldPrice: "$32.50", image: "/assets/homepage/featured-cards/hoodies.png" },
+  { title: "Digital Wellness Guides", price: "$22.50", oldPrice: "$32.50", image: "/assets/homepage/featured-cards/digital.png" },
+  { title: "Supplements and Vitamins", price: "$22.50", oldPrice: "$32.50", image: "/assets/homepage/service-cards/service3.png" },
+  { title: "Wellness Bundles and Gifts", price: "$22.50", oldPrice: "$32.50", image: "/assets/homepage/featured-cards/bundles.png" },
 ];
 
 const FeaturedSection: React.FC = () => {
@@ -23,7 +24,7 @@ const FeaturedSection: React.FC = () => {
             className="text-white text-3xl sm:text-4xl font-normal"
             style={{ fontFamily: '"Lilita One", sans-serif' }}
           >
-            Featured Products
+            Wellness Products
           </h2>
           <div className="w-16 h-1 bg-brand-green mx-auto mt-2 rounded-full" />
         </div>
@@ -33,7 +34,7 @@ const FeaturedSection: React.FC = () => {
             <div key={i} className="bg-white rounded-2xl shadow-md p-3">
               <div className="relative w-full h-40 sm:h-44 bg-gray-100 rounded-xl overflow-hidden">
                 <img
-                  src="/assets/homepage/featured-cards/featured-placeholder.svg"
+                  src={c.image}
                   alt={c.title}
                   className="w-full h-full object-cover"
                 />
@@ -42,7 +43,7 @@ const FeaturedSection: React.FC = () => {
                 </div>
               </div>
               <div className="p-4 flex flex-col">
-                <h3 className="text-base font-normal text-gray-900 leading-snug line-clamp-2 font-primary min-h-[44px]">
+                <h3 className="text-base font-normal text-gray-900 leading-snug line-clamp-2 font-primary min-h-[40px]">
                   {c.title}
                 </h3>
                 <div className="mt-4 flex items-center justify-between min-h-[28px]">
@@ -67,7 +68,7 @@ const FeaturedSection: React.FC = () => {
                     className="inline-flex items-center gap-2 bg-brand-green text-white px-4 py-2 rounded-full text-sm font-semibold hover:bg-brand-green-dark transition-colors"
                   >
                     <ShoppingCart className="w-4 h-4" />
-                    Add to Cart
+                    Coming Soon
                   </button>
                 </div>
               </div>

@@ -15,12 +15,12 @@ const WaitlistSection: React.FC = () => {
         <div className="py-8 sm:py-12 grid grid-cols-1 lg:grid-cols-2 items-start gap-8 lg:gap-6">
           <div className="lg:mr-8">
             <h2
-              className="text-white text-7xl sm:text-8xl lg:text-9xl font-normal"
+              className="text-white text-6xl sm:text-7xl lg:text-8xl font-normal"
               style={{ fontFamily: '"Lilita One", sans-serif' }}
             >
               Join Our
               <br />
-              Waitlist!
+              Product Waitlist!
             </h2>
           </div>
 
@@ -30,7 +30,11 @@ const WaitlistSection: React.FC = () => {
             </div>
 
             <div className="bg-white/95 backdrop-blur rounded-2xl p-4 shadow-xl max-w-xl relative">
-              <label className="block text-xs pt-5 text-gray-500 ml-1 mb-1">Email</label>
+              <label className="block text-xs pt-5 text-gray-500 ml-1 mb-1"></label>
+              {/* Small notification text */}
+              <p className="text-xs text-gray-500 ml-1 mb-3">
+                We’ll notify you as soon as products are available.
+              </p>
               <div className="flex flex-col gap-3">
                 <div className="flex-1 relative">
                   <span className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400">

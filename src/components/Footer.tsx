@@ -1,6 +1,6 @@
 import React from "react";
 import { Link, useLocation } from "react-router-dom";
-import { Instagram, Facebook, Linkedin } from "lucide-react";
+import { Instagram, Facebook, Linkedin, Phone } from "lucide-react";
 import { FaTiktok } from "react-icons/fa";
 import footerlogo from "../assets/images/footerlogo.png";
 
@@ -48,7 +48,7 @@ const Footer: React.FC = () => {
                   to="/services/personal-wellness"
                   className="text-white/80 hover:text-white transition-colors"
                 >
-                  Direct-to-Customer
+                  Personal Wellness Programmes
                 </Link>
               </li>
               <li>
@@ -56,7 +56,7 @@ const Footer: React.FC = () => {
                   to="/services/business-wellness"
                   className="text-white/80 hover:text-white transition-colors"
                 >
-                  Direct-to-Business
+                  Business Wellness Programmes
                 </Link>
               </li>
             </ul>
@@ -130,18 +130,10 @@ const Footer: React.FC = () => {
             <ul className="space-y-3 text-sm">
               <li>
                 <a
-                  href="mailto:admin@fiftyfirstswellness.co.uk"
+                  href="mailto:info@fiftyfirstswellness.co.uk"
                   className="text-white/80 hover:text-white transition-colors"
                 >
-                  admin@fiftyfirstswellness.co.uk
-                </a>
-              </li>
-              <li>
-                <a
-                  href="tel:+44123232122"
-                  className="text-white/80 hover:text-white transition-colors"
-                >
-                  +44 7515 944155
+                  info@fiftyfirstswellness.co.uk
                 </a>
               </li>
               <li className="flex items-center gap-3 pt-2">
@@ -180,6 +172,13 @@ const Footer: React.FC = () => {
                   aria-label="TikTok"
                 >
                   <FaTiktok size={16} className="text-brand-green" />
+                </a>
+                <a
+                  href="tel:+4475159441555"
+                  className="w-8 h-8 rounded-full bg-white flex items-center justify-center hover:bg-white/90 transition-colors"
+                  aria-label="Phone"
+                >
+                  <Phone size={16} className="text-brand-green" />
                 </a>
               </li>
             </ul>
