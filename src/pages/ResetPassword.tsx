@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import { useNavigate, useLocation } from "react-router-dom";
+import { useNavigate, useLocation, Link } from "react-router-dom";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
@@ -8,8 +8,7 @@ import {
   forgetPassword,
 } from "../api/auth.api";
 import toast from "react-hot-toast";
-import { ArrowLeft, Eye, EyeOff, Lock, RefreshCw } from "lucide-react";
-import selflove from "../assets/images/selflove.png";
+import { ArrowLeft, Eye, EyeOff, RefreshCw } from "lucide-react";
 import StepIndicator from "../components/ui/StepIndicator";
 import {
   InputOTP,
@@ -140,20 +139,22 @@ const ResetPassword: React.FC = () => {
   };
 
   return (
-    <main className="min-h-screen bg-gradient-to-br from-gray-50 to-white">
-      <section className="w-full flex flex-col md:flex-row h-screen">
-        {/* Left Image (hidden on mobile) */}
-        <div className="hidden md:block md:w-1/2 relative">
-          <img
-            src={selflove}
-            alt="Reset Password Illustration"
-            className="h-full w-full object-cover"
-          />
-          <div className="absolute inset-0 bg-gradient-to-r from-brand-green/20 to-brand-purple/20"></div>
-        </div>
+    <main className="min-h-screen flex flex-col md:flex-row">
+      {/* Left Side - Image (hidden on mobile) */}
+      <div
+        className="hidden md:block md:w-1/2 relative"
+        style={{
+          backgroundImage: "url(/assets/homepage/hero-bg.png)",
+          backgroundSize: "cover",
+          backgroundPosition: "55% center",
+        }}
+      >
+        <div className="absolute inset-0 bg-black/20" />
+      </div>
 
-        {/* Right Form */}
-        <div className="w-full md:w-1/2 flex flex-col justify-center p-4 sm:p-6 lg:p-8">
+      {/* Right Side - Form */}
+      <div className="w-full md:w-1/2 flex flex-col justify-center px-6 sm:px-10 lg:px-16 py-12 bg-white">
+        <div className="w-full max-w-md mx-auto">
           {/* Back Button */}
           <button
             onClick={() =>
@@ -161,50 +162,52 @@ const ResetPassword: React.FC = () => {
                 ? navigate("/forgot-password")
                 : handleBackToStep1()
             }
-            className="flex items-center gap-2 text-gray-600 hover:text-gray-800 mb-6 transition-colors self-start"
+            className="flex items-center gap-2 text-gray-600 hover:text-brand-green mb-8 transition-colors"
           >
             <ArrowLeft size={20} />
-            <span className="text-sm">
+            <span className="text-sm font-medium">
               {currentStep === 1 ? "Back" : "Previous Step"}
             </span>
           </button>
 
-          <div className="max-w-sm mx-auto w-full">
-            {/* Header */}
-            <div className="text-center mb-6">
-              <div className="w-16 h-16 bg-brand-green/10 rounded-full flex items-center justify-center mx-auto mb-4">
-                <Lock className="w-8 h-8 text-brand-green" />
-              </div>
-              <h1 className="text-2xl sm:text-3xl font-bold text-gray-900 mb-2">
-                Reset Your Password
-              </h1>
-              <p className="text-gray-600 text-sm">
-                {currentStep === 1
-                  ? "Enter the verification code sent to your email"
-                  : "Create your new password"}
-              </p>
-            </div>
+          {/* Header */}
+          <div className="mb-8">
+            <h1
+              className="text-3xl sm:text-4xl font-semibold text-gray-900 mb-2"
+              style={{ fontFamily: '"League Spartan", sans-serif' }}
+            >
+              Reset Password
+            </h1>
+            <p className="text-sm text-gray-600">
+              {currentStep === 1
+                ? "Enter the verification code sent to your email"
+                : "Create your new password"}
+            </p>
+          </div>
 
-            {/* Step Indicator */}
+          {/* Step Indicator */}
+          <div className="mb-8">
             <StepIndicator
               currentStep={currentStep}
               totalSteps={2}
               steps={steps}
             />
+          </div>
 
-            {/* Form Card */}
-            <div className="bg-white p-6 rounded-xl shadow-lg">
+          {/* Form */}
+          <div>
               {currentStep === 1 ? (
                 /* Step 1: OTP Verification */
                 <form
                   onSubmit={otpForm.handleSubmit(onOtpSubmit)}
-                  className="space-y-4"
+                  className="space-y-5"
                 >
                   {/* Email Input */}
                   <div>
                     <label
                       htmlFor="email"
                       className="block text-sm font-medium text-gray-700 mb-2"
+                      style={{ fontFamily: '"League Spartan", sans-serif' }}
                     >
                       Email Address
                     </label>
@@ -213,37 +216,37 @@ const ResetPassword: React.FC = () => {
                       id="email"
                       placeholder="Enter your email address"
                       {...otpForm.register("email")}
-                      className={`w-full border rounded-lg px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-brand-green transition-colors ${
+                      className={`w-full border-2 rounded-xl px-4 py-3.5 text-sm focus:outline-none focus:ring-2 focus:ring-brand-green/20 transition-colors ${
                         otpForm.formState.errors.email
-                          ? "border-red-500"
+                          ? "border-red-500 bg-red-50"
                           : otpForm.watch("email") &&
                             !otpForm.formState.errors.email
-                          ? "border-brand-green"
-                          : "border-gray-300"
+                          ? "border-brand-green bg-brand-green/5"
+                          : "border-gray-200 bg-gray-50"
                       }`}
                       readOnly={!!location.state?.email}
                     />
                     {otpForm.formState.errors.email && (
-                      <p className="text-red-500 text-xs mt-1">
+                      <p className="text-red-500 text-xs mt-2">
                         {otpForm.formState.errors.email.message}
                       </p>
                     )}
                   </div>
 
                   {/* OTP Input */}
-                  <div className="text-center">
+                  <div>
                     <label
                       htmlFor="otp"
                       className="block text-sm font-medium text-gray-700 mb-2"
+                      style={{ fontFamily: '"League Spartan", sans-serif' }}
                     >
                       Verification Code
                     </label>
-                    <div className="flex justify-center">
+                    <div className="flex justify-start">
                       <InputOTP
                         maxLength={6}
                         value={otpForm.watch("otp") || ""}
                         onChange={(value) => otpForm.setValue("otp", value)}
-                        className="justify-center"
                       >
                         <InputOTPGroup>
                           <InputOTPSlot index={0} />
@@ -256,7 +259,7 @@ const ResetPassword: React.FC = () => {
                       </InputOTP>
                     </div>
                     {otpForm.formState.errors.otp && (
-                      <p className="text-red-500 text-xs mt-1">
+                      <p className="text-red-500 text-xs mt-2">
                         {otpForm.formState.errors.otp.message}
                       </p>
                     )}
@@ -269,15 +272,16 @@ const ResetPassword: React.FC = () => {
                       !otpForm.watch("otp") ||
                       otpForm.watch("otp")?.length !== 6
                     }
-                    className="w-full bg-brand-green text-white py-3 rounded-lg font-medium hover:bg-brand-green-dark transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                    className="w-full bg-brand-green text-white py-3.5 px-6 rounded-full font-semibold hover:opacity-90 transition-all disabled:opacity-50 disabled:cursor-not-allowed"
+                    style={{ fontFamily: '"League Spartan", sans-serif' }}
                   >
                     Next
                   </button>
 
                   {/* Resend Section */}
-                  <div className="mt-4 pt-4 border-t border-gray-200">
+                  <div className="mt-6 pt-6 border-t border-gray-100">
                     <div className="text-center">
-                      <p className="text-gray-600 text-xs mb-2">
+                      <p className="text-gray-600 text-sm mb-3">
                         Didn't receive the code?
                       </p>
                       <button
@@ -288,12 +292,12 @@ const ResetPassword: React.FC = () => {
                           resendCooldown > 0 ||
                           !otpForm.watch("email")
                         }
-                        className="inline-flex items-center gap-1 text-brand-green hover:text-brand-green-dark font-medium text-xs transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                        className="inline-flex items-center gap-2 text-brand-green hover:text-brand-green-dark font-medium text-sm transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
                       >
                         {resendLoading ? (
-                          <RefreshCw className="w-3 h-3 animate-spin" />
+                          <RefreshCw className="w-4 h-4 animate-spin" />
                         ) : (
-                          <RefreshCw className="w-3 h-3" />
+                          <RefreshCw className="w-4 h-4" />
                         )}
                         {resendCooldown > 0
                           ? `Resend in ${resendCooldown}s`
@@ -306,13 +310,14 @@ const ResetPassword: React.FC = () => {
                 /* Step 2: Password Reset */
                 <form
                   onSubmit={passwordForm.handleSubmit(onPasswordSubmit)}
-                  className="space-y-4"
+                  className="space-y-5"
                 >
                   {/* New Password Input */}
                   <div>
                     <label
                       htmlFor="newPassword"
                       className="block text-sm font-medium text-gray-700 mb-2"
+                      style={{ fontFamily: '"League Spartan", sans-serif' }}
                     >
                       New Password
                     </label>
@@ -322,29 +327,29 @@ const ResetPassword: React.FC = () => {
                         id="newPassword"
                         placeholder="Enter new password"
                         {...passwordForm.register("newPassword")}
-                        className={`w-full border rounded-lg px-4 py-3 pr-12 text-sm focus:outline-none focus:ring-2 focus:ring-brand-green transition-colors ${
+                        className={`w-full border-2 rounded-xl px-4 py-3.5 pr-12 text-sm focus:outline-none focus:ring-2 focus:ring-brand-green/20 transition-colors ${
                           passwordForm.formState.errors.newPassword
-                            ? "border-red-500"
+                            ? "border-red-500 bg-red-50"
                             : passwordForm.watch("newPassword") &&
                               !passwordForm.formState.errors.newPassword
-                            ? "border-brand-green"
-                            : "border-gray-300"
+                            ? "border-brand-green bg-brand-green/5"
+                            : "border-gray-200 bg-gray-50"
                         }`}
                       />
                       <button
                         type="button"
                         onClick={() => setShowPassword(!showPassword)}
-                        className="absolute right-4 top-1/2 transform -translate-y-1/2 text-gray-500 hover:text-gray-700"
+                        className="absolute right-4 top-1/2 transform -translate-y-1/2 text-gray-500 hover:text-gray-700 transition-colors"
                       >
                         {showPassword ? (
-                          <EyeOff size={18} />
+                          <EyeOff size={20} />
                         ) : (
-                          <Eye size={18} />
+                          <Eye size={20} />
                         )}
                       </button>
                     </div>
                     {passwordForm.formState.errors.newPassword && (
-                      <p className="text-red-500 text-xs mt-1">
+                      <p className="text-red-500 text-xs mt-2">
                         {passwordForm.formState.errors.newPassword.message}
                       </p>
                     )}
@@ -355,6 +360,7 @@ const ResetPassword: React.FC = () => {
                     <label
                       htmlFor="confirmPassword"
                       className="block text-sm font-medium text-gray-700 mb-2"
+                      style={{ fontFamily: '"League Spartan", sans-serif' }}
                     >
                       Confirm New Password
                     </label>
@@ -364,13 +370,13 @@ const ResetPassword: React.FC = () => {
                         id="confirmPassword"
                         placeholder="Confirm new password"
                         {...passwordForm.register("confirmPassword")}
-                        className={`w-full border rounded-lg px-4 py-3 pr-12 text-sm focus:outline-none focus:ring-2 focus:ring-brand-green transition-colors ${
+                        className={`w-full border-2 rounded-xl px-4 py-3.5 pr-12 text-sm focus:outline-none focus:ring-2 focus:ring-brand-green/20 transition-colors ${
                           passwordForm.formState.errors.confirmPassword
-                            ? "border-red-500"
+                            ? "border-red-500 bg-red-50"
                             : passwordForm.watch("confirmPassword") &&
                               !passwordForm.formState.errors.confirmPassword
-                            ? "border-brand-green"
-                            : "border-gray-300"
+                            ? "border-brand-green bg-brand-green/5"
+                            : "border-gray-200 bg-gray-50"
                         }`}
                       />
                       <button
@@ -378,17 +384,17 @@ const ResetPassword: React.FC = () => {
                         onClick={() =>
                           setShowConfirmPassword(!showConfirmPassword)
                         }
-                        className="absolute right-4 top-1/2 transform -translate-y-1/2 text-gray-500 hover:text-gray-700"
+                        className="absolute right-4 top-1/2 transform -translate-y-1/2 text-gray-500 hover:text-gray-700 transition-colors"
                       >
                         {showConfirmPassword ? (
-                          <EyeOff size={18} />
+                          <EyeOff size={20} />
                         ) : (
-                          <Eye size={18} />
+                          <Eye size={20} />
                         )}
                       </button>
                     </div>
                     {passwordForm.formState.errors.confirmPassword && (
-                      <p className="text-red-500 text-xs mt-1">
+                      <p className="text-red-500 text-xs mt-2">
                         {passwordForm.formState.errors.confirmPassword.message}
                       </p>
                     )}
@@ -398,7 +404,8 @@ const ResetPassword: React.FC = () => {
                   <button
                     type="submit"
                     disabled={loading}
-                    className="w-full bg-brand-green text-white py-3 rounded-lg font-medium hover:bg-brand-green-dark transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                    className="w-full bg-brand-green text-white py-3.5 px-6 rounded-full font-semibold hover:opacity-90 transition-all disabled:opacity-50 disabled:cursor-not-allowed"
+                    style={{ fontFamily: '"League Spartan", sans-serif' }}
                   >
                     {loading ? "Resetting Password..." : "Reset Password"}
                   </button>
@@ -407,16 +414,18 @@ const ResetPassword: React.FC = () => {
             </div>
 
             {/* Help Text */}
-            <div className="mt-6 text-center">
-              <p className="text-xs text-gray-500">
-                Having trouble? Check your spam folder or contact support.
+            <div className="mt-8 text-center">
+              <p className="text-sm text-gray-500">
+                Having trouble? Check your spam folder or{" "}
+                <Link to="/contact" className="text-brand-green hover:text-brand-green-dark font-medium">
+                  contact support
+                </Link>
               </p>
             </div>
           </div>
         </div>
-      </section>
-    </main>
-  );
-};
-
+      </main>
+    );
+  };
+  
 export default ResetPassword;

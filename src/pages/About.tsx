@@ -1,235 +1,361 @@
 import React from "react";
+import Navbar from "../components/Navbar";
+import Footer from "../components/Footer";
+import { Target, Eye, Mail } from "lucide-react";
 import about1 from "../assets/images/about1.png";
 import about2 from "../assets/images/about2.png";
 import art1 from "../assets/images/art1.png";
 import art2 from "../assets/images/art2.png";
-import youtube from "../assets/images/youtube.png";
-import mapbase from "../assets/images/mapbase.png";
 
 const About: React.FC = () => {
+  const visionPillars = [
+    {
+      title: "Nurturing",
+      description: "Growth grounded in strength, compassion and empathy",
+      color: "bg-[#006666]"
+    },
+    {
+      title: "Inspiring",
+      description: "Full of possibility, bold and uplifting",
+      color: "bg-[#4444B3]"
+    },
+    {
+      title: "Connecting",
+      description: "Designed for real people, real workplaces and real life",
+      color: "bg-[#580F41]"
+    },
+    {
+      title: "Empowering",
+      description: "Practical, inclusive and achievable",
+      color: "bg-brand-green"
+    }
+  ];
+
+  const coreValues = [
+    {
+      title: "Community",
+      description: "We believe in the power of belonging, good vibes and great connections, making a space for every voice, every wellness journey, no matter the stage. We celebrate diversity and actively create communities that feel like home, where people and businesses come together.",
+      color: "bg-[#E0F8F8]"
+    },
+    {
+      title: "People",
+      description: "People are at the heart of everything we do. We lead with kindness, listen with empathy and want everyone to know they matter and their wellness matters. We recognise that everyone's wellness is unique and strive to uplift our community through people focused practices.",
+      color: "bg-[#F6F2FF]"
+    },
+    {
+      title: "Growth",
+      description: "We are lifelong learners. Curiosity, adaptability and resilience are key to how we evolve, individually and collectively. We embrace new opportunities and challenges as stepping stones to progress, to living the life we want and getting the support we need to get there.",
+      color: "bg-[#FFF0E7]"
+    },
+    {
+      title: "Fresh",
+      description: "We don't do boring, so whether it's a 'first', a refresh or dreaming big, we support new possibilities and inspire fresh approaches to wellness, midlife, menopause and transformations. Creativity helps us shape meaningful change and bring ideas to life.",
+      color: "bg-[#E5FBEC]"
+    },
+    {
+      title: "Empowering",
+      description: "We're committed to helping people take charge of their wellbeing journey. Through resources, support, and encouragement, we foster confidence, ownership, and pride. Our goal is to create an environment where everyone feels equipped to thrive, with confidence and on their own terms.",
+      color: "bg-[#FFF0E7]"
+    }
+  ];
+
   return (
-    <main className="">
-      {/* About Section */}
-      <article className="flex flex-col md:flex-row w-full">
-        <section className="w-full md:w-1/2 p-4">
-          <div className="w-full flex flex-col gap-5">
-            <div className="text-3xl sm:text-5xl lg:text-7xl font-semibold">
-              ABOUT US
+    <div className="min-h-screen bg-white">
+      
+      {/* Hero Section */}
+      <section className="w-full pt-16 pb-16 sm:pt-20 sm:pb-24 bg-gradient-to-br from-gray-50 to-white">
+        <div className="max-w-7xl mx-auto px-6 sm:px-10 lg:px-16">
+          <div className="text-center mb-8">
+            <h1 
+              className="text-4xl sm:text-5xl lg:text-6xl font-semibold text-gray-900 mb-4"
+              style={{ fontFamily: '"League Spartan", sans-serif' }}
+            >
+              About Us
+            </h1>
+            <div className="w-20 h-1 bg-brand-green mx-auto rounded-full" />
+          </div>
+          
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 lg:gap-12 mt-12">
+            <div className="flex flex-col justify-center">
+              <p className="text-base sm:text-lg text-gray-700 leading-relaxed mb-6">
+                At Fifty Firsts Wellness, we believe wellness and self-care is for everyone, at every stage of life, personally and in the workplace, empowering progress not perfection. We see midlife as a time of reinvention, a time to embrace change, explore new possibilities and age well with confidence.
+              </p>
+              <p className="text-base sm:text-lg text-gray-700 leading-relaxed mb-6">
+                We want to support the challenging times, like menopause or mental / physical ill health, calmly and with empathy. We challenge outdated ideas about what it means to live and age well, replacing them with a fresh perspective. This stage of life can be energising, creative and full of opportunity.
+              </p>
             </div>
-            <div className="text-sm sm:text-base text-[#475464]">
-              Our journey to Well-Being - Discover who we are, what drives us,
-              and how we’re creating a better world through wellness.
+            <div className="relative">
+              <img 
+                src={about1} 
+                alt="Wellness Community" 
+                className="w-full h-auto rounded-2xl shadow-lg"
+              />
             </div>
+          </div>
+
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 lg:gap-12 mt-12">
+            <div className="relative order-2 lg:order-1">
+              <img 
+                src={about2} 
+                alt="Community Connection" 
+                className="w-full h-auto rounded-2xl shadow-lg"
+              />
+            </div>
+            <div className="flex flex-col justify-center order-1 lg:order-2">
+              <p className="text-base sm:text-lg text-gray-700 leading-relaxed mb-6">
+                We are built on community and connection. Our work brings people together to share experiences, support one another and grow stronger through our belonging, new opportunities and life's transitions.
+              </p>
+              <p className="text-base sm:text-lg text-gray-700 leading-relaxed">
+                By combining practical tools with empowering conversations, we help individuals feel equipped to take charge of their wellbeing, build resilience and thrive, in work and life, to be stronger for longer. We offer a suite of services, resources and a network of experts to support you on your wellness journey, wherever you are starting from.
+              </p>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* Mission & Vision Section */}
+      <section className="w-full py-16 sm:py-24 bg-[#580F41]">
+        <div className="max-w-7xl mx-auto px-6 sm:px-10 lg:px-16">
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 lg:gap-16">
+            {/* Mission */}
             <div>
-              <img src={about2} alt="" className="w-full h-auto" />
+              <div className="mb-6">
+                <div className="w-12 h-12 mb-6">
+                  <div className="w-12 h-12 bg-white/10 rounded-lg flex items-center justify-center transform">
+                    <Target className="w-6 h-6 text-white transform" />
+                  </div>
+                </div>
+                <h2 
+                  className="text-3xl sm:text-4xl font-semibold text-white mb-4"
+                  style={{ fontFamily: '"League Spartan", sans-serif' }}
+                >
+                  Our Mission
+                </h2>
+              </div>
+              <p className="text-base sm:text-lg text-white/90 leading-relaxed">
+                At Fifty Firsts Wellness, our mission is to nurture, inspire, connect, and empower individuals and businesses on their unique wellness journeys. We support people through life's messy middles, significant pivots, and transformative moments by emphasising that wellness is about progress, not perfection. Our aim is to create a safe and compassionate space where every step, experience, and intention matters as we embrace the complexities of change, midlife transitions, health challenges, career shifts, and identity explorations.
+              </p>
             </div>
-          </div>
-        </section>
 
-        <section className="w-full md:w-1/2 p-4">
-          <div className="w-full flex flex-col gap-5">
+            {/* Vision */}
             <div>
-              <img src={about1} alt="" className="w-full h-auto" />
-            </div>
-            <div className="italic text-3xl sm:text-4xl lg:text-5xl">
-              Our Philosophy
-            </div>
-            <div className="text-sm sm:text-lg text-[#475464]">
-              We’re here to help! Whether you have a question about our
-              services, need assistance with your account, or want to provide
-              feedback, our team is ready to assist you.
-            </div>
-          </div>
-        </section>
-      </article>
-
-      {/* Mission */}
-      <article className="flex flex-col md:flex-row w-full mt-6 gap-6">
-        <section className="w-full md:w-1/2 flex flex-col gap-6">
-          <div className="italic text-3xl sm:text-4xl lg:text-5xl">
-            Our Mission
-          </div>
-          <div className="text-sm sm:text-lg text-[#475464]">
-            We’re here to help! Whether you have a question about our services,
-            need assistance with your account, or want to provide feedback, our
-            team is ready to assist you...
-          </div>
-        </section>
-
-        <section className="relative w-full md:w-1/2 flex items-center justify-center bg-white">
-          <div className="grid grid-cols-3 grid-rows-3 w-full h-64 sm:h-80 relative">
-            <div className="flex items-center justify-center col-start-2 row-start-1">
-              <div className="bg-indigo-600 text-white px-4 sm:px-6 py-2 rounded-full shadow text-center text-sm sm:text-base">
-                Holistic Care
+              <div className="mb-6">
+                <div className="w-12 h-12 mb-6">
+                  <div className="w-12 h-12 bg-white/10 rounded-lg flex items-center justify-center transform5">
+                    <Eye className="w-6 h-6 text-white transform" />
+                  </div>
+                </div>
+                <h2 
+                  className="text-3xl sm:text-4xl font-semibold text-white mb-4"
+                  style={{ fontFamily: '"League Spartan", sans-serif' }}
+                >
+                  Our Vision
+                </h2>
               </div>
-            </div>
-            <div className="flex items-center justify-center col-start-3 row-start-2">
-              <div className="bg-indigo-600 text-white px-4 sm:px-6 py-2 rounded-full shadow text-center text-sm sm:text-base">
-                Integrity
-              </div>
-            </div>
-            <div className="flex items-center justify-center col-start-1 row-start-2">
-              <div className="bg-indigo-600 text-white px-4 sm:px-6 py-2 rounded-full shadow text-center text-sm sm:text-base">
-                Community
-              </div>
-            </div>
-            <div className="flex items-center justify-center col-start-2 row-start-3">
-              <div className="bg-indigo-600 text-white px-4 sm:px-6 py-2 rounded-full shadow text-center text-sm sm:text-base">
-                Sustainability
-              </div>
+              <p className="text-base sm:text-lg text-white/90 leading-relaxed mb-6">
+                Our vision is to build a world and unite a community where wellness feels nurturing, inspiring, connecting, and empowering.
+              </p>
+              <p className="text-base sm:text-lg text-white/90 leading-relaxed">
+                We're redefining what it means to thrive in midlife and beyond, with tools that support change, reflection that sparks reinvention and programmes that make wellbeing a way of life. Because when we nurture, inspire, connect and empower, we don't just support wellbeing, we transform it.
+              </p>
             </div>
           </div>
-        </section>
-      </article>
+        </div>
+      </section>
 
-      {/* Brand Origin Story */}
-      <article className="w-full md:w-4/6 flex flex-col gap-4 mt-6">
-        <section className="italic text-3xl sm:text-4xl lg:text-5xl">
-          Brand Origin Story
-        </section>
-        <section className="text-sm sm:text-base text-[#475464]">
-          We’re here to help! ...
-        </section>
-        <section className="text-sm sm:text-base text-[#475464]">
-          We’re here to help! ...
-        </section>
-      </article>
+      {/* Brand Origin Story Section */}
+      <section className="w-full py-16 sm:py-24 bg-gray-50">
+        <div className="max-w-7xl mx-auto px-6 sm:px-10 lg:px-16">
+          <div className="max-w-4xl mb-12">
+            <h2 
+              className="text-3xl sm:text-4xl lg:text-5xl font-semibold text-gray-900 mb-8"
+              style={{ fontFamily: '"League Spartan", sans-serif' }}
+            >
+              Brand Origin Story
+            </h2>
+            <p className="text-base sm:text-lg text-gray-700 leading-relaxed mb-6">
+              Fifty Firsts Wellness was born from a deep understanding that wellness is not a destination, but a continuous journey of discovery and growth. Our founder's personal experience navigating midlife transitions and witnessing the transformative power of community support inspired the creation of a space where everyone could find their path to wellbeing.
+            </p>
+            <p className="text-base sm:text-lg text-gray-700 leading-relaxed">
+              What started as a vision to reimagine wellness for the modern age has evolved into a thriving community. We've built our foundation on the belief that every person deserves access to compassionate, evidence-based support as they navigate life's changes. Today, we continue to grow and evolve alongside our community, always staying true to our core mission of nurturing, inspiring, connecting, and empowering.
+            </p>
+          </div>
 
-      {/* Artwork */}
-      <article className="w-full flex flex-col md:flex-row gap-4 p-4 mt-4">
-        <img src={art1} alt="" className="w-full md:w-1/2 h-auto" />
-        <img src={art2} alt="" className="w-full md:w-1/2 h-auto" />
-      </article>
-
-      {/* Core Values Grid */}
-      <div className="grid grid-cols-1 md:grid-cols-4 gap-4 mt-4">
-        <div className="md:col-span-2 flex flex-col gap-3 p-6 shadow-sm">
-          <div className="italic text-3xl sm:text-4xl lg:text-5xl">
-            Our Core Values
-          </div>
-          <div className="text-sm sm:text-lg text-[#475464]">
-            We’re here to help...
-          </div>
-        </div>
-        <div className="bg-[#F6F2FF] flex flex-col gap-3 p-6 shadow-sm">
-          <div className="text-lg sm:text-xl font-medium">Empowerment</div>
-          <div className="text-sm sm:text-lg text-[#475464]">
-            We aim to equip individuals...
-          </div>
-        </div>
-        <div className="bg-[#FFF0E7] p-6 shadow-sm">
-          <div className="text-lg sm:text-xl font-medium">Integrity</div>
-          <div className="text-sm sm:text-lg text-[#475464]">
-            We aim to equip individuals...
-          </div>
-        </div>
-        <div className="p-6 opacity-70" aria-hidden="true" />
-        <div className="bg-[#E5FBEC] p-6 shadow-sm">
-          <div className="text-lg sm:text-xl font-medium">Empowerment</div>
-          <div className="text-sm sm:text-lg text-[#475464]">
-            We aim to equip individuals...
-          </div>
-        </div>
-        <div className="bg-[#FFF0E7] p-6 shadow-sm">
-          <div className="text-lg sm:text-xl font-medium">Integrity</div>
-          <div className="text-sm sm:text-lg text-[#475464]">
-            We aim to equip individuals...
-          </div>
-        </div>
-        <div
-          className="border-dashed border-gray-300 p-6 opacity-70"
-          aria-hidden="true"
-        />
-      </div>
-
-      {/* Founder Section */}
-      <article className="flex flex-col items-center mt-4 gap-6 py-8 px-4 sm:px-10">
-        <div className="italic text-3xl sm:text-4xl lg:text-5xl pb-6">
-          A Word from Our Founder
-        </div>
-        <img src={youtube} alt="" className="w-full sm:w-3/4 h-auto" />
-        <div className="w-full sm:w-3/4 text-[#475464] text-sm sm:text-base">
-          “We’re here to help! Whether you have a question...”
-        </div>
-        <div className="italic font-medium text-base sm:text-xl">
-          -Maria Carey,{" "}
-          <span className="font-normal">Founder of Fifty Firsts Wellness</span>
-        </div>
-      </article>
-
-      <img src={mapbase} alt="" className="w-full h-auto" />
-
-      {/* Commitment */}
-      <article className="w-full flex flex-col md:flex-row gap-6 mt-6">
-        <section className="w-full md:w-1/2 flex flex-col gap-6">
-          <div className="italic text-3xl sm:text-4xl lg:text-5xl">
-            Our Commitment to a better world
-          </div>
-          <div className="text-sm sm:text-lg text-[#475464]">
-            We believe true wellness extends beyond individuals—it touches the
-            planet...
-          </div>
-        </section>
-
-        <section className="w-full md:w-1/2 flex justify-center">
-          <div className="relative w-72 sm:w-96 h-48">
-            {/* Dots Layout */}
-            <div className="absolute left-0 top-1/4 -translate-x-1/2 flex items-center space-x-2">
-              <div className="w-4 h-4 sm:w-5 sm:h-5 rounded-full bg-purple-400 border-4 border-purple-200"></div>
-              <span className="text-xs sm:text-sm">Waste Reduction Policy</span>
-            </div>
-            <div className="absolute left-0 top-1/2 -translate-x-1/2 flex items-center space-x-2">
-              <div className="w-4 h-4 sm:w-5 sm:h-5 rounded-full bg-blue-400 border-4 border-blue-200"></div>
-              <span className="text-xs sm:text-sm">
-                Data Privacy & Security
-              </span>
-            </div>
-            <div className="absolute left-1/4 bottom-0 translate-y-1/2 flex items-center space-x-2">
-              <div className="w-4 h-4 sm:w-5 sm:h-5 rounded-full bg-green-400 border-4 border-green-200"></div>
-              <span className="text-xs sm:text-sm">Fair Labor Practices</span>
-            </div>
-            <div className="absolute right-1/4 top-0 -translate-y-1/2 flex items-center space-x-2">
-              <div className="w-4 h-4 sm:w-5 sm:h-5 rounded-full bg-gray-500 border-4 border-gray-300"></div>
-              <span className="text-xs sm:text-sm">Transparent Policies</span>
-            </div>
-            <div className="absolute right-1/4 top-1/2 -translate-y-1/2 flex items-center space-x-2">
-              <div className="w-4 h-4 sm:w-5 sm:h-5 rounded-full bg-orange-400 border-4 border-orange-200"></div>
-              <span className="text-xs sm:text-sm">Mental Health Advocacy</span>
-            </div>
-            <div className="absolute right-0 bottom-1/4 translate-x-1/2 flex items-center space-x-2">
-              <div className="w-4 h-4 sm:w-5 sm:h-5 rounded-full bg-red-500 border-4 border-red-200"></div>
-              <span className="text-xs sm:text-sm">Accessibility</span>
-            </div>
-          </div>
-        </section>
-      </article>
-
-      {/* Newsletter */}
-      <div className="flex flex-col lg:flex-row w-full items-center mt-6 mb-12 px-4 gap-8">
-        <div className="w-full lg:w-1/2 flex flex-col gap-3 text-center lg:text-left">
-          <div className="text-xl sm:text-3xl lg:text-5xl font-semibold">
-            Stay in the wellness loop!
-          </div>
-          <div className="text-sm sm:text-base text-[#475464]">
-            Subscribe to our newsletter for exclusive tips, stories, and product
-            updates.
-          </div>
-        </div>
-        <div className="w-full lg:w-1/2 flex justify-center">
-          <div className="bg-[#F9F9F9] shadow-lg flex flex-col rounded-2xl w-full sm:w-4/5 p-6">
-            <label className="text-sm sm:text-base">Email</label>
-            <input
-              type="email"
-              placeholder="john.doe@example.com"
-              className="px-4 py-2 bg-white border rounded-lg mt-1 focus:outline-none focus:ring-2 focus:ring-blue-500"
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mt-12">
+            <img 
+              src={art1} 
+              alt="Wellness Journey" 
+              className="w-full h-auto rounded-2xl shadow-lg"
             />
-            <button className="px-6 sm:px-8 rounded-full mt-4 py-2 bg-[#4444B3] text-white font-medium hover:bg-blue-400 transition">
-              Subscribe
-            </button>
+            <img 
+              src={art2} 
+              alt="Community Support" 
+              className="w-full h-auto rounded-2xl shadow-lg"
+            />
           </div>
         </div>
-      </div>
-    </main>
+      </section>
+
+      
+
+      {/* Values Section */}
+      <section className="w-full py-16 sm:py-24 bg-gray-50">
+        <div className="max-w-7xl mx-auto px-6 sm:px-10 lg:px-16">
+          {/* Top Row - Heading and First Two Cards */}
+          <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 lg:gap-12 items-start mb-6">
+            {/* Left Side - Heading & Description */}
+            <div className="lg:col-span-4">
+              <h2 
+                className="text-3xl sm:text-4xl lg:text-5xl font-semibold text-gray-900 mb-6"
+                style={{ fontFamily: '"League Spartan", sans-serif' }}
+              >
+                Our Core Values
+              </h2>
+              <p className="text-base sm:text-lg text-gray-700 leading-relaxed">
+                A vibrant wellness movement fuelled by positivity and insight. At the heart of everything we do lies our core values that shape our culture, guide our actions and inspire our vision for the future.
+              </p>
+            </div>
+
+            {/* Right Side - First Row Cards (Community and People) */}
+            <div className="lg:col-span-8">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
+                {coreValues.slice(0, 2).map((value, index) => (
+                  <div 
+                    key={index}
+                    className={`${value.color} rounded-2xl p-8 transition-shadow`}
+                  >
+                    <h3 
+                      className="text-xl sm:text-2xl font-semibold text-gray-900 mb-4"
+                      style={{ fontFamily: '"League Spartan", sans-serif' }}
+                    >
+                      {value.title}
+                    </h3>
+                    <p className="text-sm sm:text-base text-gray-700 leading-relaxed">
+                      {value.description}
+                    </p>
+                  </div>
+                ))}
+              </div>
+            </div>
+          </div>
+
+          {/* Second Row - Growth, Fresh, and Empowering (Full Width) */}
+          <div className="grid grid-cols-1 sm:grid-cols-3 gap-6">
+            {coreValues.slice(2, 5).map((value, index) => (
+              <div 
+                key={index + 2}
+                className={`${value.color} rounded-2xl p-8 transition-shadow`}
+              >
+                <h3 
+                  className="text-xl sm:text-2xl font-semibold text-gray-900 mb-4"
+                  style={{ fontFamily: '"League Spartan", sans-serif' }}
+                >
+                  {value.title}
+                </h3>
+                <p className="text-sm sm:text-base text-gray-700 leading-relaxed">
+                  {value.description}
+                </p>
+              </div>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      {/* World Map Section */}
+      <section className="w-full py-16 bg-gray-50">
+        <div className="max-w-7xl mx-auto px-6 sm:px-10 lg:px-16">
+          <img 
+            src="/about/mapbase.png" 
+            alt="Global Reach" 
+            className="w-full h-auto"
+          />
+        </div>
+      </section>
+
+      {/* Commitment Section */}
+      <section className="w-full py-16 sm:py-24 bg-white">
+        <div className="max-w-7xl mx-auto px-6 sm:px-10 lg:px-16">
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 lg:gap-16 items-center">
+            {/* Left Side - Text */}
+            <div className="flex flex-col justify-center">
+              <h2 
+                className="text-3xl sm:text-4xl lg:text-5xl font-semibold text-gray-900 mb-8"
+                style={{ fontFamily: '"League Spartan", sans-serif' }}
+              >
+                Our Commitment to a better world
+              </h2>
+              <p className="text-base sm:text-lg text-gray-700 leading-relaxed">
+                We believe true wellness extends beyond individuals—it touches the planet, communities, and future generations. We're building a wellness brand that gives back to the world we share.
+              </p>
+            </div>
+
+            {/* Right Side - aboutCTA.svg */}
+            <div className="flex justify-center lg:justify-end">
+              <img 
+                src="/about/aboutCTA.svg" 
+                alt="Our Commitment" 
+                className="w-full max-w-md h-auto"
+              />
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* Newsletter Section */}
+      <section className="w-full py-16 sm:py-24 bg-white">
+        <div className="max-w-7xl mx-auto px-6 sm:px-10 lg:px-16">
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 lg:gap-16 items-center">
+            {/* Left Side - Text */}
+            <div>
+              <h2 
+                className="text-3xl sm:text-4xl lg:text-5xl font-semibold text-gray-900 mb-6"
+                style={{ fontFamily: '"League Spartan", sans-serif' }}
+              >
+                Stay in the wellness loop!
+              </h2>
+              <p className="text-base sm:text-lg text-gray-700 leading-relaxed">
+                Subscribe to our newsletter for exclusive tips, stories, and product updates to support your wellness journey.
+              </p>
+            </div>
+
+            {/* Right Side - Newsletter Form */}
+            <div>
+              <div className="relative">
+                <div className="absolute -top-10 -left-2 sm:-top-12 sm:-left-4 w-20 sm:w-24 z-10">
+                  <img src="/assets/homepage/waitlist-icon.svg" alt="mail" />
+                </div>
+
+                <div className="bg-white/95 backdrop-blur rounded-2xl p-4 shadow-xl max-w-xl relative">
+                  <label className="block text-xs pt-5 text-gray-500 ml-1 mb-1"></label>
+                  {/* Small notification text */}
+                  <p className="text-xs text-gray-500 ml-1 mb-3">
+                    We'll notify you as soon as products are available.
+                  </p>
+                  <div className="flex flex-col gap-3">
+                    <div className="flex-1 relative">
+                      <span className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400">
+                        <Mail className="w-5 h-5" />
+                      </span>
+                      <input
+                        type="email"
+                        placeholder="john.doe@example.com"
+                        className="w-full rounded-xl border border-gray-200 pl-10 pr-4 py-3 outline-none"
+                      />
+                    </div>
+                    <div className="flex justify-start">
+                      <button className="rounded-full bg-brand-green text-white px-6 py-3 font-semibold hover:bg-brand-green-dark transition-colors whitespace-nowrap mt-2">
+                        Subscribe
+                      </button>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+    </div>
   );
 };
 
