@@ -136,12 +136,12 @@ const Footer: React.FC = () => {
                   info@fiftyfirstswellness.co.uk
                 </a>
               </li>
-              <li className="flex items-center gap-3 pt-2">
+              <li className="flex items-center justify-between sm:justify-start sm:gap-3 pt-2 w-full">
                 <a
                   href="https://www.instagram.com/fiftyfirstswellness?igsh=MTVyODk5emhtZnlyMQ=="
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="w-8 h-8 rounded-full bg-white flex items-center justify-center hover:bg-white/90 transition-colors"
+                  className="w-8 h-8 rounded-full bg-white flex items-center justify-center hover:bg-white/90 transition-colors flex-shrink-0"
                   aria-label="Instagram"
                 >
                   <Instagram size={16} className="text-brand-green" />
@@ -150,7 +150,7 @@ const Footer: React.FC = () => {
                   href="https://www.facebook.com/share/1BFKL2XnMg/"
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="w-8 h-8 rounded-full bg-white flex items-center justify-center hover:bg-white/90 transition-colors"
+                  className="w-8 h-8 rounded-full bg-white flex items-center justify-center hover:bg-white/90 transition-colors flex-shrink-0"
                   aria-label="Facebook"
                 >
                   <Facebook size={16} className="text-brand-green" />
@@ -159,7 +159,7 @@ const Footer: React.FC = () => {
                   href="https://www.linkedin.com/company/fifty-firsts-wellness/"
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="w-8 h-8 rounded-full bg-white flex items-center justify-center hover:bg-white/90 transition-colors"
+                  className="w-8 h-8 rounded-full bg-white flex items-center justify-center hover:bg-white/90 transition-colors flex-shrink-0"
                   aria-label="LinkedIn"
                 >
                   <Linkedin size={16} className="text-brand-green" />
@@ -168,14 +168,14 @@ const Footer: React.FC = () => {
                   href="https://www.tiktok.com/@fiftyfirstswellness?_t=ZN-90gUvPI1xWV&_r=1"
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="w-8 h-8 rounded-full bg-white flex items-center justify-center hover:bg-white/90 transition-colors"
+                  className="w-8 h-8 rounded-full bg-white flex items-center justify-center hover:bg-white/90 transition-colors flex-shrink-0"
                   aria-label="TikTok"
                 >
                   <FaTiktok size={16} className="text-brand-green" />
                 </a>
                 <a
                   href="tel:+4475159441555"
-                  className="w-8 h-8 rounded-full bg-white flex items-center justify-center hover:bg-white/90 transition-colors"
+                  className="w-8 h-8 rounded-full bg-white flex items-center justify-center hover:bg-white/90 transition-colors flex-shrink-0"
                   aria-label="Phone"
                 >
                   <Phone size={16} className="text-brand-green" />

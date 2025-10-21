@@ -4,20 +4,32 @@ type QA = { q: string; a: string };
 
 const data: QA[] = [
   {
-    q: "What is this Fifty Firsts Wellness about?",
-    a: "Fifty Firsts Wellness is a wellness platform offering resources, blogs, podcasts, and personalized programs to help you achieve your health and wellbeing goals.",
+    q: "What makes Fifty Firsts Wellness different from other wellbeing providers?",
+    a: "We focus on making wellness practical, inspiring, fresh and accessible. Our approach is guided by our NICE framework, Nurture, Inspire, Connect, Empower, and our Values. We don’t just talk about wellbeing; we create supportive spaces, practical tools and empowering programmes that help people thrive through life’s transitions to live well, sleep well and age well; to be stronger for longer!",
   },
   {
-    q: "What is included in the wellness membership?",
-    a: "Access to resources, webinars, programmes, and member-only offers delivered monthly.",
+    q: "Who are your personal wellness services for?",
+    a: "Our services are designed for anyone embracing self-care, wellbeing or who may need extra help and insight through key life events, like menopause, navigating midlife, workplace challenges or personal change. We work with individuals who want to feel more energised, supported and confident, as well as organisations looking to create healthier, more inclusive cultures with people focus and wellbeing as an intrinsic foundation to great employee experience and performance.",
   },
   {
-    q: "Can I cancel anytime?",
-    a: "Yes, you can cancel your subscription anytime from your account settings.",
+    q: "What is the Wellness Warrior Programme?",
+    a: "The Wellness Warrior Programme pairs people with supportive companions, whether as walking partners, gym buddies, life / career coaches or coffee companions. It’s about connection and belonging as much as health, helping to reduce isolation, build confidence and make self care feel more enjoyable and sustainable; helping you in the first steps, the new steps and everything in between.",
   },
   {
-    q: "Do you offer business wellness programmes?",
-    a: "Yes. We provide tailored programmes for teams with workshops, resources, and ongoing support.",
+    q: "Do you offer one to one support?",
+    a: "Yes. Our coaching and one to one sessions are tailored to your goals and challenges. We use evidence based strategies to help you manage change, take first steps into wellbeing and self-care, reduce stress, build resilience and explore what’s next in your personal or professional life.",
+  },
+  {
+    q: "How do your workshops and group programmes work?",
+    a: "We run interactive sessions on topics such as menopause, midlife wellbeing, stress management, wellbeing ambassador programmes and longevity practices. These workshops are designed to be engaging, stigma free, inspiring, nurturing personal growth and practical;  blending expert insight with peer connection so participants leave with tools they can use straight away, personally or in the workplace.",
+  },
+  {
+    q: "How can I get involved or start working with Fifty Firsts?",
+    a: "You can join as an individual through our personal wellness services, sign up for community membership (coming soon) or connect with us about workplace programmes. Whether you’re looking for a walking buddy, a coaching session or a tailored wellbeing strategy for yourself or your organisation, we’ll help you find the right starting point, partner you on your journey, evaluate your success and empower your wellness as personal coach, or fractional wellbeing partner.",
+  },
+  {
+    q: "How do you measure impact?",
+    a: "We believe wellness should be more than a “feel good” initiative, although this is a great goal too! Wellness should not be a secret for an elite few but should create real, lasting change; a lifestyle for longevity, firsts steps of wellness or you but better! That’s why we measure impact through feedback, wellbeing assessments and practical outcomes. For individuals, this might mean improved energy, better sleep, confidence or resilience. For your workplace that could be stronger engagement, reduced absence, increased performance, higher retention / attraction, lower people risk or a healthier workplace culture. Our focus is always on meaningful results that reflect both personal growth and community benefit.",
   },
 ];
 
@@ -79,7 +91,7 @@ const FAQSection: React.FC = () => {
             className="absolute inset-0 -inset-x-8 -inset-y-12 sm:-inset-x-20 sm:-inset-y-24 bg-no-repeat pointer-events-none"
             style={{
               backgroundImage: 'url(/assets/homepage/about-section-bg.svg)',
-              backgroundSize: '140% 140%',
+              backgroundSize: '100% 100%',
               backgroundPosition: 'center',
               zIndex: 0,
             }}

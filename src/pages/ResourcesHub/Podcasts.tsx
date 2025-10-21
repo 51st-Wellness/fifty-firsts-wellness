@@ -10,8 +10,9 @@ import {
   ChevronDown,
   SkipBack,
   SkipForward,
-  Copy,
+  Expand,
   ListFilter,
+  X,
 } from "lucide-react";
 import podcast1 from "../../assets/images/podcast1.png";
 import { fetchPodcasts, type PodcastEpisode } from "@/api/podcast.api";
@@ -296,7 +297,7 @@ const Podcasts: React.FC<PodcastsProps> = ({ onSearch }) => {
       >
         <div className="max-w-7xl mx-auto px-10 sm:px-10 lg:px-16 pt-8 pb-8">
           {loading ? (
-            <div className="grid grid-cols-2 md:grid-cols-2 lg:grid-cols-4 gap-4 lg:gap-6">
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 lg:gap-6">
               {Array.from({ length: 9 }).map((_, i) => (
                 <CardSkeleton key={i} />
               ))}
@@ -328,7 +329,7 @@ const Podcasts: React.FC<PodcastsProps> = ({ onSearch }) => {
               </div>
             </div>
           ) : (
-            <div className="grid grid-cols-2 md:grid-cols-2 lg:grid-cols-4 gap-4 lg:gap-6">
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 lg:gap-6">
               {filteredEpisodes.slice(0, visibleCount).map((ep) => (
                 <EpisodeCard key={ep.id} episode={ep} />
               ))}
@@ -383,33 +384,63 @@ const EpisodeCard: React.FC<{ episode: PodcastEpisode }> = ({ episode }) => {
   const [progress, setProgress] = useState(0); // 0-100
   const [duration, setDuration] = useState<number>(0);
   const [volumeLevel, setVolumeLevel] = useState<0 | 25 | 50 | 75 | 100>(75);
+  const [isModalOpen, setIsModalOpen] = useState(false);
   return (
-    <div className="text-left group bg-white border border-gray-200 rounded-3xl shadow-sm overflow-hidden">
-      <div className="w-full text-left">
-        <div className="p-2 lg:p-3">
-          <div className="relative">
-            <img
-              src={episode.imageUrl || podcast1}
-              alt={episode.title}
-              className="w-full h-28 md:h-32 lg:h-40 object-cover rounded-2xl"
-            />
+    <>
+      <div className="text-left group bg-white border border-gray-200 rounded-3xl shadow-sm overflow-hidden min-h-[380px] sm:min-h-[420px] md:min-h-[380px] lg:min-h-[420px] flex flex-col">
+        <div className="w-full text-left flex flex-col flex-grow">
+          <div className="p-2 lg:p-3">
+            <div className="relative">
+              <img
+                src={episode.imageUrl || podcast1}
+                alt={episode.title}
+                className="w-full h-40 sm:h-44 md:h-36 lg:h-48 object-cover rounded-2xl"
+              />
+            </div>
           </div>
-        </div>
-        <div className="px-3 lg:px-5">
+        <div className="px-3 lg:px-5 flex flex-col flex-grow">
           <h3
-            className="text-sm md:text-base lg:text-base font-semibold text-gray-900 mb-2 lg:mb-3 leading-tight line-clamp-2"
+            className="text-base sm:text-lg md:text-base lg:text-base font-semibold text-gray-900 mb-2 lg:mb-3 leading-tight line-clamp-2 min-h-[2.5rem] flex items-start"
             style={{ fontFamily: '"League Spartan", sans-serif' }}
           >
             {episode.title}
           </h3>
           {/* Description */}
-          <p
-            className="text-[11px] md:text-sm text-gray-600 mb-2 lg:mb-3 leading-snug line-clamp-2"
-            style={{ fontFamily: '"League Spartan", sans-serif' }}
-            title={extractPlainText(episode.description || "")}
-          >
-            {extractPlainText(episode.description || "")}
-          </p>
+            <div className="flex-grow">
+              {/* Mobile/Tablet: 2 lines */}
+              <p
+                className="text-sm sm:text-base md:text-sm text-gray-600 mb-2 lg:mb-3 leading-snug lg:hidden"
+                style={{ 
+                  fontFamily: '"League Spartan", sans-serif',
+                  display: '-webkit-box',
+                  WebkitLineClamp: 2,
+                  WebkitBoxOrient: 'vertical',
+                  overflow: 'hidden',
+                  textOverflow: 'ellipsis',
+                  minHeight: '2.5rem'
+                }}
+                title={extractPlainText(episode.description || "")}
+              >
+                {extractPlainText(episode.description || "")}
+              </p>
+              
+              {/* Desktop: 3 lines */}
+              <p
+                className="hidden lg:block text-sm text-gray-600 mb-2 lg:mb-3 leading-snug"
+                style={{ 
+                  fontFamily: '"League Spartan", sans-serif',
+                  display: '-webkit-box',
+                  WebkitLineClamp: 3,
+                  WebkitBoxOrient: 'vertical',
+                  overflow: 'hidden',
+                  textOverflow: 'ellipsis',
+                  minHeight: '3.75rem'
+                }}
+                title={extractPlainText(episode.description || "")}
+              >
+                {extractPlainText(episode.description || "")}
+              </p>
+            </div>
           {(isPlaying || progress > 0) && (
             <div className="mb-3">
               <input
@@ -431,11 +462,11 @@ const EpisodeCard: React.FC<{ episode: PodcastEpisode }> = ({ episode }) => {
         </div>
       </div>
       {/* Bottom bar */}
-      <div className="px-3 lg:px-5 pb-3 lg:pb-5">
-        <div className="flex items-end justify-between">
+      <div className="px-3 lg:px-5 pb-3 lg:pb-5 mt-auto">
+        <div className="flex items-end justify-between min-h-[3rem]">
           {/* Left: timestamp up, play down */}
-          <div className="flex flex-col gap-1 lg:gap-2">
-            <div className="text-xs text-gray-700 font-medium">
+          <div className="flex flex-col gap-1 lg:gap-2 justify-end">
+            <div className="text-xs sm:text-sm text-gray-700 font-medium">
               {formatDuration(duration || episode.duration)}
             </div>
             <div className="flex items-center gap-1.5 lg:gap-3">
@@ -522,13 +553,17 @@ const EpisodeCard: React.FC<{ episode: PodcastEpisode }> = ({ episode }) => {
             </div>
           </div>
           {/* Right: category text then controls */}
-          <div className="flex flex-col items-end gap-1 lg:gap-2">
-            <div className="text-[10px] lg:text-sm text-gray-500 whitespace-nowrap">
+          <div className="flex flex-col items-end gap-1 lg:gap-2 justify-end">
+            <div className="text-xs sm:text-sm text-gray-500 whitespace-nowrap">
               {(episode as any).category || "Morning Talk"}
             </div>
             <div className="flex items-center gap-1.5 lg:gap-3 text-gray-700">
-              <button className="p-0.5 lg:p-1 rounded-full hover:bg-gray-100">
-                <Copy className="w-4 h-4 lg:w-5 lg:h-5" />
+              <button 
+                onClick={() => setIsModalOpen(true)}
+                className="p-1 sm:p-1.5 lg:p-1 rounded-full hover:bg-gray-100"
+                aria-label="Expand episode"
+              >
+                <Expand className="w-4 h-4 sm:w-5 sm:h-5 lg:w-5 lg:h-5" />
               </button>
             </div>
           </div>
@@ -550,6 +585,166 @@ const EpisodeCard: React.FC<{ episode: PodcastEpisode }> = ({ episode }) => {
         }}
         onEnded={() => setIsPlaying(false)}
       />
-    </div>
+      </div>
+
+      {/* Modal */}
+      {isModalOpen && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
+          <div className="bg-white rounded-2xl max-w-4xl w-full max-h-[90vh] overflow-hidden">
+            <div className="flex flex-col lg:flex-row h-full">
+              {/* Left side - Image */}
+              <div className="lg:w-1/2 p-6">
+                <img
+                  src={episode.imageUrl || podcast1}
+                  alt={episode.title}
+                  className="w-full h-48 lg:h-full object-cover rounded-xl"
+                />
+              </div>
+              
+              {/* Right side - Content and Controls */}
+              <div className="lg:w-1/2 p-6 flex flex-col">
+                {/* Header with close button */}
+                <div className="flex justify-between items-start mb-4">
+                  <div className="flex-1">
+                    <h2 
+                      className="text-xl lg:text-2xl font-semibold text-gray-900 mb-2"
+                      style={{ fontFamily: '"League Spartan", sans-serif' }}
+                    >
+                      {episode.title}
+                    </h2>
+                    <div className="text-sm text-gray-500 mb-4">
+                      {(episode as any).category || "Morning Talk"} • {formatDuration(duration || episode.duration)}
+                    </div>
+                  </div>
+                  <button
+                    onClick={() => setIsModalOpen(false)}
+                    className="ml-4 p-2 rounded-full hover:bg-gray-100"
+                    aria-label="Close modal"
+                  >
+                    <X className="w-5 h-5" />
+                  </button>
+                </div>
+
+                {/* Description */}
+                <div className="flex-1 mb-6">
+                  <p 
+                    className="text-sm text-gray-600 leading-relaxed"
+                    style={{ fontFamily: '"League Spartan", sans-serif' }}
+                  >
+                    {extractPlainText(episode.description || "")}
+                  </p>
+                </div>
+
+                {/* Audio Controls */}
+                <div className="space-y-4">
+                  {/* Progress bar */}
+                  {(isPlaying || progress > 0) && (
+                    <div>
+                      <input
+                        type="range"
+                        min={0}
+                        max={100}
+                        value={progress}
+                        onChange={(e) => {
+                          const a = audioRef.current;
+                          if (!a) return;
+                          const pct = Number(e.target.value);
+                          setProgress(pct);
+                          if (a.duration) a.currentTime = (pct / 100) * a.duration;
+                        }}
+                        className="w-full h-2 accent-emerald-600"
+                      />
+                    </div>
+                  )}
+
+                  {/* Control buttons */}
+                  <div className="flex items-center justify-center gap-4">
+                    <button
+                      onClick={() => {
+                        const a = audioRef.current;
+                        if (!a) return;
+                        a.currentTime = Math.max(0, a.currentTime - 10);
+                      }}
+                      className="p-2 rounded-full hover:bg-gray-100"
+                      aria-label="Back 10s"
+                    >
+                      <SkipBack className="w-5 h-5" />
+                    </button>
+                    <button
+                      onClick={() => {
+                        const a = audioRef.current;
+                        if (!a) return;
+                        if (isPlaying) {
+                          a.pause();
+                          setIsPlaying(false);
+                        } else {
+                          a.play()
+                            .then(() => setIsPlaying(true))
+                            .catch(() => {});
+                        }
+                      }}
+                      className="p-3 rounded-full bg-emerald-600 text-white hover:bg-emerald-700"
+                      aria-label="Play/Pause"
+                    >
+                      {isPlaying ? (
+                        <Pause className="w-6 h-6" />
+                      ) : (
+                        <Play className="w-6 h-6" />
+                      )}
+                    </button>
+                    <button
+                      onClick={() => {
+                        const a = audioRef.current;
+                        if (!a) return;
+                        a.currentTime = Math.min(
+                          a.duration || 1e9,
+                          a.currentTime + 10
+                        );
+                      }}
+                      className="p-2 rounded-full hover:bg-gray-100"
+                      aria-label="Forward 10s"
+                    >
+                      <SkipForward className="w-5 h-5" />
+                    </button>
+                    <button
+                      onClick={() => {
+                        const a = audioRef.current;
+                        if (!a) return;
+                        const order: Array<0 | 25 | 50 | 75 | 100> = [
+                          0, 25, 50, 75, 100,
+                        ];
+                        const idx = order.indexOf(volumeLevel);
+                        const next = order[(idx + 1) % order.length];
+                        setVolumeLevel(next);
+                        if (next === 0) {
+                          a.muted = true;
+                        } else {
+                          a.muted = false;
+                          a.volume = next / 100;
+                        }
+                      }}
+                      className="p-2 rounded-full hover:bg-gray-100"
+                      aria-label="Volume"
+                    >
+                      {volumeLevel === 0 ? (
+                        <VolumeX className="w-5 h-5" />
+                      ) : volumeLevel === 25 ? (
+                        <Volume className="w-5 h-5" />
+                      ) : volumeLevel === 50 ? (
+                        <Volume1 className="w-5 h-5" />
+                      ) : volumeLevel === 75 ? (
+                        <Volume2 className="w-5 h-5" />
+                      ) : (
+                        <Volume2 className="w-5 h-5" />
+                      )}
+                    </button>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
+    </>
   );
 };

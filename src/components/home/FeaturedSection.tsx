@@ -4,15 +4,14 @@ import { ShoppingCart, Heart } from "lucide-react";
 type FeaturedCard = {
   title: string;
   price: string;
-  oldPrice?: string;
   image: string;
 };
 
 const cards: FeaturedCard[] = [
-  { title: "Wellness Wear and Hoodies", price: "$22.50", oldPrice: "$32.50", image: "/assets/homepage/featured-cards/hoodies.png" },
-  { title: "Digital Wellness Guides", price: "$22.50", oldPrice: "$32.50", image: "/assets/homepage/featured-cards/digital.png" },
-  { title: "Supplements and Vitamins", price: "$22.50", oldPrice: "$32.50", image: "/assets/homepage/service-cards/service3.png" },
-  { title: "Wellness Bundles and Gifts", price: "$22.50", oldPrice: "$32.50", image: "/assets/homepage/featured-cards/bundles.png" },
+  { title: "Wellness Wear and Hoodies", price: "$-", image: "/assets/homepage/featured-cards/hoodies.png" },
+  { title: "Digital Wellness Guides", price: "$-", image: "/assets/homepage/featured-cards/digital.png" },
+  { title: "Supplements and Vitamins", price: "$-", image: "/assets/homepage/service-cards/service3.png" },
+  { title: "Wellness Bundles and Gifts", price: "$-", image: "/assets/homepage/featured-cards/bundles.png" },
 ];
 
 const FeaturedSection: React.FC = () => {
@@ -43,24 +42,14 @@ const FeaturedSection: React.FC = () => {
                 </div>
               </div>
               <div className="p-4 flex flex-col">
-                <h3 className="text-base font-normal text-gray-900 leading-snug line-clamp-2 font-primary min-h-[40px]">
+                <h3 className="text-base font-normal text-gray-900 leading-snug line-clamp-2 font-primary min-h-[30px]">
                   {c.title}
                 </h3>
                 <div className="mt-4 flex items-center justify-between min-h-[28px]">
                   <span className="text-2xl font-semibold text-gray-900">{c.price}</span>
-                  <div className="flex items-center gap-2">
-                    {c.oldPrice && (
-                      <span className="text-gray-500 line-through text-sm">{c.oldPrice}</span>
-                    )}
-                    <span className="text-xs text-blue-700 bg-blue-100 px-2 py-1 rounded">
-                      -14%
-                    </span>
-                  </div>
                 </div>
                 <div className="mt-3 flex items-center gap-2 text-sm text-gray-600 min-h-[20px]">
-                  {/* Simple star rating visuals */}
-                  <span className="text-yellow-400">★★★★</span>
-                  <span className="text-gray-500">(124 reviews)</span>
+                  <span className="text-gray-500">NO REVIEWS YET</span>
                 </div>
                 <div className="mt-4">
                   <button

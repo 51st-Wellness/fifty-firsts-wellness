@@ -24,18 +24,26 @@ const TeamFrame: React.FC<{ variant: FrameVariant; color: string; children?: Rea
   );
 };
 
-const teamMembers = [
-  { name: "John Smith", role: "Company CEO", variant: "convex" as const, color: "#0FB9A5" },
-  { name: "David Johnson", role: "Co‑Founder", variant: "concave" as const, color: "#530F40" },
-  { name: "Mary Johnson", role: "Property Managers", variant: "convex" as const, color: "#007a7e" },
-  { name: "Patricia Davis", role: "Estate Consultant", variant: "concave" as const, color: "#0FB9A5" },
+type TeamMember = {
+  name: string;
+  role: string;
+  variant: FrameVariant;
+  color: string;
+  photo: string;
+};
+
+const teamMembers: TeamMember[] = [
+  { name: "Lisa de-Laune", role: "Founder / Director", variant: "convex" as const, color: "#0FB9A5", photo: "/assets/homepage/team/team1.png" },
+  { name: "Lucy Toman", role: "Operations Consultant", variant: "concave" as const, color: "#530F40", photo: "/assets/homepage/team/team2.png" },
+  { name: "Wellness Partners", role: "Our Expert Panel", variant: "convex" as const, color: "#007a7e", photo: "/assets/homepage/team/team3.png" },
+  { name: "Onyiriuba Leonard", role: "IT Consultant", variant: "concave" as const, color: "#0FB9A5", photo: "/assets/homepage/team/team4.png" },
 ];
 
 const TeamSection: React.FC = () => {
   const [currentSlide, setCurrentSlide] = useState(0);
   const [touchStart, setTouchStart] = useState<number | null>(null);
   const [touchEnd, setTouchEnd] = useState<number | null>(null);
-  const totalSlides = 2; // 2 slides (showing 2 cards per slide on mobile)
+  const totalSlides = 4; // 4 slides (showing 1 card per slide on mobile)
   
   // Minimum swipe distance (in px)
   const minSwipeDistance = 50;
@@ -89,7 +97,14 @@ const TeamSection: React.FC = () => {
           {teamMembers.map((member, index) => (
             <div key={index} className="flex flex-col items-center">
               <TeamFrame variant={member.variant} color={member.color}>
-                {/* <img src="/assets/homepage/team/Team-1.svg" alt={member.name} className="w-full h-full object-cover p-2 rounded-2xl" /> */}
+                <img 
+                  src={member.photo} 
+                  alt={member.name} 
+                  className="w-full h-full object-cover rounded-2xl"
+                  style={{
+                    objectPosition: member.variant === "concave" ? "center 60%" : "center center"
+                  }}
+                />
               </TeamFrame>
               <div className={member.variant === "convex" ? "-mt-3 text-center" : "mt-3 text-center"}>
                 <h3 className="text-base font-semibold text-gray-900">{member.name}</h3>
@@ -99,7 +114,7 @@ const TeamSection: React.FC = () => {
           ))}
         </div>
 
-        {/* Mobile: Carousel showing 2 cards at a time */}
+        {/* Mobile: Carousel showing 1 card at a time */}
         <div 
           className="md:hidden overflow-hidden"
           onTouchStart={onTouchStart}
@@ -110,35 +125,27 @@ const TeamSection: React.FC = () => {
             className="flex transition-transform duration-300 ease-in-out touch-pan-x"
             style={{ transform: `translateX(-${currentSlide * 100}%)` }}
           >
-            {/* Slide 1: First 2 members */}
-            <div className="min-w-full flex justify-center gap-6">
-              {teamMembers.slice(0, 2).map((member, index) => (
-                <div key={index} className="flex flex-col items-center">
+            {/* Individual slides for each member */}
+            {teamMembers.map((member, index) => (
+              <div key={index} className="min-w-full flex justify-center">
+                <div className="flex flex-col items-center">
                   <TeamFrame variant={member.variant} color={member.color}>
-                    {/* <img src="/assets/homepage/team/Team-1.svg" alt={member.name} className="w-full h-full object-cover p-2 rounded-2xl" /> */}
+                    <img 
+                      src={member.photo} 
+                      alt={member.name} 
+                      className="w-full h-full object-cover rounded-2xl"
+                      style={{
+                        objectPosition: member.variant === "concave" ? "center 60%" : "center center"
+                      }}
+                    />
                   </TeamFrame>
                   <div className={member.variant === "convex" ? "-mt-3 text-center" : "mt-3 text-center"}>
                     <h3 className="text-base font-semibold text-gray-900">{member.name}</h3>
                     <p className="text-xs" style={{ color: "#580F41" }}>{member.role}</p>
                   </div>
                 </div>
-              ))}
-            </div>
-            
-            {/* Slide 2: Last 2 members */}
-            <div className="min-w-full flex justify-center gap-6">
-              {teamMembers.slice(2, 4).map((member, index) => (
-                <div key={index + 2} className="flex flex-col items-center">
-                  <TeamFrame variant={member.variant} color={member.color}>
-                    {/* <img src="/assets/homepage/team/Team-1.svg" alt={member.name} className="w-full h-full object-cover p-2 rounded-2xl" /> */}
-                  </TeamFrame>
-                  <div className={member.variant === "convex" ? "-mt-3 text-center" : "mt-3 text-center"}>
-                    <h3 className="text-base font-semibold text-gray-900">{member.name}</h3>
-                    <p className="text-xs" style={{ color: "#580F41" }}>{member.role}</p>
-                  </div>
-                </div>
-              ))}
-            </div>
+              </div>
+            ))}
           </div>
         </div>
 
