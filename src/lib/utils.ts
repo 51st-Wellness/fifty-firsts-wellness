@@ -19,7 +19,7 @@ export function storeAuthToken(token: string) {
 }
 
 export function getAuthToken() {
-  if (cachedToken) return cachedToken;
+  if (cachedToken && cachedToken != null) return cachedToken;
   const token = Cookies.get("auth_token");
   console.log("token", token);
   cachedToken = token || null;

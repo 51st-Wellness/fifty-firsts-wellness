@@ -97,7 +97,7 @@ const AdminGeneral: React.FC = () => {
         </Card>
       )}
 
-      {tabValue === 2 && (
+      {tabValue === 3 && (
         <Card sx={{ borderRadius: 2, boxShadow: 1 }}>
           <CardContent sx={{ textAlign: "center", py: 6 }}>
             <StorageIcon
