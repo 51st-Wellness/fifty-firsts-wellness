@@ -51,6 +51,9 @@ import AuthSuccess from "./pages/AuthSuccess";
 const AdminLayout = lazy(() => import("./pages/admin/AdminLayout"));
 const AdminOverview = lazy(() => import("./pages/admin/AdminOverview"));
 const AdminGeneral = lazy(() => import("./pages/admin/AdminGeneral"));
+const AdminSubscriptions = lazy(
+  () => import("./pages/admin/AdminSubscriptions")
+);
 const AdminMarketplace = lazy(() => import("./pages/admin/AdminMarketplace"));
 const AdminProgrammes = lazy(() => import("./pages/admin/AdminProgrammes"));
 const AdminUsers = lazy(() => import("./pages/admin/AdminUsers"));
@@ -293,6 +296,14 @@ const App: React.FC = () => {
               element={
                 <Suspense fallback={<Loader />}>
                   <AdminGeneral />
+                </Suspense>
+              }
+            />
+            <Route
+              path="subscriptions"
+              element={
+                <Suspense fallback={<Loader />}>
+                  <AdminSubscriptions />
                 </Suspense>
               }
             />

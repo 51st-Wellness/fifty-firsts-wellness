@@ -49,16 +49,15 @@ export interface CheckoutResponse {
 }
 
 // Get all subscription plans
-export const getSubscriptionPlans = async (): Promise<SubscriptionPlan[]> => {
+export const getSubscriptionPlans = async (): Promise<
+  SubscriptionPlan[] | undefined
+> => {
   const { data } = await http.get<ResponseDto<SubscriptionPlan[]>>(
     "/payment/subscriptions/plans"
   );
-  
-  // Check if the response is successful
-  if (data.status === "SUCCESS" || data.status === "success") {
-    return data.data || [];
-  }
-  
+
+  return data.data;
+
   throw new Error(data.message || "Failed to fetch subscription plans");
 };
 
@@ -72,17 +71,18 @@ export const getUserActiveSubscription = async (): Promise<{
     const { data } = await http.get<ResponseDto<Subscription | null>>(
       "/payment/subscriptions/user/active"
     );
-    
+
     return {
       success: data.status === "SUCCESS" || data.status === "success",
       data: data.data || null,
-      message: data.message
+      message: data.message,
     };
   } catch (error: any) {
     return {
       success: false,
       data: null,
-      message: error.response?.data?.message || "Failed to fetch active subscription"
+      message:
+        error.response?.data?.message || "Failed to fetch active subscription",
     };
   }
 };
@@ -100,16 +100,16 @@ export const createSubscriptionCheckout = async (
       "/payment/checkout/subscription",
       { planId }
     );
-    
+
     return {
       success: data.status === "SUCCESS" || data.status === "success",
       data: data.data,
-      message: data.message
+      message: data.message,
     };
   } catch (error: any) {
     return {
       success: false,
-      message: error.response?.data?.message || "Failed to create checkout"
+      message: error.response?.data?.message || "Failed to create checkout",
     };
   }
 };
@@ -134,17 +134,18 @@ export const getUserSubscriptions = async (): Promise<{
     const { data } = await http.get<ResponseDto<Subscription[]>>(
       "/payment/subscriptions/user"
     );
-    
+
     return {
       success: data.status === "SUCCESS" || data.status === "success",
       data: data.data || [],
-      message: data.message
+      message: data.message,
     };
   } catch (error: any) {
     return {
       success: false,
       data: [],
-      message: error.response?.data?.message || "Failed to fetch subscription history"
+      message:
+        error.response?.data?.message || "Failed to fetch subscription history",
     };
   }
 };
