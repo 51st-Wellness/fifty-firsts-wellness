@@ -107,8 +107,18 @@ const TeamSection: React.FC = () => {
                 />
               </TeamFrame>
               <div className={member.variant === "convex" ? "-mt-3 text-center" : "mt-3 text-center"}>
-                <h3 className="text-base font-semibold text-gray-900">{member.name}</h3>
-                <p className="text-xs" style={{ color: "#580F41" }}>{member.role}</p>
+                <h3 
+                  className="text-base font-semibold text-gray-900"
+                  style={{ fontFamily: '"League Spartan", sans-serif' }}
+                >
+                  {member.name}
+                </h3>
+                <p 
+                  className="text-xs" 
+                  style={{ color: "#580F41", fontFamily: '"League Spartan", sans-serif' }}
+                >
+                  {member.role}
+                </p>
               </div>
             </div>
           ))}
@@ -140,8 +150,18 @@ const TeamSection: React.FC = () => {
                     />
                   </TeamFrame>
                   <div className={member.variant === "convex" ? "-mt-3 text-center" : "mt-3 text-center"}>
-                    <h3 className="text-base font-semibold text-gray-900">{member.name}</h3>
-                    <p className="text-xs" style={{ color: "#580F41" }}>{member.role}</p>
+                    <h3 
+                      className="text-base font-semibold text-gray-900"
+                      style={{ fontFamily: '"League Spartan", sans-serif' }}
+                    >
+                      {member.name}
+                    </h3>
+                    <p 
+                      className="text-xs" 
+                      style={{ color: "#580F41", fontFamily: '"League Spartan", sans-serif' }}
+                    >
+                      {member.role}
+                    </p>
                   </div>
                 </div>
               </div>

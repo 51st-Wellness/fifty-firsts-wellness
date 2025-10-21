@@ -272,7 +272,7 @@ const About: React.FC = () => {
         </div>
       </section>
 
-      {/* Commitment Section */}
+      {/* Our Approach Section */}
       <section className="w-full py-16 sm:py-24 bg-white">
         <div className="max-w-7xl mx-auto px-6 sm:px-10 lg:px-16">
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 lg:gap-16 items-center">
@@ -282,10 +282,10 @@ const About: React.FC = () => {
                 className="text-3xl sm:text-4xl lg:text-5xl font-semibold text-gray-900 mb-8"
                 style={{ fontFamily: '"League Spartan", sans-serif' }}
               >
-                Our Commitment to a better world
+                Our Approach to Wellness
               </h2>
               <p className="text-base sm:text-lg text-gray-700 leading-relaxed">
-                We believe true wellness extends beyond individuals—it touches the planet, communities, and future generations. We're building a wellness brand that gives back to the world we share.
+                We believe wellness is about progress, not perfection. Our approach combines practical tools with empowering conversations, helping individuals and businesses navigate life's transitions with confidence and resilience.
               </p>
             </div>
 
@@ -293,7 +293,7 @@ const About: React.FC = () => {
             <div className="flex justify-center lg:justify-end">
               <img 
                 src="/about/aboutCTA.svg" 
-                alt="Our Commitment" 
+                alt="Our Approach" 
                 className="w-full max-w-md h-auto"
               />
             </div>

@@ -5,9 +5,33 @@ type ServiceCardProps = {
   imageSrc: string;
   title: string;
   description: string;
+  ctaText: string;
+  ctaLink?: string;
+  isComingSoon?: boolean;
 };
 
-const ServiceCard: React.FC<ServiceCardProps> = ({ imageSrc, title, description }) => {
+const ServiceCard: React.FC<ServiceCardProps> = ({ imageSrc, title, description, ctaText, ctaLink, isComingSoon = false }) => {
+  const CTAButton = () => {
+    if (isComingSoon) {
+      return (
+        <button
+          className="mt-6 inline-block bg-gray-400 text-white px-6 py-3 rounded-full text-sm font-semibold cursor-not-allowed"
+        >
+          {ctaText}
+        </button>
+      );
+    }
+    
+    return (
+      <Link
+        to={ctaLink || "/marketplace"}
+        className="mt-6 inline-block bg-brand-green text-white px-6 py-3 rounded-full text-sm font-semibold hover:bg-brand-green-dark transition-colors"
+      >
+        {ctaText}
+      </Link>
+    );
+  };
+
   return (
     <div className="bg-white rounded-3xl shadow-xl p-6 sm:p-8 flex flex-col items-center text-center border border-gray-100 h-full">
       <div className="w-full overflow-hidden rounded-2xl">
@@ -17,12 +41,7 @@ const ServiceCard: React.FC<ServiceCardProps> = ({ imageSrc, title, description 
       <p className="mt-4 text-sm sm:text-base text-gray-600 leading-7 flex-grow">
         {description}
       </p>
-      <Link
-        to="/marketplace"
-        className="mt-6 inline-block bg-brand-green text-white px-6 py-3 rounded-full text-sm font-semibold hover:bg-brand-green-dark transition-colors"
-      >
-        Shop Now
-      </Link>
+      <CTAButton />
     </div>
   );
 };
@@ -56,16 +75,22 @@ const ServicesSection: React.FC = () => {
             imageSrc="/assets/homepage/service-cards/service1.png"
             title="Personal Wellness Services"
             description="This wellness brand empowers healthier living through nutrition, wellness, and quality supplements designed to support your everyday lifestyle."
+            ctaText="Learn More"
+            ctaLink="/service/personal-wellness"
           />
           <ServiceCard
             imageSrc="/assets/homepage/service-cards/service2.png"
             title="Workplace Wellness Services"
             description="This wellness brand empowers healthier living through nutrition, wellness, and quality supplements designed to support your everyday lifestyle."
+            ctaText="Learn More"
+            ctaLink="/service/business-wellness"
           />
           <ServiceCard
             imageSrc="/assets/homepage/service-cards/service3.png"
             title="Wellness Products and Supplements"
             description="This wellness brand empowers healthier living through nutrition, wellness, and quality supplements designed to support your everyday lifestyle."
+            ctaText="Coming Soon"
+            isComingSoon={true}
           />
         </div>
       </div>

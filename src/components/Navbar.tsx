@@ -278,7 +278,18 @@ const Navbar: React.FC = () => {
                 </div>
                 
               <ul className="flex flex-col py-4 px-2">
-                {/* Services Submenu (mobile)
+
+              <li>
+                  <Link
+                    to="/about"
+                    onClick={() => setMenuOpen(false)}
+                    className="block px-6 py-3 text-gray-700  hover:text-brand-green font-medium transition-colors"
+                  >
+                    About
+                  </Link>
+                </li>
+
+                {/* Services Submenu (mobile) */}
                 <li>
                   <button
                     type="button"
@@ -323,7 +334,7 @@ const Navbar: React.FC = () => {
                           Business Wellness Programmes
                         </Link>
                       </li>
-                      <li>
+                      {/* <li>
                         <Link
                           to="/services/program-details"
                           onClick={() => {
@@ -334,19 +345,9 @@ const Navbar: React.FC = () => {
                         >
                           Wellness Program Details
                         </Link>
-                      </li>
+                      </li> */}
                     </ul>
                   )}
-                </li> */}
-
-                <li>
-                  <Link
-                    to="/about"
-                    onClick={() => setMenuOpen(false)}
-                    className="block px-6 py-3 text-gray-700  hover:text-brand-green font-medium transition-colors"
-                  >
-                    About
-                  </Link>
                 </li>
 
                 <li>

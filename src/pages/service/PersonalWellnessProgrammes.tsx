@@ -4,6 +4,35 @@ import { Link } from "react-router-dom";
 
 const PersonalWellnessProgrammes: React.FC = () => {
   const [currentService, setCurrentService] = useState(0);
+  const [touchStart, setTouchStart] = useState<number | null>(null);
+  const [touchEnd, setTouchEnd] = useState<number | null>(null);
+  
+  // Minimum swipe distance (in px)
+  const minSwipeDistance = 50;
+  
+  const onTouchStart = (e: React.TouchEvent) => {
+    setTouchEnd(null);
+    setTouchStart(e.targetTouches[0].clientX);
+  };
+  
+  const onTouchMove = (e: React.TouchEvent) => {
+    setTouchEnd(e.targetTouches[0].clientX);
+  };
+  
+  const onTouchEnd = () => {
+    if (!touchStart || !touchEnd) return;
+    
+    const distance = touchStart - touchEnd;
+    const isLeftSwipe = distance > minSwipeDistance;
+    const isRightSwipe = distance < -minSwipeDistance;
+    
+    if (isLeftSwipe && currentService < services.length - 1) {
+      setCurrentService(currentService + 1);
+    }
+    if (isRightSwipe && currentService > 0) {
+      setCurrentService(currentService - 1);
+    }
+  };
   const niceFramework = [
     {
       title: "Nurture",
@@ -100,6 +129,17 @@ const PersonalWellnessProgrammes: React.FC = () => {
 
   return (
     <div className="min-h-screen bg-white">
+      <style dangerouslySetInnerHTML={{
+        __html: `
+          .overflow-hidden::-webkit-scrollbar {
+            display: none;
+          }
+          .overflow-hidden {
+            -ms-overflow-style: none;
+            scrollbar-width: none;
+          }
+        `
+      }} />
       {/* Hero Section */}
       <section className="w-full pt-16 pb-16 sm:pt-20 sm:pb-24 bg-gradient-to-br from-gray-50 to-white">
         <div className="max-w-7xl mx-auto px-6 sm:px-10 lg:px-16">
@@ -152,10 +192,11 @@ const PersonalWellnessProgrammes: React.FC = () => {
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
             {niceFramework.map((item, index) => {
               const Icon = item.icon;
+              const isConnect = item.title === "Connect";
               return (
                 <div 
                   key={index}
-                  className={`${item.color} rounded-2xl p-6 text-left`}
+                  className={`${item.color} rounded-2xl p-6 text-left ${isConnect ? 'border border-white/30' : ''}`}
                 >
                   <div className="w-12 h-12 mb-4 bg-white/20 rounded-lg flex items-center justify-center">
                     <Icon className="w-6 h-6 text-white" />
@@ -195,45 +236,51 @@ const PersonalWellnessProgrammes: React.FC = () => {
           {/* Centered Carousel */}
           <div className="flex justify-center">
             <div className="relative max-w-6xl w-full">
-              <div className="overflow-hidden">
-                <div 
-                  className="flex transition-transform duration-300 ease-in-out"
-                  style={{ transform: `translateX(-${currentService * 33.33}%)` }}
-                >
-                  {services.map((service, index) => {
-                    const Icon = service.icon;
-                    return (
-                      <div key={index} className="w-1/3 flex-shrink-0 px-2">
-                        <div className={`${service.color} rounded-2xl p-6 transition-shadow hover:shadow-lg h-full`}>
-                          <div className="w-10 h-10 mb-4 bg-white/20 rounded-lg flex items-center justify-center">
-                            <Icon className="w-5 h-5 text-gray-700" />
-                          </div>
-                          <h3 
-                            className="text-lg font-semibold text-gray-900 mb-3"
-                            style={{ fontFamily: '"League Spartan", sans-serif' }}
-                          >
-                            {service.title}
-                          </h3>
-                          <p className="text-sm text-gray-700 leading-relaxed">
-                            {service.description}
-                          </p>
+              <div 
+                className="overflow-hidden"
+                onTouchStart={onTouchStart}
+                onTouchMove={onTouchMove}
+                onTouchEnd={onTouchEnd}
+                style={{ scrollbarWidth: 'none', msOverflowStyle: 'none' }}
+              >
+              <div 
+                className="flex transition-transform duration-300 ease-in-out touch-pan-x"
+                style={{ transform: `translateX(-${currentService * 100}%)` }}
+              >
+                {services.map((service, index) => {
+                  const Icon = service.icon;
+                  return (
+                    <div key={index} className="w-full flex-shrink-0 px-2">
+                      <div className={`${service.color} rounded-2xl p-6 transition-shadow hover:shadow-lg h-full`}>
+                        <div className="w-10 h-10 mb-4 bg-white/20 rounded-lg flex items-center justify-center">
+                          <Icon className="w-5 h-5 text-gray-700" />
                         </div>
+                        <h3 
+                          className="text-lg font-semibold text-gray-900 mb-3"
+                          style={{ fontFamily: '"League Spartan", sans-serif' }}
+                        >
+                          {service.title}
+                        </h3>
+                        <p className="text-sm text-gray-700 leading-relaxed">
+                          {service.description}
+                        </p>
                       </div>
-                    );
-                  })}
-                </div>
+                    </div>
+                  );
+                })}
+              </div>
               </div>
 
               {/* Navigation Buttons */}
               <button
-                onClick={() => setCurrentService((prev) => (prev > 0 ? prev - 1 : services.length - 3))}
+                onClick={() => setCurrentService((prev) => (prev > 0 ? prev - 1 : services.length - 1))}
                 className="absolute -top-12 right-12 w-10 h-10 bg-white rounded-full border border-gray-300 flex items-center justify-center hover:bg-gray-50 transition-colors"
                 aria-label="Previous service"
               >
                 <ChevronLeft className="w-5 h-5 text-gray-700" />
               </button>
               <button
-                onClick={() => setCurrentService((prev) => (prev < services.length - 3 ? prev + 1 : 0))}
+                onClick={() => setCurrentService((prev) => (prev < services.length - 1 ? prev + 1 : 0))}
                 className="absolute -top-12 right-0 w-10 h-10 bg-white rounded-full border border-gray-300 flex items-center justify-center hover:bg-gray-50 transition-colors"
                 aria-label="Next service"
               >
@@ -309,7 +356,7 @@ const PersonalWellnessProgrammes: React.FC = () => {
       </section>
 
       {/* CTA Section */}
-      <section className="w-full py-16 sm:py-24 bg-[#580F41]">
+      <section className="w-full py-16 sm:py-24 bg-brand-green-dark">
         <div className="max-w-7xl mx-auto px-6 sm:px-10 lg:px-16">
           <div className="text-center">
             <h2 
@@ -323,7 +370,7 @@ const PersonalWellnessProgrammes: React.FC = () => {
             </p>
             <Link
               to="/contact"
-              className="inline-flex items-center gap-3 bg-brand-green text-white px-8 py-4 rounded-full text-lg font-semibold hover:bg-brand-green-dark transition-colors"
+              className="inline-flex items-center gap-3 bg-white text-brand-green px-8 py-4 rounded-full text-lg font-semibold hover:bg-white/90 transition-colors"
               style={{ fontFamily: '"League Spartan", sans-serif' }}
             >
               Contact Us Today

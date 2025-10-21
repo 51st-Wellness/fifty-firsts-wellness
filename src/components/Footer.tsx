@@ -97,7 +97,7 @@ const Footer: React.FC = () => {
                   Terms & Conditions
                 </a>
               </li>
-              <li>
+              {/* <li>
                 <a
                   href="#"
                   className="text-white/80 hover:text-white transition-colors"
@@ -112,7 +112,7 @@ const Footer: React.FC = () => {
                 >
                   Return Policy
                 </a>
-              </li>
+              </li> */}
               <li>
                 <a
                   href="#"
