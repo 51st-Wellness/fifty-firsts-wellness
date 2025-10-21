@@ -148,11 +148,37 @@ const CategoryManagement: React.FC<CategoryManagementProps> = ({
   return (
     <Box>
       {/* Header */}
-      <Box sx={{ display: "flex", alignItems: "center", gap: 2, mb: 3 }}>
-        <CategoryIcon />
-        <Typography variant="h5" fontWeight="600">
-          {title || "Categories"}
-        </Typography>
+      <Box
+        sx={{
+          display: "flex",
+          alignItems: "center",
+          gap: 2,
+          mb: 4,
+          pb: 2,
+          borderBottom: 1,
+          borderColor: "divider",
+        }}
+      >
+        <Box
+          sx={{
+            p: 1.5,
+            borderRadius: 2,
+            backgroundColor: "primary.50",
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "center",
+          }}
+        >
+          <CategoryIcon sx={{ color: "primary.main", fontSize: 28 }} />
+        </Box>
+        <Box>
+          <Typography variant="h4" fontWeight="700" sx={{ mb: 0.5 }}>
+            {title || "Categories"}
+          </Typography>
+          <Typography variant="body2" color="text.secondary">
+            Manage and organize your content categories
+          </Typography>
+        </Box>
       </Box>
 
       {/* Service Filter Tabs */}
@@ -172,17 +198,31 @@ const CategoryManagement: React.FC<CategoryManagementProps> = ({
       )}
 
       {/* Search and Actions */}
-      <Stack direction={{ xs: "column", sm: "row" }} spacing={2} sx={{ mb: 3 }}>
+      <Box
+        sx={{
+          display: "flex",
+          flexDirection: { xs: "column", sm: "row" },
+          gap: 2,
+          mb: 4,
+          alignItems: { xs: "stretch", sm: "center" },
+        }}
+      >
         <TextField
           placeholder="Search categories..."
           value={searchTerm}
           onChange={(e) => setSearchTerm(e.target.value)}
-          size="small"
-          sx={{ flexGrow: 1 }}
+          size="medium"
+          sx={{
+            flexGrow: 1,
+            "& .MuiOutlinedInput-root": {
+              borderRadius: 2,
+              backgroundColor: "background.paper",
+            },
+          }}
           InputProps={{
             startAdornment: (
               <InputAdornment position="start">
-                <SearchIcon />
+                <SearchIcon color="action" />
               </InputAdornment>
             ),
           }}
@@ -191,27 +231,39 @@ const CategoryManagement: React.FC<CategoryManagementProps> = ({
           variant="contained"
           startIcon={<AddIcon />}
           onClick={handleCreate}
-          sx={{ whiteSpace: "nowrap" }}
+          size="large"
+          sx={{
+            whiteSpace: "nowrap",
+            borderRadius: 2,
+            px: 3,
+            py: 1.5,
+            fontWeight: 600,
+            textTransform: "none",
+            boxShadow: 2,
+            "&:hover": {
+              boxShadow: 4,
+            },
+          }}
         >
           Add Category
         </Button>
-      </Stack>
+      </Box>
 
       {/* Categories List */}
       {loading ? (
-        <Box sx={{ display: "flex", justifyContent: "center", py: 4 }}>
-          <CircularProgress />
+        <Box sx={{ display: "flex", justifyContent: "center", py: 6 }}>
+          <CircularProgress size={40} />
         </Box>
       ) : filteredCategories.length === 0 ? (
-        <Card>
-          <CardContent sx={{ textAlign: "center", py: 4 }}>
+        <Card sx={{ borderRadius: 2, boxShadow: 1 }}>
+          <CardContent sx={{ textAlign: "center", py: 6 }}>
             <CategoryIcon
-              sx={{ fontSize: 48, color: "text.secondary", mb: 2 }}
+              sx={{ fontSize: 64, color: "text.secondary", mb: 3 }}
             />
             <Typography variant="h6" color="text.secondary" gutterBottom>
               {searchTerm ? "No categories found" : "No categories yet"}
             </Typography>
-            <Typography variant="body2" color="text.secondary" sx={{ mb: 2 }}>
+            <Typography variant="body2" color="text.secondary" sx={{ mb: 3 }}>
               {searchTerm
                 ? "Try adjusting your search terms"
                 : service
@@ -225,6 +277,8 @@ const CategoryManagement: React.FC<CategoryManagementProps> = ({
                 variant="contained"
                 startIcon={<AddIcon />}
                 onClick={handleCreate}
+                size="large"
+                sx={{ borderRadius: 2 }}
               >
                 Add Category
               </Button>
@@ -232,27 +286,56 @@ const CategoryManagement: React.FC<CategoryManagementProps> = ({
           </CardContent>
         </Card>
       ) : (
-        <Grid container spacing={2}>
+        <Grid container spacing={3}>
           {filteredCategories.map((category) => (
-            <Grid item xs={12} sm={6} md={4} key={category.id}>
-              <Card sx={{ height: "100%" }}>
-                <CardContent>
+            <Grid item xs={12} sm={6} md={4} lg={4} xl={4} key={category.id}>
+              <Card
+                sx={{
+                  height: "100%",
+                  display: "flex",
+                  flexDirection: "column",
+                  borderRadius: 2,
+                  boxShadow: 1,
+                  transition: "all 0.2s ease-in-out",
+                  "&:hover": {
+                    boxShadow: 3,
+                    transform: "translateY(-2px)",
+                  },
+                }}
+              >
+                <CardContent sx={{ flexGrow: 1, p: 3 }}>
                   {/* Category Header */}
                   <Stack
                     direction="row"
                     alignItems="flex-start"
-                    spacing={1}
+                    justifyContent="space-between"
                     sx={{ mb: 2 }}
                   >
-                    <Box sx={{ flexGrow: 1, minWidth: 0 }}>
-                      <Typography variant="h6" noWrap gutterBottom>
+                    <Box sx={{ flexGrow: 1, minWidth: 0, pr: 1 }}>
+                      <Typography
+                        variant="h6"
+                        sx={{
+                          fontWeight: 600,
+                          mb: 1,
+                          lineHeight: 1.3,
+                          overflow: "hidden",
+                          textOverflow: "ellipsis",
+                          display: "-webkit-box",
+                          WebkitLineClamp: 2,
+                          WebkitBoxOrient: "vertical",
+                        }}
+                      >
                         {category.name}
                       </Typography>
                       <Chip
                         label={serviceLabels[category.service]}
                         size="small"
                         color="primary"
-                        variant="outlined"
+                        variant="filled"
+                        sx={{
+                          fontWeight: 500,
+                          fontSize: "0.75rem",
+                        }}
                       />
                     </Box>
                     <Stack direction="row" spacing={0.5}>
@@ -260,6 +343,12 @@ const CategoryManagement: React.FC<CategoryManagementProps> = ({
                         size="small"
                         onClick={() => handleEdit(category)}
                         title="Edit category"
+                        sx={{
+                          color: "primary.main",
+                          "&:hover": {
+                            backgroundColor: "primary.50",
+                          },
+                        }}
                       >
                         <EditIcon fontSize="small" />
                       </IconButton>
@@ -267,7 +356,12 @@ const CategoryManagement: React.FC<CategoryManagementProps> = ({
                         size="small"
                         onClick={() => handleDelete(category)}
                         title="Delete category"
-                        color="error"
+                        sx={{
+                          color: "error.main",
+                          "&:hover": {
+                            backgroundColor: "error.50",
+                          },
+                        }}
                       >
                         <DeleteIcon fontSize="small" />
                       </IconButton>
@@ -276,19 +370,48 @@ const CategoryManagement: React.FC<CategoryManagementProps> = ({
 
                   {/* Description */}
                   {category.description && (
-                    <>
-                      <Divider sx={{ my: 1 }} />
-                      <Typography variant="body2" color="text.secondary">
+                    <Box sx={{ mb: 2 }}>
+                      <Typography
+                        variant="body2"
+                        color="text.secondary"
+                        sx={{
+                          lineHeight: 1.5,
+                          overflow: "hidden",
+                          textOverflow: "ellipsis",
+                          display: "-webkit-box",
+                          WebkitLineClamp: 3,
+                          WebkitBoxOrient: "vertical",
+                        }}
+                      >
                         {category.description}
                       </Typography>
-                    </>
+                    </Box>
                   )}
 
+                  {/* Spacer to push metadata to bottom */}
+                  <Box sx={{ flexGrow: 1 }} />
+
                   {/* Metadata */}
-                  <Divider sx={{ my: 1 }} />
-                  <Typography variant="caption" color="text.secondary">
-                    Created: {new Date(category.createdAt).toLocaleDateString()}
-                  </Typography>
+                  <Box
+                    sx={{
+                      borderTop: 1,
+                      borderColor: "divider",
+                      pt: 2,
+                      mt: 2,
+                    }}
+                  >
+                    <Typography
+                      variant="caption"
+                      color="text.secondary"
+                      sx={{
+                        fontSize: "0.75rem",
+                        fontWeight: 500,
+                      }}
+                    >
+                      Created:{" "}
+                      {new Date(category.createdAt).toLocaleDateString()}
+                    </Typography>
+                  </Box>
                 </CardContent>
               </Card>
             </Grid>
