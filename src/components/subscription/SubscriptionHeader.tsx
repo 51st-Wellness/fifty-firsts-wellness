@@ -12,15 +12,12 @@ interface SubscriptionHeaderProps {
 
 const SubscriptionHeader: React.FC<SubscriptionHeaderProps> = ({
   activeSubscription,
-  title = "Select The Best Plan",
-  subtitle = "For Your Needs",
+  title = "Select The Perfect Plan",
+  subtitle = "For Your Wellness Journey",
   showActiveStatus = true,
 }) => {
   return (
     <div className="text-center">
-      <div className="mb-8">
-        <Sparkles className="w-12 h-12 mx-auto mb-4 text-brand-purple" />
-      </div>
       <h1 className="text-4xl md:text-5xl font-bold text-gray-900 mb-4 font-heading">
         {title}
       </h1>

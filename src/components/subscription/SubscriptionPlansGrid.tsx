@@ -54,7 +54,13 @@ const SubscriptionPlansGrid: React.FC<SubscriptionPlansGridProps> = ({
       {/* First 3 plans in grid */}
       <div
         className={`grid gap-6 ${
-          compact ? "grid-cols-1" : "grid-cols-1 md:grid-cols-2 lg:grid-cols-3"
+          compact
+            ? "grid-cols-1"
+            : displayPlans.length === 1
+            ? "grid-cols-1 max-w-md mx-auto"
+            : displayPlans.length === 2
+            ? "grid-cols-1 md:grid-cols-2 max-w-4xl mx-auto"
+            : "grid-cols-1 md:grid-cols-2 lg:grid-cols-3"
         }`}
       >
         {displayPlans.map((plan, index) => (

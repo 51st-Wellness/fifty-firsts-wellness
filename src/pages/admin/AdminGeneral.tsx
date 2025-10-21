@@ -16,18 +16,42 @@ const AdminGeneral: React.FC = () => {
   };
 
   return (
-    <Box sx={{ p: 3 }}>
+    <Box
+      sx={{ p: 4, backgroundColor: "background.default", minHeight: "100vh" }}
+    >
       {/* Header */}
-      <Typography variant="h4" component="h1" sx={{ mb: 3 }}>
-        General Management
-      </Typography>
+      <Box sx={{ mb: 4 }}>
+        <Typography variant="h3" component="h1" fontWeight="700" sx={{ mb: 1 }}>
+          General Management
+        </Typography>
+        <Typography variant="body1" color="text.secondary">
+          Manage categories, settings, and system configurations
+        </Typography>
+      </Box>
 
       {/* Tabs */}
-      <Box sx={{ borderBottom: 1, borderColor: "divider", mb: 3 }}>
+      <Box
+        sx={{
+          borderBottom: 1,
+          borderColor: "divider",
+          mb: 4,
+          backgroundColor: "background.paper",
+          borderRadius: 2,
+          px: 2,
+        }}
+      >
         <Tabs
           value={tabValue}
           onChange={handleTabChange}
           aria-label="general management tabs"
+          sx={{
+            "& .MuiTab-root": {
+              textTransform: "none",
+              fontWeight: 600,
+              minHeight: 64,
+              px: 3,
+            },
+          }}
         >
           <Tab
             icon={<CategoryIcon />}
@@ -55,26 +79,38 @@ const AdminGeneral: React.FC = () => {
       )}
 
       {tabValue === 1 && (
-        <Card>
-          <CardContent>
-            <Typography variant="h6" gutterBottom>
-              Settings
+        <Card sx={{ borderRadius: 2, boxShadow: 1 }}>
+          <CardContent sx={{ textAlign: "center", py: 6 }}>
+            <SettingsIcon
+              sx={{ fontSize: 64, color: "text.secondary", mb: 3 }}
+            />
+            <Typography variant="h5" gutterBottom fontWeight="600">
+              Settings Management
+            </Typography>
+            <Typography variant="body1" color="text.secondary" sx={{ mb: 3 }}>
+              System settings and configuration options will be available soon.
             </Typography>
             <Typography variant="body2" color="text.secondary">
-              Settings management will be available soon.
+              This feature is currently under development.
             </Typography>
           </CardContent>
         </Card>
       )}
 
       {tabValue === 2 && (
-        <Card>
-          <CardContent>
-            <Typography variant="h6" gutterBottom>
+        <Card sx={{ borderRadius: 2, boxShadow: 1 }}>
+          <CardContent sx={{ textAlign: "center", py: 6 }}>
+            <StorageIcon
+              sx={{ fontSize: 64, color: "text.secondary", mb: 3 }}
+            />
+            <Typography variant="h5" gutterBottom fontWeight="600">
               Storage Management
             </Typography>
+            <Typography variant="body1" color="text.secondary" sx={{ mb: 3 }}>
+              File storage and media management will be available soon.
+            </Typography>
             <Typography variant="body2" color="text.secondary">
-              Storage management will be available soon.
+              This feature is currently under development.
             </Typography>
           </CardContent>
         </Card>

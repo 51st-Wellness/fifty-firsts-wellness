@@ -29,19 +29,6 @@ const PlanCard: React.FC<PlanCardProps> = ({
   const isFree = plan.price === 0;
   const isLoading = checkoutLoading === plan.id;
 
-  const getAccessItemIcon = (accessItem: string) => {
-    switch (accessItem) {
-      case "PODCAST_ACCESS":
-        return <Zap className="w-4 h-4 text-blue-500" />;
-      case "PROGRAMME_ACCESS":
-        return <Star className="w-4 h-4 text-purple-500" />;
-      case "ALL_ACCESS":
-        return <Crown className="w-4 h-4 text-yellow-500" />;
-      default:
-        return <Star className="w-4 h-4 text-gray-500" />;
-    }
-  };
-
   if (compact) {
     return (
       <div
@@ -137,25 +124,6 @@ const PlanCard: React.FC<PlanCardProps> = ({
           </div>
         )}
 
-        {/* Plan icon */}
-        <div
-          className={`w-16 h-16 rounded-2xl flex items-center justify-center mb-6 ${
-            isPopular
-              ? "bg-gradient-to-br from-brand-purple/20 to-brand-purple-light/20"
-              : isFree
-              ? "bg-gray-100"
-              : "bg-gradient-to-br from-brand-green/20 to-brand-green-light/20"
-          }`}
-        >
-          {isFree ? (
-            <Star className={`w-8 h-8 text-gray-600`} />
-          ) : isPopular ? (
-            <Crown className={`w-8 h-8 text-brand-purple`} />
-          ) : (
-            <Zap className={`w-8 h-8 text-brand-green`} />
-          )}
-        </div>
-
         {/* Plan name */}
         <h3 className="text-2xl font-bold text-gray-900 mb-2 font-heading">
           {plan.name}
@@ -202,68 +170,6 @@ const PlanCard: React.FC<PlanCardProps> = ({
               </span>
             </div>
           ))}
-
-          {/* Additional features */}
-          <div className="flex items-center gap-3">
-            <div
-              className={`w-5 h-5 rounded-full flex items-center justify-center ${
-                isPopular ? "bg-brand-purple/10" : "bg-brand-green/10"
-              }`}
-            >
-              <Check
-                className={`w-3 h-3 ${
-                  isPopular ? "text-brand-purple" : "text-brand-green"
-                }`}
-              />
-            </div>
-            <span className="text-gray-700 text-sm">24/7 Support</span>
-          </div>
-          <div className="flex items-center gap-3">
-            <div
-              className={`w-5 h-5 rounded-full flex items-center justify-center ${
-                isPopular ? "bg-brand-purple/10" : "bg-brand-green/10"
-              }`}
-            >
-              <Check
-                className={`w-3 h-3 ${
-                  isPopular ? "text-brand-purple" : "text-brand-green"
-                }`}
-              />
-            </div>
-            <span className="text-gray-700 text-sm">Mobile App Access</span>
-          </div>
-          {plan.price > 0 && (
-            <>
-              <div className="flex items-center gap-3">
-                <div
-                  className={`w-5 h-5 rounded-full flex items-center justify-center ${
-                    isPopular ? "bg-brand-purple/10" : "bg-brand-green/10"
-                  }`}
-                >
-                  <Check
-                    className={`w-3 h-3 ${
-                      isPopular ? "text-brand-purple" : "text-brand-green"
-                    }`}
-                  />
-                </div>
-                <span className="text-gray-700 text-sm">Priority Support</span>
-              </div>
-              <div className="flex items-center gap-3">
-                <div
-                  className={`w-5 h-5 rounded-full flex items-center justify-center ${
-                    isPopular ? "bg-brand-purple/10" : "bg-brand-green/10"
-                  }`}
-                >
-                  <Check
-                    className={`w-3 h-3 ${
-                      isPopular ? "text-brand-purple" : "text-brand-green"
-                    }`}
-                  />
-                </div>
-                <span className="text-gray-700 text-sm">Offline Downloads</span>
-              </div>
-            </>
-          )}
         </div>
 
         {/* CTA Button */}
