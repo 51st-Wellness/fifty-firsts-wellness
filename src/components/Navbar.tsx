@@ -122,7 +122,7 @@ const Navbar: React.FC = () => {
               </Link>
             </li>
             {/* Services Dropdown (desktop) */}
-            {/* <li className="relative">
+            <li className="relative">
               <button
                 type="button"
                 onMouseEnter={handleServicesMouseEnter}
@@ -162,7 +162,7 @@ const Navbar: React.FC = () => {
                       Business Wellness Programmes
                     </Link>
                   </li>
-                  <li>
+                  {/* <li>
                     <Link
                       to="/services/program-details"
                       className="block px-4 py-3 text-gray-700  hover:text-brand-green transition-colors"
@@ -170,10 +170,11 @@ const Navbar: React.FC = () => {
                     >
                       Wellness Program Details
                     </Link>
-                  </li>
+                  </li> */}
                 </ul>
               )}
-            </li> */}
+            </li> 
+
 
             <li>
               <Link

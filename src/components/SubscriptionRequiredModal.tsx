@@ -67,10 +67,13 @@ const SubscriptionRequiredModal: React.FC<SubscriptionRequiredModalProps> = ({
                 <Crown className="w-5 h-5 text-brand-purple" />
               </div>
               <div>
-                <h2 className="text-xl font-bold text-gray-900">
+                <h2
+                  className="text-xl font-semibold text-gray-900"
+                  style={{ fontFamily: '"League Spartan", sans-serif' }}
+                >
                   Subscription Required
                 </h2>
-                <p className="text-sm text-gray-600">
+                <p className="text-sm text-gray-600" style={{ fontFamily: '"League Spartan", sans-serif' }}>
                   Choose a plan to access {programmeTitle}
                 </p>
               </div>
@@ -92,7 +95,10 @@ const SubscriptionRequiredModal: React.FC<SubscriptionRequiredModalProps> = ({
               <div className="w-16 h-16 mx-auto mb-4 bg-brand-green/10 rounded-full flex items-center justify-center">
                 <Crown className="w-8 h-8 text-brand-green" />
               </div>
-              <h3 className="text-2xl font-bold text-gray-900 mb-2">
+              <h3
+                className="text-2xl font-semibold text-gray-900 mb-2"
+                style={{ fontFamily: '"League Spartan", sans-serif' }}
+              >
                 Sign In Required
               </h3>
               <p className="text-gray-600 mb-6 max-w-md mx-auto">
@@ -102,13 +108,13 @@ const SubscriptionRequiredModal: React.FC<SubscriptionRequiredModalProps> = ({
               <div className="flex gap-3 justify-center">
                 <button
                   onClick={handleLogin}
-                  className="bg-brand-green text-white px-6 py-3 rounded-xl font-semibold hover:bg-brand-green-dark transition-colors"
+                  className="bg-brand-green text-white px-6 py-3 rounded-full font-semibold hover:bg-brand-green-dark transition-colors"
                 >
                   Sign In
                 </button>
                 <button
                   onClick={onClose}
-                  className="bg-gray-100 text-gray-700 px-6 py-3 rounded-xl font-semibold hover:bg-gray-200 transition-colors"
+                  className="bg-gray-100 text-gray-700 px-6 py-3 rounded-full font-semibold hover:bg-gray-200 transition-colors"
                 >
                   Cancel
                 </button>
@@ -122,6 +128,8 @@ const SubscriptionRequiredModal: React.FC<SubscriptionRequiredModalProps> = ({
                 subtitle={`Subscribe to access ${programmeTitle}`}
                 activeSubscription={activeSubscription}
                 showActiveStatus={false}
+                titleStyle={{ fontFamily: '"League Spartan", sans-serif' }}
+                subtitleStyle={{ fontFamily: '"League Spartan", sans-serif' }}
               />
 
               <SubscriptionPlansGrid
@@ -135,7 +143,10 @@ const SubscriptionRequiredModal: React.FC<SubscriptionRequiredModalProps> = ({
 
               {/* Additional info */}
               <div className="mt-8 text-center">
-                <p className="text-sm text-gray-500 mb-4">
+                <p
+                  className="text-sm text-gray-500 mb-4"
+                  style={{ fontFamily: '"League Spartan", sans-serif' }}
+                >
                   All plans include access to our complete wellness library
                 </p>
                 <button
