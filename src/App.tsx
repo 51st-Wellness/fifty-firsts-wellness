@@ -22,6 +22,7 @@ import Signup from "./pages/Signup";
 import DashboardLayout from "./pages/dashboard/DashboardLayout";
 import MyAccount from "./pages/dashboard/MyAccount";
 import OrdersHistory from "./pages/dashboard/OrdersHistory";
+import OrderDetails from "./pages/dashboard/OrderDetails";
 import MyCart from "./pages/dashboard/MyCart";
 import Wishlist from "./pages/dashboard/Wishlist";
 import PersonalWellnessProgrammes from "./pages/service/PersonalWellnessProgrammes";
@@ -31,6 +32,7 @@ import Podcasts from "./pages/ResourcesHub/Podcasts";
 import PodcastDetail from "./pages/ResourcesHub/PodcastDetail";
 import Webinars from "./pages/ResourcesHub/Webinars";
 import BusinessWellnessProgrammes from "./pages/service/BusinessWellnessProgrammes";
+import CookiePolicy from "./pages/CookiePolicy";
 import ForgotPassword from "./pages/ForgotPassword";
 import { Toaster } from "react-hot-toast";
 import ResetPassword from "./pages/ResetPassword";
@@ -229,6 +231,15 @@ const App: React.FC = () => {
             }
           />
           <Route path="/contact" element={<ContactUs />} />
+          <Route
+            path="/cookie-policy"
+            element={
+              <>
+                <Navbar />
+                <CookiePolicy />
+              </>
+            }
+          />
           <Route path="/login" element={<Login />} />
           <Route path="/signup" element={<Signup />} />
           <Route path="/auth/success" element={<AuthSuccess />} />
@@ -242,6 +253,7 @@ const App: React.FC = () => {
           >
             <Route index element={<MyAccount />} />
             <Route path="orders" element={<OrdersHistory />} />
+            <Route path="orders/:orderId" element={<OrderDetails />} />
             <Route path="cart" element={<MyCart />} />
             <Route path="wishlist" element={<Wishlist />} />
           </Route>
