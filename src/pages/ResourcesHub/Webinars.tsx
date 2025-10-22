@@ -108,7 +108,7 @@ const Webinars: React.FC<WebinarsProps> = ({ onSearch }) => {
             {/* Search Bar and Filter Icon (Mobile) */}
             <div className="w-full max-w-xl">
               <div className="flex items-center gap-3">
-                <div className="flex-1 bg-white rounded-xl overflow-hidden focus-within:border-[#4444B3] transition-colors flex items-center">
+                <div className="flex-1 bg-white rounded-xl overflow-hidden focus-within:border-brand-green-dark transition-colors flex items-center">
                   <div className="pl-3 text-gray-400"><Search size={18} /></div>
                   <input
                     value={query}
@@ -124,14 +124,14 @@ const Webinars: React.FC<WebinarsProps> = ({ onSearch }) => {
                   <button
                     type="button"
                     onClick={() => setSortOpen(o => !o)}
-                    className="flex items-center justify-center w-12 h-12 bg-white border rounded-full transition-colors text-[#4444B3] border-[#4444B3]"
+                    className="flex items-center justify-center w-12 h-12 bg-white border rounded-full transition-colors text-brand-green-dark border-brand-green-dark"
                   >
                     <ListFilter size={20} />
                   </button>
                   {sortOpen && (
                     <div className="absolute right-0 mt-2 w-44 bg-white border border-gray-200 rounded-xl shadow-md z-10 overflow-hidden">
                       {(["Newest First","Oldest First","A-Z Title"]).map(opt => (
-                        <button key={opt} type="button" onClick={() => { setSortLabel(opt); setSortOpen(false); }} className={`w-full text-left px-4 py-2 text-sm hover:bg-gray-50 ${sortLabel===opt?'text-[#4444B3]':'text-gray-700'}`} style={{ fontFamily: '"League Spartan", sans-serif' }}>{opt}</button>
+                        <button key={opt} type="button" onClick={() => { setSortLabel(opt); setSortOpen(false); }} className={`w-full text-left px-4 py-2 text-sm hover:bg-gray-50 ${sortLabel===opt?'text-brand-green-dark':'text-gray-700'}`} style={{ fontFamily: '"League Spartan", sans-serif' }}>{opt}</button>
                       ))}
                     </div>
                   )}
@@ -152,7 +152,7 @@ const Webinars: React.FC<WebinarsProps> = ({ onSearch }) => {
                 <div className="flex gap-2 pb-2" style={{ minWidth: 'min-content' }}>
                   {categories.map((cat) => (
                     <button key={cat} onClick={() => setSelectedCategory(cat)} type="button"
-                      className={`px-3 py-1.5 rounded-full border text-sm whitespace-nowrap flex-shrink-0 ${selectedCategory===cat?'text-[#4444B3] border-[#4444B3]':'text-gray-600 border-gray-300'}`}
+                      className={`px-3 py-1.5 rounded-full border text-sm whitespace-nowrap flex-shrink-0 ${selectedCategory===cat?'text-brand-green-dark border-brand-green-dark':'text-gray-600 border-gray-300'}`}
                       style={{ fontFamily: '"League Spartan", sans-serif' }}
                     >{cat}</button>
                   ))}
@@ -161,14 +161,14 @@ const Webinars: React.FC<WebinarsProps> = ({ onSearch }) => {
               
               {/* Sort Dropdown - Desktop Only */}
               <div className="hidden md:block relative" ref={sortRef}>
-                <button type="button" onClick={() => setSortOpen(o=>!o)} className="bg-white border rounded-full px-4 py-2 text-sm text-[#4444B3] border-[#4444B3] flex items-center gap-2 whitespace-nowrap" style={{ fontFamily: '"League Spartan", sans-serif' }}>
+                <button type="button" onClick={() => setSortOpen(o=>!o)} className="bg-white border rounded-full px-4 py-2 text-sm text-brand-green-dark border-brand-green-dark flex items-center gap-2 whitespace-nowrap" style={{ fontFamily: '"League Spartan", sans-serif' }}>
                   {sortLabel}
                   <ChevronDown className={`w-4 h-4 transition-transform ${sortOpen ? 'rotate-180':''}`} />
                 </button>
                 {sortOpen && (
                   <div className="absolute right-0 mt-2 w-44 bg-white border border-gray-200 rounded-xl shadow-md z-10 overflow-hidden">
                     {(["Newest First","Oldest First","A-Z Title"]).map(opt => (
-                      <button key={opt} type="button" onClick={() => { setSortLabel(opt); setSortOpen(false); }} className={`w-full text-left px-4 py-2 text-sm hover:bg-gray-50 ${sortLabel===opt?'text-[#4444B3]':'text-gray-700'}`} style={{ fontFamily: '"League Spartan", sans-serif' }}>{opt}</button>
+                      <button key={opt} type="button" onClick={() => { setSortLabel(opt); setSortOpen(false); }} className={`w-full text-left px-4 py-2 text-sm hover:bg-gray-50 ${sortLabel===opt?'text-brand-green-dark':'text-gray-700'}`} style={{ fontFamily: '"League Spartan", sans-serif' }}>{opt}</button>
                     ))}
                   </div>
                 )}
@@ -272,7 +272,7 @@ const Webinars: React.FC<WebinarsProps> = ({ onSearch }) => {
             <div className="pt-10 flex justify-center">
               <button 
                 onClick={() => setPage(p => p + 1)} 
-                className="px-6 py-3 rounded-full text-white bg-[#4444B3] hover:opacity-90 transition-opacity" 
+                className="px-6 py-3 rounded-full text-white bg-brand-green-dark hover:opacity-90 transition-opacity" 
                 style={{ fontFamily: '\"League Spartan\", sans-serif' }}>
                 Load More
               </button>

@@ -8,10 +8,10 @@ type FeaturedCard = {
 };
 
 const cards: FeaturedCard[] = [
-  { title: "Wellness Wear and Hoodies", price: "$-", image: "/assets/homepage/featured-cards/hoodies.png" },
-  { title: "Digital Wellness Guides", price: "$-", image: "/assets/homepage/featured-cards/digital.png" },
-  { title: "Supplements and Vitamins", price: "$-", image: "/assets/homepage/service-cards/service3.png" },
-  { title: "Wellness Bundles and Gifts", price: "$-", image: "/assets/homepage/featured-cards/bundles.png" },
+  { title: "Wellness Wear and Hoodies", price: "£-", image: "/assets/homepage/featured-cards/hoodies.png" },
+  { title: "Digital Wellness Guides", price: "£-", image: "/assets/homepage/featured-cards/digital.png" },
+  { title: "Supplements and Vitamins", price: "£-", image: "/assets/homepage/service-cards/service3.png" },
+  { title: "Wellness Bundles and Gifts", price: "£-", image: "/assets/homepage/featured-cards/bundles.png" },
 ];
 
 const FeaturedSection: React.FC = () => {

@@ -155,7 +155,7 @@ const StoreItemDialog: React.FC<StoreItemDialogProps> = ({
                   {item.name}
                 </h1>
                 <div className="text-4xl font-bold text-indigo-600">
-                  ${item.price.toFixed(2)}
+                  £{item.price.toFixed(2)}
                 </div>
               </div>
 

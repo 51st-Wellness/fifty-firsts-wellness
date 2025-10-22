@@ -63,11 +63,11 @@ const About: React.FC = () => {
     <div className="min-h-screen bg-white">
       
       {/* Hero Section */}
-      <section className="w-full pt-16 pb-16 sm:pt-20 sm:pb-24 bg-gradient-to-br from-gray-50 to-white">
+      <section className="w-full pt-16 pb-16 sm:pt-20 sm:pb-24 bg-brand-green-dark">
         <div className="max-w-7xl mx-auto px-6 sm:px-10 lg:px-16">
           <div className="text-center mb-8">
             <h1 
-              className="text-4xl sm:text-5xl lg:text-6xl font-semibold text-gray-900 mb-4"
+              className="text-4xl sm:text-5xl lg:text-6xl font-semibold text-white mb-4"
               style={{ fontFamily: '"League Spartan", sans-serif' }}
             >
               About Us
@@ -77,10 +77,10 @@ const About: React.FC = () => {
           
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 lg:gap-12 mt-12">
             <div className="flex flex-col justify-center">
-              <p className="text-base sm:text-lg text-gray-700 leading-relaxed mb-6">
+              <p className="text-base sm:text-lg text-white leading-relaxed mb-6">
                 At Fifty Firsts Wellness, we believe wellness and self-care is for everyone, at every stage of life, personally and in the workplace, empowering progress not perfection. We see midlife as a time of reinvention, a time to embrace change, explore new possibilities and age well with confidence.
               </p>
-              <p className="text-base sm:text-lg text-gray-700 leading-relaxed mb-6">
+              <p className="text-base sm:text-lg text-white leading-relaxed mb-6">
                 We want to support the challenging times, like menopause or mental / physical ill health, calmly and with empathy. We challenge outdated ideas about what it means to live and age well, replacing them with a fresh perspective. This stage of life can be energising, creative and full of opportunity.
               </p>
             </div>
@@ -102,10 +102,10 @@ const About: React.FC = () => {
               />
             </div>
             <div className="flex flex-col justify-center order-1 lg:order-2">
-              <p className="text-base sm:text-lg text-gray-700 leading-relaxed mb-6">
+              <p className="text-base sm:text-lg text-white leading-relaxed mb-6">
                 We are built on community and connection. Our work brings people together to share experiences, support one another and grow stronger through our belonging, new opportunities and life's transitions.
               </p>
-              <p className="text-base sm:text-lg text-gray-700 leading-relaxed">
+              <p className="text-base sm:text-lg text-white leading-relaxed">
                 By combining practical tools with empowering conversations, we help individuals feel equipped to take charge of their wellbeing, build resilience and thrive, in work and life, to be stronger for longer. We offer a suite of services, resources and a network of experts to support you on your wellness journey, wherever you are starting from.
               </p>
             </div>
@@ -164,19 +164,19 @@ const About: React.FC = () => {
       </section>
 
       {/* Brand Origin Story Section */}
-      <section className="w-full py-16 sm:py-24 bg-gray-50">
+      <section className="w-full py-16 sm:py-24 bg-brand-green-dark">
         <div className="max-w-7xl mx-auto px-6 sm:px-10 lg:px-16">
           <div className="max-w-4xl mb-12">
             <h2 
-              className="text-3xl sm:text-4xl lg:text-5xl font-semibold text-gray-900 mb-8"
+              className="text-3xl sm:text-4xl lg:text-5xl font-semibold text-white mb-8"
               style={{ fontFamily: '"League Spartan", sans-serif' }}
             >
               Brand Origin Story
             </h2>
-            <p className="text-base sm:text-lg text-gray-700 leading-relaxed mb-6">
+            <p className="text-base sm:text-lg text-white  leading-relaxed mb-6">
               Fifty Firsts Wellness was born from a deep understanding that wellness is not a destination, but a continuous journey of discovery and growth. Our founder's personal experience navigating midlife transitions and witnessing the transformative power of community support inspired the creation of a space where everyone could find their path to wellbeing.
             </p>
-            <p className="text-base sm:text-lg text-gray-700 leading-relaxed">
+            <p className="text-base sm:text-lg text-white  leading-relaxed">
               What started as a vision to reimagine wellness for the modern age has evolved into a thriving community. We've built our foundation on the belief that every person deserves access to compassionate, evidence-based support as they navigate life's changes. Today, we continue to grow and evolve alongside our community, always staying true to our core mission of nurturing, inspiring, connecting, and empowering.
             </p>
           </div>
@@ -265,55 +265,26 @@ const About: React.FC = () => {
       <section className="w-full py-16 bg-gray-50">
         <div className="max-w-7xl mx-auto px-6 sm:px-10 lg:px-16">
           <img 
-            src="/about/mapbase.png" 
+            src="/assets/about/mapbase.png" 
             alt="Global Reach" 
             className="w-full h-auto"
           />
         </div>
       </section>
 
-      {/* Our Approach Section */}
-      <section className="w-full py-16 sm:py-24 bg-white">
-        <div className="max-w-7xl mx-auto px-6 sm:px-10 lg:px-16">
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 lg:gap-16 items-center">
-            {/* Left Side - Text */}
-            <div className="flex flex-col justify-center">
-              <h2 
-                className="text-3xl sm:text-4xl lg:text-5xl font-semibold text-gray-900 mb-8"
-                style={{ fontFamily: '"League Spartan", sans-serif' }}
-              >
-                Our Approach to Wellness
-              </h2>
-              <p className="text-base sm:text-lg text-gray-700 leading-relaxed">
-                We believe wellness is about progress, not perfection. Our approach combines practical tools with empowering conversations, helping individuals and businesses navigate life's transitions with confidence and resilience.
-              </p>
-            </div>
-
-            {/* Right Side - aboutCTA.svg */}
-            <div className="flex justify-center lg:justify-end">
-              <img 
-                src="/about/aboutCTA.svg" 
-                alt="Our Approach" 
-                className="w-full max-w-md h-auto"
-              />
-            </div>
-          </div>
-        </div>
-      </section>
-
       {/* Newsletter Section */}
-      <section className="w-full py-16 sm:py-24 bg-white">
+      <section className="w-full py-16 sm:py-24 bg-brand-green-dark">
         <div className="max-w-7xl mx-auto px-6 sm:px-10 lg:px-16">
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 lg:gap-16 items-center">
             {/* Left Side - Text */}
             <div>
               <h2 
-                className="text-3xl sm:text-4xl lg:text-5xl font-semibold text-gray-900 mb-6"
+                className="text-3xl sm:text-4xl lg:text-5xl font-semibold text-white mb-6"
                 style={{ fontFamily: '"League Spartan", sans-serif' }}
               >
                 Stay in the wellness loop!
               </h2>
-              <p className="text-base sm:text-lg text-gray-700 leading-relaxed">
+              <p className="text-base sm:text-lg text-white leading-relaxed">
                 Subscribe to our newsletter for exclusive tips, stories, and product updates to support your wellness journey.
               </p>
             </div>
@@ -326,11 +297,7 @@ const About: React.FC = () => {
                 </div>
 
                 <div className="bg-white/95 backdrop-blur rounded-2xl p-4 shadow-xl max-w-xl relative">
-                  <label className="block text-xs pt-5 text-gray-500 ml-1 mb-1"></label>
-                  {/* Small notification text */}
-                  <p className="text-xs text-gray-500 ml-1 mb-3">
-                    We'll notify you as soon as products are available.
-                  </p>
+                  <label className="block text-xs pt-5 text-gray-500 ml-1 mb-1">Email</label>
                   <div className="flex flex-col gap-3">
                     <div className="flex-1 relative">
                       <span className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400">

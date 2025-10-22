@@ -89,11 +89,11 @@ const StoreItemCard: React.FC<StoreItemCardProps> = ({ item, onAddToCart }) => {
           </h3>
           
           <div className="mt-2 md:mt-4 flex items-center justify-between min-h-[20px] md:min-h-[28px]">
-            <span className="text-base md:text-2xl font-semibold text-gray-900">${price.toFixed(2)}</span>
+            <span className="text-base md:text-2xl font-semibold text-gray-900">£{price.toFixed(2)}</span>
             <div className="flex items-center gap-1 md:gap-2">
               {hasDiscount && (
                 <>
-                  <span className="text-gray-500 line-through text-[10px] md:text-sm">${item.oldPrice?.toFixed(2)}</span>
+                  <span className="text-gray-500 line-through text-[10px] md:text-sm">£{item.oldPrice?.toFixed(2)}</span>
                   <span className="text-[8px] md:text-xs text-blue-700 bg-blue-100 px-1 md:px-2 py-0.5 md:py-1 rounded">
                     -{discountPercent}%
                   </span>

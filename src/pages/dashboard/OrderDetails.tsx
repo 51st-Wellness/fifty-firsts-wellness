@@ -27,32 +27,54 @@ const OrderDetails: React.FC = () => {
 
         {[{
           name: 'Mandi Face Masks and Scrubs',
-          price: '$14.99',
+          price: '£14.99',
           img: '/assets/marketplace/mandi-face-masks.jpg',
           category: 'Natural Skincare & Beauty',
         }, {
           name: 'Afrilet Multivitamin',
-          price: '$79.99',
+          price: '£79.99',
           img: '/assets/marketplace/afrilet-multivitamin.jpg',
           category: 'Tea & Supplements',
         }, {
           name: 'Afrilet Multivitamin',
-          price: '$9.50',
+          price: '£9.50',
           img: '/assets/marketplace/chara-lip-balm.jpg',
           category: 'Tea & Supplements',
         }].map((item, idx) => (
-          <div key={idx} className="flex items-center gap-4 bg-white rounded-xl  p-4">
-            <div className="w-16 h-16 rounded-lg overflow-hidden bg-gray-100">
-              <img src={item.img} alt={item.name} className="w-full h-full object-cover" />
+          <div key={idx} className="bg-white rounded-xl p-4">
+            <div className="flex items-start gap-4">
+              <div className="w-16 h-16 rounded-lg overflow-hidden bg-gray-100 flex-shrink-0">
+                <img src={item.img} alt={item.name} className="w-full h-full object-cover" />
+              </div>
+              <div className="flex-1 min-w-0">
+                <div className="flex items-start justify-between">
+                  <div className="flex-1 min-w-0">
+                    <h3 className="text-sm font-medium text-gray-900 truncate" style={{ fontFamily: '"League Spartan", sans-serif' }}>{item.name}</h3>
+                    <p className="text-xs text-gray-500 mt-1">Category: {item.category}</p>
+                    <p className="text-xs text-gray-500">Quantity: 1</p>
+                  </div>
+                  
+                  {/* Desktop: Price top right */}
+                  <div className="hidden md:block ml-4">
+                    <p className="text-sm font-semibold text-gray-900">{item.price}</p>
+                  </div>
+                </div>
+                
+                {/* Desktop: Buy button bottom right (same line as category) */}
+                <div className="hidden md:flex justify-end mt-2">
+                  <button className="px-3 py-1.5 rounded-full text-xs font-semibold bg-brand-green text-white hover:bg-brand-green-dark transition-colors">
+                    Buy Again
+                  </button>
+                </div>
+              </div>
             </div>
-            <div className="flex-1">
-              <h3 className="text-sm font-medium text-gray-900" style={{ fontFamily: '"League Spartan", sans-serif' }}>{item.name}</h3>
-              <p className="text-xs text-gray-500">Category: {item.category}</p>
-              <p className="text-xs text-gray-500">Quantity: 1</p>
-            </div>
-            <div className="text-right">
+            
+            {/* Mobile: Price and Buy button at bottom */}
+            <div className="flex items-center justify-between mt-4 md:hidden">
               <p className="text-sm font-semibold text-gray-900">{item.price}</p>
-              <button className="mt-2 px-3 py-1.5 rounded-full text-xs font-semibold bg-brand-green text-white hover:bg-brand-green-dark">Buy Again</button>
+              <button className="px-3 py-1.5 rounded-full text-xs font-semibold bg-brand-green text-white hover:bg-brand-green-dark transition-colors">
+                Buy Again
+              </button>
             </div>
           </div>
         ))}
@@ -62,15 +84,15 @@ const OrderDetails: React.FC = () => {
       <div className="pb-6">
         <div className="bg-white rounded-xl ">
           <div className="p-4 grid grid-cols-2 gap-y-2 text-sm">
-            <span className="text-gray-600">Item’s total (4)</span>
-            <span className="text-right text-gray-900">$248.99</span>
+            <span className="text-gray-600">Item's total (4)</span>
+            <span className="text-right text-gray-900">£248.99</span>
             <span className="text-gray-600">Shipping</span>
-            <span className="text-right text-gray-900">$8.99</span>
+            <span className="text-right text-gray-900">£8.99</span>
             <span className="text-gray-600">Discount</span>
-            <span className="text-right text-gray-900">$0.99</span>
+            <span className="text-right text-gray-900">£0.99</span>
             <div className="col-span-2 border-t border-gray-200 my-2" />
             <span className="text-gray-900 font-semibold">Total</span>
-            <span className="text-right text-gray-900 font-semibold">$257.99</span>
+            <span className="text-right text-gray-900 font-semibold">£257.99</span>
           </div>
         </div>
       </div>

@@ -33,6 +33,7 @@ import PodcastDetail from "./pages/ResourcesHub/PodcastDetail";
 import Webinars from "./pages/ResourcesHub/Webinars";
 import BusinessWellnessProgrammes from "./pages/service/BusinessWellnessProgrammes";
 import CookiePolicy from "./pages/CookiePolicy";
+import TermsAndConditions from "./pages/TermsAndConditions";
 import ForgotPassword from "./pages/ForgotPassword";
 import { Toaster } from "react-hot-toast";
 import ResetPassword from "./pages/ResetPassword";
@@ -237,6 +238,15 @@ const App: React.FC = () => {
               <>
                 <Navbar />
                 <CookiePolicy />
+              </>
+            }
+          />
+          <Route
+            path="/terms-and-conditions"
+            element={
+              <>
+                <Navbar />
+                <TermsAndConditions />
               </>
             }
           />

@@ -118,7 +118,10 @@ const BusinessWellnessProgrammes: React.FC = () => {
     const isLeftSwipe = distance > minSwipeDistance;
     const isRightSwipe = distance < -minSwipeDistance;
     
-    if (isLeftSwipe && currentService < services.length - 1) {
+    const isDesktop = window.innerWidth >= 1024;
+    const maxIndex = isDesktop ? Math.max(0, services.length - 3) : services.length - 1;
+    
+    if (isLeftSwipe && currentService < maxIndex) {
       setCurrentService(currentService + 1);
     }
     if (isRightSwipe && currentService > 0) {
@@ -235,23 +238,23 @@ const BusinessWellnessProgrammes: React.FC = () => {
         `
       }} />
       {/* Hero Section */}
-      <section className="w-full pt-16 pb-16 sm:pt-20 sm:pb-24 bg-gradient-to-br from-gray-50 to-white">
+      <section className="w-full pt-16 pb-16 sm:pt-20 sm:pb-24 bg-brand-green-dark">
         <div className="max-w-7xl mx-auto px-6 sm:px-10 lg:px-16">
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 lg:gap-12 items-center">
             {/* Left Side - Text Content */}
             <div className="flex flex-col justify-center">
               <h1 
-                className="text-3xl sm:text-4xl lg:text-5xl font-semibold text-gray-900 mb-4"
+                className="text-3xl sm:text-4xl lg:text-5xl font-semibold text-white mb-4"
                 style={{ fontFamily: '"League Spartan", sans-serif' }}
               >
-                Business Wellness Programmes
+              Business Wellness Programmes
               </h1>
-              <div className="w-20 h-1 bg-brand-green rounded-full mb-6" />
+              <div className="w-20 h-1 bg-white rounded-full mb-6" />
               
-              <p className="text-base sm:text-lg text-gray-700 leading-relaxed mb-6">
+              <p className="text-base sm:text-lg text-white leading-relaxed mb-6">
                 At Fifty Firsts Wellness, we help businesses build wellbeing into the everyday, building a foundation of performance and belonging; not a perk, but as a strategic advantage.
               </p>
-              <p className="text-base sm:text-lg text-gray-700 leading-relaxed">
+              <p className="text-base sm:text-lg text-white leading-relaxed">
                 We know that when people feel supported, connected and empowered, they show up differently. They're more engaged, more resilient and more likely to thrive.
               </p>
             </div>
@@ -311,17 +314,17 @@ const BusinessWellnessProgrammes: React.FC = () => {
           </section>
 
       {/* Services Section */}
-      <section className="w-full py-16 sm:py-24 bg-gray-50">
+      <section className="w-full py-16 sm:py-24 bg-brand-green-dark">
         <div className="max-w-7xl mx-auto px-6 sm:px-10 lg:px-16">
           {/* Centered Title and Supporting Text */}
           <div className="text-center mb-12">
             <h2 
-              className="text-3xl sm:text-4xl lg:text-5xl font-semibold text-gray-900 mb-6"
+              className="text-3xl sm:text-4xl lg:text-5xl font-semibold text-white mb-6"
               style={{ fontFamily: '"League Spartan", sans-serif' }}
             >
               Our Services
             </h2>
-            <p className="text-base sm:text-lg text-gray-700 leading-relaxed max-w-3xl mx-auto">
+            <p className="text-base sm:text-lg text-white leading-relaxed max-w-3xl mx-auto">
               Our services support your compliance with the Employment Rights Bill and help create a culture where wellbeing is an integral strategy.
             </p>
           </div>
@@ -338,16 +341,20 @@ const BusinessWellnessProgrammes: React.FC = () => {
               >
               <div 
                 className="flex transition-transform duration-300 ease-in-out touch-pan-x"
-                style={{ transform: `translateX(-${currentService * 100}%)` }}
+                style={{ 
+                  transform: window.innerWidth >= 1024 
+                    ? `translateX(-${currentService * 33.33}%)` 
+                    : `translateX(-${currentService * 100}%)` 
+                }}
               >
                 {services.map((service, index) => {
                   const Icon = service.icon;
                   return (
-                    <div key={index} className="w-full flex-shrink-0 px-2">
+                    <div key={index} className="w-full lg:w-1/3 flex-shrink-0 px-2">
                       <div className={`${service.color} rounded-2xl p-6 transition-shadow hover:shadow-lg h-full`}>
                         <div className="w-10 h-10 mb-4 bg-white/20 rounded-lg flex items-center justify-center">
                           <Icon className="w-5 h-5 text-gray-700" />
-                        </div>
+                </div>
                         <h3 
                           className="text-lg font-semibold text-gray-900 mb-3"
                           style={{ fontFamily: '"League Spartan", sans-serif' }}
@@ -357,23 +364,31 @@ const BusinessWellnessProgrammes: React.FC = () => {
                         <p className="text-sm text-gray-700 leading-relaxed">
                           {service.description}
                         </p>
-                      </div>
+                </div>
                     </div>
                   );
                 })}
-              </div>
+                </div>
               </div>
 
               {/* Navigation Buttons */}
               <button
-                onClick={() => setCurrentService((prev) => (prev > 0 ? prev - 1 : services.length - 1))}
+                onClick={() => {
+                  const isDesktop = window.innerWidth >= 1024;
+                  const maxIndex = isDesktop ? Math.max(0, services.length - 3) : services.length - 1;
+                  setCurrentService((prev) => (prev > 0 ? prev - 1 : maxIndex));
+                }}
                 className="absolute -top-12 right-12 w-10 h-10 bg-white rounded-full border border-gray-300 flex items-center justify-center hover:bg-gray-50 transition-colors"
                 aria-label="Previous service"
               >
                 <ChevronLeft className="w-5 h-5 text-gray-700" />
               </button>
               <button
-                onClick={() => setCurrentService((prev) => (prev < services.length - 1 ? prev + 1 : 0))}
+                onClick={() => {
+                  const isDesktop = window.innerWidth >= 1024;
+                  const maxIndex = isDesktop ? Math.max(0, services.length - 3) : services.length - 1;
+                  setCurrentService((prev) => (prev < maxIndex ? prev + 1 : 0));
+                }}
                 className="absolute -top-12 right-0 w-10 h-10 bg-white rounded-full border border-gray-300 flex items-center justify-center hover:bg-gray-50 transition-colors"
                 aria-label="Next service"
               >
@@ -406,7 +421,7 @@ const BusinessWellnessProgrammes: React.FC = () => {
           {/* Features Grid */}
           <FeaturesSectionWithHoverEffects />
         </div>
-      </section>
+          </section>
 
       {/* CTA Section */}
       <section className="w-full py-16 sm:py-24 bg-brand-green-dark">

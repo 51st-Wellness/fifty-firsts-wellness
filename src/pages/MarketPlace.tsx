@@ -389,11 +389,11 @@ const MarketPlace: React.FC<MarketPlaceProps> = ({ onSearch }) => {
                     <div className="space-y-3">
                       <div className="bg-gray-50 rounded-2xl p-3">
                         <div className="text-xs text-gray-600 mb-1">Minimum Price</div>
-                        <div className="text-lg font-semibold text-gray-400">${minPrice}</div>
+                        <div className="text-lg font-semibold text-gray-400">£{minPrice}</div>
                       </div>
                       <div className="bg-gray-50 rounded-2xl p-3">
                         <div className="text-xs text-gray-600 mb-1">Maximum Price</div>
-                        <div className="text-lg font-semibold text-gray-400">${maxPrice}</div>
+                        <div className="text-lg font-semibold text-gray-400">£{maxPrice}</div>
                       </div>
                     </div>
                   </div>
@@ -492,11 +492,11 @@ const MarketPlace: React.FC<MarketPlaceProps> = ({ onSearch }) => {
             <div className="space-y-4">
               <div className="bg-gray-50 rounded-2xl p-3">
                 <div className="text-xs text-gray-600 mb-1">Minimum Price</div>
-                <div className="text-lg font-semibold text-gray-400">${minPrice}</div>
+                <div className="text-lg font-semibold text-gray-400">£{minPrice}</div>
               </div>
               <div className="bg-gray-50 rounded-2xl p-3">
                 <div className="text-xs text-gray-600 mb-1">Maximum Price</div>
-                <div className="text-lg font-semibold text-gray-400">${maxPrice}</div>
+                <div className="text-lg font-semibold text-gray-400">£{maxPrice}</div>
               </div>
               
               {/* Buttons */}

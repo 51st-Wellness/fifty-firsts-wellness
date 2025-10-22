@@ -251,7 +251,7 @@ export default function BlogPost() {
                     to="/blog"
                     className="w-full inline-flex items-center justify-center gap-2 bg-brand-green text-white px-6 py-3 rounded-full font-semibold hover:bg-brand-green-dark transition-colors font-primary"
                   >
-                    ← Back to All Articles
+                    ← Back to All Blogs
                   </Link>
                 </div>
               </div>

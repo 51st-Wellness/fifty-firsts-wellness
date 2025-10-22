@@ -97,9 +97,10 @@ const Navbar: React.FC = () => {
             />
           </Link>
 
-          {/* Mobile: Cart Icon + Hamburger */}
+          {/* Mobile: Cart Icon + User Avatar + Hamburger */}
           <div className="flex items-center gap-2 md:hidden">
             <CartIcon />
+            <UserAvatar />
             <button
               type="button"
               className="p-2 rounded-lg hover:bg-gray-100 transition-colors"
@@ -441,11 +442,6 @@ const Navbar: React.FC = () => {
                   >
                     Contact
                   </Link>
-                </li>
-
-                {/* Mobile User Avatar/Auth */}
-                <li className="px-6 py-3">
-                  <UserAvatar className="w-full" />
                 </li>
               </ul>
               </div>

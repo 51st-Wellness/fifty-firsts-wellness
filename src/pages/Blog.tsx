@@ -12,7 +12,7 @@ const Blog: React.FC<BlogProps> = ({ onSearch }) => {
   const [page, setPage] = useState(1);
   const pageSize = 9;
   const [total, setTotal] = useState(0);
-  const [selectedCategory, setSelectedCategory] = useState("All Articles");
+  const [selectedCategory, setSelectedCategory] = useState("All Blogs");
   const [sortOpen, setSortOpen] = useState(false);
   const [sortLabel, setSortLabel] = useState("Newest First");
   const sortRef = useRef<HTMLDivElement>(null);
@@ -50,7 +50,7 @@ const Blog: React.FC<BlogProps> = ({ onSearch }) => {
   };
 
   const categories = [
-    "All Articles",
+    "All Blogs",
     "Wellness",
     "Mindfulness",
     "Nutrition",
@@ -62,7 +62,7 @@ const Blog: React.FC<BlogProps> = ({ onSearch }) => {
   const filteredBlogs = React.useMemo(() => {
     let list = [...blogs];
     // category filter
-    if (selectedCategory !== "All Articles") {
+    if (selectedCategory !== "All Blogs") {
       list = list.filter((blog) => {
           const tags = Array.isArray(blog.tags)
             ? blog.tags as string[]
@@ -130,7 +130,7 @@ const Blog: React.FC<BlogProps> = ({ onSearch }) => {
           <div className="flex items-center gap-3">
             <form
               onSubmit={handleSubmit}
-              className="flex-1 flex items-center bg-white  rounded-xl overflow-hidden focus-within:border-[#4444B3] transition-colors"
+              className="flex-1 flex items-center bg-white  rounded-xl overflow-hidden focus-within:border-brand-green-dark transition-colors"
             >
               <div className="pl-4 text-gray-400">
                 <Search size={20} />
@@ -149,7 +149,7 @@ const Blog: React.FC<BlogProps> = ({ onSearch }) => {
               <button
                 type="button"
                 onClick={() => setSortOpen((v) => !v)}
-                className="flex items-center justify-center w-12 h-12 bg-white border rounded-full transition-colors text-[#4444B3] border-[#4444B3]"
+                className="flex items-center justify-center w-12 h-12 bg-white border rounded-full transition-colors text-brand-green-dark border-brand-green-dark"
               >
                 <ListFilter size={20} />
               </button>
@@ -158,7 +158,7 @@ const Blog: React.FC<BlogProps> = ({ onSearch }) => {
                   {['Newest First','Oldest First','A-Z Title'].map((opt) => (
                     <button
                       key={opt}
-                      className={`w-full text-left px-4 py-2 text-sm hover:bg-gray-50 ${sortLabel===opt? 'text-[#4444B3]':'text-gray-700'}`}
+                      className={`w-full text-left px-4 py-2 text-sm hover:bg-gray-50 ${sortLabel===opt? 'text-brand-green-dark':'text-gray-700'}`}
                       onClick={() => { setSortLabel(opt); setSortOpen(false); }}
                       style={{ fontFamily: '"League Spartan", sans-serif' }}
                     >
@@ -189,8 +189,8 @@ const Blog: React.FC<BlogProps> = ({ onSearch }) => {
                   onClick={() => setSelectedCategory(cat)}
                   className={`px-4 py-1.5 rounded-full text-sm transition-colors border whitespace-nowrap flex-shrink-0 ${
                     selectedCategory === cat
-                      ? "text-[#4444B3] border-[#4444B3]"
-                      : "text-gray-700 border-gray-300 hover:border-[#4444B3] hover:text-[#4444B3]"
+                      ? "text-brand-green-dark border-brand-green-dark"
+                      : "text-gray-700 border-gray-300 hover:border-brand-green-dark hover:text-brand-green-dark"
                   }`}
                   style={{ fontFamily: '"League Spartan", sans-serif' }}
                 >
@@ -205,7 +205,7 @@ const Blog: React.FC<BlogProps> = ({ onSearch }) => {
             <button
               type="button"
               onClick={() => setSortOpen((v) => !v)}
-              className="flex items-center gap-2 bg-white border rounded-full px-4 py-2 transition-colors text-sm text-[#4444B3] border-[#4444B3] whitespace-nowrap"
+              className="flex items-center gap-2 bg-white border rounded-full px-4 py-2 transition-colors text-sm text-brand-green-dark border-brand-green-dark whitespace-nowrap"
               style={{ fontFamily: '"League Spartan", sans-serif' }}
             >
               <span>{sortLabel}</span>
@@ -216,7 +216,7 @@ const Blog: React.FC<BlogProps> = ({ onSearch }) => {
                 {['Newest First','Oldest First','A-Z Title'].map((opt) => (
                   <button
                     key={opt}
-                    className={`w-full text-left px-4 py-2 text-sm hover:bg-gray-50 ${sortLabel===opt? 'text-[#4444B3]':'text-gray-700'}`}
+                    className={`w-full text-left px-4 py-2 text-sm hover:bg-gray-50 ${sortLabel===opt? 'text-brand-green-dark':'text-gray-700'}`}
                     onClick={() => { setSortLabel(opt); setSortOpen(false); }}
                     style={{ fontFamily: '"League Spartan", sans-serif' }}
                   >
@@ -230,7 +230,7 @@ const Blog: React.FC<BlogProps> = ({ onSearch }) => {
         </div>
       </section>
 
-        {/* Blog Articles */}
+        {/* Blog Blogs */}
         <section
           className="w-full min-h-screen"
           style={{
@@ -267,11 +267,11 @@ const Blog: React.FC<BlogProps> = ({ onSearch }) => {
             </div>
           ) : filteredBlogs.length === 0 ? (
             <div className="py-20 text-center">
-              <div className="text-2xl font-semibold text-white mb-2" style={{ fontFamily: '\"League Spartan\", sans-serif' }}>No articles found</div>
+              <div className="text-2xl font-semibold text-white mb-2" style={{ fontFamily: '\"League Spartan\", sans-serif' }}>No Blogs found</div>
               <p className="text-white/80 mb-6">Try another search or switch categories.</p>
               <button
                 type="button"
-                onClick={() => { setSelectedCategory('All Articles'); setQuery(''); }}
+                onClick={() => { setSelectedCategory('All Blogs'); setQuery(''); }}
                 className="px-4 py-2 rounded-full border border-gray-300 bg-white text-sm hover:bg-gray-50"
               >
                 Reset filters
@@ -356,7 +356,7 @@ const Blog: React.FC<BlogProps> = ({ onSearch }) => {
               <button
                 type="button"
                 onClick={() => setPage((p) => p + 1)}
-                className="px-6 py-3 rounded-full text-white bg-[#4444B3] hover:opacity-90 transition-opacity"
+                className="px-6 py-3 rounded-full text-white bg-brand-green-dark hover:opacity-90 transition-opacity"
                 style={{ fontFamily: '\"League Spartan\", sans-serif' }}
               >
                 Load More

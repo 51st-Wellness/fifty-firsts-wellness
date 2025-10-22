@@ -80,7 +80,7 @@ const OrdersHistory: React.FC = () => {
               className={`px-4 py-2 rounded-full text-sm font-medium transition-colors ${
                 activeFilter === filter
                   ? "text-brand-green border border-brand-green"
-                  : "bg-gray-100 text-gray-600 hover:bg-gray-200 border border-transparent"
+                  : " text-gray-600  border border-transparent"
               }`}
             >
               {filter}
@@ -95,12 +95,16 @@ const OrdersHistory: React.FC = () => {
             {filteredOrders.map((order, index) => (
               <div
                 key={index}
-                className="relative flex items-center gap-4 p-4 bg-white rounded-xl hover:bg-brand-green/3 transition-colors border border-gray-100"
+                onClick={() => navigate(`/dashboard/orders/${order.id}`)}
+                className="relative flex items-center gap-4 p-4 bg-white rounded-xl hover:bg-brand-green/3 transition-colors border border-gray-100 cursor-pointer"
               >
                 {/* See Details Link - top right on desktop */}
                 <div className="hidden md:block absolute top-4 right-4">
                   <button 
-                    onClick={() => navigate(`/dashboard/orders/${order.id}`)}
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      navigate(`/dashboard/orders/${order.id}`);
+                    }}
                     className="inline-flex items-center px-3 py-1.5 rounded-full text-xs font-semibold text-brand-green"
                   >
                     See Details

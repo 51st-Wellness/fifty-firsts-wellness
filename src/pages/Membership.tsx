@@ -23,7 +23,7 @@ const Membership: React.FC<MembershipProps> = ({ onSearch }) => {
       {
         id: "embrace",
         title: "Embrace - Personal",
-        price: "$0",
+        price: "£0",
         description: "New Starter / explorer in wellness",
         features: [
           "Lorem ipsum dolor sit amet",
@@ -36,7 +36,7 @@ const Membership: React.FC<MembershipProps> = ({ onSearch }) => {
       {
         id: "elevate",
         title: "Elevate - Personal",
-        price: "$99",
+        price: "£99",
         description: "All benefits in Embrace - Personal including",
         features: [
           "Lorem ipsum dolor sit amet",
@@ -51,7 +51,7 @@ const Membership: React.FC<MembershipProps> = ({ onSearch }) => {
       {
         id: "starter",
         title: "Starter - Business",
-        price: "$199",
+        price: "£199",
         description: "For small teams starting out",
         features: [
           "Up to 10 users",

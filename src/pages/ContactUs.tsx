@@ -38,28 +38,33 @@ const ContactUs: React.FC = () => {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-gray-50 to-white">
+    <div className="min-h-screen relative" style={{ backgroundImage: 'url(/assets/contact/contact-bg.svg)', backgroundSize: 'cover', backgroundPosition: 'center' }}>
       <Navbar />
       <div className="py-16 px-4">
-        {/* Header */}
-        <div className="max-w-7xl mx-auto grid grid-cols-1 lg:grid-cols-2 gap-10 items-start mb-10">
-          <div>
+        {/* Two white cards layout */}
+        <div className="max-w-7xl mx-auto grid grid-cols-1 lg:grid-cols-2 gap-8">
+          {/* Left Card - Contact Information */}
+          <div className="bg-white rounded-2xl p-8 shadow-lg">
             <h1 className="text-4xl sm:text-5xl lg:text-6xl font-semibold text-gray-900 mb-6" style={{ fontFamily: '"League Spartan", sans-serif' }}>
               Get in touch
               <br />
               with us
             </h1>
-            <p className="text-base sm:text-lg text-gray-600 max-w-xl">
+            <p className="text-base sm:text-lg text-gray-600 mb-8">
               We're here to help! Whether you have a question about our services, need assistance with your account, or want to provide feedback, our team is ready to assist you.
             </p>
 
             {/* Business Hours */}
             <div className="mt-8 max-w-xl bg-gray-100 p-8 rounded-2xl">
               <h3 className="font-semibold mb-4" style={{ fontFamily: '"League Spartan", sans-serif' }}>Business Hours</h3>
-              <div className="grid grid-cols-3 gap-6">
+              <div className="grid grid-cols-2 gap-4">
                 <div>
-                  <div className="text-sm text-gray-600 mb-1">Mon - Fri</div>
-                  <div className="text-sm text-gray-900">9:00am - 8:00pm</div>
+                  <div className="text-sm text-gray-600 mb-1">Monday</div>
+                  <div className="text-sm text-gray-900">9:00am - 7:00pm</div>
+                </div>
+                <div>
+                  <div className="text-sm text-gray-600 mb-1">Tuesday – Friday</div>
+                  <div className="text-sm text-gray-900">Appointment only</div>
                 </div>
                 <div>
                   <div className="text-sm text-gray-600 mb-1">Saturday</div>
@@ -67,7 +72,7 @@ const ContactUs: React.FC = () => {
                 </div>
                 <div>
                   <div className="text-sm text-gray-600 mb-1">Sunday</div>
-                  <div className="text-sm text-gray-900">9:00am - 5:00pm</div>
+                  <div className="text-sm text-gray-900">10:00am - 4:00pm</div>
                 </div>
               </div>
             </div>
@@ -106,17 +111,12 @@ const ContactUs: React.FC = () => {
                 </div>
                 <span className="text-sm">Facebook</span>
               </a>
-              <a href="sms:+4475159441555" className="flex items-center gap-3 text-gray-700">
-                <div className="w-10 h-10 rounded-full border-2 border-gray-300 flex items-center justify-center flex-shrink-0">
-                  <Phone className="w-5 h-5 text-gray-500" />
-                </div>
-                <span className="text-sm">Text Us</span>
-              </a>
+              
             </div>
           </div>
 
           {/* Right Section (Form) */}
-          <div className="bg-gray-100 p-8 rounded-2xl">
+          <div className="bg-white p-8 rounded-2xl">
             <h2 className="text-2xl font-semibold text-gray-900 mb-6" style={{ fontFamily: '"League Spartan", sans-serif' }}>
               Send us a Message
             </h2>
@@ -124,10 +124,16 @@ const ContactUs: React.FC = () => {
             {isSubmitted ? (
               <div className="text-center py-12">
                 <CheckCircle className="w-16 h-16 text-green-500 mx-auto mb-4" />
-                <h3 className="text-xl font-semibold text-gray-900 mb-2">
+                <h3
+                  className="text-xl font-semibold text-gray-900 mb-2"
+                  style={{ fontFamily: '"League Spartan", sans-serif' }}
+                >
                   Message Sent!
                 </h3>
-                <p className="text-gray-600">
+                <p
+                  className="text-gray-600"
+                  style={{ fontFamily: '"League Spartan", sans-serif' }}
+                >
                   Thank you for contacting us. We'll get back to you soon.
                 </p>
               </div>
@@ -200,7 +206,7 @@ const ContactUs: React.FC = () => {
                 {/* Button */}
                 <button
                   type="submit"
-                  className="bg-[#4444B3] text-white py-4 px-6 rounded-full font-semibold hover:opacity-90 transition-colors flex items-center gap-2"
+                  className="bg-brand-green-dark text-white py-4 px-6 rounded-full font-semibold hover:opacity-90 transition-colors flex items-center gap-2"
                   style={{ fontFamily: '"League Spartan", sans-serif' }}
                 >
                   Send Message

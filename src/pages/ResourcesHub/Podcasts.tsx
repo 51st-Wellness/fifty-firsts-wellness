@@ -155,7 +155,7 @@ const Podcasts: React.FC<PodcastsProps> = ({ onSearch }) => {
             {/* Search Bar and Filter Icon (Mobile) */}
             <div className="w-full max-w-xl">
               <div className="flex items-center gap-3">
-                <div className="flex-1 bg-white rounded-xl overflow-hidden focus-within:border-[#4444B3] transition-colors flex items-center">
+                <div className="flex-1 bg-white rounded-xl overflow-hidden focus-within:border-brand-green-dark transition-colors flex items-center">
                   <div className="pl-4 text-gray-400">
                     <Search size={20} />
                   </div>
@@ -173,7 +173,7 @@ const Podcasts: React.FC<PodcastsProps> = ({ onSearch }) => {
                   <button
                     type="button"
                     onClick={() => setSortOpen((o) => !o)}
-                    className="flex items-center justify-center w-12 h-12 bg-white border rounded-full transition-colors text-[#4444B3] border-[#4444B3]"
+                    className="flex items-center justify-center w-12 h-12 bg-white border rounded-full transition-colors text-brand-green-dark border-brand-green-dark"
                   >
                     <ListFilter size={20} />
                   </button>
@@ -190,7 +190,7 @@ const Podcasts: React.FC<PodcastsProps> = ({ onSearch }) => {
                             }}
                             className={`w-full text-left px-4 py-2 text-sm hover:bg-gray-50 ${
                               sortLabel === opt
-                                ? "text-[#4444B3]"
+                                ? "text-brand-green-dark"
                                 : "text-gray-700"
                             }`}
                             style={{
@@ -229,7 +229,7 @@ const Podcasts: React.FC<PodcastsProps> = ({ onSearch }) => {
                       onClick={() => setSelectedCategory(cat)}
                       className={`px-3 py-1.5 rounded-full border text-sm whitespace-nowrap flex-shrink-0 ${
                         selectedCategory === cat
-                          ? "text-[#4444B3] border-[#4444B3]"
+                          ? "text-brand-green-dark border-brand-green-dark"
                           : "text-gray-600 border-gray-300"
                       } transition-colors`}
                       style={{ fontFamily: '"League Spartan", sans-serif' }}
@@ -245,7 +245,7 @@ const Podcasts: React.FC<PodcastsProps> = ({ onSearch }) => {
                 <button
                   type="button"
                   onClick={() => setSortOpen((o) => !o)}
-                  className="bg-white border rounded-full px-4 py-2 text-sm text-[#4444B3] border-[#4444B3] flex items-center gap-2 whitespace-nowrap"
+                  className="bg-white border rounded-full px-4 py-2 text-sm text-brand-green-dark border-brand-green-dark flex items-center gap-2 whitespace-nowrap"
                   style={{ fontFamily: '"League Spartan", sans-serif' }}
                 >
                   {sortLabel}
@@ -268,7 +268,7 @@ const Podcasts: React.FC<PodcastsProps> = ({ onSearch }) => {
                           }}
                           className={`w-full text-left px-4 py-2 text-sm hover:bg-gray-50 ${
                             sortLabel === opt
-                              ? "text-[#4444B3]"
+                              ? "text-brand-green-dark"
                               : "text-gray-700"
                           }`}
                           style={{ fontFamily: '"League Spartan", sans-serif' }}
@@ -341,7 +341,7 @@ const Podcasts: React.FC<PodcastsProps> = ({ onSearch }) => {
             <div className="pt-10 flex justify-center">
               <button
                 onClick={handleLoadMore}
-                className="px-6 py-3 rounded-full text-white bg-[#4444B3] hover:opacity-90 transition-opacity"
+                className="px-6 py-3 rounded-full text-white bg-brand-green-dark hover:opacity-90 transition-opacity"
                 style={{ fontFamily: '"League Spartan", sans-serif' }}
               >
                 Load More

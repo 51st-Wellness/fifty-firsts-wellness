@@ -7,9 +7,9 @@ import footerlogo from "../assets/images/footerlogo.png";
 const Footer: React.FC = () => {
   const location = useLocation();
   
-  // Use #006666 for home, contact, and cookie policy pages, #580F41 for all others
-  const isHomeOrContactOrCookie = location.pathname === "/" || location.pathname === "/contact" || location.pathname === "/cookie-policy";
-  const backgroundColor = isHomeOrContactOrCookie ? "#006666" : "#580F41";
+  // Use #006666 for home and cookie policy pages, #580F41 for all others including contact
+  const isHomeOrCookie = location.pathname === "/" || location.pathname === "/cookie-policy";
+  const backgroundColor = isHomeOrCookie ? "#006666" : "#580F41";
   
   return (
     <footer className="text-white w-full" style={{ backgroundColor }}>
@@ -90,12 +90,12 @@ const Footer: React.FC = () => {
             <h3 className="text-base font-semibold mb-4" style={{ fontFamily: '"League Spartan", sans-serif' }}>Legal</h3>
             <ul className="space-y-3 text-sm">
               <li>
-                <a
-                  href="#"
+                <Link
+                  to="/terms-and-conditions"
                   className="text-white/80 hover:text-white transition-colors"
                 >
                   Terms & Conditions
-                </a>
+                </Link>
               </li>
               {/* <li>
                 <a
@@ -172,13 +172,6 @@ const Footer: React.FC = () => {
                   aria-label="TikTok"
                 >
                   <FaTiktok size={16} className="text-brand-green" />
-                </a>
-                <a
-                  href="tel:+4475159441555"
-                  className="w-8 h-8 rounded-full bg-white flex items-center justify-center hover:bg-white/90 transition-colors flex-shrink-0"
-                  aria-label="Phone"
-                >
-                  <Phone size={16} className="text-brand-green" />
                 </a>
               </li>
             </ul>
