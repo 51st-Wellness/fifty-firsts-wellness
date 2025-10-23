@@ -99,7 +99,7 @@ const Navbar: React.FC = () => {
 
           {/* Mobile: Cart Icon + User Avatar + Hamburger */}
           <div className="flex items-center gap-2 md:hidden">
-            <CartIcon />
+            {/* <CartIcon /> */}
             <UserAvatar />
             <button
               type="button"
@@ -177,14 +177,14 @@ const Navbar: React.FC = () => {
             </li> 
 
 
-            <li>
+            {/* <li>
               <Link
                 to="/marketplace"
                 className="text-gray-700 hover:text-brand-green font-medium transition-colors px-3 py-2 font-primary"
               >
                 Marketplace
               </Link>
-            </li>
+            </li> */}
 
             {/* Resources Dropdown (desktop) */}
             <li className="relative">
@@ -252,7 +252,7 @@ const Navbar: React.FC = () => {
 
           {/* User Avatar & Cart - Right aligned */}
           <div className="hidden md:flex items-center gap-3">
-            {isAuthenticated && <CartIcon />}
+            {/* {isAuthenticated && <CartIcon />} */}
             <UserAvatar />
           </div>
 
@@ -351,7 +351,7 @@ const Navbar: React.FC = () => {
                   )}
                 </li>
 
-                <li>
+                {/* <li>
                   <Link
                     to="/marketplace"
                     onClick={() => setMenuOpen(false)}
@@ -359,7 +359,7 @@ const Navbar: React.FC = () => {
                   >
                     Marketplace
                   </Link>
-                </li>
+                </li> */}
 
                 {/* Resources Submenu (mobile) */}
                 <li>

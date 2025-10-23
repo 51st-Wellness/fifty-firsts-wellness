@@ -30,8 +30,8 @@ export const isCurrentPlan = (
 /**
  * Format subscription price for display
  */
-export const formatPrice = (price: number, currency: string = "USD"): string => {
-  return new Intl.NumberFormat("en-US", {
+export const formatPrice = (price: number, currency: string = "GBP"): string => {
+  return new Intl.NumberFormat("en-GB", {
     style: "currency",
     currency,
     minimumFractionDigits: price % 1 === 0 ? 0 : 2,

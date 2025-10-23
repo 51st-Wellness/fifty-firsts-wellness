@@ -44,6 +44,7 @@ import AdminGuard from "./components/AdminGuard";
 import Loader from "./components/Loader";
 import Footer from "./components/Footer";
 import BlogPost from "@/pages/BlogPost";
+import CookieConsent from "./components/CookieConsent";
 
 import PaymentCancel from "./pages/PaymentCancel";
 import PaymentSuccess from "./pages/PaymentSuccess";
@@ -83,6 +84,7 @@ const App: React.FC = () => {
       <div>
         <Toaster position="top-center" />
         <ScrollToTop />
+        <CookieConsent />
         <Routes>
           <Route
             path="/"

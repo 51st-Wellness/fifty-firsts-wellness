@@ -24,16 +24,18 @@ const SubscriptionPlansGrid: React.FC<SubscriptionPlansGridProps> = ({
 }) => {
   if (loading) {
     return (
-      <div className="flex justify-center py-8">
-        <Loader2 className="w-8 h-8 animate-spin text-brand-purple" />
+      <div className="flex justify-center py-12">
+        <Loader2 className="w-8 h-8 animate-spin text-brand-green" />
       </div>
     );
   }
 
   if (!plans || plans.length === 0) {
     return (
-      <div className="text-center py-8">
-        <p className="text-gray-500 mb-4">No subscription plans available</p>
+      <div className="text-center py-12">
+        <p className="text-gray-500 mb-4" style={{ fontFamily: '"League Spartan", sans-serif' }}>
+          No subscription plans available
+        </p>
       </div>
     );
   }
@@ -51,7 +53,7 @@ const SubscriptionPlansGrid: React.FC<SubscriptionPlansGridProps> = ({
 
   return (
     <div className="w-full">
-      {/* First 3 plans in grid */}
+      {/* Main plans grid */}
       <div
         className={`grid gap-6 ${
           compact
@@ -76,23 +78,28 @@ const SubscriptionPlansGrid: React.FC<SubscriptionPlansGridProps> = ({
         ))}
       </div>
 
-      {/* Additional plans (vertical layout) */}
+      {/* Additional plans (if not showing all) */}
       {additionalPlans.length > 0 && (
-        <div className="mt-8 space-y-6">
-          <h3 className="text-2xl font-bold text-gray-900 text-center mb-8 font-heading">
+        <div className="mt-12">
+          <h3 
+            className="text-xl font-bold text-gray-900 text-center mb-8"
+            style={{ fontFamily: '"League Spartan", sans-serif' }}
+          >
             More Options
           </h3>
-          {additionalPlans.map((plan) => (
-            <PlanCard
-              key={plan.id}
-              plan={plan}
-              index={0}
-              isCurrent={isCurrentPlan(plan.id)}
-              checkoutLoading={checkoutLoading}
-              onSubscribe={onSubscribe}
-              compact={true}
-            />
-          ))}
+          <div className="space-y-4 max-w-4xl mx-auto">
+            {additionalPlans.map((plan) => (
+              <PlanCard
+                key={plan.id}
+                plan={plan}
+                index={0}
+                isCurrent={isCurrentPlan(plan.id)}
+                checkoutLoading={checkoutLoading}
+                onSubscribe={onSubscribe}
+                compact={true}
+              />
+            ))}
+          </div>
         </div>
       )}
     </div>
