@@ -6,11 +6,12 @@ import footerlogo from "../assets/images/footerlogo.png";
 
 const Footer: React.FC = () => {
   const location = useLocation();
-  
+
   // Use #006666 for home and cookie policy pages, #580F41 for all others including contact
-  const isHomeOrCookie = location.pathname === "/" || location.pathname === "/cookie-policy";
+  const isHomeOrCookie =
+    location.pathname === "/" || location.pathname === "/cookie-policy";
   const backgroundColor = isHomeOrCookie ? "#006666" : "#580F41";
-  
+
   return (
     <footer className="text-white w-full" style={{ backgroundColor }}>
       <div className="max-w-7xl mx-auto px-6 sm:px-10 lg:px-16 py-12 sm:py-16">
@@ -18,7 +19,12 @@ const Footer: React.FC = () => {
         <div className="grid grid-cols-2 lg:grid-cols-5 gap-8 lg:gap-12 mb-12">
           {/* Company */}
           <div>
-            <h3 className="text-base font-semibold mb-4" style={{ fontFamily: '"League Spartan", sans-serif' }}>Company</h3>
+            <h3
+              className="text-base font-semibold mb-4"
+              style={{ fontFamily: '"League Spartan", sans-serif' }}
+            >
+              Company
+            </h3>
             <ul className="space-y-3 text-sm">
               <li>
                 <Link
@@ -41,7 +47,12 @@ const Footer: React.FC = () => {
 
           {/* Services */}
           <div>
-            <h3 className="text-base font-semibold mb-4" style={{ fontFamily: '"League Spartan", sans-serif' }}>Services</h3>
+            <h3
+              className="text-base font-semibold mb-4"
+              style={{ fontFamily: '"League Spartan", sans-serif' }}
+            >
+              Services
+            </h3>
             <ul className="space-y-3 text-sm">
               <li>
                 <Link
@@ -64,7 +75,12 @@ const Footer: React.FC = () => {
 
           {/* Resources */}
           <div>
-            <h3 className="text-base font-semibold mb-4" style={{ fontFamily: '"League Spartan", sans-serif' }}>Resources</h3>
+            <h3
+              className="text-base font-semibold mb-4"
+              style={{ fontFamily: '"League Spartan", sans-serif' }}
+            >
+              Resources
+            </h3>
             <ul className="space-y-3 text-sm">
               <li>
                 <Link
@@ -87,7 +103,12 @@ const Footer: React.FC = () => {
 
           {/* Legal */}
           <div>
-            <h3 className="text-base font-semibold mb-4" style={{ fontFamily: '"League Spartan", sans-serif' }}>Legal</h3>
+            <h3
+              className="text-base font-semibold mb-4"
+              style={{ fontFamily: '"League Spartan", sans-serif' }}
+            >
+              Legal
+            </h3>
             <ul className="space-y-3 text-sm">
               <li>
                 <Link
@@ -114,7 +135,7 @@ const Footer: React.FC = () => {
                 </a>
               </li> */}
               <li>
-                <Link 
+                <Link
                   to="/cookie-policy"
                   className="text-white/80 hover:text-white transition-colors"
                 >
@@ -126,7 +147,12 @@ const Footer: React.FC = () => {
 
           {/* Contact */}
           <div>
-            <h3 className="text-base font-semibold mb-4" style={{ fontFamily: '"League Spartan", sans-serif' }}>Contact</h3>
+            <h3
+              className="text-base font-semibold mb-4"
+              style={{ fontFamily: '"League Spartan", sans-serif' }}
+            >
+              Contact
+            </h3>
             <ul className="space-y-3 text-sm">
               <li>
                 <a
@@ -191,7 +217,8 @@ const Footer: React.FC = () => {
 
           {/* Copyright */}
           <div className="text-white/80 text-sm text-center">
-            © {new Date().getFullYear()}. Fifty Firsts Wellness. All rights reserved.
+            © {new Date().getFullYear()}. Fifty Firsts Wellness. All rights
+            reserved.
           </div>
         </div>
       </div>
