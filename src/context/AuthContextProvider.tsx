@@ -66,6 +66,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
       const response = await getUserProfile();
       if (response.data?.user) {
         setUser(response.data.user);
+        setIsAuthenticated(true); // Set authenticated state when profile loads successfully
         setError(null);
       }
     } catch (error: any) {
