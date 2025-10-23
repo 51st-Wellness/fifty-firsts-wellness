@@ -74,6 +74,38 @@ export const getAccessItemIcon = (accessItem: string): "zap" | "star" | "crown" 
  */
 export const getAccessItemLabel = (accessItem: string): string => {
   switch (accessItem) {
+    case "DIGITAL_GUIDES":
+      return "Digital wellness guides";
+    case "WEBINAR_CONTENT":
+      return "Member webinars";
+    case "WELLNESS_PLAN":
+      return "Personal wellness plans";
+    case "NEWSLETTER":
+      return "Monthly newsletter";
+    case "MENOPAUSE_SUPPORT":
+      return "Menopause support";
+    case "MEMBER_OFFERS":
+      return "Member offers";
+    case "ENGAGE_BENEFITS":
+      return "All Engage benefits plus:";
+    case "EARLY_ACCESS":
+      return "Early access to new products";
+    case "PREMIUM_TRAINING":
+      return "Premium training";
+    case "PERSONAL_CHECKINS":
+      return "Personal check-ins (30 mins/month)";
+    case "WELLNESS_INSIGHTS":
+      return "Wellness insights";
+    case "EMBRACE_BENEFITS":
+      return "All Embrace benefits plus:";
+    case "DIGITAL_LIBRARY":
+      return "Full digital library";
+    case "SELFCARE_KITS":
+      return "Quarterly self-care kits";
+    case "WELLNESS_CHALLENGES":
+      return "Wellness challenges";
+    case "EXPERT_WORKSHOPS":
+      return "Expert workshops";
     case "PODCAST_ACCESS":
       return "Podcast Access";
     case "PROGRAMME_ACCESS":
