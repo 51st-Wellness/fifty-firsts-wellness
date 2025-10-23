@@ -7,7 +7,6 @@ import {
   Button,
   Box,
   Typography,
-  Grid,
   Chip,
   Divider,
   Avatar,
@@ -22,36 +21,12 @@ import {
   AttachMoney as MoneyIcon,
 } from "@mui/icons-material";
 import { format } from "date-fns";
-
-// Types for subscription data
-interface SubscriptionData {
-  id: string;
-  userId: string;
-  planId: string;
-  status: string;
-  startDate: string;
-  endDate: string;
-  autoRenew: boolean;
-  paymentId: string;
-  providerSubscriptionId: string;
-  invoiceId: string;
-  billingCycle: number;
-  createdAt: string;
-  userFirstName: string;
-  userLastName: string;
-  userEmail: string;
-  userPhone: string;
-  userCity: string;
-  planName: string;
-  planPrice: number;
-  planDuration: number;
-  planDescription: string;
-}
+import { type AdminSubscriptionData } from "../../api/subscription.api";
 
 interface SubscriptionDetailsModalProps {
   open: boolean;
   onClose: () => void;
-  subscription: SubscriptionData | null;
+  subscription: AdminSubscriptionData | null;
 }
 
 const SubscriptionDetailsModal: React.FC<SubscriptionDetailsModalProps> = ({
@@ -107,10 +82,14 @@ const SubscriptionDetailsModal: React.FC<SubscriptionDetailsModalProps> = ({
     <Dialog
       open={open}
       onClose={onClose}
-      maxWidth="md"
+      maxWidth="xl"
       fullWidth
       PaperProps={{
-        sx: { borderRadius: 2 },
+        sx: {
+          borderRadius: 2,
+          maxHeight: "90vh",
+          height: "auto",
+        },
       }}
     >
       <DialogTitle sx={{ pb: 1 }}>
@@ -130,52 +109,49 @@ const SubscriptionDetailsModal: React.FC<SubscriptionDetailsModalProps> = ({
         </Box>
       </DialogTitle>
 
-      <DialogContent sx={{ pt: 2 }}>
-        <Grid container spacing={3}>
+      <DialogContent sx={{ pt: 2, pb: 2 }}>
+        <Box sx={{ display: "flex", flexDirection: "column", gap: 3 }}>
           {/* User Information */}
-          <Grid item xs={12}>
-            <Paper sx={{ p: 3, borderRadius: 2, bgcolor: "grey.50" }}>
-              <Box
-                sx={{ display: "flex", alignItems: "center", gap: 2, mb: 2 }}
-              >
-                <Avatar sx={{ width: 48, height: 48, bgcolor: "primary.main" }}>
-                  {subscription.userFirstName.charAt(0)}
-                  {subscription.userLastName.charAt(0)}
-                </Avatar>
-                <Box>
-                  <Typography variant="h6" fontWeight={600}>
-                    {subscription.userFirstName} {subscription.userLastName}
-                  </Typography>
-                  <Typography variant="body2" color="text.secondary">
-                    {subscription.userEmail}
-                  </Typography>
-                </Box>
+          <Paper sx={{ p: 3, borderRadius: 2, bgcolor: "grey.50" }}>
+            <Box sx={{ display: "flex", alignItems: "center", gap: 2, mb: 2 }}>
+              <Avatar sx={{ width: 48, height: 48, bgcolor: "primary.main" }}>
+                {subscription.userFirstName.charAt(0)}
+                {subscription.userLastName.charAt(0)}
+              </Avatar>
+              <Box>
+                <Typography variant="h6" fontWeight={600}>
+                  {subscription.userFirstName} {subscription.userLastName}
+                </Typography>
+                <Typography variant="body2" color="text.secondary">
+                  {subscription.userEmail}
+                </Typography>
               </Box>
+            </Box>
 
-              <Grid container spacing={2}>
-                <Grid item xs={12} sm={6}>
-                  <Typography variant="body2" color="text.secondary">
-                    Phone
-                  </Typography>
-                  <Typography variant="body1">
-                    {subscription.userPhone || "Not provided"}
-                  </Typography>
-                </Grid>
-                <Grid item xs={12} sm={6}>
-                  <Typography variant="body2" color="text.secondary">
-                    City
-                  </Typography>
-                  <Typography variant="body1">
-                    {subscription.userCity || "Not provided"}
-                  </Typography>
-                </Grid>
-              </Grid>
-            </Paper>
-          </Grid>
+            <Box sx={{ display: "flex", gap: 4, flexWrap: "wrap" }}>
+              <Box sx={{ minWidth: 200 }}>
+                <Typography variant="body2" color="text.secondary">
+                  Phone
+                </Typography>
+                <Typography variant="body1">
+                  {subscription.userPhone || "Not provided"}
+                </Typography>
+              </Box>
+              <Box sx={{ minWidth: 200 }}>
+                <Typography variant="body2" color="text.secondary">
+                  City
+                </Typography>
+                <Typography variant="body1">
+                  {subscription.userCity || "Not provided"}
+                </Typography>
+              </Box>
+            </Box>
+          </Paper>
 
-          {/* Subscription Information */}
-          <Grid item xs={12} md={6}>
-            <Paper sx={{ p: 3, borderRadius: 2, height: "100%" }}>
+          {/* Subscription and Timeline Row */}
+          <Box sx={{ display: "flex", gap: 3, flexWrap: "wrap" }}>
+            {/* Subscription Information */}
+            <Paper sx={{ p: 3, borderRadius: 2, flex: 1, minWidth: 300 }}>
               <Box
                 sx={{ display: "flex", alignItems: "center", gap: 1, mb: 2 }}
               >
@@ -245,11 +221,9 @@ const SubscriptionDetailsModal: React.FC<SubscriptionDetailsModalProps> = ({
                 </Typography>
               </Box>
             </Paper>
-          </Grid>
 
-          {/* Dates and Timeline */}
-          <Grid item xs={12} md={6}>
-            <Paper sx={{ p: 3, borderRadius: 2, height: "100%" }}>
+            {/* Dates and Timeline */}
+            <Paper sx={{ p: 3, borderRadius: 2, flex: 1, minWidth: 300 }}>
               <Box
                 sx={{ display: "flex", alignItems: "center", gap: 1, mb: 2 }}
               >
@@ -299,71 +273,65 @@ const SubscriptionDetailsModal: React.FC<SubscriptionDetailsModalProps> = ({
                 </Typography>
               </Box>
             </Paper>
-          </Grid>
+          </Box>
 
           {/* Payment Information */}
-          <Grid item xs={12}>
-            <Paper sx={{ p: 3, borderRadius: 2 }}>
-              <Box
-                sx={{ display: "flex", alignItems: "center", gap: 1, mb: 2 }}
-              >
-                <MoneyIcon color="primary" />
-                <Typography variant="h6" fontWeight={600}>
-                  Payment Information
+          <Paper sx={{ p: 3, borderRadius: 2 }}>
+            <Box sx={{ display: "flex", alignItems: "center", gap: 1, mb: 2 }}>
+              <MoneyIcon color="primary" />
+              <Typography variant="h6" fontWeight={600}>
+                Payment Information
+              </Typography>
+            </Box>
+
+            <Box sx={{ display: "flex", gap: 4, flexWrap: "wrap" }}>
+              <Box sx={{ minWidth: 200 }}>
+                <Typography variant="body2" color="text.secondary">
+                  Payment ID
+                </Typography>
+                <Typography variant="body1" sx={{ fontFamily: "monospace" }}>
+                  {subscription.paymentId || "N/A"}
                 </Typography>
               </Box>
-
-              <Grid container spacing={2}>
-                <Grid item xs={12} sm={6}>
-                  <Typography variant="body2" color="text.secondary">
-                    Payment ID
-                  </Typography>
-                  <Typography variant="body1" sx={{ fontFamily: "monospace" }}>
-                    {subscription.paymentId || "N/A"}
-                  </Typography>
-                </Grid>
-                <Grid item xs={12} sm={6}>
-                  <Typography variant="body2" color="text.secondary">
-                    Provider Subscription ID
-                  </Typography>
-                  <Typography variant="body1" sx={{ fontFamily: "monospace" }}>
-                    {subscription.providerSubscriptionId || "N/A"}
-                  </Typography>
-                </Grid>
-                <Grid item xs={12} sm={6}>
-                  <Typography variant="body2" color="text.secondary">
-                    Invoice ID
-                  </Typography>
-                  <Typography variant="body1" sx={{ fontFamily: "monospace" }}>
-                    {subscription.invoiceId || "N/A"}
-                  </Typography>
-                </Grid>
-                <Grid item xs={12} sm={6}>
-                  <Typography variant="body2" color="text.secondary">
-                    Subscription ID
-                  </Typography>
-                  <Typography variant="body1" sx={{ fontFamily: "monospace" }}>
-                    {subscription.id}
-                  </Typography>
-                </Grid>
-              </Grid>
-            </Paper>
-          </Grid>
+              <Box sx={{ minWidth: 200 }}>
+                <Typography variant="body2" color="text.secondary">
+                  Provider Subscription ID
+                </Typography>
+                <Typography variant="body1" sx={{ fontFamily: "monospace" }}>
+                  {subscription.providerSubscriptionId || "N/A"}
+                </Typography>
+              </Box>
+              <Box sx={{ minWidth: 200 }}>
+                <Typography variant="body2" color="text.secondary">
+                  Invoice ID
+                </Typography>
+                <Typography variant="body1" sx={{ fontFamily: "monospace" }}>
+                  {subscription.invoiceId || "N/A"}
+                </Typography>
+              </Box>
+              <Box sx={{ minWidth: 200 }}>
+                <Typography variant="body2" color="text.secondary">
+                  Subscription ID
+                </Typography>
+                <Typography variant="body1" sx={{ fontFamily: "monospace" }}>
+                  {subscription.id}
+                </Typography>
+              </Box>
+            </Box>
+          </Paper>
 
           {/* Plan Description */}
           {subscription.planDescription && (
-            <Grid item xs={12}>
-              <Paper sx={{ p: 3, borderRadius: 2 }}>
-                <Typography variant="h6" fontWeight={600} sx={{ mb: 1 }}>
-                  Plan Description
-                </Typography>
-                <Typography variant="body1" color="text.secondary">
-                  {subscription.planDescription}
-                </Typography>
-              </Paper>
-            </Grid>
+            <Paper sx={{ p: 3, borderRadius: 2 }}>
+              <Typography variant="h6" fontWeight={600} sx={{ mb: 1 }}>
+                Plan Description
+              </Typography>
+              <Typography variant="body1" color="text.secondary">
+                {subscription.planDescription}
+              </Typography>
+            </Paper>
           )}
-        </Grid>
+        </Box>
       </DialogContent>
 
       <DialogActions sx={{ p: 3, pt: 1 }}>

@@ -2,13 +2,15 @@ import React, { useState } from "react";
 import { Box, Typography } from "@mui/material";
 import SubscriptionsTable from "../../components/admin/SubscriptionsTable";
 import SubscriptionDetailsModal from "../../components/admin/SubscriptionDetailsModal";
+import { type AdminSubscriptionData } from "../../api/subscription.api";
 
 // Dedicated admin page for managing subscriptions
 const AdminSubscriptions: React.FC = () => {
-  const [selectedSubscription, setSelectedSubscription] = useState<any>(null);
+  const [selectedSubscription, setSelectedSubscription] =
+    useState<AdminSubscriptionData | null>(null);
   const [modalOpen, setModalOpen] = useState(false);
 
-  const handleViewSubscription = (subscription: any) => {
+  const handleViewSubscription = (subscription: AdminSubscriptionData) => {
     setSelectedSubscription(subscription);
     setModalOpen(true);
   };

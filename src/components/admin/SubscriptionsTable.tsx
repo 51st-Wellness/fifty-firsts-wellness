@@ -21,48 +21,27 @@ import {
   CircularProgress,
   Alert,
   Avatar,
-  Tooltip,
 } from "@mui/material";
 import {
   Search as SearchIcon,
-  Visibility as VisibilityIcon,
   FilterList as FilterIcon,
 } from "@mui/icons-material";
 import { format } from "date-fns";
-
-// Types for subscription data
-interface SubscriptionData {
-  id: string;
-  userId: string;
-  planId: string;
-  status: string;
-  startDate: string;
-  endDate: string;
-  autoRenew: boolean;
-  paymentId: string;
-  providerSubscriptionId: string;
-  invoiceId: string;
-  billingCycle: number;
-  createdAt: string;
-  userFirstName: string;
-  userLastName: string;
-  userEmail: string;
-  userPhone: string;
-  userCity: string;
-  planName: string;
-  planPrice: number;
-  planDuration: number;
-  planDescription: string;
-}
+import {
+  getAdminSubscriptions,
+  type AdminSubscriptionData,
+} from "../../api/subscription.api";
 
 interface SubscriptionsTableProps {
-  onViewDetails: (subscription: SubscriptionData) => void;
+  onViewDetails: (subscription: AdminSubscriptionData) => void;
 }
 
 const SubscriptionsTable: React.FC<SubscriptionsTableProps> = ({
   onViewDetails,
 }) => {
-  const [subscriptions, setSubscriptions] = useState<SubscriptionData[]>([]);
+  const [subscriptions, setSubscriptions] = useState<AdminSubscriptionData[]>(
+    []
+  );
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [searchTerm, setSearchTerm] = useState("");
@@ -72,38 +51,26 @@ const SubscriptionsTable: React.FC<SubscriptionsTableProps> = ({
   const [totalCount, setTotalCount] = useState(0);
   const limit = 10;
 
-  // Fetch subscriptions data
+  // Fetch subscriptions data using API
   const fetchSubscriptions = async () => {
     try {
       setLoading(true);
       setError(null);
 
-      const params = new URLSearchParams({
-        page: currentPage.toString(),
-        limit: limit.toString(),
-        ...(statusFilter && { status: statusFilter }),
-        ...(searchTerm && { search: searchTerm }),
+      const result = await getAdminSubscriptions({
+        page: currentPage,
+        limit: limit,
+        status: statusFilter || undefined,
+        search: searchTerm || undefined,
       });
 
-      const baseUrl =
-        import.meta.env.VITE_BASE_URL || "http://localhost:3100/api";
-      const response = await fetch(
-        `${baseUrl}/payment/admin/subscriptions?${params}`,
-        {
-          headers: {
-            Authorization: `Bearer ${localStorage.getItem("token")}`,
-          },
-        }
-      );
-
-      if (!response.ok) {
-        throw new Error("Failed to fetch subscriptions");
+      if (result.success && result.data) {
+        setSubscriptions(result.data.subscriptions);
+        setTotalPages(result.data.pagination.totalPages);
+        setTotalCount(result.data.pagination.total);
+      } else {
+        setError(result.message || "Failed to fetch subscriptions");
       }
-
-      const data = await response.json();
-      setSubscriptions(data.data.subscriptions);
-      setTotalPages(data.data.pagination.totalPages);
-      setTotalCount(data.data.pagination.total);
     } catch (err) {
       setError(err instanceof Error ? err.message : "An error occurred");
     } finally {
@@ -234,7 +201,6 @@ const SubscriptionsTable: React.FC<SubscriptionsTableProps> = ({
               <TableCell sx={{ fontWeight: 600 }}>Amount</TableCell>
               <TableCell sx={{ fontWeight: 600 }}>Start Date</TableCell>
               <TableCell sx={{ fontWeight: 600 }}>End Date</TableCell>
-              <TableCell sx={{ fontWeight: 600 }}>Actions</TableCell>
             </TableRow>
           </TableHead>
           <TableBody>
@@ -242,7 +208,14 @@ const SubscriptionsTable: React.FC<SubscriptionsTableProps> = ({
               <TableRow
                 key={subscription.id}
                 hover
-                sx={{ "&:last-child td, &:last-child th": { border: 0 } }}
+                onClick={() => onViewDetails(subscription)}
+                sx={{
+                  "&:last-child td, &:last-child th": { border: 0 },
+                  cursor: "pointer",
+                  "&:hover": {
+                    backgroundColor: "action.hover",
+                  },
+                }}
               >
                 <TableCell>
                   <Box sx={{ display: "flex", alignItems: "center", gap: 2 }}>
@@ -294,17 +267,6 @@ const SubscriptionsTable: React.FC<SubscriptionsTableProps> = ({
                   <Typography variant="body2">
                     {formatDate(subscription.endDate)}
                   </Typography>
-                </TableCell>
-                <TableCell>
-                  <Tooltip title="View Details">
-                    <IconButton
-                      size="small"
-                      onClick={() => onViewDetails(subscription)}
-                      sx={{ color: "primary.main" }}
-                    >
-                      <VisibilityIcon />
-                    </IconButton>
-                  </Tooltip>
                 </TableCell>
               </TableRow>
             ))}

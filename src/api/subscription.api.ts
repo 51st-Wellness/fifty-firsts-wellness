@@ -48,6 +48,45 @@ export interface CheckoutResponse {
   planName: string;
 }
 
+// Admin subscription data interface
+export interface AdminSubscriptionData {
+  id: string;
+  userId: string;
+  planId: string;
+  status: string;
+  startDate: string;
+  endDate: string;
+  autoRenew: boolean;
+  paymentId: string;
+  providerSubscriptionId: string;
+  invoiceId: string;
+  billingCycle: number;
+  createdAt: string;
+  userFirstName: string;
+  userLastName: string;
+  userEmail: string;
+  userPhone: string;
+  userCity: string;
+  planName: string;
+  planPrice: number;
+  planDuration: number;
+  planDescription: string;
+}
+
+// Pagination interface
+export interface PaginationData {
+  page: number;
+  limit: number;
+  total: number;
+  totalPages: number;
+}
+
+// Admin subscriptions response
+export interface AdminSubscriptionsResponse {
+  subscriptions: AdminSubscriptionData[];
+  pagination: PaginationData;
+}
+
 // Get all subscription plans
 export const getSubscriptionPlans = async (): Promise<
   SubscriptionPlan[] | undefined
@@ -57,8 +96,6 @@ export const getSubscriptionPlans = async (): Promise<
   );
 
   return data.data;
-
-  throw new Error(data.message || "Failed to fetch subscription plans");
 };
 
 // Get user's active subscription
@@ -146,6 +183,42 @@ export const getUserSubscriptions = async (): Promise<{
       data: [],
       message:
         error.response?.data?.message || "Failed to fetch subscription history",
+    };
+  }
+};
+
+// Get admin subscriptions with pagination and filters
+export const getAdminSubscriptions = async (params: {
+  page?: number;
+  limit?: number;
+  status?: string;
+  search?: string;
+}): Promise<{
+  success: boolean;
+  data?: AdminSubscriptionsResponse;
+  message?: string;
+}> => {
+  try {
+    const queryParams = new URLSearchParams();
+    if (params.page) queryParams.append("page", params.page.toString());
+    if (params.limit) queryParams.append("limit", params.limit.toString());
+    if (params.status) queryParams.append("status", params.status);
+    if (params.search) queryParams.append("search", params.search);
+
+    const { data } = await http.get<ResponseDto<AdminSubscriptionsResponse>>(
+      `/payment/admin/subscriptions?${queryParams.toString()}`
+    );
+
+    return {
+      success: data.status === "SUCCESS" || data.status === "success",
+      data: data.data,
+      message: data.message,
+    };
+  } catch (error: any) {
+    return {
+      success: false,
+      message:
+        error.response?.data?.message || "Failed to fetch admin subscriptions",
     };
   }
 };

@@ -78,14 +78,28 @@ const CategoryManagement: React.FC<CategoryManagementProps> = ({
     loadCategories();
   }, [loadCategories]);
 
-  // Filter categories based on search term
-  const filteredCategories = categories.filter(
-    (category) =>
-      category.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      (category.description || "")
-        .toLowerCase()
-        .includes(searchTerm.toLowerCase())
-  );
+  // Filter and sort categories based on search term and category type
+  const filteredCategories = categories
+    .filter(
+      (category) =>
+        category.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        (category.description || "")
+          .toLowerCase()
+          .includes(searchTerm.toLowerCase())
+    )
+    .sort((a, b) => {
+      // Sort by category type first (store, programme, podcast)
+      const serviceOrder = { store: 0, programme: 1, podcast: 2 };
+      const aOrder = serviceOrder[a.service];
+      const bOrder = serviceOrder[b.service];
+
+      if (aOrder !== bOrder) {
+        return aOrder - bOrder;
+      }
+
+      // Then sort alphabetically by name within each type
+      return a.name.localeCompare(b.name);
+    });
 
   // Handle create category
   const handleCreate = () => {
@@ -143,6 +157,32 @@ const CategoryManagement: React.FC<CategoryManagementProps> = ({
     store: "Store",
     programme: "Programme",
     podcast: "Podcast",
+  };
+
+  // Get color scheme for category type tags
+  const getCategoryTypeColor = (service: CategoryService) => {
+    switch (service) {
+      case "store":
+        return {
+          backgroundColor: "#4CAF50", // Green
+          color: "white",
+        };
+      case "programme":
+        return {
+          backgroundColor: "#FF9800", // Orange
+          color: "white",
+        };
+      case "podcast":
+        return {
+          backgroundColor: "#9C27B0", // Purple
+          color: "white",
+        };
+      default:
+        return {
+          backgroundColor: "#2196F3", // Blue (default)
+          color: "white",
+        };
+    }
   };
 
   return (
@@ -286,7 +326,7 @@ const CategoryManagement: React.FC<CategoryManagementProps> = ({
           </CardContent>
         </Card>
       ) : (
-        <Grid container spacing={3}>
+        <Grid container spacing={2}>
           {filteredCategories.map((category) => (
             <Grid item xs={12} sm={6} md={4} lg={4} xl={4} key={category.id}>
               <Card
@@ -303,7 +343,7 @@ const CategoryManagement: React.FC<CategoryManagementProps> = ({
                   },
                 }}
               >
-                <CardContent sx={{ flexGrow: 1, p: 3 }}>
+                <CardContent sx={{ flexGrow: 1, p: 2 }}>
                   {/* Category Header */}
                   <Stack
                     direction="row"
@@ -330,11 +370,17 @@ const CategoryManagement: React.FC<CategoryManagementProps> = ({
                       <Chip
                         label={serviceLabels[category.service]}
                         size="small"
-                        color="primary"
                         variant="filled"
                         sx={{
                           fontWeight: 500,
                           fontSize: "0.75rem",
+                          backgroundColor: getCategoryTypeColor(
+                            category.service
+                          ).backgroundColor,
+                          color: getCategoryTypeColor(category.service).color,
+                          "& .MuiChip-label": {
+                            color: getCategoryTypeColor(category.service).color,
+                          },
                         }}
                       />
                     </Box>
@@ -387,31 +433,6 @@ const CategoryManagement: React.FC<CategoryManagementProps> = ({
                       </Typography>
                     </Box>
                   )}
-
-                  {/* Spacer to push metadata to bottom */}
-                  <Box sx={{ flexGrow: 1 }} />
-
-                  {/* Metadata */}
-                  <Box
-                    sx={{
-                      borderTop: 1,
-                      borderColor: "divider",
-                      pt: 2,
-                      mt: 2,
-                    }}
-                  >
-                    <Typography
-                      variant="caption"
-                      color="text.secondary"
-                      sx={{
-                        fontSize: "0.75rem",
-                        fontWeight: 500,
-                      }}
-                    >
-                      Created:{" "}
-                      {new Date(category.createdAt).toLocaleDateString()}
-                    </Typography>
-                  </Box>
                 </CardContent>
               </Card>
             </Grid>
