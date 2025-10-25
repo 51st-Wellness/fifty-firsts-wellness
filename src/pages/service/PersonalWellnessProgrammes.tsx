@@ -41,25 +41,25 @@ const PersonalWellnessProgrammes: React.FC = () => {
       title: "Nurture",
       description: "We create safe, supportive spaces (virtual or in-person) where people feel seen and valued, encouraging self compassion, self-care, growth and resilience.",
       icon: Heart,
-      color: "bg-[#006666]"
+      color: "bg-green-200"
     },
     {
       title: "Inspire", 
       description: "Through storytelling, workshops and practical tools, we spark curiosity, discipline and motivation, reframing wellness, change and midlife as opportunities growth and discovery.",
       icon: Lightbulb,
-      color: "bg-[#4444B3]"
+      color: "bg-pink-200"
     },
     {
       title: "Connect",
       description: "Wellness thrives in community. From walking partners to group workshops, we prioritise connection, belonging, shared experiences, removing isolation and fear.",
       icon: Users,
-      color: "bg-[#580F41]"
+      color: "bg-blue-200"
     },
     {
       title: "Empower",
       description: "We equip individuals with action plans, support, strategies and confidence to take charge of their wellbeing and make lasting change in their lives.",
       icon: Zap,
-      color: "bg-brand-green"
+      color: "bg-yellow-200"
     }
   ];
 
@@ -201,16 +201,16 @@ const PersonalWellnessProgrammes: React.FC = () => {
                   key={index}
                   className={`${item.color} rounded-2xl p-6 text-left ${isConnect ? 'border border-white/30' : ''}`}
                 >
-                  <div className="w-12 h-12 mb-4 bg-white/20 rounded-lg flex items-center justify-center">
-                    <Icon className="w-6 h-6 text-white" />
+                  <div className="w-12 h-12 mb-4 bg-gray-50 rounded-lg flex items-center justify-center">
+                    <Icon className="w-6 h-6 text-gray-700" />
                   </div>
                   <h3 
-                    className="text-xl font-semibold text-white mb-3"
+                    className="text-xl font-semibold text-gray-900 mb-3"
                     style={{ fontFamily: '"League Spartan", sans-serif' }}
                   >
                     {item.title}
                   </h3>
-                  <p className="text-sm text-white/90 leading-relaxed">
+                  <p className="text-sm text-gray-700 leading-relaxed">
                     {item.description}
                   </p>
                 </div>

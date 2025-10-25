@@ -247,7 +247,7 @@ const BusinessWellnessProgrammes: React.FC = () => {
                 className="text-3xl sm:text-4xl lg:text-5xl font-semibold text-white mb-4"
                 style={{ fontFamily: '"League Spartan", sans-serif' }}
               >
-              Business Wellness Programmes
+              Workplace Wellness Programmes
               </h1>
               <div className="w-20 h-1 bg-white rounded-full mb-6" />
               

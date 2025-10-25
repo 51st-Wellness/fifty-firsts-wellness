@@ -48,8 +48,8 @@ const Item: React.FC<{ qa: QA; idx: number; open: number | null; setOpen: (n: nu
         </div>
       </button>
       <div
-        className={`px-16 text-sm text-gray-600 transition-all duration-300 ease-out overflow-hidden ${
-          isOpen ? "max-h-40 pb-5" : "max-h-0 pb-0"
+        className={`px-6 sm:px-16 text-sm text-gray-600 transition-all duration-300 ease-out overflow-hidden ${
+          isOpen ? "max-h-96 sm:max-h-40 pb-5" : "max-h-0 pb-0"
         }`}
       >
         {qa.a}
@@ -78,7 +78,7 @@ const FAQSection: React.FC = () => {
                 className="text-5xl font-bold text-gray-900"
                 style={{ fontFamily: '"Lilita One", sans-serif' }}
               >
-                FAQ
+                FAQs’
               </h2>
             </div>
           </div>

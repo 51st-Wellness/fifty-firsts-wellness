@@ -59,7 +59,7 @@ const Footer: React.FC = () => {
                   to="/services/personal-wellness"
                   className="text-white/80 hover:text-white transition-colors"
                 >
-                  Personal Wellness Programmes
+                  Personal Wellness
                 </Link>
               </li>
               <li>
@@ -67,7 +67,7 @@ const Footer: React.FC = () => {
                   to="/services/business-wellness"
                   className="text-white/80 hover:text-white transition-colors"
                 >
-                  Business Wellness Programmes
+                  Business Wellness
                 </Link>
               </li>
             </ul>

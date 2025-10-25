@@ -45,7 +45,7 @@ const WaitlistSection: React.FC = () => {
     }
   };
   return (
-    <section className="w-full py-12 sm:py-16 bg-[#580F41]">
+    <section id="waitlist" className="w-full py-12 sm:py-16 bg-[#580F41]">
       <div
         className="max-w-7xl mx-auto px-4 rounded-3xl bg-no-repeat min-h-[320px] sm:min-h-[380px]"
         style={{
@@ -66,7 +66,7 @@ const WaitlistSection: React.FC = () => {
             </h2>
           </div>
 
-          <div className="relative mt-20 sm:mt-28 lg:ml-16">
+          <div className="relative mt-10 sm:mt-20 lg:ml-16">
             <div className="absolute -top-10 -left-2 sm:-top-12 sm:-left-4 w-20 sm:w-24 z-10">
               <img src="/assets/homepage/waitlist-icon.svg" alt="mail" />
             </div>

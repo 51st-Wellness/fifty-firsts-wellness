@@ -100,7 +100,7 @@ const About: React.FC = () => {
       color: "bg-[#E5FBEC]",
     },
     {
-      title: "Empowering",
+      title: "Empower",
       description:
         "We're committed to helping people take charge of their wellbeing journey. Through resources, support, and encouragement, we foster confidence, ownership, and pride. Our goal is to create an environment where everyone feels equipped to thrive, with confidence and on their own terms.",
       color: "bg-[#FFF0E7]",
@@ -247,7 +247,7 @@ const About: React.FC = () => {
               className="text-3xl sm:text-4xl lg:text-5xl font-semibold text-white mb-8"
               style={{ fontFamily: '"League Spartan", sans-serif' }}
             >
-              Brand Origin Story
+              Our Story
             </h2>
             <p className="text-base sm:text-lg text-white  leading-relaxed mb-6">
               Fifty Firsts Wellness was born from a deep understanding that
@@ -350,7 +350,7 @@ const About: React.FC = () => {
       </section>
 
       {/* World Map Section */}
-      <section className="w-full py-16 bg-gray-50">
+      {/* <section className="w-full py-16 bg-gray-50">
         <div className="max-w-7xl mx-auto px-6 sm:px-10 lg:px-16">
           <img
             src="/assets/about/mapbase.png"
@@ -358,7 +358,7 @@ const About: React.FC = () => {
             className="w-full h-auto"
           />
         </div>
-      </section>
+      </section> */}
 
       {/* Newsletter Section */}
       <section className="w-full py-16 sm:py-24 bg-brand-green-dark">

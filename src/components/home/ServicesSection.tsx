@@ -22,6 +22,23 @@ const ServiceCard: React.FC<ServiceCardProps> = ({ imageSrc, title, description,
       );
     }
     
+    // Handle waitlist scroll
+    if (ctaLink === "#waitlist") {
+      return (
+        <button
+          onClick={() => {
+            const waitlistSection = document.getElementById('waitlist');
+            if (waitlistSection) {
+              waitlistSection.scrollIntoView({ behavior: 'smooth' });
+            }
+          }}
+          className="mt-6 inline-block bg-brand-green text-white px-6 py-3 rounded-full text-sm font-semibold hover:bg-brand-green-dark transition-colors"
+        >
+          {ctaText}
+        </button>
+      );
+    }
+    
     return (
       <Link
         to={ctaLink || "/marketplace"}
@@ -74,23 +91,23 @@ const ServicesSection: React.FC = () => {
           <ServiceCard
             imageSrc="/assets/homepage/service-cards/service1.png"
             title="Personal Wellness Services"
-            description="This wellness brand empowers healthier living through nutrition, wellness, and quality supplements designed to support your everyday lifestyle."
+            description="Ready to feel clearer, stronger and more like yourself again? Whether you're navigating midlife shifts or simply ready to prioritise your wellbeing, our services are designed to help you take back control, gain focus and elevate energy and positivity. We offer practical tools, coaching and a community that supports overall wellness, at every stage of life, because living and ageing well isn't a luxury or someone else's story."
             ctaText="Learn More"
             ctaLink="/service/personal-wellness"
           />
           <ServiceCard
             imageSrc="/assets/homepage/service-cards/service2.png"
             title="Workplace Wellness Services"
-            description="This wellness brand empowers healthier living through nutrition, wellness, and quality supplements designed to support your everyday lifestyle."
+            description="Our workplace solutions are built to engage, empower and elevate employee experience and performance. From strategy and policy building to menopause action plans and bespoke training (e.g. wellbeing ambassador training), we help teams and businesses thrive and nurture positive employee experience. Let your business stand out, lead the change and empower your people."
             ctaText="Learn More"
             ctaLink="/service/business-wellness"
           />
           <ServiceCard
             imageSrc="/assets/homepage/service-cards/service3.png"
-            title="Wellness Products and Supplements"
-            description="This wellness brand empowers healthier living through nutrition, wellness, and quality supplements designed to support your everyday lifestyle."
-            ctaText="Coming Soon"
-            isComingSoon={true}
+            title="Supplements and Products"
+            description="Not all wellness products are created equal, so we've done the homework and partnered with supplement and wellness experts to bring you products to support physical and mental wellness, longevity and hormonal balance. Safety-checked and rooted in real results. Your daily essentials are coming soon. Join our waitlist below and you will be notified when they are available."
+            ctaText="Waitlist"
+            ctaLink="#waitlist"
           />
         </div>
       </div>

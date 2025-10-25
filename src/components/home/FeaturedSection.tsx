@@ -45,9 +45,9 @@ const FeaturedSection: React.FC = () => {
                 <h3 className="text-base font-normal text-gray-900 leading-snug line-clamp-2 font-primary min-h-[30px]">
                   {c.title}
                 </h3>
-                <div className="mt-4 flex items-center justify-between min-h-[28px]">
+                {/* <div className="mt-4 flex items-center justify-between min-h-[28px]">
                   <span className="text-2xl font-semibold text-gray-900">{c.price}</span>
-                </div>
+                </div> */}
                 <div className="mt-3 flex items-center gap-2 text-sm text-gray-600 min-h-[20px]">
                   <span className="text-gray-500">NO REVIEWS YET</span>
                 </div>
