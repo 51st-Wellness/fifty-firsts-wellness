@@ -407,34 +407,10 @@ const EpisodeCard: React.FC<{ episode: PodcastEpisode }> = ({ episode }) => {
           </h3>
           {/* Description */}
             <div className="flex-grow">
-              {/* Mobile/Tablet: 2 lines */}
               <p
-                className="text-sm sm:text-base md:text-sm text-gray-600 mb-2 lg:mb-3 leading-snug lg:hidden"
+                className="text-sm sm:text-base md:text-sm text-gray-600 mb-2 lg:mb-3 leading-snug line-clamp-2 lg:line-clamp-3"
                 style={{ 
-                  fontFamily: '"League Spartan", sans-serif',
-                  display: '-webkit-box',
-                  WebkitLineClamp: 2,
-                  WebkitBoxOrient: 'vertical',
-                  overflow: 'hidden',
-                  textOverflow: 'ellipsis',
-                  minHeight: '2.5rem'
-                }}
-                title={extractPlainText(episode.description || "")}
-              >
-                {extractPlainText(episode.description || "")}
-              </p>
-              
-              {/* Desktop: 3 lines */}
-              <p
-                className="hidden lg:block text-sm text-gray-600 mb-2 lg:mb-3 leading-snug"
-                style={{ 
-                  fontFamily: '"League Spartan", sans-serif',
-                  display: '-webkit-box',
-                  WebkitLineClamp: 3,
-                  WebkitBoxOrient: 'vertical',
-                  overflow: 'hidden',
-                  textOverflow: 'ellipsis',
-                  minHeight: '3.75rem'
+                  fontFamily: '"League Spartan", sans-serif'
                 }}
                 title={extractPlainText(episode.description || "")}
               >

@@ -41,7 +41,7 @@ const PlanCard: React.FC<PlanCardProps> = ({
             {plan.name}
           </h3>
         </div>
-        <p className="text-gray-600 mb-4 text-sm">
+        <p className="text-gray-600 mb-6 text-sm">
           {plan.description || "No description available."}
         </p>
         <div className="flex items-end justify-between">
@@ -110,7 +110,7 @@ const PlanCard: React.FC<PlanCardProps> = ({
       </div>
 
       {/* Description - Fixed Height */}
-      <div className="h-16 mb-8">
+      <div className="h-20 mb-20">
         <p className="text-gray-600 text-sm leading-relaxed text-left">
           {plan.description || "No description available."}
         </p>

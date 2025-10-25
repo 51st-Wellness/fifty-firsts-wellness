@@ -151,7 +151,7 @@ const Navbar: React.FC = () => {
                       className="block px-4 py-3 text-gray-700  hover:text-brand-green transition-colors"
                       onClick={() => setServicesOpen(false)}
                     >
-                      Personal Wellness Programmes
+                      Personal Wellness
                     </Link>
                   </li>
                   <li>
@@ -160,7 +160,7 @@ const Navbar: React.FC = () => {
                       className="block px-4 py-3 text-gray-700  hover:text-brand-green transition-colors"
                       onClick={() => setServicesOpen(false)}
                     >
-                      Business Wellness Programmes
+                      Business Wellness
                     </Link>
                   </li>
                   {/* <li>

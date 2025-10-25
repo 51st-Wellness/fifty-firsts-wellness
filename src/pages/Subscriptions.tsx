@@ -13,21 +13,22 @@ const Subscriptions: React.FC = () => {
   } = useSubscription();
 
 
-  // Membership plans - simplified content
+  // Membership plans - updated content
   const membershipPlans = [
     {
       id: "1",
       name: "Engage Wellness",
       price: 29.99,
       duration: 30,
-      description: "Perfect for beginners exploring wellness.",
+      description: "Exclusive individual access to digital wellness guides and toolkits, member-only webinar content, wellness action plan development and support, monthly newsletter, menopause support, and member offers for products and coaching services.",
       badge: "Current Option",
       subscriptionAccess: [
-        { id: "1", accessItem: "DIGITAL_GUIDES" },
-        { id: "2", accessItem: "WEBINAR_CONTENT" },
-        { id: "3", accessItem: "WELLNESS_PLAN" },
-        { id: "4", accessItem: "NEWSLETTER" },
-        { id: "5", accessItem: "MENOPAUSE_SUPPORT" }
+        { id: "1", accessItem: "Digital wellness guides and toolkits" },
+        { id: "2", accessItem: "Member-only webinar content" },
+        { id: "3", accessItem: "Wellness action plan development" },
+        { id: "4", accessItem: "Monthly newsletter" },
+        { id: "5", accessItem: "Menopause support" },
+        { id: "6", accessItem: "Member offers for products and coaching" }
       ]
     },
     {
@@ -35,12 +36,13 @@ const Subscriptions: React.FC = () => {
       name: "Embrace Wellness",
       price: 59.99,
       duration: 30,
-      description: "Your next step in comprehensive wellness support.",
+      description: "Individual access to all Engage benefits plus early access to new products and services, premium training programmes, personal check-ins and goal setting sessions, and Age Well, Live Well and Sleep Well insights.",
       subscriptionAccess: [
-        { id: "1", accessItem: "ENGAGE_BENEFITS" },
-        { id: "2", accessItem: "EARLY_ACCESS" },
-        { id: "3", accessItem: "PREMIUM_TRAINING" },
-        { id: "4", accessItem: "PERSONAL_CHECKINS" }
+        { id: "1", accessItem: "All Engage benefits" },
+        { id: "2", accessItem: "Early access to new products and services" },
+        { id: "3", accessItem: "Premium training programmes" },
+        { id: "4", accessItem: "Personal check-ins and goal setting" },
+        { id: "5", accessItem: "Age Well, Live Well and Sleep Well insights" }
       ]
     },
     {
@@ -48,14 +50,15 @@ const Subscriptions: React.FC = () => {
       name: "Elevate Wellness",
       price: 339.99,
       duration: 365,
-      description: "Complete wellness solution for individuals and workplaces.",
+      description: "Individual access to all Embrace benefits plus access to full digital wellness library, individual self-care kits delivered quarterly, seasonal wellness challenges and community engagement, and expert-led workshops or focus groups.",
       badge: "Popular Option",
       specialLabel: "Best for Workplace Wellness",
       subscriptionAccess: [
-        { id: "1", accessItem: "EMBRACE_BENEFITS" },
-        { id: "2", accessItem: "DIGITAL_LIBRARY" },
-        { id: "3", accessItem: "SELFCARE_KITS" },
-        { id: "4", accessItem: "WELLNESS_CHALLENGES" }
+        { id: "1", accessItem: "All Embrace benefits" },
+        { id: "2", accessItem: "Access to full digital wellness library" },
+        { id: "3", accessItem: "Individual self-care kits delivered quarterly" },
+        { id: "4", accessItem: "Seasonal wellness challenges and community engagement" },
+        { id: "5", accessItem: "Expert-led workshops or focus groups" }
       ]
     }
   ];
@@ -89,7 +92,7 @@ const Subscriptions: React.FC = () => {
               Choose Your Wellness Journey
             </h1>
             <p className="text-xl text-white/90 leading-relaxed">
-              Transform your life with our comprehensive wellness programs designed to support you at every stage of your journey.
+            Wellness memberships built for real lives and real results. Nurture, Inspire, Connect and Empower to transform your wellbeing; stronger for longer.
             </p>
           </div>
         </section>

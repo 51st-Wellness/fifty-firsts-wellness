@@ -34,14 +34,7 @@ const Footer: React.FC = () => {
                   About Us
                 </Link>
               </li>
-              <li>
-                <Link
-                  to="/blog"
-                  className="text-white/80 hover:text-white transition-colors"
-                >
-                  Blog
-                </Link>
-              </li>
+              
             </ul>
           </div>
 
@@ -87,7 +80,7 @@ const Footer: React.FC = () => {
                   to="/resources/webinars"
                   className="text-white/80 hover:text-white transition-colors"
                 >
-                  Webinars & Training
+                  Webinars
                 </Link>
               </li>
               <li>
@@ -96,6 +89,14 @@ const Footer: React.FC = () => {
                   className="text-white/80 hover:text-white transition-colors"
                 >
                   Podcasts
+                </Link>
+              </li>
+              <li>
+                <Link
+                  to="/blog"
+                  className="text-white/80 hover:text-white transition-colors"
+                >
+                  Blog
                 </Link>
               </li>
             </ul>

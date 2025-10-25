@@ -21,6 +21,9 @@ export const signupSchema = z
 export const loginSchema = z.object({
   email: z.string().email("Invalid email address"),
   password: z.string().min(1, "Password is required"),
+  agreeToTerms: z.boolean().refine((val) => val === true, {
+    message: "You must agree to the Privacy Policy and Terms & Conditions",
+  }),
 });
 
 // Forgot password validation schema
