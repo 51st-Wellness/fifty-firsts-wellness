@@ -73,18 +73,28 @@ const EmailVerification: React.FC = () => {
   }, []);
 
   const onSubmit = async (data: OtpFormData) => {
-    const response = await verifyEmail({
-      email,
-      otp: data.otp,
-    });
-    if (response.status === "SUCCESS") {
-      const { accessToken } = response.data!;
-      storeAuthToken(accessToken);
-      await loadUserProfile();
-      toast.success(response.message);
-      navigate("/");
-    } else {
-      toast.error((response.error?.cause as string) || "Verification failed");
+    setLoading(true);
+    try {
+      const response = await verifyEmail({
+        email,
+        otp: data.otp,
+      });
+
+      if (response.status === "success" || response.status === "SUCCESS") {
+        const { accessToken } = response.data!;
+        storeAuthToken(accessToken);
+        await loadUserProfile();
+        toast.success(response.message);
+        navigate("/");
+      } else {
+        toast.error((response.error?.cause as string) || "Verification failed");
+      }
+    } catch (error: any) {
+      const errorMessage =
+        error.response?.data?.message || "Verification failed";
+      toast.error(errorMessage);
+    } finally {
+      setLoading(false);
     }
   };
 

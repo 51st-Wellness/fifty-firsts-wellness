@@ -1,6 +1,5 @@
-import React, { useEffect, useState } from "react";
+import React, { useState } from "react";
 import logo from "../assets/images/logo-with-name.png";
-import { FcGoogle } from "react-icons/fc";
 import { Eye, EyeOff, ArrowLeft } from "lucide-react";
 import { Link, useNavigate } from "react-router-dom";
 import { useAuth } from "../context/AuthContextProvider";
@@ -29,9 +28,14 @@ const Login: React.FC = () => {
   const onSubmit = async (data: LoginFormData) => {
     const { email, password } = data;
 
-    const success = await login(email, password);
-    if (success) {
+    const result = await login(email, password);
+    if (result === true) {
       navigate("/");
+    } else if (result === "verification_required") {
+      // Show info message and redirect to email verification page
+      setTimeout(() => {
+        navigate("/email-verification", { state: { email } });
+      }, 1500); // Small delay to let user read the message
     }
   };
 
@@ -92,8 +96,21 @@ const Login: React.FC = () => {
           {/* Form */}
           <form onSubmit={handleSubmit(onSubmit)} className="space-y-5">
             {error && (
-              <div className="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded-lg text-sm">
+              <div
+                className={`border px-4 py-3 rounded-lg text-sm ${
+                  error.toLowerCase().includes("verify your email")
+                    ? "bg-amber-50 border-amber-200 text-amber-700"
+                    : "bg-red-50 border-red-200 text-red-700"
+                }`}
+              >
                 {error}
+                {error.toLowerCase().includes("verify your email") && (
+                  <div className="mt-2">
+                    <span className="text-amber-600">
+                      Redirecting to verification page...
+                    </span>
+                  </div>
+                )}
               </div>
             )}
 
@@ -164,7 +181,10 @@ const Login: React.FC = () => {
                 {...register("agreeToTerms")}
                 className="mt-1 h-4 w-4 text-white border-gray-300 rounded accent-brand-green-light"
               />
-              <label htmlFor="agreeToTerms" className="text-sm text-gray-600 leading-relaxed">
+              <label
+                htmlFor="agreeToTerms"
+                className="text-sm text-gray-600 leading-relaxed"
+              >
                 I have read and agree to the{" "}
                 <Link
                   to="/privacy-policy"

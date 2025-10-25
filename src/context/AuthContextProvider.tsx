@@ -81,7 +81,10 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
   };
 
   // Login user
-  const login = async (email: string, password: string): Promise<boolean> => {
+  const login = async (
+    email: string,
+    password: string
+  ): Promise<boolean | "verification_required"> => {
     setLoading(true);
     setError(null);
 
@@ -102,6 +105,12 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
     } catch (error: any) {
       const errorMessage = error.response?.data?.message || "Login failed";
       setError(errorMessage);
+
+      // Check if error is about email verification
+      if (errorMessage.toLowerCase().includes("verify your email")) {
+        return "verification_required";
+      }
+
       toast.error(errorMessage);
     } finally {
       setLoading(false);

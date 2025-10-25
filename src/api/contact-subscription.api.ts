@@ -5,6 +5,13 @@ export interface SubscriptionRequest {
   name?: string;
 }
 
+export interface ContactFormRequest {
+  firstName: string;
+  lastName: string;
+  email: string;
+  message: string;
+}
+
 export interface SubscriptionResponse {
   success: boolean;
   message: string;
@@ -51,5 +58,15 @@ export const removeFromWaitlist = async (
   const response = await httpClient.delete(
     `/subscription/waitlist/${encodeURIComponent(email)}`
   );
+  return response.data;
+};
+
+/**
+ * Submit contact form
+ */
+export const submitContactForm = async (
+  data: ContactFormRequest
+): Promise<SubscriptionResponse> => {
+  const response = await httpClient.post("/subscription/contact", data);
   return response.data;
 };

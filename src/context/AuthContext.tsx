@@ -17,7 +17,10 @@ interface AuthContextType {
   isEmailVerified: boolean;
   loading: boolean;
   error: string | null;
-  login: (email: string, password: string) => Promise<boolean>;
+  login: (
+    email: string,
+    password: string
+  ) => Promise<boolean | "verification_required">;
   logout: () => Promise<void>;
   checkAuthStatus: () => Promise<void>;
   loadUserProfile: () => Promise<void>;
