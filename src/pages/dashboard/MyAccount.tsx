@@ -1,19 +1,43 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { useAuth } from "../../context/AuthContextProvider";
-import { Camera, Loader, Mail, Lock, MapPin, Phone, Trash2 } from "lucide-react";
+import {
+  Camera,
+  Loader,
+  Mail,
+  Lock,
+  MapPin,
+  Phone,
+  LogOut,
+} from "lucide-react";
 import { toast } from "react-hot-toast";
+import { useNavigate } from "react-router-dom";
 
 const MyAccount: React.FC = () => {
-  const { user, updateProfile, updateProfilePicture, loading } = useAuth();
+  const { user, updateProfile, updateProfilePicture, logout } = useAuth();
+  const navigate = useNavigate();
   const [formData, setFormData] = useState({
-    firstName: user?.firstName || "",
-    lastName: user?.lastName || "",
-    phone: user?.phone || "",
-    city: user?.city || "",
-    address: user?.address || "",
+    firstName: "",
+    lastName: "",
+    phone: "",
+    city: "",
+    address: "",
   });
   const [uploading, setUploading] = useState(false);
   const [editingField, setEditingField] = useState<string | null>(null);
+  const [isUpdating, setIsUpdating] = useState(false);
+
+  // Update form data when user changes
+  useEffect(() => {
+    if (user) {
+      setFormData({
+        firstName: user.firstName || "",
+        lastName: user.lastName || "",
+        phone: user.phone || "",
+        city: user.city || "",
+        address: user.address || "",
+      });
+    }
+  }, [user]);
 
   // Handle form input changes
   const handleInputChange = (
@@ -23,10 +47,28 @@ const MyAccount: React.FC = () => {
     setFormData((prev) => ({ ...prev, [name]: value }));
   };
 
-  // Handle profile update
-  const handleSave = async (e: React.FormEvent) => {
-    e.preventDefault();
-    await updateProfile(formData);
+  // Handle profile update for individual fields
+  const handleSave = async (field: string) => {
+    setIsUpdating(true);
+    const success = await updateProfile({
+      [field]: formData[field as keyof typeof formData],
+    });
+    if (success) {
+      setEditingField(null);
+    }
+    setIsUpdating(false);
+  };
+
+  // Handle forgot password redirect
+  const handleForgotPassword = () => {
+    navigate("/forgot-password");
+  };
+
+  // Handle logout all devices
+  const handleLogoutAllDevices = async () => {
+    if (window.confirm("Are you sure you want to logout from all devices?")) {
+      await logout();
+    }
   };
 
   // Handle profile picture upload
@@ -61,9 +103,7 @@ const MyAccount: React.FC = () => {
   if (!user) {
     return (
       <div className="bg-white rounded-lg shadow-sm p-8 text-center">
-        <h1 className="text-2xl font-bold text-gray-900 mb-4">
-          Access Denied
-        </h1>
+        <h1 className="text-2xl font-bold text-gray-900 mb-4">Access Denied</h1>
         <p className="text-gray-600">Please log in to view your account.</p>
       </div>
     );
@@ -73,10 +113,13 @@ const MyAccount: React.FC = () => {
     <div className="space-y-10">
       {/* My Profile Section */}
       <div>
-        <h2 className="text-xl font-semibold text-gray-900 mb-3 pb-3 border-b border-gray-200" style={{ fontFamily: '"League Spartan", sans-serif' }}>
+        <h2
+          className="text-xl font-semibold text-gray-900 mb-3 pb-3 border-b border-gray-200"
+          style={{ fontFamily: '"League Spartan", sans-serif' }}
+        >
           My Profile
         </h2>
-        
+
         <div className="flex items-start gap-6 mb-8 mt-6">
           {/* Profile Picture */}
           <div className="relative flex-shrink-0">
@@ -119,85 +162,168 @@ const MyAccount: React.FC = () => {
           {/* User Info */}
           <div className="flex-1">
             <div className="flex items-center gap-3 mb-2">
-              <button className="px-4 py-1.5 rounded-full text-xs font-medium text-white hover:opacity-90 bg-brand-green">
+              <label className="px-4 py-1.5 rounded-full text-xs font-medium text-white hover:opacity-90 bg-brand-green cursor-pointer">
                 Change Image
-              </button>
-              <button className="px-4 py-1.5 rounded-full text-xs font-medium border border-[#4444B3] text-[#4444B3] hover:bg-[#4444B3] hover:text-white bg-white">
-                Remove Image
-              </button>
+                <input
+                  type="file"
+                  accept="image/*"
+                  onChange={handleProfilePictureChange}
+                  className="hidden"
+                  disabled={uploading}
+                />
+              </label>
             </div>
             <p className="text-xs text-gray-500">
-              We support PNGs and JPEGs under 10MB
+              We support PNGs and JPEGs under 5MB
             </p>
           </div>
         </div>
 
         {/* Profile Form */}
-        <form onSubmit={handleSave} className="space-y-6">
-          <div className="space-y-6">
-            {/* First Name */}
-            <div>
-              <label className="text-sm font-medium text-gray-700 mb-2 block">
-                First Name
-              </label>
-              <div className="flex items-center justify-between gap-4">
-                <div className="w-full max-w-md">
-                  <input
-                    type="text"
-                    name="firstName"
-                    value={formData.firstName}
-                    onChange={handleInputChange}
-                    readOnly={editingField !== 'firstName'}
-                    className="w-full bg-white rounded-lg px-4 py-2 text-sm text-gray-900 focus:outline-none"
-                    placeholder="Margaret"
-                  />
-                </div>
-                <button
-                  type="button"
-                  onClick={() => setEditingField(editingField === 'firstName' ? null : 'firstName')}
-                  className="px-4 py-1.5 rounded-full text-xs font-medium border border-[#4444B3] text-[#4444B3] hover:bg-[#4444B3] hover:text-white transition-colors bg-white whitespace-nowrap"
-                >
-                  {editingField === 'firstName' ? 'Save' : 'Edit'}
-                </button>
+        <div className="space-y-6">
+          {/* First Name */}
+          <div>
+            <label className="text-sm font-medium text-gray-700 mb-2 block">
+              First Name
+            </label>
+            <div className="flex items-center justify-between gap-4">
+              <div className="w-full max-w-md">
+                <input
+                  type="text"
+                  name="firstName"
+                  value={formData.firstName}
+                  onChange={handleInputChange}
+                  readOnly={editingField !== "firstName"}
+                  className={`w-full rounded-lg px-4 py-2 text-sm text-gray-900 border ${
+                    editingField === "firstName"
+                      ? "border-brand-green focus:outline-none focus:ring-2 focus:ring-brand-green/20"
+                      : "border-gray-200 bg-gray-50"
+                  }`}
+                  placeholder="Enter your first name"
+                />
               </div>
-            </div>
-
-            {/* Last Name */}
-            <div>
-              <label className="text-sm font-medium text-gray-700 mb-2 block">
-                Last Name
-              </label>
-              <div className="flex items-center justify-between gap-4">
-                <div className="w-full max-w-md">
-                  <input
-                    type="text"
-                    name="lastName"
-                    value={formData.lastName}
-                    onChange={handleInputChange}
-                    readOnly={editingField !== 'lastName'}
-                    className="w-full bg-white rounded-lg px-4 py-2 text-sm text-gray-900 focus:outline-none"
-                    placeholder="Davis"
-                  />
-                </div>
-                <button
-                  type="button"
-                  onClick={() => setEditingField(editingField === 'lastName' ? null : 'lastName')}
-                  className="px-4 py-1.5 rounded-full text-xs font-medium border border-[#4444B3] text-[#4444B3] hover:bg-[#4444B3] hover:text-white transition-colors bg-white whitespace-nowrap"
-                >
-                  {editingField === 'lastName' ? 'Save' : 'Edit'}
-                </button>
-              </div>
+              <button
+                type="button"
+                onClick={() => {
+                  if (editingField === "firstName") {
+                    handleSave("firstName");
+                  } else {
+                    setEditingField("firstName");
+                  }
+                }}
+                disabled={isUpdating}
+                className="px-4 py-1.5 rounded-full text-xs font-medium border border-[#4444B3] text-[#4444B3] hover:bg-[#4444B3] hover:text-white transition-colors bg-white whitespace-nowrap disabled:opacity-50"
+              >
+                {isUpdating && editingField === "firstName" ? (
+                  <Loader className="w-3 h-3 animate-spin" />
+                ) : editingField === "firstName" ? (
+                  "Save"
+                ) : (
+                  "Edit"
+                )}
+              </button>
             </div>
           </div>
-        </form>
+
+          {/* Last Name */}
+          <div>
+            <label className="text-sm font-medium text-gray-700 mb-2 block">
+              Last Name
+            </label>
+            <div className="flex items-center justify-between gap-4">
+              <div className="w-full max-w-md">
+                <input
+                  type="text"
+                  name="lastName"
+                  value={formData.lastName}
+                  onChange={handleInputChange}
+                  readOnly={editingField !== "lastName"}
+                  className={`w-full rounded-lg px-4 py-2 text-sm text-gray-900 border ${
+                    editingField === "lastName"
+                      ? "border-brand-green focus:outline-none focus:ring-2 focus:ring-brand-green/20"
+                      : "border-gray-200 bg-gray-50"
+                  }`}
+                  placeholder="Enter your last name"
+                />
+              </div>
+              <button
+                type="button"
+                onClick={() => {
+                  if (editingField === "lastName") {
+                    handleSave("lastName");
+                  } else {
+                    setEditingField("lastName");
+                  }
+                }}
+                disabled={isUpdating}
+                className="px-4 py-1.5 rounded-full text-xs font-medium border border-[#4444B3] text-[#4444B3] hover:bg-[#4444B3] hover:text-white transition-colors bg-white whitespace-nowrap disabled:opacity-50"
+              >
+                {isUpdating && editingField === "lastName" ? (
+                  <Loader className="w-3 h-3 animate-spin" />
+                ) : editingField === "lastName" ? (
+                  "Save"
+                ) : (
+                  "Edit"
+                )}
+              </button>
+            </div>
+          </div>
+
+          {/* Phone */}
+          <div>
+            <label className="text-sm font-medium text-gray-700 mb-2 block">
+              Phone Number
+            </label>
+            <div className="flex items-center justify-between gap-4">
+              <div className="w-full max-w-md">
+                <input
+                  type="tel"
+                  name="phone"
+                  value={formData.phone}
+                  onChange={handleInputChange}
+                  readOnly={editingField !== "phone"}
+                  className={`w-full rounded-lg px-4 py-2 text-sm text-gray-900 border ${
+                    editingField === "phone"
+                      ? "border-brand-green focus:outline-none focus:ring-2 focus:ring-brand-green/20"
+                      : "border-gray-200 bg-gray-50"
+                  }`}
+                  placeholder="Enter your phone number"
+                />
+              </div>
+              <button
+                type="button"
+                onClick={() => {
+                  if (editingField === "phone") {
+                    handleSave("phone");
+                  } else {
+                    setEditingField("phone");
+                  }
+                }}
+                disabled={isUpdating}
+                className="px-4 py-1.5 rounded-full text-xs font-medium border border-[#4444B3] text-[#4444B3] hover:bg-[#4444B3] hover:text-white transition-colors bg-white whitespace-nowrap disabled:opacity-50"
+              >
+                {isUpdating && editingField === "phone" ? (
+                  <Loader className="w-3 h-3 animate-spin" />
+                ) : editingField === "phone" ? (
+                  "Save"
+                ) : (
+                  "Edit"
+                )}
+              </button>
+            </div>
+          </div>
+        </div>
       </div>
 
       {/* Account Security Section */}
       <div>
-        <h2 className="text-xl font-semibold text-gray-900 mb-3 pb-3 border-b border-gray-200" style={{ fontFamily: '"League Spartan", sans-serif' }}>
+        <h2
+          className="text-xl font-semibold text-gray-900 mb-3 pb-3 border-b border-gray-200"
+          style={{ fontFamily: '"League Spartan", sans-serif' }}
+        >
           Account Security
         </h2>
-        
+
         <div className="space-y-6 mt-6">
           {/* Email */}
           <div>
@@ -211,15 +337,12 @@ const MyAccount: React.FC = () => {
                   type="email"
                   value={user.email}
                   readOnly
-                  className="w-full bg-white rounded-lg px-4 py-2 text-sm text-gray-900 focus:outline-none"
+                  className="w-full bg-gray-50 border border-gray-200 rounded-lg px-4 py-2 text-sm text-gray-900 focus:outline-none"
                 />
               </div>
-              <button
-                type="button"
-                className="px-4 py-1.5 rounded-full text-xs font-medium border border-[#4444B3] text-[#4444B3] hover:bg-[#4444B3] hover:text-white transition-colors bg-white whitespace-nowrap"
-              >
-                Change Email
-              </button>
+              <span className="px-4 py-1.5 rounded-full text-xs font-medium text-gray-400 bg-gray-100 whitespace-nowrap">
+                Cannot Change
+              </span>
             </div>
           </div>
 
@@ -227,7 +350,9 @@ const MyAccount: React.FC = () => {
           <div>
             <div className="flex items-center gap-2 mb-2">
               <Lock className="w-4 h-4 text-gray-400" />
-              <label className="text-sm font-medium text-gray-700">Password</label>
+              <label className="text-sm font-medium text-gray-700">
+                Password
+              </label>
             </div>
             <div className="flex items-center justify-between gap-4">
               <div className="w-full max-w-md">
@@ -235,14 +360,15 @@ const MyAccount: React.FC = () => {
                   type="password"
                   value="••••••••••••••"
                   readOnly
-                  className="w-full bg-white rounded-lg px-4 py-2 text-sm text-gray-600 focus:outline-none"
+                  className="w-full bg-gray-50 border border-gray-200 rounded-lg px-4 py-2 text-sm text-gray-600 focus:outline-none"
                 />
               </div>
               <button
                 type="button"
+                onClick={handleForgotPassword}
                 className="px-4 py-1.5 rounded-full text-xs font-medium border border-[#4444B3] text-[#4444B3] hover:bg-[#4444B3] hover:text-white transition-colors bg-white whitespace-nowrap"
               >
-                Change Password
+                Forgot Password
               </button>
             </div>
           </div>
@@ -251,68 +377,103 @@ const MyAccount: React.FC = () => {
 
       {/* Shipping Information Section */}
       <div>
-        <div className="flex items-center justify-between mb-3 pb-3 border-b border-gray-200">
-          <h2 className="text-xl font-semibold text-gray-900" style={{ fontFamily: '"League Spartan", sans-serif' }}>
-            Shipping Information
-          </h2>
-          <button 
-            type="button"
-            className="px-4 py-1.5 rounded-full text-xs font-medium border border-[#4444B3] text-[#4444B3] hover:bg-[#4444B3] hover:text-white transition-colors bg-white"
-          >
-            Edit Information
-          </button>
-        </div>
-        
+        <h2
+          className="text-xl font-semibold text-gray-900 mb-3 pb-3 border-b border-gray-200"
+          style={{ fontFamily: '"League Spartan", sans-serif' }}
+        >
+          Shipping Information
+        </h2>
+
         <div className="space-y-6 mt-6">
-          {/* Delivery Address */}
-          <div>
-            <div className="flex items-center gap-2 mb-2">
-              <MapPin className="w-4 h-4 text-gray-400" />
-              <label className="text-sm font-medium text-gray-700">Delivery Address</label>
-            </div>
-            <div className="w-full max-w-md">
-              <p className="w-full bg-white rounded-lg px-4 py-2 text-sm text-gray-900">
-                {user.address || "12, New town, off agung road"}
-              </p>
-            </div>
-          </div>
-
-          {/* Region */}
-          <div>
-            <div className="flex items-center gap-2 mb-2">
-              <MapPin className="w-4 h-4 text-gray-400" />
-              <label className="text-sm font-medium text-gray-700">Region</label>
-            </div>
-            <div className="w-full max-w-md">
-              <p className="w-full bg-white rounded-lg px-4 py-2 text-sm text-gray-900">
-                {user.city || "Lagos"}
-              </p>
-            </div>
-          </div>
-
           {/* City */}
           <div>
             <div className="flex items-center gap-2 mb-2">
               <MapPin className="w-4 h-4 text-gray-400" />
               <label className="text-sm font-medium text-gray-700">City</label>
             </div>
-            <div className="w-full max-w-md">
-              <p className="w-full bg-white rounded-lg px-4 py-2 text-sm text-gray-900">
-                {user.city || "Lekki"}
-              </p>
+            <div className="flex items-center justify-between gap-4">
+              <div className="w-full max-w-md">
+                <input
+                  type="text"
+                  name="city"
+                  value={formData.city}
+                  onChange={handleInputChange}
+                  readOnly={editingField !== "city"}
+                  className={`w-full rounded-lg px-4 py-2 text-sm text-gray-900 border ${
+                    editingField === "city"
+                      ? "border-brand-green focus:outline-none focus:ring-2 focus:ring-brand-green/20"
+                      : "border-gray-200 bg-gray-50"
+                  }`}
+                  placeholder="Enter your city"
+                />
+              </div>
+              <button
+                type="button"
+                onClick={() => {
+                  if (editingField === "city") {
+                    handleSave("city");
+                  } else {
+                    setEditingField("city");
+                  }
+                }}
+                disabled={isUpdating}
+                className="px-4 py-1.5 rounded-full text-xs font-medium border border-[#4444B3] text-[#4444B3] hover:bg-[#4444B3] hover:text-white transition-colors bg-white whitespace-nowrap disabled:opacity-50"
+              >
+                {isUpdating && editingField === "city" ? (
+                  <Loader className="w-3 h-3 animate-spin" />
+                ) : editingField === "city" ? (
+                  "Save"
+                ) : (
+                  "Edit"
+                )}
+              </button>
             </div>
           </div>
 
-          {/* Phone Number */}
+          {/* Address */}
           <div>
             <div className="flex items-center gap-2 mb-2">
-              <Phone className="w-4 h-4 text-gray-400" />
-              <label className="text-sm font-medium text-gray-700">Phone Number</label>
+              <MapPin className="w-4 h-4 text-gray-400" />
+              <label className="text-sm font-medium text-gray-700">
+                Address
+              </label>
             </div>
-            <div className="w-full max-w-md">
-              <p className="w-full bg-white rounded-lg px-4 py-2 text-sm text-gray-900">
-                {user.phone || "+234 9043280943"}
-              </p>
+            <div className="flex items-center justify-between gap-4">
+              <div className="w-full max-w-md">
+                <textarea
+                  name="address"
+                  value={formData.address}
+                  onChange={handleInputChange}
+                  readOnly={editingField !== "address"}
+                  rows={3}
+                  className={`w-full rounded-lg px-4 py-2 text-sm text-gray-900 border resize-none ${
+                    editingField === "address"
+                      ? "border-brand-green focus:outline-none focus:ring-2 focus:ring-brand-green/20"
+                      : "border-gray-200 bg-gray-50"
+                  }`}
+                  placeholder="Enter your full address"
+                />
+              </div>
+              <button
+                type="button"
+                onClick={() => {
+                  if (editingField === "address") {
+                    handleSave("address");
+                  } else {
+                    setEditingField("address");
+                  }
+                }}
+                disabled={isUpdating}
+                className="px-4 py-1.5 rounded-full text-xs font-medium border border-[#4444B3] text-[#4444B3] hover:bg-[#4444B3] hover:text-white transition-colors bg-white whitespace-nowrap disabled:opacity-50 self-start"
+              >
+                {isUpdating && editingField === "address" ? (
+                  <Loader className="w-3 h-3 animate-spin" />
+                ) : editingField === "address" ? (
+                  "Save"
+                ) : (
+                  "Edit"
+                )}
+              </button>
             </div>
           </div>
         </div>
@@ -320,10 +481,13 @@ const MyAccount: React.FC = () => {
 
       {/* Account Actions Section */}
       <div>
-        <h2 className="text-xl font-semibold text-gray-900 mb-3 pb-3 border-b border-gray-200" style={{ fontFamily: '"League Spartan", sans-serif' }}>
+        <h2
+          className="text-xl font-semibold text-gray-900 mb-3 pb-3 border-b border-gray-200"
+          style={{ fontFamily: '"League Spartan", sans-serif' }}
+        >
           Account Actions
         </h2>
-        
+
         <div className="space-y-6 mt-6">
           {/* Logout all devices */}
           <div className="flex items-start justify-between gap-4">
@@ -332,32 +496,17 @@ const MyAccount: React.FC = () => {
                 Logout of all devices
               </p>
               <p className="text-xs text-gray-500">
-                Logout of all other active sessions on other devices besides this one.
+                Logout of all other active sessions on other devices besides
+                this one.
               </p>
             </div>
-            <button 
+            <button
               type="button"
-              className="px-4 py-1.5 rounded-full text-xs font-medium border border-[#4444B3] text-[#4444B3] hover:bg-[#4444B3] hover:text-white bg-white whitespace-nowrap"
+              onClick={handleLogoutAllDevices}
+              className="px-4 py-1.5 rounded-full text-xs font-medium border border-[#4444B3] text-[#4444B3] hover:bg-[#4444B3] hover:text-white bg-white whitespace-nowrap flex items-center gap-2"
             >
+              <LogOut className="w-3 h-3" />
               Logout
-            </button>
-          </div>
-
-          {/* Delete Account */}
-          <div className="flex items-start justify-between gap-4">
-            <div className="w-full max-w-md">
-              <p className="text-sm font-semibold text-gray-900 mb-1">
-                Delete my account
-              </p>
-              <p className="text-xs text-gray-500">
-                Permanently delete my account
-              </p>
-            </div>
-            <button 
-              type="button"
-              className="px-4 py-1.5 rounded-full text-xs font-medium border border-red-300 text-red-600 hover:bg-red-50 bg-white whitespace-nowrap"
-            >
-              Delete Account
             </button>
           </div>
         </div>
@@ -367,4 +516,3 @@ const MyAccount: React.FC = () => {
 };
 
 export default MyAccount;
-
