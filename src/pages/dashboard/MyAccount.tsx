@@ -1,14 +1,6 @@
 import React, { useState, useEffect } from "react";
 import { useAuth } from "../../context/AuthContextProvider";
-import {
-  Camera,
-  Loader,
-  Mail,
-  Lock,
-  MapPin,
-  Phone,
-  LogOut,
-} from "lucide-react";
+import { Camera, Loader, Mail, Lock, MapPin, LogOut } from "lucide-react";
 import { toast } from "react-hot-toast";
 import { useNavigate } from "react-router-dom";
 
@@ -24,7 +16,12 @@ const MyAccount: React.FC = () => {
   });
   const [uploading, setUploading] = useState(false);
   const [editingField, setEditingField] = useState<string | null>(null);
-  const [isUpdating, setIsUpdating] = useState(false);
+  const [updatingFields, setUpdatingFields] = useState<Record<string, boolean>>(
+    {}
+  );
+
+  // Helper function to check if any field is being updated
+  const isAnyFieldUpdating = Object.values(updatingFields).some(Boolean);
 
   // Update form data when user changes
   useEffect(() => {
@@ -49,14 +46,14 @@ const MyAccount: React.FC = () => {
 
   // Handle profile update for individual fields
   const handleSave = async (field: string) => {
-    setIsUpdating(true);
+    setUpdatingFields((prev) => ({ ...prev, [field]: true }));
     const success = await updateProfile({
       [field]: formData[field as keyof typeof formData],
     });
     if (success) {
       setEditingField(null);
     }
-    setIsUpdating(false);
+    setUpdatingFields((prev) => ({ ...prev, [field]: false }));
   };
 
   // Handle forgot password redirect
@@ -187,7 +184,7 @@ const MyAccount: React.FC = () => {
               First Name
             </label>
             <div className="flex items-center justify-between gap-4">
-              <div className="w-full max-w-md">
+              <div className="w-full max-w-md relative">
                 <input
                   type="text"
                   name="firstName"
@@ -198,9 +195,14 @@ const MyAccount: React.FC = () => {
                     editingField === "firstName"
                       ? "border-brand-green focus:outline-none focus:ring-2 focus:ring-brand-green/20"
                       : "border-gray-200 bg-gray-50"
-                  }`}
+                  } ${updatingFields.firstName ? "pr-10" : ""}`}
                   placeholder="Enter your first name"
                 />
+                {updatingFields.firstName && (
+                  <div className="absolute right-3 top-1/2 transform -translate-y-1/2">
+                    <Loader className="w-4 h-4 animate-spin text-brand-green" />
+                  </div>
+                )}
               </div>
               <button
                 type="button"
@@ -211,10 +213,13 @@ const MyAccount: React.FC = () => {
                     setEditingField("firstName");
                   }
                 }}
-                disabled={isUpdating}
+                disabled={
+                  updatingFields.firstName ||
+                  (isAnyFieldUpdating && editingField !== "firstName")
+                }
                 className="px-4 py-1.5 rounded-full text-xs font-medium border border-[#4444B3] text-[#4444B3] hover:bg-[#4444B3] hover:text-white transition-colors bg-white whitespace-nowrap disabled:opacity-50"
               >
-                {isUpdating && editingField === "firstName" ? (
+                {updatingFields.firstName ? (
                   <Loader className="w-3 h-3 animate-spin" />
                 ) : editingField === "firstName" ? (
                   "Save"
@@ -231,7 +236,7 @@ const MyAccount: React.FC = () => {
               Last Name
             </label>
             <div className="flex items-center justify-between gap-4">
-              <div className="w-full max-w-md">
+              <div className="w-full max-w-md relative">
                 <input
                   type="text"
                   name="lastName"
@@ -242,9 +247,14 @@ const MyAccount: React.FC = () => {
                     editingField === "lastName"
                       ? "border-brand-green focus:outline-none focus:ring-2 focus:ring-brand-green/20"
                       : "border-gray-200 bg-gray-50"
-                  }`}
+                  } ${updatingFields.lastName ? "pr-10" : ""}`}
                   placeholder="Enter your last name"
                 />
+                {updatingFields.lastName && (
+                  <div className="absolute right-3 top-1/2 transform -translate-y-1/2">
+                    <Loader className="w-4 h-4 animate-spin text-brand-green" />
+                  </div>
+                )}
               </div>
               <button
                 type="button"
@@ -255,10 +265,13 @@ const MyAccount: React.FC = () => {
                     setEditingField("lastName");
                   }
                 }}
-                disabled={isUpdating}
+                disabled={
+                  updatingFields.lastName ||
+                  (isAnyFieldUpdating && editingField !== "lastName")
+                }
                 className="px-4 py-1.5 rounded-full text-xs font-medium border border-[#4444B3] text-[#4444B3] hover:bg-[#4444B3] hover:text-white transition-colors bg-white whitespace-nowrap disabled:opacity-50"
               >
-                {isUpdating && editingField === "lastName" ? (
+                {updatingFields.lastName ? (
                   <Loader className="w-3 h-3 animate-spin" />
                 ) : editingField === "lastName" ? (
                   "Save"
@@ -275,7 +288,7 @@ const MyAccount: React.FC = () => {
               Phone Number
             </label>
             <div className="flex items-center justify-between gap-4">
-              <div className="w-full max-w-md">
+              <div className="w-full max-w-md relative">
                 <input
                   type="tel"
                   name="phone"
@@ -286,9 +299,14 @@ const MyAccount: React.FC = () => {
                     editingField === "phone"
                       ? "border-brand-green focus:outline-none focus:ring-2 focus:ring-brand-green/20"
                       : "border-gray-200 bg-gray-50"
-                  }`}
+                  } ${updatingFields.phone ? "pr-10" : ""}`}
                   placeholder="Enter your phone number"
                 />
+                {updatingFields.phone && (
+                  <div className="absolute right-3 top-1/2 transform -translate-y-1/2">
+                    <Loader className="w-4 h-4 animate-spin text-brand-green" />
+                  </div>
+                )}
               </div>
               <button
                 type="button"
@@ -299,10 +317,13 @@ const MyAccount: React.FC = () => {
                     setEditingField("phone");
                   }
                 }}
-                disabled={isUpdating}
+                disabled={
+                  updatingFields.phone ||
+                  (isAnyFieldUpdating && editingField !== "phone")
+                }
                 className="px-4 py-1.5 rounded-full text-xs font-medium border border-[#4444B3] text-[#4444B3] hover:bg-[#4444B3] hover:text-white transition-colors bg-white whitespace-nowrap disabled:opacity-50"
               >
-                {isUpdating && editingField === "phone" ? (
+                {updatingFields.phone ? (
                   <Loader className="w-3 h-3 animate-spin" />
                 ) : editingField === "phone" ? (
                   "Save"
@@ -416,10 +437,13 @@ const MyAccount: React.FC = () => {
                     setEditingField("city");
                   }
                 }}
-                disabled={isUpdating}
+                disabled={
+                  updatingFields.city ||
+                  (isAnyFieldUpdating && editingField !== "city")
+                }
                 className="px-4 py-1.5 rounded-full text-xs font-medium border border-[#4444B3] text-[#4444B3] hover:bg-[#4444B3] hover:text-white transition-colors bg-white whitespace-nowrap disabled:opacity-50"
               >
-                {isUpdating && editingField === "city" ? (
+                {updatingFields.city ? (
                   <Loader className="w-3 h-3 animate-spin" />
                 ) : editingField === "city" ? (
                   "Save"
@@ -463,10 +487,13 @@ const MyAccount: React.FC = () => {
                     setEditingField("address");
                   }
                 }}
-                disabled={isUpdating}
+                disabled={
+                  updatingFields.address ||
+                  (isAnyFieldUpdating && editingField !== "address")
+                }
                 className="px-4 py-1.5 rounded-full text-xs font-medium border border-[#4444B3] text-[#4444B3] hover:bg-[#4444B3] hover:text-white transition-colors bg-white whitespace-nowrap disabled:opacity-50 self-start"
               >
-                {isUpdating && editingField === "address" ? (
+                {updatingFields.address ? (
                   <Loader className="w-3 h-3 animate-spin" />
                 ) : editingField === "address" ? (
                   "Save"
