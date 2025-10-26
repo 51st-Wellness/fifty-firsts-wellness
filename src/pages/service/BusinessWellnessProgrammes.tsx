@@ -262,7 +262,7 @@ const BusinessWellnessProgrammes: React.FC = () => {
             {/* Right Side - Image */}
             <div className="relative">
               <img 
-                src="/assets/homepage/service-cards/service2.png" 
+                src="/assets/homepage/service-cards/service1.png" 
                 alt="Business Wellness Programmes" 
                 className="w-3/4 h-auto rounded-2xl shadow-lg mx-auto"
               />

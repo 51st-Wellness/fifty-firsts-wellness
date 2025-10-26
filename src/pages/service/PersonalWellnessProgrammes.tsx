@@ -168,7 +168,7 @@ const PersonalWellnessProgrammes: React.FC = () => {
             {/* Right Side - Image */}
             <div className="relative">
               <img 
-                src="/assets/homepage/service-cards/service1.png" 
+                src="/assets/homepage/service-cards/service2.png" 
                 alt="Personal Wellness Programmes" 
                 className="w-full h-auto rounded-2xl shadow-lg"
               />
