@@ -89,14 +89,14 @@ const ServicesSection: React.FC = () => {
 
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 lg:gap-8">
           <ServiceCard
-            imageSrc="/assets/homepage/service-cards/service1.png"
+            imageSrc="/assets/homepage/service-cards/service2.png"
             title="Personal Wellness Services"
             description="Ready to feel clearer, stronger and more like yourself again? Whether you're navigating midlife shifts or simply ready to prioritise your wellbeing, our services are designed to help you take back control, gain focus and elevate energy and positivity. We offer practical tools, coaching and a community that supports overall wellness, at every stage of life, because living and ageing well isn't a luxury or someone else's story."
             ctaText="Learn More"
             ctaLink="/service/personal-wellness"
           />
           <ServiceCard
-            imageSrc="/assets/homepage/service-cards/service2.png"
+            imageSrc="/assets/homepage/service-cards/service1.png"
             title="Workplace Wellness Services"
             description="Our workplace solutions are built to engage, empower and elevate employee experience and performance. From strategy and policy building to menopause action plans and bespoke training (e.g. wellbeing ambassador training), we help teams and businesses thrive and nurture positive employee experience. Let your business stand out, lead the change and empower your people."
             ctaText="Learn More"

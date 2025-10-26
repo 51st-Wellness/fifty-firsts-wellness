@@ -156,16 +156,16 @@ const Login: React.FC = () => {
             </div>
 
             {/* Privacy & Terms Checkbox */}
-            <div className="flex items-start gap-3">
+            <div className="flex items-start gap-2">
               <input
                 type="checkbox"
                 id="agreeToTerms"
                 {...register("agreeToTerms")}
-                className="mt-1 h-4 w-4 text-white border-gray-300 rounded accent-brand-green-light"
+                className="mt-1 h-3 w-3 text-white border-gray-300 rounded accent-brand-green-light"
               />
               <label
                 htmlFor="agreeToTerms"
-                className="text-sm text-gray-600 leading-relaxed"
+                className="text-xs text-gray-600 leading-snug"
               >
                 I have read and agree to the{" "}
                 <Link

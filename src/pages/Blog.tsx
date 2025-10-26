@@ -317,12 +317,12 @@ const Blog: React.FC<BlogProps> = ({ onSearch }) => {
                           {new Date(blog.publishedAt).toLocaleDateString()}
                         </div>
                       )}
-                      <h3 className="text-xl font-semibold text-gray-900 mb-2 leading-tight group-hover:text-brand-green transition-colors min-h-[56px] line-clamp-2" style={{ fontFamily: '"League Spartan", sans-serif' }}>
+                      <h3 className="text-md font-semibold text-gray-900 mb-2 leading-tight group-hover:text-brand-green transition-colors min-h-[56px] line-clamp-2" style={{ fontFamily: '"League Spartan", sans-serif' }}>
                         {blog.title}
                       </h3>
 
                       {blog.description && (
-                        <p className="text-gray-600 mb-4 leading-relaxed font-primary line-clamp-3 min-h-[72px]">
+                        <p className="text-gray-600 mb-4 text-sm leading-relaxed font-primary line-clamp-3 min-h-[72px]">
                           {blog.description}
                         </p>
                       )}

@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from "react";
 import { useAuth } from "../../context/AuthContextProvider";
-import { Camera, Loader, Mail, Lock, MapPin, LogOut } from "lucide-react";
+import { Camera, Loader, Mail, Lock, MapPin, LogOut, Edit3, Key } from "lucide-react";
 import { toast } from "react-hot-toast";
 import { useNavigate } from "react-router-dom";
 
@@ -217,14 +217,20 @@ const MyAccount: React.FC = () => {
                   updatingFields.firstName ||
                   (isAnyFieldUpdating && editingField !== "firstName")
                 }
-                className="px-4 py-1.5 rounded-full text-xs font-medium border border-[#4444B3] text-[#4444B3] hover:bg-[#4444B3] hover:text-white transition-colors bg-white whitespace-nowrap disabled:opacity-50"
+                className="px-4 py-1.5 rounded-full text-xs font-medium border border-[#4444B3] text-[#4444B3] hover:bg-[#4444B3] hover:text-white transition-colors bg-white whitespace-nowrap disabled:opacity-50 sm:px-4 sm:py-1.5 sm:text-xs md:px-4 md:py-1.5 md:text-xs"
               >
                 {updatingFields.firstName ? (
                   <Loader className="w-3 h-3 animate-spin" />
                 ) : editingField === "firstName" ? (
-                  "Save"
+                  <>
+                    <span className="hidden sm:inline">Save</span>
+                    <span className="sm:hidden">✓</span>
+                  </>
                 ) : (
-                  "Edit"
+                  <>
+                    <span className="hidden sm:inline">Edit</span>
+                    <Edit3 className="w-3 h-3 sm:hidden" />
+                  </>
                 )}
               </button>
             </div>
@@ -269,14 +275,20 @@ const MyAccount: React.FC = () => {
                   updatingFields.lastName ||
                   (isAnyFieldUpdating && editingField !== "lastName")
                 }
-                className="px-4 py-1.5 rounded-full text-xs font-medium border border-[#4444B3] text-[#4444B3] hover:bg-[#4444B3] hover:text-white transition-colors bg-white whitespace-nowrap disabled:opacity-50"
+                className="px-4 py-1.5 rounded-full text-xs font-medium border border-[#4444B3] text-[#4444B3] hover:bg-[#4444B3] hover:text-white transition-colors bg-white whitespace-nowrap disabled:opacity-50 sm:px-4 sm:py-1.5 sm:text-xs md:px-4 md:py-1.5 md:text-xs"
               >
                 {updatingFields.lastName ? (
                   <Loader className="w-3 h-3 animate-spin" />
                 ) : editingField === "lastName" ? (
-                  "Save"
+                  <>
+                    <span className="hidden sm:inline">Save</span>
+                    <span className="sm:hidden">✓</span>
+                  </>
                 ) : (
-                  "Edit"
+                  <>
+                    <span className="hidden sm:inline">Edit</span>
+                    <Edit3 className="w-3 h-3 sm:hidden" />
+                  </>
                 )}
               </button>
             </div>
@@ -321,14 +333,20 @@ const MyAccount: React.FC = () => {
                   updatingFields.phone ||
                   (isAnyFieldUpdating && editingField !== "phone")
                 }
-                className="px-4 py-1.5 rounded-full text-xs font-medium border border-[#4444B3] text-[#4444B3] hover:bg-[#4444B3] hover:text-white transition-colors bg-white whitespace-nowrap disabled:opacity-50"
+                className="px-4 py-1.5 rounded-full text-xs font-medium border border-[#4444B3] text-[#4444B3] hover:bg-[#4444B3] hover:text-white transition-colors bg-white whitespace-nowrap disabled:opacity-50 sm:px-4 sm:py-1.5 sm:text-xs md:px-4 md:py-1.5 md:text-xs"
               >
                 {updatingFields.phone ? (
                   <Loader className="w-3 h-3 animate-spin" />
                 ) : editingField === "phone" ? (
-                  "Save"
+                  <>
+                    <span className="hidden sm:inline">Save</span>
+                    <span className="sm:hidden">✓</span>
+                  </>
                 ) : (
-                  "Edit"
+                  <>
+                    <span className="hidden sm:inline">Edit</span>
+                    <Edit3 className="w-3 h-3 sm:hidden" />
+                  </>
                 )}
               </button>
             </div>
@@ -387,9 +405,10 @@ const MyAccount: React.FC = () => {
               <button
                 type="button"
                 onClick={handleForgotPassword}
-                className="px-4 py-1.5 rounded-full text-xs font-medium border border-[#4444B3] text-[#4444B3] hover:bg-[#4444B3] hover:text-white transition-colors bg-white whitespace-nowrap"
+                className="px-4 py-1.5 rounded-full text-xs font-medium border border-[#4444B3] text-[#4444B3] hover:bg-[#4444B3] hover:text-white transition-colors bg-white whitespace-nowrap sm:px-4 sm:py-1.5 sm:text-xs md:px-4 md:py-1.5 md:text-xs"
               >
-                Forgot Password
+                <span className="hidden sm:inline">Forgot Password</span>
+                <Key className="w-3 h-3 sm:hidden" />
               </button>
             </div>
           </div>
@@ -446,14 +465,20 @@ const MyAccount: React.FC = () => {
                   updatingFields.city ||
                   (isAnyFieldUpdating && editingField !== "city")
                 }
-                className="px-4 py-1.5 rounded-full text-xs font-medium border border-[#4444B3] text-[#4444B3] hover:bg-[#4444B3] hover:text-white transition-colors bg-white whitespace-nowrap disabled:opacity-50"
+                className="px-4 py-1.5 rounded-full text-xs font-medium border border-[#4444B3] text-[#4444B3] hover:bg-[#4444B3] hover:text-white transition-colors bg-white whitespace-nowrap disabled:opacity-50 sm:px-4 sm:py-1.5 sm:text-xs md:px-4 md:py-1.5 md:text-xs"
               >
                 {updatingFields.city ? (
                   <Loader className="w-3 h-3 animate-spin" />
                 ) : editingField === "city" ? (
-                  "Save"
+                  <>
+                    <span className="hidden sm:inline">Save</span>
+                    <span className="sm:hidden">✓</span>
+                  </>
                 ) : (
-                  "Edit"
+                  <>
+                    <span className="hidden sm:inline">Edit</span>
+                    <Edit3 className="w-3 h-3 sm:hidden" />
+                  </>
                 )}
               </button>
             </div>
@@ -501,14 +526,20 @@ const MyAccount: React.FC = () => {
                   updatingFields.address ||
                   (isAnyFieldUpdating && editingField !== "address")
                 }
-                className="px-4 py-1.5 rounded-full text-xs font-medium border border-[#4444B3] text-[#4444B3] hover:bg-[#4444B3] hover:text-white transition-colors bg-white whitespace-nowrap disabled:opacity-50 self-start"
+                className="px-4 py-1.5 rounded-full text-xs font-medium border border-[#4444B3] text-[#4444B3] hover:bg-[#4444B3] hover:text-white transition-colors bg-white whitespace-nowrap disabled:opacity-50 self-start sm:px-4 sm:py-1.5 sm:text-xs md:px-4 md:py-1.5 md:text-xs"
               >
                 {updatingFields.address ? (
                   <Loader className="w-3 h-3 animate-spin" />
                 ) : editingField === "address" ? (
-                  "Save"
+                  <>
+                    <span className="hidden sm:inline">Save</span>
+                    <span className="sm:hidden">✓</span>
+                  </>
                 ) : (
-                  "Edit"
+                  <>
+                    <span className="hidden sm:inline">Edit</span>
+                    <Edit3 className="w-3 h-3 sm:hidden" />
+                  </>
                 )}
               </button>
             </div>
@@ -540,10 +571,10 @@ const MyAccount: React.FC = () => {
             <button
               type="button"
               onClick={handleLogoutAllDevices}
-              className="px-4 py-1.5 rounded-full text-xs font-medium border border-[#4444B3] text-[#4444B3] hover:bg-[#4444B3] hover:text-white bg-white whitespace-nowrap flex items-center gap-2"
+              className="px-4 py-1.5 rounded-full text-xs font-medium border border-red-500 text-red-500 hover:bg-red-500 hover:text-white bg-white whitespace-nowrap flex items-center gap-2 sm:px-4 sm:py-1.5 sm:text-xs md:px-4 md:py-1.5 md:text-xs"
             >
               <LogOut className="w-3 h-3" />
-              Logout
+              <span className="hidden sm:inline">Logout</span>
             </button>
           </div>
         </div>
