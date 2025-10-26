@@ -144,7 +144,6 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
     payload: UpdateProfilePayload
   ): Promise<boolean> => {
     try {
-      setLoading(true);
       const response = await updateUserProfile(payload);
 
       if (response.data?.user) {
@@ -157,8 +156,6 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
         error.response?.data?.message || "Profile update failed";
       setError(errorMessage);
       toast.error(errorMessage);
-    } finally {
-      setLoading(false);
     }
     return false;
   };
@@ -166,7 +163,6 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
   // Update profile picture
   const updateProfilePictureHandler = async (file: File): Promise<boolean> => {
     try {
-      setLoading(true);
       const response = await updateProfilePicture(file);
 
       if (response.data?.user) {
@@ -179,8 +175,6 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
         error.response?.data?.message || "Profile picture update failed";
       setError(errorMessage);
       toast.error(errorMessage);
-    } finally {
-      setLoading(false);
     }
     return false;
   };

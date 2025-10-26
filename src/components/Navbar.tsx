@@ -174,8 +174,7 @@ const Navbar: React.FC = () => {
                   </li> */}
                 </ul>
               )}
-            </li> 
-
+            </li>
 
             {/* <li>
               <Link
@@ -209,7 +208,8 @@ const Navbar: React.FC = () => {
                   onMouseEnter={handleResourcesMouseEnter}
                   onMouseLeave={handleResourcesMouseLeave}
                 >
-                  <li>
+                  {/* !!! Not for mvp yet */}
+                  {/* <li>
                     <Link
                       to="/resources/webinars"
                       className="block px-4 py-3 text-gray-700  hover:text-brand-green transition-colors"
@@ -217,7 +217,7 @@ const Navbar: React.FC = () => {
                     >
                       Webinars
                     </Link>
-                  </li>
+                  </li> */}
                   <li>
                     <Link
                       to="/podcasts"
@@ -260,11 +260,11 @@ const Navbar: React.FC = () => {
           {menuOpen && (
             <>
               {/* Backdrop */}
-              <div 
+              <div
                 className="fixed inset-0 bg-black/50 md:hidden z-40"
                 onClick={() => setMenuOpen(false)}
               />
-              
+
               {/* Sidebar */}
               <div className="fixed top-0 right-0 h-full w-80 bg-white shadow-2xl md:hidden z-50 transform transition-transform duration-300 ease-in-out overflow-y-auto animate-slide-in-right">
                 {/* Close Button */}
@@ -277,65 +277,64 @@ const Navbar: React.FC = () => {
                     <X size={24} className="text-gray-700" />
                   </button>
                 </div>
-                
-              <ul className="flex flex-col py-4 px-2">
 
-              <li>
-                  <Link
-                    to="/about"
-                    onClick={() => setMenuOpen(false)}
-                    className="block px-6 py-3 text-gray-700  hover:text-brand-green font-medium transition-colors"
-                  >
-                    About
-                  </Link>
-                </li>
+                <ul className="flex flex-col py-4 px-2">
+                  <li>
+                    <Link
+                      to="/about"
+                      onClick={() => setMenuOpen(false)}
+                      className="block px-6 py-3 text-gray-700  hover:text-brand-green font-medium transition-colors"
+                    >
+                      About
+                    </Link>
+                  </li>
 
-                {/* Services Submenu (mobile) */}
-                <li>
-                  <button
-                    type="button"
-                    onClick={() => {
-                      setServicesOpen((v) => !v);
-                      setResourcesOpen(false);
-                    }}
-                    className="w-full flex items-center justify-between px-6 py-3 text-gray-700  hover:text-brand-green font-medium transition-colors"
-                    aria-expanded={servicesOpen}
-                  >
-                    <span>Services</span>
-                    <ChevronDown
-                      size={16}
-                      className={`transition-transform ${
-                        servicesOpen ? "rotate-180" : ""
-                      }`}
-                    />
-                  </button>
-                  {servicesOpen && (
-                    <ul className="bg-gray-50">
-                      <li>
-                        <Link
-                          to="/services/personal-wellness"
-                          onClick={() => {
-                            setMenuOpen(false);
-                            setServicesOpen(false);
-                          }}
-                          className="block px-8 py-3 text-gray-600  hover:text-brand-green transition-colors"
-                        >
-                          Personal Wellness Programmes
-                        </Link>
-                      </li>
-                      <li>
-                        <Link
-                          to="/services/business-wellness"
-                          onClick={() => {
-                            setMenuOpen(false);
-                            setServicesOpen(false);
-                          }}
-                          className="block px-8 py-3 text-gray-600  hover:text-brand-green transition-colors"
-                        >
-                          Business Wellness Programmes
-                        </Link>
-                      </li>
-                      {/* <li>
+                  {/* Services Submenu (mobile) */}
+                  <li>
+                    <button
+                      type="button"
+                      onClick={() => {
+                        setServicesOpen((v) => !v);
+                        setResourcesOpen(false);
+                      }}
+                      className="w-full flex items-center justify-between px-6 py-3 text-gray-700  hover:text-brand-green font-medium transition-colors"
+                      aria-expanded={servicesOpen}
+                    >
+                      <span>Services</span>
+                      <ChevronDown
+                        size={16}
+                        className={`transition-transform ${
+                          servicesOpen ? "rotate-180" : ""
+                        }`}
+                      />
+                    </button>
+                    {servicesOpen && (
+                      <ul className="bg-gray-50">
+                        <li>
+                          <Link
+                            to="/services/personal-wellness"
+                            onClick={() => {
+                              setMenuOpen(false);
+                              setServicesOpen(false);
+                            }}
+                            className="block px-8 py-3 text-gray-600  hover:text-brand-green transition-colors"
+                          >
+                            Personal Wellness Programmes
+                          </Link>
+                        </li>
+                        <li>
+                          <Link
+                            to="/services/business-wellness"
+                            onClick={() => {
+                              setMenuOpen(false);
+                              setServicesOpen(false);
+                            }}
+                            className="block px-8 py-3 text-gray-600  hover:text-brand-green transition-colors"
+                          >
+                            Business Wellness Programmes
+                          </Link>
+                        </li>
+                        {/* <li>
                         <Link
                           to="/services/program-details"
                           onClick={() => {
@@ -347,11 +346,11 @@ const Navbar: React.FC = () => {
                           Wellness Program Details
                         </Link>
                       </li> */}
-                    </ul>
-                  )}
-                </li>
+                      </ul>
+                    )}
+                  </li>
 
-                {/* <li>
+                  {/* <li>
                   <Link
                     to="/marketplace"
                     onClick={() => setMenuOpen(false)}
@@ -361,28 +360,28 @@ const Navbar: React.FC = () => {
                   </Link>
                 </li> */}
 
-                {/* Resources Submenu (mobile) */}
-                <li>
-                  <button
-                    type="button"
-                    onClick={() => {
-                      setResourcesOpen((v) => !v);
-                      setServicesOpen(false);
-                    }}
-                    className="w-full flex items-center justify-between px-6 py-3 text-gray-700 hover:bg-brand-green/10 hover:text-brand-green font-medium transition-colors"
-                    aria-expanded={resourcesOpen}
-                  >
-                    <span>Resources</span>
-                    <ChevronDown
-                      size={16}
-                      className={`transition-transform ${
-                        resourcesOpen ? "rotate-180" : ""
-                      }`}
-                    />
-                  </button>
-                  {resourcesOpen && (
-                    <ul className="bg-gray-50">
-                      <li>
+                  {/* Resources Submenu (mobile) */}
+                  <li>
+                    <button
+                      type="button"
+                      onClick={() => {
+                        setResourcesOpen((v) => !v);
+                        setServicesOpen(false);
+                      }}
+                      className="w-full flex items-center justify-between px-6 py-3 text-gray-700 hover:bg-brand-green/10 hover:text-brand-green font-medium transition-colors"
+                      aria-expanded={resourcesOpen}
+                    >
+                      <span>Resources</span>
+                      <ChevronDown
+                        size={16}
+                        className={`transition-transform ${
+                          resourcesOpen ? "rotate-180" : ""
+                        }`}
+                      />
+                    </button>
+                    {resourcesOpen && (
+                      <ul className="bg-gray-50">
+                        {/* <li>
                         <Link
                           to="/resources/webinars"
                           onClick={() => {
@@ -393,38 +392,36 @@ const Navbar: React.FC = () => {
                         >
                           Webinars
                         </Link>
-                      </li>
-                      <li>
-                        <Link
-                          to="/podcasts"
-                          onClick={() => {
-                            setMenuOpen(false);
-                            setResourcesOpen(false);
-                          }}
-                          className="block px-8 py-3 text-gray-600  hover:text-brand-green transition-colors"
-                        >
-                          Podcasts
-                        </Link>
-                      </li>
-                      <li>
-                        <Link
-                          to="/blog"
-                          onClick={() => {
-                            setMenuOpen(false);
-                            setResourcesOpen(false);
-                          }}
-                          className="block px-8 py-3 text-gray-600  hover:text-brand-green transition-colors"
-                        >
-                          Blog
-                        </Link>
-                      </li>
-                    </ul>
-                  )}
-                </li>
+                      </li> */}
+                        <li>
+                          <Link
+                            to="/podcasts"
+                            onClick={() => {
+                              setMenuOpen(false);
+                              setResourcesOpen(false);
+                            }}
+                            className="block px-8 py-3 text-gray-600  hover:text-brand-green transition-colors"
+                          >
+                            Podcasts
+                          </Link>
+                        </li>
+                        <li>
+                          <Link
+                            to="/blog"
+                            onClick={() => {
+                              setMenuOpen(false);
+                              setResourcesOpen(false);
+                            }}
+                            className="block px-8 py-3 text-gray-600  hover:text-brand-green transition-colors"
+                          >
+                            Blog
+                          </Link>
+                        </li>
+                      </ul>
+                    )}
+                  </li>
 
-               
-
-                {/* <li>
+                  {/* <li>
                   <Link
                     to="/ai-wellness"
                     onClick={() => setMenuOpen(false)}
@@ -434,16 +431,16 @@ const Navbar: React.FC = () => {
                   </Link>
                 </li> */}
 
-                <li>
-                  <Link
-                    to="/contact"
-                    onClick={() => setMenuOpen(false)}
-                    className="block px-6 py-3 text-gray-700  hover:text-brand-green font-medium transition-colors"
-                  >
-                    Contact
-                  </Link>
-                </li>
-              </ul>
+                  <li>
+                    <Link
+                      to="/contact"
+                      onClick={() => setMenuOpen(false)}
+                      className="block px-6 py-3 text-gray-700  hover:text-brand-green font-medium transition-colors"
+                    >
+                      Contact
+                    </Link>
+                  </li>
+                </ul>
               </div>
             </>
           )}

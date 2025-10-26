@@ -413,7 +413,7 @@ const MyAccount: React.FC = () => {
               <label className="text-sm font-medium text-gray-700">City</label>
             </div>
             <div className="flex items-center justify-between gap-4">
-              <div className="w-full max-w-md">
+              <div className="w-full max-w-md relative">
                 <input
                   type="text"
                   name="city"
@@ -424,9 +424,14 @@ const MyAccount: React.FC = () => {
                     editingField === "city"
                       ? "border-brand-green focus:outline-none focus:ring-2 focus:ring-brand-green/20"
                       : "border-gray-200 bg-gray-50"
-                  }`}
+                  } ${updatingFields.city ? "pr-10" : ""}`}
                   placeholder="Enter your city"
                 />
+                {updatingFields.city && (
+                  <div className="absolute right-3 top-1/2 transform -translate-y-1/2">
+                    <Loader className="w-4 h-4 animate-spin text-brand-green" />
+                  </div>
+                )}
               </div>
               <button
                 type="button"
@@ -463,7 +468,7 @@ const MyAccount: React.FC = () => {
               </label>
             </div>
             <div className="flex items-center justify-between gap-4">
-              <div className="w-full max-w-md">
+              <div className="w-full max-w-md relative">
                 <textarea
                   name="address"
                   value={formData.address}
@@ -474,9 +479,14 @@ const MyAccount: React.FC = () => {
                     editingField === "address"
                       ? "border-brand-green focus:outline-none focus:ring-2 focus:ring-brand-green/20"
                       : "border-gray-200 bg-gray-50"
-                  }`}
+                  } ${updatingFields.address ? "pr-10" : ""}`}
                   placeholder="Enter your full address"
                 />
+                {updatingFields.address && (
+                  <div className="absolute right-3 top-3">
+                    <Loader className="w-4 h-4 animate-spin text-brand-green" />
+                  </div>
+                )}
               </div>
               <button
                 type="button"
