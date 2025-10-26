@@ -119,22 +119,14 @@ const Footer: React.FC = () => {
                   Terms & Conditions
                 </Link>
               </li>
-              {/* <li>
-                <a
-                  href="#"
+              <li>
+                <Link
+                  to="/privacy-policy"
                   className="text-white/80 hover:text-white transition-colors"
                 >
                   Privacy Policy
-                </a>
+                </Link>
               </li>
-              <li>
-                <a
-                  href="#"
-                  className="text-white/80 hover:text-white transition-colors"
-                >
-                  Return Policy
-                </a>
-              </li> */}
               <li>
                 <Link
                   to="/cookie-policy"

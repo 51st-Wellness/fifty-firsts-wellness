@@ -1,11 +1,6 @@
 import React, { useState } from "react";
-import Navbar from "../components/Navbar";
-import Footer from "../components/Footer";
 import { Target, Eye, Mail } from "lucide-react";
 import about1 from "../assets/images/about1.png";
-import about2 from "../assets/images/about2.png";
-import art1 from "../assets/images/art1.png";
-import art2 from "../assets/images/art2.png";
 import { subscribeToNewsletter } from "../api/contact-subscription.api";
 
 const About: React.FC = () => {
@@ -151,7 +146,7 @@ const About: React.FC = () => {
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 lg:gap-12 mt-12">
             <div className="relative order-2 lg:order-1">
               <img
-                src={about2}
+                src="/assets/about/bottom.png"
                 alt="Community Connection"
                 className="w-full h-auto rounded-2xl shadow-lg"
               />
@@ -270,12 +265,12 @@ const About: React.FC = () => {
 
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mt-12">
             <img
-              src={art1}
+              src="/assets/about/story1.png"
               alt="Wellness Journey"
               className="w-full h-auto rounded-2xl shadow-lg"
             />
             <img
-              src={art2}
+              src="/assets/about/story2.png"
               alt="Community Support"
               className="w-full h-auto rounded-2xl shadow-lg"
             />

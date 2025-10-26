@@ -196,10 +196,19 @@ const Signup: React.FC = () => {
                 international
                 defaultCountry="US"
                 value={watchedFields.phone}
-                onChange={(value) => setValue("phone", value || "")}
+                onChange={(value) => {
+                  // Limit phone number to 20 characters
+                  if (value && value.length > 20) {
+                    // Truncate to 20 characters instead of ignoring
+                    setValue("phone", value.substring(0, 20));
+                    return;
+                  }
+                  setValue("phone", value || "");
+                }}
                 className={`phone-input-custom ${
                   errors.phone ? "border-red-500" : "border-gray-300"
                 }`}
+                maxLength={20}
               />
               {errors.phone && (
                 <p className="text-red-500 text-xs mt-1">

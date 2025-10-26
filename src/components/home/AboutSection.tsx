@@ -21,8 +21,8 @@ const AboutSection: React.FC = () => {
         <p className="text-white leading-7">
         We’re not just a wellness brand, we are re-writing the narrative on wellness and midlife. 
         We’re building a rebellion against burnout, overwhelm, invisibility and one-size-fits-all wellness services. 
-        Whether you’re levelling up your routine or rewriting the rules entirely, we make wellness simple, available and a little bit fun. 
-        Living well shouldn’t be for the elite and ageing doesn’t have to be a decline, it’s a uprising! 
+        Whether you’re levelling up your routine or rewriting the rules entirely, we make wellness simple, available and a little bit of fun. 
+        Living well shouldn’t be for the elite and ageing doesn’t have to be a decline, it’s an uprising! 
         We have coaching, workshops, webinars, wellness warrior events and so much more to kickstart or elevate your wellbeing, 
         inspire your midlife reinvention or walk alongside you during your menopause transition. 
         Our workplace wellness programmes build momentum because thriving people make thriving businesses. 
