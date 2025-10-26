@@ -12,7 +12,7 @@ import GoogleOAuthButton from "../components/GoogleOAuthButton";
 const Login: React.FC = () => {
   const [showPassword, setShowPassword] = useState<boolean>(false);
 
-  const { login, error } = useAuth();
+  const { login } = useAuth();
   const navigate = useNavigate();
 
   // React Hook Form setup
@@ -95,24 +95,6 @@ const Login: React.FC = () => {
 
           {/* Form */}
           <form onSubmit={handleSubmit(onSubmit)} className="space-y-5">
-            {error && (
-              <div
-                className={`border px-4 py-3 rounded-lg text-sm ${
-                  error.toLowerCase().includes("verify your email")
-                    ? "bg-amber-50 border-amber-200 text-amber-700"
-                    : "bg-red-50 border-red-200 text-red-700"
-                }`}
-              >
-                {error}
-                {error.toLowerCase().includes("verify your email") && (
-                  <div className="mt-2">
-                    <span className="text-amber-600">
-                      Redirecting to verification page...
-                    </span>
-                  </div>
-                )}
-              </div>
-            )}
 
             {/* Email */}
             <div>
