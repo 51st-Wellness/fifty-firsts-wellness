@@ -4,7 +4,7 @@ import {
   fetchBlogBySlug,
   mediaUrl,
   type BlogEntity,
-  type AuthorEntity,
+  type Author,
 } from "../api/blog.api";
 import RichTextWrapper from "../components/RichTextWrapper";
 import { ChevronRight } from "lucide-react";
@@ -144,7 +144,7 @@ export default function BlogPost() {
                     clipRule="evenodd"
                   />
                 </svg>
-                5 min read
+                {a.readTime || 5} min read
               </div>
             </div>
 
@@ -158,15 +158,12 @@ export default function BlogPost() {
                     {a.authors.length === 1 ? "Author:" : "Authors:"}
                   </span>
                   <div className="flex items-center gap-4 flex-wrap">
-                    {a.authors.map((author: AuthorEntity) => {
-                      const authorPicture =
-                        author.picture?.url ||
-                        author.picture?.data?.attributes?.url;
+                    {a.authors.map((author: Author, idx: number) => {
                       const AuthorContent = (
                         <div className="flex items-center gap-2 group">
-                          {authorPicture && (
+                          {author.pictureUrl && (
                             <img
-                              src={mediaUrl(authorPicture)}
+                              src={author.pictureUrl}
                               alt={author.fullName}
                               className="w-8 h-8 rounded-full object-cover border-2 border-white/20 group-hover:border-white/40 transition-colors"
                             />
@@ -179,7 +176,7 @@ export default function BlogPost() {
 
                       return author.externalLink ? (
                         <a
-                          key={author.id}
+                          key={idx}
                           href={author.externalLink}
                           target="_blank"
                           rel="noopener noreferrer"
@@ -188,7 +185,7 @@ export default function BlogPost() {
                           {AuthorContent}
                         </a>
                       ) : (
-                        <div key={author.id}>{AuthorContent}</div>
+                        <div key={idx}>{AuthorContent}</div>
                       );
                     })}
                   </div>
@@ -244,6 +241,47 @@ export default function BlogPost() {
                     ))}
                   </div>
                 </div>
+
+                {/* Author Bios */}
+                {a.authors && a.authors.length > 0 && a.authors.some(author => author.bio) && (
+                  <div className="pt-6 border-t border-gray-200">
+                    <h3 className="text-lg font-semibold text-gray-900 mb-4" style={{ fontFamily: '"League Spartan", sans-serif' }}>
+                      About the {a.authors.length === 1 ? 'Author' : 'Authors'}
+                    </h3>
+                    <div className="space-y-4">
+                      {a.authors.filter(author => author.bio).map((author: Author, idx: number) => (
+                        <div key={idx} className="flex gap-3">
+                          {author.pictureUrl && (
+                            <img
+                              src={author.pictureUrl}
+                              alt={author.fullName}
+                              className="w-12 h-12 rounded-full object-cover flex-shrink-0"
+                            />
+                          )}
+                          <div className="flex-1">
+                            {author.externalLink ? (
+                              <a
+                                href={author.externalLink}
+                                target="_blank"
+                                rel="noopener noreferrer"
+                                className="text-sm font-semibold text-gray-900 hover:text-brand-green transition-colors font-primary"
+                              >
+                                {author.fullName}
+                              </a>
+                            ) : (
+                              <p className="text-sm font-semibold text-gray-900 font-primary">
+                                {author.fullName}
+                              </p>
+                            )}
+                            <p className="text-xs text-gray-600 mt-1 font-primary leading-relaxed">
+                              {author.bio}
+                            </p>
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                )}
 
                 {/* Back Button */}
                 <div className="pt-6 border-t border-gray-200">
