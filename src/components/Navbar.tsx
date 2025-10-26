@@ -209,7 +209,7 @@ const Navbar: React.FC = () => {
                   onMouseLeave={handleResourcesMouseLeave}
                 >
                   {/* !!! Not for mvp yet */}
-                  {/* <li>
+                  <li>
                     <Link
                       to="/resources/webinars"
                       className="block px-4 py-3 text-gray-700  hover:text-brand-green transition-colors"
@@ -217,7 +217,7 @@ const Navbar: React.FC = () => {
                     >
                       Webinars
                     </Link>
-                  </li> */}
+                  </li>
                   <li>
                     <Link
                       to="/podcasts"
@@ -381,18 +381,18 @@ const Navbar: React.FC = () => {
                     </button>
                     {resourcesOpen && (
                       <ul className="bg-gray-50">
-                        {/* <li>
-                        <Link
-                          to="/resources/webinars"
-                          onClick={() => {
-                            setMenuOpen(false);
-                            setResourcesOpen(false);
-                          }}
-                          className="block px-8 py-3 text-gray-600  hover:text-brand-green transition-colors"
-                        >
-                          Webinars
-                        </Link>
-                      </li> */}
+                        <li>
+                          <Link
+                            to="/resources/webinars"
+                            onClick={() => {
+                              setMenuOpen(false);
+                              setResourcesOpen(false);
+                            }}
+                            className="block px-8 py-3 text-gray-600  hover:text-brand-green transition-colors"
+                          >
+                            Webinars
+                          </Link>
+                        </li>
                         <li>
                           <Link
                             to="/podcasts"

@@ -191,7 +191,7 @@ const MyAccount: React.FC = () => {
                   value={formData.firstName}
                   onChange={handleInputChange}
                   readOnly={editingField !== "firstName"}
-                  className={`w-full rounded-lg px-4 py-2 text-sm text-gray-900 border ${
+                  className={`w-full rounded-lg px-4 py-2 text-sm text-gray-900 border  ${
                     editingField === "firstName"
                       ? "border-brand-green focus:outline-none focus:ring-2 focus:ring-brand-green/20"
                       : "border-gray-200 bg-gray-50"
