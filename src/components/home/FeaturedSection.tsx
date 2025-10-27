@@ -16,7 +16,7 @@ const cards: FeaturedCard[] = [
 
 const FeaturedSection: React.FC = () => {
   return (
-    <section className="relative z-0 w-full pt-48 sm:pt-56 lg:-mt-48 pb-24 sm:pb-28 bg-[#580F41]">
+    <section className="relative z-0 w-full pt-48 sm:pt-56 lg:-mt-48 md:-mt-60 pb-24 sm:pb-28 bg-[#580F41]">
       <div className="max-w-7xl mx-auto px-4">
         <div className="text-center mb-8">
           <h2
