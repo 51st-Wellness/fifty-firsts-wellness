@@ -13,6 +13,7 @@ import logo from "../assets/images/logo-with-name.png";
 
 const ForgotPassword: React.FC = () => {
   const [loading, setLoading] = useState<boolean>(false);
+  const [hasSubmitted, setHasSubmitted] = useState<boolean>(false);
   const navigate = useNavigate();
 
   // React Hook Form setup
@@ -37,6 +38,8 @@ const ForgotPassword: React.FC = () => {
         response.message || "Password reset code sent to your email!"
       );
 
+      setHasSubmitted(true); // Mark that user has submitted the form
+
       // Redirect to reset password page with email
       setTimeout(() => {
         navigate("/reset-password", { state: { email: data.email } });
@@ -53,7 +56,7 @@ const ForgotPassword: React.FC = () => {
   return (
     <main className="min-h-screen flex flex-col md:flex-row">
       {/* Left Side - Image (hidden on mobile) */}
-      <div 
+      <div
         className="hidden md:block md:w-1/2 relative"
         style={{
           backgroundImage: "url(/assets/homepage/hero-bg.png)",
@@ -69,7 +72,11 @@ const ForgotPassword: React.FC = () => {
         <div className="w-full max-w-md mx-auto">
           {/* Logo */}
           <div className="mb-4">
-            <img src={logo} alt="Fifty Firsts Wellness" className="h-12 w-auto" />
+            <img
+              src={logo}
+              alt="Fifty Firsts Wellness"
+              className="h-12 w-auto"
+            />
           </div>
 
           {/* Back Button */}
@@ -83,7 +90,7 @@ const ForgotPassword: React.FC = () => {
 
           {/* Header */}
           <div className="mb-8">
-            <h1 
+            <h1
               className="text-3xl sm:text-4xl font-semibold text-gray-900 mb-2"
               style={{ fontFamily: '"League Spartan", sans-serif' }}
             >
@@ -142,12 +149,15 @@ const ForgotPassword: React.FC = () => {
             </div>
           </form>
 
-          {/* Help Text */}
-          <div className="mt-6 text-center">
-            <p className="text-xs text-gray-500">
-              Check your spam folder if you don't receive the email within a few minutes.
-            </p>
-          </div>
+          {/* Help Text - Only show after first submission */}
+          {hasSubmitted && (
+            <div className="mt-6 text-center">
+              <p className="text-xs text-gray-500">
+                Check your spam folder if you don't receive the email within a
+                few minutes.
+              </p>
+            </div>
+          )}
         </div>
       </div>
     </main>

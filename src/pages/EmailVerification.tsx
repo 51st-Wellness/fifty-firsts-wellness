@@ -22,6 +22,7 @@ const EmailVerification: React.FC = () => {
   const [resendLoading, setResendLoading] = useState(false);
   const [resendCooldown, setResendCooldown] = useState(0);
   const [email, setEmail] = useState<string>("");
+  const [hasClickedResend, setHasClickedResend] = useState(false);
 
   const location = useLocation();
   const navigate = useNavigate();
@@ -106,6 +107,7 @@ const EmailVerification: React.FC = () => {
       await resendVerification({ email });
       toast.success("Verification code sent to your email");
       setResendCooldown(60); // 60 seconds cooldown
+      setHasClickedResend(true); // Mark that user has clicked resend
     } catch (error: any) {
       const errorMessage =
         error.response?.data?.message || "Failed to resend code";
@@ -221,12 +223,14 @@ const EmailVerification: React.FC = () => {
             </button>
           </div>
 
-          {/* Help Text */}
-          <div className="mt-6 text-center">
-            <p className="text-xs text-gray-500 leading-relaxed">
-              Check your spam folder if you don't see the email
-            </p>
-          </div>
+          {/* Help Text - Only show after first resend */}
+          {hasClickedResend && (
+            <div className="mt-6 text-center">
+              <p className="text-xs text-gray-500 leading-relaxed">
+                Check your spam folder if you don't see the email
+              </p>
+            </div>
+          )}
         </div>
       </div>
     </main>
