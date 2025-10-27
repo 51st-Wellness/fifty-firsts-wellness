@@ -1,6 +1,15 @@
 import React, { useState, useEffect } from "react";
 import { useAuth } from "../../context/AuthContextProvider";
-import { Camera, Loader, Mail, Lock, MapPin, LogOut, Edit3, Key } from "lucide-react";
+import {
+  Camera,
+  Loader,
+  Mail,
+  Lock,
+  MapPin,
+  LogOut,
+  Edit3,
+  Key,
+} from "lucide-react";
 import { toast } from "react-hot-toast";
 import { useNavigate } from "react-router-dom";
 
@@ -407,7 +416,7 @@ const MyAccount: React.FC = () => {
                 onClick={handleForgotPassword}
                 className="px-4 py-1.5 rounded-full text-xs font-medium border border-[#4444B3] text-[#4444B3] hover:bg-[#4444B3] hover:text-white transition-colors bg-white whitespace-nowrap sm:px-4 sm:py-1.5 sm:text-xs md:px-4 md:py-1.5 md:text-xs"
               >
-                <span className="hidden sm:inline">Forgot Password</span>
+                <span className="hidden sm:inline">Change Password</span>
                 <Key className="w-3 h-3 sm:hidden" />
               </button>
             </div>

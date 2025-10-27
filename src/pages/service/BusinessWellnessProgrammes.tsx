@@ -180,7 +180,7 @@ const BusinessWellnessProgrammes: React.FC = () => {
       description:
         "Designed for frontline staff, managers, and everyone in between",
       icon: Users,
-      color: "bg-yellow-200 border border-white/30",
+      color: "bg-yellow-600 border border-white/30",
     },
     {
       title: "Actionable",
