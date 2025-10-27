@@ -10,26 +10,31 @@ type ServiceCardProps = {
   isComingSoon?: boolean;
 };
 
-const ServiceCard: React.FC<ServiceCardProps> = ({ imageSrc, title, description, ctaText, ctaLink, isComingSoon = false }) => {
+const ServiceCard: React.FC<ServiceCardProps> = ({
+  imageSrc,
+  title,
+  description,
+  ctaText,
+  ctaLink,
+  isComingSoon = false,
+}) => {
   const CTAButton = () => {
     if (isComingSoon) {
       return (
-        <button
-          className="mt-6 inline-block bg-gray-400 text-white px-6 py-3 rounded-full text-sm font-semibold cursor-not-allowed"
-        >
+        <button className="mt-6 inline-block bg-gray-400 text-white px-6 py-3 rounded-full text-sm font-semibold cursor-not-allowed">
           {ctaText}
         </button>
       );
     }
-    
+
     // Handle waitlist scroll
     if (ctaLink === "#waitlist") {
       return (
         <button
           onClick={() => {
-            const waitlistSection = document.getElementById('waitlist');
+            const waitlistSection = document.getElementById("waitlist");
             if (waitlistSection) {
-              waitlistSection.scrollIntoView({ behavior: 'smooth' });
+              waitlistSection.scrollIntoView({ behavior: "smooth" });
             }
           }}
           className="mt-6 inline-block bg-brand-green text-white px-6 py-3 rounded-full text-sm font-semibold hover:bg-brand-green-dark transition-colors"
@@ -38,7 +43,7 @@ const ServiceCard: React.FC<ServiceCardProps> = ({ imageSrc, title, description,
         </button>
       );
     }
-    
+
     return (
       <Link
         to={ctaLink || "/marketplace"}
@@ -52,9 +57,18 @@ const ServiceCard: React.FC<ServiceCardProps> = ({ imageSrc, title, description,
   return (
     <div className="bg-white rounded-3xl shadow-xl p-6 sm:p-8 flex flex-col items-center text-center border border-gray-100 h-full">
       <div className="w-full overflow-hidden rounded-2xl">
-        <img src={imageSrc} alt={title} className="w-full h-72 sm:h-80 object-cover" />
+        <img
+          src={imageSrc}
+          alt={title}
+          className="w-full h-72 sm:h-80 object-cover"
+        />
       </div>
-      <h3 className="mt-6 text-xl sm:text-2xl font-semibold text-gray-900 min-h-[64px] flex items-center justify-center" style={{ fontFamily: '"League Spartan", sans-serif' }}>{title}</h3>
+      <h3
+        className="mt-6 text-xl sm:text-2xl font-semibold text-gray-900 min-h-[64px] flex items-center justify-center"
+        style={{ fontFamily: '"League Spartan", sans-serif' }}
+      >
+        {title}
+      </h3>
       <p className="mt-4 text-sm sm:text-base text-gray-600 leading-7 flex-grow">
         {description}
       </p>
@@ -68,11 +82,12 @@ const ServicesSection: React.FC = () => {
     <section
       className="relative w-full py-24 lg:py-32 min-h-[1100px] lg:min-h-[1300px] z-20"
       style={{
-        backgroundImage: 'url(/assets/homepage/service-cards/new-service-bg.svg)',
-        backgroundSize: 'cover',
-        backgroundPosition: 'bottom center',
-        backgroundRepeat: 'no-repeat',
-        marginBottom: '-160px',
+        backgroundImage:
+          "url(/assets/homepage/service-cards/new-service-bg.svg)",
+        backgroundSize: "cover",
+        backgroundPosition: "bottom center",
+        backgroundRepeat: "no-repeat",
+        marginBottom: "-160px",
         zIndex: 20,
       }}
     >
@@ -93,14 +108,14 @@ const ServicesSection: React.FC = () => {
             title="Personal Wellness Services"
             description="Ready to feel clearer, stronger and more like yourself again? Whether you're navigating midlife shifts or simply ready to prioritise your wellbeing, our services are designed to help you take back control, gain focus and elevate energy and positivity. We offer practical tools, coaching and a community that supports overall wellness, at every stage of life, because living and ageing well isn't a luxury or someone else's story."
             ctaText="Learn More"
-            ctaLink="/service/personal-wellness"
+            ctaLink="/services/personal-wellness"
           />
           <ServiceCard
             imageSrc="/assets/homepage/service-cards/service1.png"
             title="Workplace Wellness Services"
             description="Our workplace solutions are built to engage, empower and elevate employee experience and performance. From strategy and policy building to menopause action plans and bespoke training (e.g. wellbeing ambassador training), we help teams and businesses thrive and nurture positive employee experience. Let your business stand out, lead the change and empower your people."
             ctaText="Learn More"
-            ctaLink="/service/business-wellness"
+            ctaLink="/services/business-wellness"
           />
           <ServiceCard
             imageSrc="/assets/homepage/service-cards/service3.png"
@@ -116,5 +131,3 @@ const ServicesSection: React.FC = () => {
 };
 
 export default ServicesSection;
-
-
