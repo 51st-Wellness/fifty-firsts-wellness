@@ -9,7 +9,7 @@ import {
   TextField,
   InputAdornment,
   CircularProgress,
-  Grid,
+  // Grid2 as Grid, // Removed due to version issues
   Chip,
   Stack,
   Divider,
@@ -164,22 +164,22 @@ const CategoryManagement: React.FC<CategoryManagementProps> = ({
     switch (service) {
       case "store":
         return {
-          backgroundColor: "#4CAF50", // Green
+          backgroundColor: "#10b981", // success green
           color: "white",
         };
       case "programme":
         return {
-          backgroundColor: "#FF9800", // Orange
+          backgroundColor: "#f59e0b", // warning orange
           color: "white",
         };
       case "podcast":
         return {
-          backgroundColor: "#9C27B0", // Purple
+          backgroundColor: "#5f42e5", // brand purple
           color: "white",
         };
       default:
         return {
-          backgroundColor: "#2196F3", // Blue (default)
+          backgroundColor: "#00969b", // brand green (default)
           color: "white",
         };
     }
@@ -326,10 +326,10 @@ const CategoryManagement: React.FC<CategoryManagementProps> = ({
           </CardContent>
         </Card>
       ) : (
-        <Grid container spacing={2}>
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-3 gap-4">
           {filteredCategories.map((category) => (
-            <Grid item xs={12} sm={6} md={4} lg={4} xl={4} key={category.id}>
               <Card
+                key={category.id}
                 sx={{
                   height: "100%",
                   display: "flex",
@@ -435,9 +435,8 @@ const CategoryManagement: React.FC<CategoryManagementProps> = ({
                   )}
                 </CardContent>
               </Card>
-            </Grid>
           ))}
-        </Grid>
+        </div>
       )}
 
       {/* Category Dialog */}

@@ -31,11 +31,11 @@ const AdminOverview: React.FC = () => {
   const featuredProgrammes = stats?.featuredProgrammes || 0;
 
   return (
-    <div className="space-y-8">
+    <div className="space-y-8 font-primary">
       {/* Header */}
       <div>
-        <h1 className="text-3xl font-bold text-gray-900">Dashboard Overview</h1>
-        <p className="text-gray-600 mt-2">
+        <h1 className="text-3xl font-heading font-semibold text-gray-900">Dashboard Overview</h1>
+        <p className="text-gray-600 mt-2 font-primary">
           Welcome back! Here's what's happening with your wellness platform.
         </p>
       </div>
@@ -52,8 +52,8 @@ const AdminOverview: React.FC = () => {
                 {loading ? "—" : totalProgrammes}
               </p>
             </div>
-            <div className="bg-indigo-100 p-3 rounded-lg">
-              <Play className="h-6 w-6 text-indigo-600" />
+            <div className="bg-brand-green/10 p-3 rounded-lg">
+              <Play className="h-6 w-6 text-brand-green" />
             </div>
           </div>
           <div className="flex items-center mt-4 text-sm">
@@ -115,8 +115,8 @@ const AdminOverview: React.FC = () => {
                 {loading ? "—" : featuredProgrammes}
               </p>
             </div>
-            <div className="bg-purple-100 p-3 rounded-lg">
-              <Star className="h-6 w-6 text-purple-600" />
+            <div className="bg-brand-purple/10 p-3 rounded-lg">
+              <Star className="h-6 w-6 text-brand-purple" />
             </div>
           </div>
           <div className="flex items-center mt-4 text-sm">
@@ -131,16 +131,16 @@ const AdminOverview: React.FC = () => {
 
       {/* Quick Actions */}
       <div className="bg-white rounded-xl border border-gray-200 p-6 shadow-sm">
-        <h2 className="text-xl font-semibold mb-4 text-gray-900">
+        <h2 className="text-xl font-heading font-semibold mb-4 text-gray-900">
           Quick Actions
         </h2>
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
           <a
             href="/admin/programmes"
-            className="flex items-center p-4 rounded-lg border border-gray-200 hover:border-indigo-300 hover:bg-indigo-50 transition-colors group"
+            className="flex items-center p-4 rounded-lg border border-gray-200 hover:border-brand-green hover:bg-brand-green/5 transition-colors group"
           >
-            <div className="bg-indigo-100 p-2 rounded-lg group-hover:bg-indigo-200 transition-colors">
-              <Play className="h-5 w-5 text-indigo-600" />
+            <div className="bg-brand-green/10 p-2 rounded-lg group-hover:bg-brand-green/20 transition-colors">
+              <Play className="h-5 w-5 text-brand-green" />
             </div>
             <div className="ml-3">
               <p className="font-medium text-gray-900">Create Programme</p>

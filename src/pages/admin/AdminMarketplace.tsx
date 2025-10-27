@@ -123,39 +123,28 @@ const AdminMarketplace: React.FC = () => {
   };
 
   return (
-    <Box sx={{ p: 3 }}>
+    <div className="p-6 font-primary">
       {/* Header */}
-      <Typography variant="h4" component="h1" sx={{ mb: 3 }}>
+      <h1 className="text-3xl font-heading font-semibold text-gray-900 mb-6">
         Marketplace Management
-      </Typography>
+      </h1>
 
       {/* Store Items Section */}
-      <Box>
+      <div>
         {/* Store Items Header */}
-        <Box
-          sx={{
-            display: "flex",
-            justifyContent: "space-between",
-            alignItems: "center",
-            mb: 3,
-          }}
-        >
-          <Typography variant="h5" component="h2">
+        <div className="flex justify-between items-center mb-6">
+          <h2 className="text-2xl font-heading font-semibold text-gray-900">
             Store Items
-          </Typography>
+          </h2>
           <Button
             variant="contained"
             startIcon={<AddIcon />}
             onClick={openCreateDialog}
-            sx={{
-              bgcolor: "#00969b",
-              "&:hover": { bgcolor: "#007a7e" },
-              color: "white",
-            }}
+            color="primary"
           >
             Add New Item
           </Button>
-        </Box>
+        </div>
 
         <Box sx={{ display: "flex", gap: 3, height: "calc(100vh - 200px)" }}>
           {/* Items List - Fixed Left Side */}
@@ -261,11 +250,7 @@ const AdminMarketplace: React.FC = () => {
                               <Chip
                                 label="Featured"
                                 size="small"
-                                sx={{
-                                  bgcolor: "#00969b",
-                                  color: "white",
-                                  "&:hover": { bgcolor: "#007a7e" },
-                                }}
+                                color="primary"
                               />
                             )}
                             {item.isPublished && (
@@ -273,9 +258,9 @@ const AdminMarketplace: React.FC = () => {
                                 label="Published"
                                 size="small"
                                 sx={{
-                                  bgcolor: "#00a8ae",
+                                  bgcolor: "primary.light",
                                   color: "white",
-                                  "&:hover": { bgcolor: "#00969b" },
+                                  "&:hover": { bgcolor: "primary.main" },
                                 }}
                               />
                             )}
@@ -448,17 +433,14 @@ const AdminMarketplace: React.FC = () => {
                         {selected.isFeatured && (
                           <Chip
                             label="Featured"
-                            sx={{
-                              bgcolor: "#00969b",
-                              color: "white",
-                            }}
+                            color="primary"
                           />
                         )}
                         {selected.isPublished ? (
                           <Chip
                             label="Published"
                             sx={{
-                              bgcolor: "#00a8ae",
+                              bgcolor: "primary.light",
                               color: "white",
                             }}
                           />
@@ -482,8 +464,8 @@ const AdminMarketplace: React.FC = () => {
           item={dialogMode === "edit" ? selected : null}
           mode={dialogMode}
         />
-      </Box>
-    </Box>
+      </div>
+    </div>
   );
 };
 
