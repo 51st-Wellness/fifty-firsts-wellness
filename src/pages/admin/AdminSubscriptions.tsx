@@ -21,19 +21,17 @@ const AdminSubscriptions: React.FC = () => {
   };
 
   return (
-    <Box
-      sx={{ p: 4, backgroundColor: "background.default", minHeight: "100vh" }}
-    >
+    <div className="p-6 bg-gray-50 min-h-screen font-primary">
       {/* Header */}
-      <Box sx={{ mb: 4 }}>
-        <Typography variant="h3" component="h1" fontWeight="700" sx={{ mb: 1 }}>
+      <div className="mb-6">
+        <h1 className="text-3xl font-accent font-semibold text-gray-900 mb-2">
           Subscription Management
-        </Typography>
-        <Typography variant="body1" color="text.secondary">
+        </h1>
+        <p className="text-base text-gray-600">
           View and manage all user subscriptions, payment status, and
           subscription details
-        </Typography>
-      </Box>
+        </p>
+      </div>
 
       {/* Subscriptions Table */}
       <SubscriptionsTable onViewDetails={handleViewSubscription} />
@@ -44,7 +42,7 @@ const AdminSubscriptions: React.FC = () => {
         onClose={handleCloseModal}
         subscription={selectedSubscription}
       />
-    </Box>
+    </div>
   );
 };
 

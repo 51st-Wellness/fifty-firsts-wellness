@@ -132,12 +132,24 @@ const AdminUsers: React.FC = () => {
 
   // Use totalPages from backend response instead of calculating
 
+  // Safe date formatter for Joined column
+  const formatDate = (value: string | Date | null | undefined) => {
+    if (!value) return '—';
+    const date = value instanceof Date ? value : new Date(value);
+    if (isNaN(date.getTime())) return '—';
+    return date.toLocaleDateString(undefined, {
+      year: 'numeric',
+      month: 'short',
+      day: '2-digit',
+    });
+  };
+
   return (
     <div className="space-y-6">
       {/* Header */}
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
         <div>
-          <h1 className="text-2xl font-bold text-gray-900">User Management</h1>
+          <h1 className="text-3xl font-accent font-semibold text-gray-900">User Management</h1>
           <p className="text-gray-600">Manage users, roles, and permissions</p>
         </div>
         <div className="text-sm text-gray-500">Total Users: {totalUsers}</div>
@@ -285,7 +297,7 @@ const AdminUsers: React.FC = () => {
                       </span>
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                      {new Date(user.createdAt).toLocaleDateString()}
+                      {formatDate(user.createdAt as any)}
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap text-sm font-medium">
                       <div className="flex items-center gap-2">

@@ -10,7 +10,13 @@ export const signupSchema = z
     confirmPassword: z
       .string()
       .min(8, "Confirm password must be at least 8 characters"),
-    phone: z.string().min(1, "Phone number is required").max(20, "Phone number must be 20 characters or less"),
+    phone: z
+      .string()
+      .min(1, "Phone number is required")
+      .max(20, "Phone number must be 20 characters or less"),
+    agreeToTerms: z.boolean().refine((val) => val === true, {
+      message: "You must agree to the Privacy Policy and Terms & Conditions",
+    }),
   })
   .refine((data) => data.password === data.confirmPassword, {
     message: "Passwords must match",
@@ -21,9 +27,6 @@ export const signupSchema = z
 export const loginSchema = z.object({
   email: z.string().email("Invalid email address"),
   password: z.string().min(1, "Password is required"),
-  agreeToTerms: z.boolean().refine((val) => val === true, {
-    message: "You must agree to the Privacy Policy and Terms & Conditions",
-  }),
 });
 
 // Forgot password validation schema

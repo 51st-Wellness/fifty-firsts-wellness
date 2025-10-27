@@ -111,6 +111,12 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
         return "verification_required";
       }
 
+      // Explicitly handle deactivated accounts with a clear message
+      if (errorMessage.toLowerCase().includes("deactivated")) {
+        toast.error("Your account is deactivated. Please contact support.");
+        return false;
+      }
+
       toast.error(errorMessage);
     } finally {
       setLoading(false);

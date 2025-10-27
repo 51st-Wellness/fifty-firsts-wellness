@@ -9,7 +9,7 @@ import {
   TextField,
   InputAdornment,
   CircularProgress,
-  Grid,
+  // Grid2 as Grid, // Removed due to version issues
   Chip,
   Stack,
   Divider,
@@ -164,29 +164,29 @@ const CategoryManagement: React.FC<CategoryManagementProps> = ({
     switch (service) {
       case "store":
         return {
-          backgroundColor: "#4CAF50", // Green
+          backgroundColor: "#10b981", // success green
           color: "white",
         };
       case "programme":
         return {
-          backgroundColor: "#FF9800", // Orange
+          backgroundColor: "#f59e0b", // warning orange
           color: "white",
         };
       case "podcast":
         return {
-          backgroundColor: "#9C27B0", // Purple
+          backgroundColor: "#5f42e5", // brand purple
           color: "white",
         };
       default:
         return {
-          backgroundColor: "#2196F3", // Blue (default)
+          backgroundColor: "#00969b", // brand green (default)
           color: "white",
         };
     }
   };
 
   return (
-    <Box>
+    <div className="font-primary">
       {/* Header */}
       <Box
         sx={{
@@ -295,15 +295,15 @@ const CategoryManagement: React.FC<CategoryManagementProps> = ({
           <CircularProgress size={40} />
         </Box>
       ) : filteredCategories.length === 0 ? (
-        <Card sx={{ borderRadius: 2, boxShadow: 1 }}>
-          <CardContent sx={{ textAlign: "center", py: 6 }}>
+        <div className="bg-white rounded-xl border border-gray-200 shadow-sm">
+          <div className="text-center py-12 px-6">
             <CategoryIcon
-              sx={{ fontSize: 64, color: "text.secondary", mb: 3 }}
+              sx={{ fontSize: 64, color: "#6b7280", mb: 3 }}
             />
-            <Typography variant="h6" color="text.secondary" gutterBottom>
+            <h3 className="text-lg font-accent font-semibold text-gray-600 mb-2">
               {searchTerm ? "No categories found" : "No categories yet"}
-            </Typography>
-            <Typography variant="body2" color="text.secondary" sx={{ mb: 3 }}>
+            </h3>
+            <p className="text-sm text-gray-600 font-primary mb-4">
               {searchTerm
                 ? "Try adjusting your search terms"
                 : service
@@ -311,7 +311,7 @@ const CategoryManagement: React.FC<CategoryManagementProps> = ({
                     service
                   ].toLowerCase()} products`
                 : "Create your first category"}
-            </Typography>
+            </p>
             {!searchTerm && (
               <Button
                 variant="contained"
@@ -323,13 +323,13 @@ const CategoryManagement: React.FC<CategoryManagementProps> = ({
                 Add Category
               </Button>
             )}
-          </CardContent>
-        </Card>
+          </div>
+        </div>
       ) : (
-        <Grid container spacing={2}>
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-3 gap-4">
           {filteredCategories.map((category) => (
-            <Grid item xs={12} sm={6} md={4} lg={4} xl={4} key={category.id}>
               <Card
+                key={category.id}
                 sx={{
                   height: "100%",
                   display: "flex",
@@ -351,22 +351,10 @@ const CategoryManagement: React.FC<CategoryManagementProps> = ({
                     justifyContent="space-between"
                     sx={{ mb: 2 }}
                   >
-                    <Box sx={{ flexGrow: 1, minWidth: 0, pr: 1 }}>
-                      <Typography
-                        variant="h6"
-                        sx={{
-                          fontWeight: 600,
-                          mb: 1,
-                          lineHeight: 1.3,
-                          overflow: "hidden",
-                          textOverflow: "ellipsis",
-                          display: "-webkit-box",
-                          WebkitLineClamp: 2,
-                          WebkitBoxOrient: "vertical",
-                        }}
-                      >
+                    <div className="flex-1 min-w-0 pr-2">
+                      <h4 className="font-accent font-semibold text-gray-900 mb-2 line-clamp-2">
                         {category.name}
-                      </Typography>
+                      </h4>
                       <Chip
                         label={serviceLabels[category.service]}
                         size="small"
@@ -383,7 +371,7 @@ const CategoryManagement: React.FC<CategoryManagementProps> = ({
                           },
                         }}
                       />
-                    </Box>
+                    </div>
                     <Stack direction="row" spacing={0.5}>
                       <IconButton
                         size="small"
@@ -416,28 +404,16 @@ const CategoryManagement: React.FC<CategoryManagementProps> = ({
 
                   {/* Description */}
                   {category.description && (
-                    <Box sx={{ mb: 2 }}>
-                      <Typography
-                        variant="body2"
-                        color="text.secondary"
-                        sx={{
-                          lineHeight: 1.5,
-                          overflow: "hidden",
-                          textOverflow: "ellipsis",
-                          display: "-webkit-box",
-                          WebkitLineClamp: 3,
-                          WebkitBoxOrient: "vertical",
-                        }}
-                      >
+                    <div className="mb-4">
+                      <p className="text-sm text-gray-600 font-primary line-clamp-3">
                         {category.description}
-                      </Typography>
-                    </Box>
+                      </p>
+                    </div>
                   )}
                 </CardContent>
               </Card>
-            </Grid>
           ))}
-        </Grid>
+        </div>
       )}
 
       {/* Category Dialog */}
@@ -449,7 +425,7 @@ const CategoryManagement: React.FC<CategoryManagementProps> = ({
         mode={dialogMode}
         defaultService={selectedService === "all" ? undefined : selectedService}
       />
-    </Box>
+    </div>
   );
 };
 

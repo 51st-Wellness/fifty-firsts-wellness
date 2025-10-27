@@ -16,40 +16,31 @@ const AdminGeneral: React.FC = () => {
   };
 
   return (
-    <Box
-      sx={{ p: 4, backgroundColor: "background.default", minHeight: "100vh" }}
-    >
+    <div className="p-4 md:p-6 bg-gray-50 min-h-screen font-primary">
       {/* Header */}
-      <Box sx={{ mb: 4 }}>
-        <Typography variant="h3" component="h1" fontWeight="700" sx={{ mb: 1 }}>
+      <div className="mb-6">
+        <h1 className="text-3xl font-accent font-semibold text-gray-900 mb-2">
           General Management
-        </Typography>
-        <Typography variant="body1" color="text.secondary">
+        </h1>
+        <p className="text-base text-gray-600 font-primary">
           Manage categories, settings, and system configurations
-        </Typography>
-      </Box>
+        </p>
+      </div>
 
       {/* Tabs */}
-      <Box
-        sx={{
-          borderBottom: 1,
-          borderColor: "divider",
-          mb: 4,
-          backgroundColor: "background.paper",
-          borderRadius: 2,
-          px: 2,
-        }}
-      >
+      <div className="bg-white rounded-xl border border-gray-200 mb-6 overflow-hidden">
         <Tabs
           value={tabValue}
           onChange={handleTabChange}
           aria-label="general management tabs"
+          className="px-4"
           sx={{
             "& .MuiTab-root": {
               textTransform: "none",
               fontWeight: 600,
               minHeight: 64,
               px: 3,
+              fontFamily: '"Poppins", sans-serif',
             },
           }}
         >
@@ -71,7 +62,7 @@ const AdminGeneral: React.FC = () => {
             disabled
           />
         </Tabs>
-      </Box>
+      </div>
 
       {/* Tab Content */}
       {tabValue === 0 && (
@@ -79,43 +70,43 @@ const AdminGeneral: React.FC = () => {
       )}
 
       {tabValue === 1 && (
-        <Card sx={{ borderRadius: 2, boxShadow: 1 }}>
-          <CardContent sx={{ textAlign: "center", py: 6 }}>
+        <div className="bg-white rounded-xl border border-gray-200 shadow-sm">
+          <div className="text-center py-12 px-6">
             <SettingsIcon
-              sx={{ fontSize: 64, color: "text.secondary", mb: 3 }}
+              sx={{ fontSize: 64, color: "#6b7280", mb: 3 }}
             />
-            <Typography variant="h5" gutterBottom fontWeight="600">
+            <h3 className="text-xl font-accent font-semibold text-gray-900 mb-2">
               Settings Management
-            </Typography>
-            <Typography variant="body1" color="text.secondary" sx={{ mb: 3 }}>
+            </h3>
+            <p className="text-base text-gray-600 font-primary mb-4">
               System settings and configuration options will be available soon.
-            </Typography>
-            <Typography variant="body2" color="text.secondary">
+            </p>
+            <p className="text-sm text-gray-500 font-primary">
               This feature is currently under development.
-            </Typography>
-          </CardContent>
-        </Card>
+            </p>
+          </div>
+        </div>
       )}
 
-      {tabValue === 3 && (
-        <Card sx={{ borderRadius: 2, boxShadow: 1 }}>
-          <CardContent sx={{ textAlign: "center", py: 6 }}>
+      {tabValue === 2 && (
+        <div className="bg-white rounded-xl border border-gray-200 shadow-sm">
+          <div className="text-center py-12 px-6">
             <StorageIcon
-              sx={{ fontSize: 64, color: "text.secondary", mb: 3 }}
+              sx={{ fontSize: 64, color: "#6b7280", mb: 3 }}
             />
-            <Typography variant="h5" gutterBottom fontWeight="600">
+            <h3 className="text-xl font-accent font-semibold text-gray-900 mb-2">
               Storage Management
-            </Typography>
-            <Typography variant="body1" color="text.secondary" sx={{ mb: 3 }}>
+            </h3>
+            <p className="text-base text-gray-600 font-primary mb-4">
               File storage and media management will be available soon.
-            </Typography>
-            <Typography variant="body2" color="text.secondary">
+            </p>
+            <p className="text-sm text-gray-500 font-primary">
               This feature is currently under development.
-            </Typography>
-          </CardContent>
-        </Card>
+            </p>
+          </div>
+        </div>
       )}
-    </Box>
+    </div>
   );
 };
 

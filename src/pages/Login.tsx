@@ -95,7 +95,6 @@ const Login: React.FC = () => {
 
           {/* Form */}
           <form onSubmit={handleSubmit(onSubmit)} className="space-y-5">
-
             {/* Email */}
             <div>
               <label
@@ -154,40 +153,6 @@ const Login: React.FC = () => {
                 </p>
               )}
             </div>
-
-            {/* Privacy & Terms Checkbox */}
-            <div className="flex items-start gap-2">
-              <input
-                type="checkbox"
-                id="agreeToTerms"
-                {...register("agreeToTerms")}
-                className="mt-1 h-3 w-3 text-white border-gray-300 rounded accent-brand-green-light"
-              />
-              <label
-                htmlFor="agreeToTerms"
-                className="text-xs text-gray-600 leading-snug"
-              >
-                I have read and agree to the{" "}
-                <Link
-                  to="/privacy-policy"
-                  className="text-brand-green hover:text-brand-green-dark underline"
-                >
-                  Privacy Policy
-                </Link>{" "}
-                and{" "}
-                <Link
-                  to="/terms-and-conditions"
-                  className="text-brand-green hover:text-brand-green-dark underline"
-                >
-                  Terms & Conditions
-                </Link>
-              </label>
-            </div>
-            {errors.agreeToTerms && (
-              <p className="text-red-500 text-xs">
-                {errors.agreeToTerms.message}
-              </p>
-            )}
 
             {/* Forgot Password */}
             <div className="text-right">

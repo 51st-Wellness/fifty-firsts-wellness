@@ -11,8 +11,11 @@ import {
   Users,
   CreditCard,
 } from "lucide-react";
+import { ThemeProvider } from "@mui/material/styles";
+import { CssBaseline } from "@mui/material";
 import Logo from "../../assets/images/logo.png";
 import { useAuth } from "../../context/AuthContextProvider";
+import { theme } from "../../theme/muiTheme";
 
 // Layout container for all admin pages with responsive sidebar
 const AdminLayout: React.FC = () => {
@@ -26,7 +29,9 @@ const AdminLayout: React.FC = () => {
   };
 
   return (
-    <div className="min-h-screen w-full bg-gray-50">
+    <ThemeProvider theme={theme}>
+      <CssBaseline />
+      <div className="min-h-screen w-full bg-gray-50 font-primary">
       {/* Mobile sidebar overlay */}
       {sidebarOpen && (
         <div
@@ -68,7 +73,7 @@ const AdminLayout: React.FC = () => {
                 className={({ isActive }) =>
                   `flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-medium transition-all duration-200 ${
                     isActive
-                      ? "bg-teal-600 text-white shadow-lg"
+                      ? "bg-brand-green text-white shadow-lg"
                       : "text-gray-600 hover:bg-gray-50 hover:text-gray-900"
                   }`
                 }
@@ -84,7 +89,7 @@ const AdminLayout: React.FC = () => {
                 className={({ isActive }) =>
                   `flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-medium transition-all duration-200 ${
                     isActive
-                      ? "bg-teal-600 text-white shadow-lg"
+                      ? "bg-brand-green text-white shadow-lg"
                       : "text-gray-600 hover:bg-gray-50 hover:text-gray-900"
                   }`
                 }
@@ -100,7 +105,7 @@ const AdminLayout: React.FC = () => {
                 className={({ isActive }) =>
                   `flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-medium transition-all duration-200 ${
                     isActive
-                      ? "bg-teal-600 text-white shadow-lg"
+                      ? "bg-brand-green text-white shadow-lg"
                       : "text-gray-600 hover:bg-gray-50 hover:text-gray-900"
                   }`
                 }
@@ -116,7 +121,7 @@ const AdminLayout: React.FC = () => {
                 className={({ isActive }) =>
                   `flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-medium transition-all duration-200 ${
                     isActive
-                      ? "bg-teal-600 text-white shadow-lg"
+                      ? "bg-brand-green text-white shadow-lg"
                       : "text-gray-600 hover:bg-gray-50 hover:text-gray-900"
                   }`
                 }
@@ -132,7 +137,7 @@ const AdminLayout: React.FC = () => {
                 className={({ isActive }) =>
                   `flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-medium transition-all duration-200 ${
                     isActive
-                      ? "bg-teal-600 text-white shadow-lg"
+                      ? "bg-brand-green text-white shadow-lg"
                       : "text-gray-600 hover:bg-gray-50 hover:text-gray-900"
                   }`
                 }
@@ -150,7 +155,7 @@ const AdminLayout: React.FC = () => {
                   className={({ isActive }) =>
                     `flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-medium transition-all duration-200 ${
                       isActive
-                        ? "bg-teal-600 text-white shadow-lg"
+                        ? "bg-brand-green text-white shadow-lg"
                         : "text-gray-600 hover:bg-gray-50 hover:text-gray-900"
                     }`
                   }
@@ -200,7 +205,8 @@ const AdminLayout: React.FC = () => {
           </div>
         </main>
       </div>
-    </div>
+      </div>
+    </ThemeProvider>
   );
 };
 
