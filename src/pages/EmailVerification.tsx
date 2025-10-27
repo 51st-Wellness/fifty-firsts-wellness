@@ -103,11 +103,12 @@ const EmailVerification: React.FC = () => {
     if (resendCooldown > 0) return;
 
     setResendLoading(true);
+    setHasClickedResend(true); // Mark that user has clicked resend (regardless of success/failure)
+
     try {
       await resendVerification({ email });
       toast.success("Verification code sent to your email");
       setResendCooldown(60); // 60 seconds cooldown
-      setHasClickedResend(true); // Mark that user has clicked resend
     } catch (error: any) {
       const errorMessage =
         error.response?.data?.message || "Failed to resend code";
