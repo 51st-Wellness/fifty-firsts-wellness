@@ -5,7 +5,7 @@ import { Link } from "react-router-dom";
 const Hero: React.FC = () => {
   return (
     <section
-      className="relative w-full min-h-[70vh] sm:min-h-[80vh] md:min-h-[90vh] lg:min-h-[90vh] flex items-center"
+      className="relative w-full min-h-[70vh] sm:min-h-[80vh] md:min-h-[100vh] lg:min-h-[100vh] flex items-center"
       style={{
         backgroundImage: "url(/assets/homepage/new-hero-bg.png)",
         backgroundSize: "cover",

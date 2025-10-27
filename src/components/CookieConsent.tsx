@@ -70,17 +70,17 @@ const CookieConsent: React.FC = () => {
       <div className="absolute inset-0 bg-black/20 backdrop-blur-sm" />
       
       {/* Consent Modal */}
-      <div className="relative bg-white rounded-2xl shadow-2xl max-w-2xl w-full max-h-[90vh] overflow-y-auto">
+      <div className="relative bg-white rounded-xl sm:rounded-2xl shadow-2xl max-w-2xl w-full max-h-[90vh] overflow-y-auto">
         {!showSettings ? (
           // Main consent view
-          <div className="p-6 sm:p-8">
+          <div className="p-4 sm:p-6 md:p-8">
             {/* Header */}
-            <div className="flex items-center gap-3 mb-6">
-              <div className="w-10 h-10 bg-brand-green/10 rounded-lg flex items-center justify-center">
-                <Cookie className="w-5 h-5 text-brand-green" />
+            <div className="flex items-center gap-2 sm:gap-3 mb-4 sm:mb-6">
+              <div className="w-8 h-8 sm:w-10 sm:h-10 bg-brand-green/10 rounded-lg flex items-center justify-center flex-shrink-0">
+                <Cookie className="w-4 h-4 sm:w-5 sm:h-5 text-brand-green" />
               </div>
               <h2 
-                className="text-xl font-semibold text-gray-900"
+                className="text-lg sm:text-xl font-semibold text-gray-900"
                 style={{ fontFamily: '"League Spartan", sans-serif' }}
               >
                 Cookie Preferences
@@ -88,15 +88,16 @@ const CookieConsent: React.FC = () => {
             </div>
 
             {/* Content */}
-            <div className="mb-6">
-              <p className="text-gray-700 leading-relaxed mb-4">
+            <div className="mb-4 sm:mb-6">
+              <p className="text-sm sm:text-base text-gray-700 leading-relaxed mb-3 sm:mb-4">
                 We use cookies to enhance your browsing experience, serve personalized content, 
                 and analyze our traffic. By clicking "Accept All", you consent to our use of cookies.
               </p>
-              <p className="text-sm text-gray-600">
+              <p className="text-xs sm:text-sm text-gray-600">
                 You can customize your preferences or learn more in our{" "}
                 <Link 
                   to="/cookie-policy" 
+                  onClick={() => setShowConsent(false)}
                   className="text-brand-green hover:text-brand-green-dark underline"
                 >
                   Cookie Policy
@@ -106,25 +107,26 @@ const CookieConsent: React.FC = () => {
             </div>
 
             {/* Action Buttons */}
-            <div className="flex flex-col sm:flex-row gap-3">
+            <div className="flex flex-col sm:flex-row gap-2 sm:gap-3">
               <button
                 onClick={handleRejectAll}
-                className="flex-1 px-6 py-3 border border-gray-300 text-gray-700 rounded-xl font-medium hover:bg-gray-50 transition-colors"
+                className="flex-1 px-4 sm:px-6 py-2 sm:py-3 border border-gray-300 text-gray-700 rounded-lg sm:rounded-xl text-sm sm:text-base font-medium hover:bg-gray-50 transition-colors"
                 style={{ fontFamily: '"League Spartan", sans-serif' }}
               >
                 Reject All
               </button>
               <button
                 onClick={() => setShowSettings(true)}
-                className="flex-1 px-6 py-3 border border-gray-300 text-gray-700 rounded-xl font-medium hover:bg-gray-50 transition-colors"
+                className="flex-1 px-4 sm:px-6 py-2 sm:py-3 border border-gray-300 text-gray-700 rounded-lg sm:rounded-xl text-sm sm:text-base font-medium hover:bg-gray-50 transition-colors"
                 style={{ fontFamily: '"League Spartan", sans-serif' }}
               >
-                <Settings className="w-4 h-4 inline mr-2" />
-                Customize
+                <Settings className="w-3 h-3 sm:w-4 sm:h-4 inline sm:mr-2" />
+                <span className="hidden sm:inline">Customize</span>
+                <span className="sm:hidden">Settings</span>
               </button>
               <button
                 onClick={handleAcceptAll}
-                className="flex-1 px-6 py-3 bg-brand-green text-white rounded-xl font-medium hover:bg-brand-green-dark transition-colors"
+                className="flex-1 px-4 sm:px-6 py-2 sm:py-3 bg-brand-green text-white rounded-lg sm:rounded-xl text-sm sm:text-base font-medium hover:bg-brand-green-dark transition-colors"
                 style={{ fontFamily: '"League Spartan", sans-serif' }}
               >
                 Accept All
@@ -133,11 +135,11 @@ const CookieConsent: React.FC = () => {
           </div>
         ) : (
           // Settings view
-          <div className="p-6 sm:p-8">
+          <div className="p-4 sm:p-6 md:p-8">
             {/* Header */}
-            <div className="flex items-center justify-between mb-6">
+            <div className="flex items-center justify-between mb-4 sm:mb-6">
               <h2 
-                className="text-xl font-semibold text-gray-900"
+                className="text-lg sm:text-xl font-semibold text-gray-900"
                 style={{ fontFamily: '"League Spartan", sans-serif' }}
               >
                 Cookie Settings
@@ -151,22 +153,22 @@ const CookieConsent: React.FC = () => {
             </div>
 
             {/* Cookie Categories */}
-            <div className="space-y-6 mb-8">
+            <div className="space-y-4 sm:space-y-6 mb-6 sm:mb-8">
               {/* Necessary Cookies */}
-              <div className="border border-gray-200 rounded-xl p-4">
+              <div className="border border-gray-200 rounded-lg sm:rounded-xl p-3 sm:p-4">
                 <div className="flex items-center justify-between mb-2">
                   <h3 
-                    className="font-semibold text-gray-900"
+                    className="text-sm sm:text-base font-semibold text-gray-900"
                     style={{ fontFamily: '"League Spartan", sans-serif' }}
                   >
                     Necessary Cookies
                   </h3>
-                  <div className="flex items-center gap-2 text-sm text-gray-500">
-                    <Check className="w-4 h-4 text-brand-green" />
+                  <div className="flex items-center gap-2 text-xs sm:text-sm text-gray-500">
+                    <Check className="w-3 h-3 sm:w-4 sm:h-4 text-brand-green" />
                     Always Active
                   </div>
                 </div>
-                <p className="text-sm text-gray-600">
+                <p className="text-xs sm:text-sm text-gray-600">
                   These cookies are essential for the website to function properly. 
                   They cannot be disabled.
                 </p>

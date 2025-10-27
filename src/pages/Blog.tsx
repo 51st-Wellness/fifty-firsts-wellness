@@ -272,7 +272,7 @@ const Blog: React.FC<BlogProps> = ({ onSearch }) => {
               <button
                 type="button"
                 onClick={() => { setSelectedCategory('All Blogs'); setQuery(''); }}
-                className="px-4 py-2 rounded-full border border-gray-300 bg-white text-sm hover:bg-gray-50"
+                className="px-4 py-2 rounded-full bg-brand-green-light text-white text-sm hover:bg-brand-green-light/80"
               >
                 Reset filters
               </button>

@@ -7,10 +7,9 @@ import footerlogo from "../assets/images/footerlogo.png";
 const Footer: React.FC = () => {
   const location = useLocation();
 
-  // Use #006666 for home and cookie policy pages, #580F41 for all others including contact
-  const isHomeOrCookie =
-    location.pathname === "/" || location.pathname === "/cookie-policy";
-  const backgroundColor = isHomeOrCookie ? "#006666" : "#580F41";
+  // Use #006666 for home page only, #580F41 for all others including contact, cookie policy, privacy policy, and terms
+  const isHome = location.pathname === "/";
+  const backgroundColor = isHome ? "#006666" : "#580F41";
 
   return (
     <footer className="text-white w-full" style={{ backgroundColor }}>
