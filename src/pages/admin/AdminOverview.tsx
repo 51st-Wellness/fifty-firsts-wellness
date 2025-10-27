@@ -34,7 +34,7 @@ const AdminOverview: React.FC = () => {
     <div className="space-y-8 font-primary">
       {/* Header */}
       <div>
-        <h1 className="text-3xl font-heading font-semibold text-gray-900">Dashboard Overview</h1>
+        <h1 className="text-3xl font-accent font-semibold text-gray-900">Dashboard Overview</h1>
         <p className="text-gray-600 mt-2 font-primary">
           Welcome back! Here's what's happening with your wellness platform.
         </p>
@@ -131,7 +131,7 @@ const AdminOverview: React.FC = () => {
 
       {/* Quick Actions */}
       <div className="bg-white rounded-xl border border-gray-200 p-6 shadow-sm">
-        <h2 className="text-xl font-heading font-semibold mb-4 text-gray-900">
+        <h2 className="text-xl font-accent font-semibold mb-4 text-gray-900">
           Quick Actions
         </h2>
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">

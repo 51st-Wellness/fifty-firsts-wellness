@@ -176,7 +176,7 @@ const AdminProgrammes: React.FC = () => {
     return (
       <div className="p-4 md:p-6 max-w-7xl mx-auto">
         <div className="flex items-center justify-between mb-6">
-          <h1 className="text-3xl font-bold text-gray-900">Programmes</h1>
+          <h1 className="text-3xl font-accent font-semibold text-gray-900">Programmes</h1>
         </div>
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
           {Array.from({ length: 6 }).map((_, i) => (
@@ -195,11 +195,11 @@ const AdminProgrammes: React.FC = () => {
   }
 
   return (
-    <div className="p-4 md:p-6 max-w-7xl mx-auto">
+    <div className="p-4 md:p-6 max-w-7xl mx-auto font-primary">
       <div className="flex items-start justify-between mb-6 gap-4">
         <div>
-          <h1 className="text-3xl font-bold text-gray-900">Programmes</h1>
-          <p className="text-gray-600 mt-1">
+          <h1 className="text-3xl font-accent font-semibold text-gray-900">Programmes</h1>
+          <p className="text-gray-600 mt-1 font-primary">
             {programmes.length} programme{programmes.length !== 1 ? "s" : ""}
           </p>
         </div>
@@ -225,10 +225,10 @@ const AdminProgrammes: React.FC = () => {
       {programmes.length === 0 ? (
         <div className="text-center py-12 bg-white rounded-xl border">
           <Video className="h-16 w-16 text-gray-300 mx-auto mb-4" />
-          <h3 className="text-lg font-medium text-gray-900 mb-2">
+          <h3 className="text-lg font-accent font-semibold text-gray-900 mb-2">
             No programmes yet
           </h3>
-          <p className="text-gray-500 mb-4">
+          <p className="text-gray-500 mb-4 font-primary">
             Create your first programme to get started
           </p>
           <button

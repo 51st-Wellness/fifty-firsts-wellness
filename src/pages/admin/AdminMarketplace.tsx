@@ -125,7 +125,7 @@ const AdminMarketplace: React.FC = () => {
   return (
     <div className="p-6 font-primary">
       {/* Header */}
-      <h1 className="text-3xl font-heading font-semibold text-gray-900 mb-6">
+      <h1 className="text-3xl font-accent font-semibold text-gray-900 mb-6">
         Marketplace Management
       </h1>
 
@@ -133,7 +133,7 @@ const AdminMarketplace: React.FC = () => {
       <div>
         {/* Store Items Header */}
         <div className="flex justify-between items-center mb-6">
-          <h2 className="text-2xl font-heading font-semibold text-gray-900">
+          <h2 className="text-2xl font-accent font-semibold text-gray-900">
             Store Items
           </h2>
           <Button

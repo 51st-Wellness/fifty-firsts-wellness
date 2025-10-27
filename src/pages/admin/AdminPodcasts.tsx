@@ -12,11 +12,11 @@ const AdminPodcasts: React.FC = () => {
   const [tabValue, setTabValue] = useState(0);
 
   return (
-    <Box sx={{ p: 3 }}>
+    <div className="p-6 font-primary">
       {/* Header */}
-      <Typography variant="h4" component="h1" sx={{ mb: 3 }}>
+      <h1 className="text-3xl font-accent font-semibold text-gray-900 mb-6">
         Podcast Management
-      </Typography>
+      </h1>
 
       {/* Tabs */}
       <Box sx={{ borderBottom: 1, borderColor: "divider", mb: 3 }}>
@@ -37,20 +37,20 @@ const AdminPodcasts: React.FC = () => {
       {tabValue === 0 && (
         <Box>
           {/* Podcasts Tab */}
-          <Typography variant="h5" component="h2" sx={{ mb: 3 }}>
+          <h2 className="text-2xl font-accent font-semibold text-gray-900 mb-4">
             Podcasts
-          </Typography>
-          <Typography variant="body1" color="text.secondary">
+          </h2>
+          <p className="text-base text-gray-600">
             Podcast management functionality will be implemented here.
             <br />
             For now, you can manage podcast categories in the Categories tab.
-          </Typography>
-        </Box>
+          </p>
+        </div>
       )}
 
       {/* Categories Tab */}
       {tabValue === 1 && <CategoryManagement service="podcast" />}
-    </Box>
+    </div>
   );
 };
 

@@ -19,7 +19,7 @@ const AdminGeneral: React.FC = () => {
     <div className="p-4 md:p-6 bg-gray-50 min-h-screen font-primary">
       {/* Header */}
       <div className="mb-6">
-        <h1 className="text-3xl font-heading font-semibold text-gray-900 mb-2">
+        <h1 className="text-3xl font-accent font-semibold text-gray-900 mb-2">
           General Management
         </h1>
         <p className="text-base text-gray-600 font-primary">
@@ -75,7 +75,7 @@ const AdminGeneral: React.FC = () => {
             <SettingsIcon
               sx={{ fontSize: 64, color: "#6b7280", mb: 3 }}
             />
-            <h3 className="text-xl font-heading font-semibold text-gray-900 mb-2">
+            <h3 className="text-xl font-accent font-semibold text-gray-900 mb-2">
               Settings Management
             </h3>
             <p className="text-base text-gray-600 font-primary mb-4">
@@ -94,7 +94,7 @@ const AdminGeneral: React.FC = () => {
             <StorageIcon
               sx={{ fontSize: 64, color: "#6b7280", mb: 3 }}
             />
-            <h3 className="text-xl font-heading font-semibold text-gray-900 mb-2">
+            <h3 className="text-xl font-accent font-semibold text-gray-900 mb-2">
               Storage Management
             </h3>
             <p className="text-base text-gray-600 font-primary mb-4">
