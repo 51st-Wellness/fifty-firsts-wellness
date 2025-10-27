@@ -266,9 +266,16 @@ const Navbar: React.FC = () => {
               />
 
               {/* Sidebar */}
-              <div className="fixed top-0 right-0 h-full w-80 bg-white shadow-2xl md:hidden z-50 transform transition-transform duration-300 ease-in-out overflow-y-auto animate-slide-in-right">
-                {/* Close Button */}
-                <div className="flex justify-end p-4">
+              <div className="fixed top-0 right-0 h-full w-80 bg-white shadow-2xl md:hidden z-50 transform transition-transform duration-300 ease-in-out overflow-y-auto animate-slide-in-right flex flex-col">
+                {/* Logo and Close Button Header */}
+                <div className="flex items-center justify-between p-4 border-b border-gray-200">
+                  <Link to="/" onClick={() => setMenuOpen(false)} className="flex items-center">
+                    <img
+                      src="/assets/logo-with-name.png"
+                      alt="Fifty Firsts Wellness"
+                      className="h-10 w-auto"
+                    />
+                  </Link>
                   <button
                     onClick={() => setMenuOpen(false)}
                     className="p-2 rounded-lg hover:bg-gray-100 transition-colors"
@@ -278,7 +285,7 @@ const Navbar: React.FC = () => {
                   </button>
                 </div>
 
-                <ul className="flex flex-col py-4 px-2">
+                <ul className="flex flex-col py-4 px-2 flex-1">
                   <li>
                     <Link
                       to="/about"
@@ -441,6 +448,20 @@ const Navbar: React.FC = () => {
                     </Link>
                   </li>
                 </ul>
+
+                {/* Signup Button at Bottom */}
+                {!isAuthenticated && (
+                  <div className="p-4 border-t border-gray-200">
+                    <Link
+                      to="/signup"
+                      onClick={() => setMenuOpen(false)}
+                      className="w-full bg-brand-green text-white py-3 px-6 rounded-full font-semibold hover:bg-brand-green-dark transition-colors flex items-center justify-center"
+                      style={{ fontFamily: '"League Spartan", sans-serif' }}
+                    >
+                      Sign Up
+                    </Link>
+                  </div>
+                )}
               </div>
             </>
           )}

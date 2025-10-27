@@ -14,7 +14,7 @@ const OrderDetails: React.FC = () => {
         </h2>
         <div className="mt-3 flex items-center gap-3 text-sm text-gray-600">
           <span>Order No: 236736821991</span>
-          <span className="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium bg-green-100 text-green-700">
+          <span className="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium bg-green-100 text-green-700" style={{ fontFamily: '"League Spartan", sans-serif' }}>
             Delivered
           </span>
         </div>
@@ -56,13 +56,13 @@ const OrderDetails: React.FC = () => {
                   
                   {/* Desktop: Price top right */}
                   <div className="hidden md:block ml-4">
-                    <p className="text-sm font-semibold text-gray-900">{item.price}</p>
+                    <p className="text-sm font-semibold text-gray-900" style={{ fontFamily: '"League Spartan", sans-serif' }}>{item.price}</p>
                   </div>
                 </div>
                 
                 {/* Desktop: Buy button bottom right (same line as category) */}
                 <div className="hidden md:flex justify-end mt-2">
-                  <button className="px-3 py-1.5 rounded-full text-xs font-semibold bg-brand-green text-white hover:bg-brand-green-dark transition-colors">
+                  <button className="px-3 py-1.5 rounded-full text-xs font-semibold bg-brand-green text-white hover:bg-brand-green-dark transition-colors" style={{ fontFamily: '"League Spartan", sans-serif' }}>
                     Buy Again
                   </button>
                 </div>
@@ -71,8 +71,8 @@ const OrderDetails: React.FC = () => {
             
             {/* Mobile: Price and Buy button at bottom */}
             <div className="flex items-center justify-between mt-4 md:hidden">
-              <p className="text-sm font-semibold text-gray-900">{item.price}</p>
-              <button className="px-3 py-1.5 rounded-full text-xs font-semibold bg-brand-green text-white hover:bg-brand-green-dark transition-colors">
+              <p className="text-sm font-semibold text-gray-900" style={{ fontFamily: '"League Spartan", sans-serif' }}>{item.price}</p>
+              <button className="px-3 py-1.5 rounded-full text-xs font-semibold bg-brand-green text-white hover:bg-brand-green-dark transition-colors" style={{ fontFamily: '"League Spartan", sans-serif' }}>
                 Buy Again
               </button>
             </div>
@@ -91,8 +91,8 @@ const OrderDetails: React.FC = () => {
             <span className="text-gray-600">Discount</span>
             <span className="text-right text-gray-900">£0.99</span>
             <div className="col-span-2 border-t border-gray-200 my-2" />
-            <span className="text-gray-900 font-semibold">Total</span>
-            <span className="text-right text-gray-900 font-semibold">£257.99</span>
+            <span className="text-gray-900 font-semibold" style={{ fontFamily: '"League Spartan", sans-serif' }}>Total</span>
+            <span className="text-right text-gray-900 font-semibold" style={{ fontFamily: '"League Spartan", sans-serif' }}>£257.99</span>
           </div>
         </div>
       </div>

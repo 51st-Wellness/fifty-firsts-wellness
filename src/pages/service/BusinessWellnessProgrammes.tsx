@@ -264,7 +264,7 @@ const BusinessWellnessProgrammes: React.FC = () => {
               <img 
                 src="/assets/homepage/service-cards/service1.png" 
                 alt="Business Wellness Programmes" 
-                className="w-3/4 h-auto rounded-2xl shadow-lg mx-auto"
+                className="w-full h-auto rounded-2xl shadow-lg"
               />
             </div>
           </div>
