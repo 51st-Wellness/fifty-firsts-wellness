@@ -27,6 +27,7 @@ const OrdersHistory: React.FC = () => {
                   ? "text-brand-green border border-brand-green"
                   : " text-gray-600  border border-transparent"
               }`}
+              style={{ fontFamily: '"League Spartan", sans-serif' }}
             >
               {filter}
             </button>
@@ -38,7 +39,7 @@ const OrdersHistory: React.FC = () => {
         <div className="text-center py-12">
           <Package className="w-16 h-16 text-gray-300 mx-auto mb-4" />
           <div className="space-y-2">
-            <h3 className="text-lg font-medium text-gray-900">Coming Soon</h3>
+            <h3 className="text-lg font-medium text-gray-900" style={{ fontFamily: '"League Spartan", sans-serif' }}>Coming Soon</h3>
             <p className="text-gray-500 text-sm">
               Order history functionality will be available soon.
             </p>
