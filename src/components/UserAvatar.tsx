@@ -1,11 +1,6 @@
 import React, { useState, useRef, useEffect } from "react";
 import { Link, useNavigate } from "react-router-dom";
-import {
-  User,
-  LogOut,
-  UserCircle,
-  Shield,
-} from "lucide-react";
+import { User, LogOut, UserCircle, Shield } from "lucide-react";
 import { useAuth } from "../context/AuthContextProvider";
 // import { UserRole } from "../types/user.types";
 interface UserAvatarProps {
@@ -126,7 +121,7 @@ export function UserAvatar({ className = "" }: UserAvatarProps) {
 
               {/* Menu Items */}
               <div className="py-1">
-                {user.role === "ADMIN" ? (
+                {user.role === "ADMIN" || user.role === "MODERATOR" ? (
                   <>
                     <Link
                       to="/dashboard"
@@ -185,7 +180,11 @@ export function UserAvatar({ className = "" }: UserAvatarProps) {
         <button
           onClick={() => {
             setIsDropdownOpen(false);
-            navigate(user.role === "ADMIN" ? "/admin" : "/dashboard");
+            navigate(
+              user.role === "ADMIN" || user.role === "MODERATOR"
+                ? "/admin"
+                : "/dashboard"
+            );
           }}
           className="hidden md:flex items-center pl-2 pr-3 hover:bg-gray-200/50 rounded-r-full transition-all duration-200 cursor-pointer group h-full"
         >
@@ -196,7 +195,11 @@ export function UserAvatar({ className = "" }: UserAvatarProps) {
               </span>
               <div className="flex items-center gap-0.5">
                 <span className="text-[10px] text-gray-500 group-hover:text-gray-600 leading-tight">
-                  {user.role === "ADMIN" ? "Admin dashboard" : "Dashboard"}
+                  {user.role === "ADMIN"
+                    ? "Admin dashboard"
+                    : user.role === "MODERATOR"
+                    ? "Moderator dashboard"
+                    : "Dashboard"}
                 </span>
                 <svg
                   xmlns="http://www.w3.org/2000/svg"

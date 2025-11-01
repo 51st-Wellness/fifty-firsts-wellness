@@ -125,4 +125,4 @@ export const changeUserRole = async (
   return data as ResponseDto<{ user: User }>;
 };
 
-export type { User as UserType };
+export type { User };
