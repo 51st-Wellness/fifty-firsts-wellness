@@ -4,11 +4,11 @@ import { useAuth } from "../context/AuthContextProvider";
 import { getUserProfile } from "../api/user.api";
 import Loader from "./Loader";
 
-interface AdminGuardProps {
+interface ManagementGuardProps {
   children: React.ReactNode;
 }
 
-const AdminGuard: React.FC<AdminGuardProps> = ({ children }) => {
+const ManagementGuard: React.FC<ManagementGuardProps> = ({ children }) => {
   const { isAuthenticated, user, loading: authLoading } = useAuth();
   const navigate = useNavigate();
   const [isCheckingProfile, setIsCheckingProfile] = useState(false);
@@ -84,7 +84,7 @@ const AdminGuard: React.FC<AdminGuardProps> = ({ children }) => {
               Authentication Required
             </h3>
             <p className="text-gray-600 mb-6">
-              You need to be logged in to access the admin panel. Please sign in
+              You need to be logged in to access the management panel. Please sign in
               to continue.
             </p>
           </div>
@@ -116,7 +116,7 @@ const AdminGuard: React.FC<AdminGuardProps> = ({ children }) => {
             </h3>
             <p className="text-gray-600 mb-6">
               You don't have admin or moderator privileges to access this area.
-              Only administrators and moderators can view the admin panel.
+              Only administrators and moderators can view the management panel.
             </p>
           </div>
           <button
@@ -143,7 +143,7 @@ const AdminGuard: React.FC<AdminGuardProps> = ({ children }) => {
               </h3>
               <p className="text-gray-600 mb-6">
                 Your session has expired. Please sign in again to access the
-                admin panel.
+                management panel.
               </p>
             </div>
             <button
@@ -182,4 +182,4 @@ const AdminGuard: React.FC<AdminGuardProps> = ({ children }) => {
   return <>{children}</>;
 };
 
-export default AdminGuard;
+export default ManagementGuard;

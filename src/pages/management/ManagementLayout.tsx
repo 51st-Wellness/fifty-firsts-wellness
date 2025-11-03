@@ -18,8 +18,8 @@ import { useAuth } from "../../context/AuthContextProvider";
 import { theme } from "../../theme/muiTheme";
 import { User } from "@/api/user.api";
 
-// Layout container for all admin pages with responsive sidebar
-const AdminLayout: React.FC = () => {
+// Layout container for all management pages with responsive sidebar
+const ManagementLayout: React.FC = () => {
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const { logout, user } = useAuth();
   const navigate = useNavigate();
@@ -53,7 +53,7 @@ const AdminLayout: React.FC = () => {
           >
             <div className="h-16 flex items-center px-4 border-b border-gray-100 justify-between">
               <Link to="/" className="flex items-center gap-2">
-                <img src={Logo} alt="Admin Dashboard" width={32} height={32} />
+                <img src={Logo} alt="Management Dashboard" width={32} height={32} />
                 <span className="text-sm font-medium text-gray-700">
                   {user && user.role.charAt(0).toUpperCase() + user.role.slice(1).toLowerCase()} Dashboard
                 </span>
@@ -69,7 +69,7 @@ const AdminLayout: React.FC = () => {
             <nav className="p-4 space-y-2 flex flex-col h-[calc(100vh-4rem)]">
               <div className="flex-1 space-y-2">
                 <NavLink
-                  to="/admin"
+                  to="/management"
                   end
                   className={({ isActive }) =>
                     `flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-medium transition-all duration-200 ${
@@ -86,7 +86,7 @@ const AdminLayout: React.FC = () => {
                   Overview
                 </NavLink>
                 <NavLink
-                  to="/admin/general"
+                  to="/management/general"
                   className={({ isActive }) =>
                     `flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-medium transition-all duration-200 ${
                       isActive
@@ -104,7 +104,7 @@ const AdminLayout: React.FC = () => {
                 {/* Only show Subscriptions for ADMIN role */}
                 {user?.role === "ADMIN" && (
                   <NavLink
-                    to="/admin/subscriptions"
+                    to="/management/subscriptions"
                     className={({ isActive }) =>
                       `flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-medium transition-all duration-200 ${
                         isActive
@@ -121,7 +121,7 @@ const AdminLayout: React.FC = () => {
                   </NavLink>
                 )}
                 <NavLink
-                  to="/admin/marketplace"
+                  to="/management/marketplace"
                   className={({ isActive }) =>
                     `flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-medium transition-all duration-200 ${
                       isActive
@@ -137,7 +137,7 @@ const AdminLayout: React.FC = () => {
                   Marketplace
                 </NavLink>
                 <NavLink
-                  to="/admin/programmes"
+                  to="/management/programmes"
                   className={({ isActive }) =>
                     `flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-medium transition-all duration-200 ${
                       isActive
@@ -155,7 +155,7 @@ const AdminLayout: React.FC = () => {
                 {/* Only show User Management for ADMIN role */}
                 {user?.role === "ADMIN" && (
                   <NavLink
-                    to="/admin/users"
+                    to="/management/users"
                     className={({ isActive }) =>
                       `flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-medium transition-all duration-200 ${
                         isActive
@@ -216,4 +216,4 @@ const AdminLayout: React.FC = () => {
   );
 };
 
-export default AdminLayout;
+export default ManagementLayout;

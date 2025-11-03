@@ -7,8 +7,8 @@ import {
 } from "@mui/icons-material";
 import CategoryManagement from "../../components/admin/CategoryManagement";
 
-// General admin page for managing categories and other general settings
-const AdminGeneral: React.FC = () => {
+// General management page for managing categories and other general settings
+const ManagementGeneral: React.FC = () => {
   const [tabValue, setTabValue] = useState(0);
 
   const handleTabChange = (event: React.SyntheticEvent, newValue: number) => {
@@ -110,4 +110,4 @@ const AdminGeneral: React.FC = () => {
   );
 };
 
-export default AdminGeneral;
+export default ManagementGeneral;

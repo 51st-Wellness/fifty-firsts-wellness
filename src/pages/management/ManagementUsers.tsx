@@ -19,8 +19,8 @@ import { User as UserType } from "../../types/user.types";
 import { useAuth } from "../../context/AuthContextProvider";
 import toast from "react-hot-toast";
 
-// User management interface for admin dashboard
-const AdminUsers: React.FC = () => {
+// User management interface for management dashboard
+const ManagementUsers: React.FC = () => {
   const { user: currentUser } = useAuth();
   const [users, setUsers] = useState<UserType[]>([]);
   const [loading, setLoading] = useState(true);
@@ -448,4 +448,4 @@ const AdminUsers: React.FC = () => {
   );
 };
 
-export default AdminUsers;
+export default ManagementUsers;
