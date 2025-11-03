@@ -130,6 +130,16 @@ const AdminUsers: React.FC = () => {
     }
   };
 
+  // Format role text for display
+  const formatRoleText = (role: string) => {
+    const roleMap: { [key: string]: string } = {
+      ADMIN: "Admin",
+      MODERATOR: "Moderator",
+      USER: "User",
+    };
+    return roleMap[role] || role;
+  };
+
   // Use totalPages from backend response instead of calculating
 
   // Safe date formatter for Joined column
@@ -281,7 +291,7 @@ const AdminUsers: React.FC = () => {
                             user.role
                           )}`}
                         >
-                          {user.role}
+                          {formatRoleText(user.role)}
                         </span>
                       </div>
                     </td>
