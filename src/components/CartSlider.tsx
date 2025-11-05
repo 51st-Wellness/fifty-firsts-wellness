@@ -1,4 +1,5 @@
 import React from "react";
+import { Link } from "react-router-dom";
 import {
   SwipeableDrawer,
   Box,
@@ -48,10 +49,10 @@ const CartSlider: React.FC<CartSliderProps> = ({ isOpen, onClose }) => {
   };
 
   const formatPrice = (price: number) => {
-    return new Intl.NumberFormat("en-NG", {
+    return new Intl.NumberFormat("en-GB", {
       style: "currency",
-      currency: "NGN",
-      minimumFractionDigits: 0,
+      currency: "GBP",
+      minimumFractionDigits: 2,
     }).format(price);
   };
 
@@ -65,11 +66,11 @@ const CartSlider: React.FC<CartSliderProps> = ({ isOpen, onClose }) => {
       return null;
     }
 
-    const itemTotal = storeItem.price * quantity;
+    const category = storeItem.categories?.[0] || "Uncategorized";
 
     return (
-      <div className="flex items-center gap-4 py-3 px-2 bg-white rounded-xl shadow-sm">
-        {/* Product Image */}
+      <div className="relative bg-white rounded-xl p-4 flex items-start gap-4">
+        {/* Image left */}
         <div className="w-20 h-20 bg-gray-100 rounded-lg flex-shrink-0 overflow-hidden">
           {storeItem.display?.url ? (
             <img
@@ -84,47 +85,48 @@ const CartSlider: React.FC<CartSliderProps> = ({ isOpen, onClose }) => {
           )}
         </div>
 
-        {/* Product Details */}
+        {/* Top right of image: product name, category below */}
         <div className="flex-1 min-w-0">
-          <h4 className="font-semibold text-gray-800 text-sm line-clamp-2">
+          <h4 className="font-semibold text-gray-900 text-sm line-clamp-1">
             {storeItem.name}
           </h4>
-          <p className="text-sm font-bold text-brand-green mt-1">
-            {formatPrice(storeItem.price)}
-          </p>
+          <p className="text-xs text-gray-500 mt-1">Category: {category}</p>
+
+          {/* Bottom right of image: quantity controls */}
+          <div className="flex items-center gap-2 mt-3">
+            <button
+              onClick={() => handleQuantityChange(item.productId, quantity - 1)}
+              disabled={isLoading}
+              className="w-8 h-8 rounded-full bg-brand-green hover:bg-brand-green-dark flex items-center justify-center disabled:opacity-50"
+            >
+              <Minus className="w-4 h-4 text-white" />
+            </button>
+            <span className="w-8 text-center text-sm font-medium">{quantity}</span>
+            <button
+              onClick={() => handleQuantityChange(item.productId, quantity + 1)}
+              disabled={isLoading}
+              className="w-8 h-8 rounded-full bg-brand-green hover:bg-brand-green-dark flex items-center justify-center disabled:opacity-50"
+            >
+              <Plus className="w-4 h-4 text-white" />
+            </button>
+          </div>
         </div>
 
-        {/* Quantity Controls */}
-        <div className="flex items-center gap-2">
-          <button
-            onClick={() => handleQuantityChange(item.productId, quantity - 1)}
-            disabled={isLoading}
-            className="h-8 w-8 p-0 flex items-center justify-center rounded-full border bg-white hover:bg-gray-50 disabled:opacity-50"
-          >
-            <Minus className="w-4 h-4 text-gray-600" />
-          </button>
-
-          <span className="w-8 text-center text-sm font-medium text-gray-800">
-            {quantity}
-          </span>
-
-          <button
-            onClick={() => handleQuantityChange(item.productId, quantity + 1)}
-            disabled={isLoading}
-            className="h-8 w-8 p-0 flex items-center justify-center rounded-full border bg-white hover:bg-gray-50 disabled:opacity-50"
-          >
-            <Plus className="w-4 h-4 text-gray-600" />
-          </button>
+        {/* Top right of card: price */}
+        <div className="absolute top-4 right-4">
+          <div className="text-sm font-semibold text-gray-900">{formatPrice(storeItem.price)}</div>
         </div>
 
-        {/* Remove Button */}
-        <button
-          onClick={() => removeFromCart(item.productId)}
-          disabled={isLoading}
-          className="h-8 w-8 p-0 flex items-center justify-center text-red-500 hover:text-red-700 hover:bg-red-50 rounded-full"
-        >
-          <Trash2 className="w-4 h-4" />
-        </button>
+        {/* Bottom right of card: delete icon */}
+        <div className="absolute bottom-4 right-4">
+          <button
+            onClick={() => removeFromCart(item.productId)}
+            disabled={isLoading}
+            className="text-red-600 hover:text-red-700 p-2 rounded-full hover:bg-red-50 disabled:opacity-50"
+          >
+            <Trash2 className="w-4 h-4" />
+          </button>
+        </div>
       </div>
     );
   };
@@ -142,9 +144,9 @@ const CartSlider: React.FC<CartSliderProps> = ({ isOpen, onClose }) => {
         sx: {
           width: isMobile ? "100vw" : 480,
           height: "100vh",
-          // Safe area and backdrop blur on mobile
           pb: isMobile ? "env(safe-area-inset-bottom)" : 0,
           backdropFilter: isMobile ? "saturate(180%) blur(8px)" : "none",
+          boxShadow: "none",
         },
       }}
     >
@@ -206,10 +208,12 @@ const CartSlider: React.FC<CartSliderProps> = ({ isOpen, onClose }) => {
               </p>
             </div>
           ) : (
-            // Cart Items
-            <div className="space-y-3">
+            // Cart Items with separators, no shadows
+            <div className="bg-white rounded-xl divide-y divide-gray-200">
               {items.map((item) => (
-                <CartItem key={item.id} item={item} />
+                <div key={item.id} className="">
+                  <CartItem item={item} />
+                </div>
               ))}
             </div>
           )}
@@ -237,29 +241,29 @@ const CartSlider: React.FC<CartSliderProps> = ({ isOpen, onClose }) => {
             </div>
 
             {/* Action Buttons */}
-            <div className="space-y-2">
+            <div className="flex items-center gap-2">
               <Button
-                className="w-full bg-brand-green hover:bg-brand-green-dark text-white font-semibold py-3 rounded-lg"
+                className="flex-1 bg-brand-green hover:bg-brand-green-dark text-white font-semibold rounded-full py-2 sm:py-3 text-sm"
                 disabled={isLoading}
               >
-                Proceed to Checkout
+                Checkout
               </Button>
-
-              <Button
-                variant="outline"
-                className="w-full text-red-600 border-red-200 hover:bg-red-50 font-semibold py-3 rounded-lg"
-                onClick={clearCart}
-                disabled={isLoading}
-              >
-                Clear Cart
-              </Button>
+              <Link to="/dashboard/cart" onClick={onClose} className="flex-1">
+                <Button
+                  variant="outline"
+                  className="w-full border-brand-green text-brand-green hover:bg-brand-green/5 font-semibold rounded-full py-2 sm:py-3 text-sm"
+                  disabled={isLoading}
+                >
+                  Go to Cart
+                </Button>
+              </Link>
             </div>
           </Box>
         )}
 
         {/* Loading Overlay */}
         {isLoading && (
-          <div className="absolute inset-0 bg-white bg-opacity-75 flex items-center justify-center">
+          <div className="absolute inset-0 bg-white/80 flex items-center justify-center">
             <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-brand-green"></div>
           </div>
         )}

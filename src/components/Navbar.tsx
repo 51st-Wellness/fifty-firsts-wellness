@@ -358,13 +358,13 @@ const Navbar: React.FC = () => {
                   </li>
 
                   <li>
-                    <Link
-                      to="/marketplace"
-                      onClick={() => setMenuOpen(false)}
-                      className="block px-6 py-3 text-gray-700  hover:text-brand-green font-medium transition-colors"
-                    >
-                      Marketplace
-                    </Link>
+                  <Link
+                    to="/marketplace"
+                    onClick={() => setMenuOpen(false)}
+                    className="block px-6 py-3 text-gray-700  hover:text-brand-green font-medium transition-colors"
+                  >
+                    Marketplace
+                  </Link>
                   </li>
 
                   {/* Resources Submenu (mobile) */}

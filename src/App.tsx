@@ -10,6 +10,7 @@ import Navbar from "./components/Navbar";
 import Home from "./pages/Home";
 import About from "./pages/About";
 import MarketPlace from "./pages/MarketPlace";
+import ProductDetail from "./pages/ProductDetail";
 import BlogList from "./pages/BlogList";
 // import BlogPost from "./pages/BlogPost";
 import Blog from "./pages/Blog";
@@ -24,7 +25,7 @@ import MyAccount from "./pages/dashboard/MyAccount";
 import OrdersHistory from "./pages/dashboard/OrdersHistory";
 import OrderDetails from "./pages/dashboard/OrderDetails";
 import MyCart from "./pages/dashboard/MyCart";
-import Wishlist from "./pages/dashboard/Wishlist";
+import MarketplaceActivity from "./pages/dashboard/MarketplaceActivity";
 import PersonalWellnessProgrammes from "./pages/service/PersonalWellnessProgrammes";
 import WellnessProgramDetails from "./pages/service/WellnessProgramDetails";
 import ProgrammeDetail from "./pages/ProgrammeDetail";
@@ -144,6 +145,15 @@ const App: React.FC = () => {
               <>
                 <Navbar />
                 <MarketPlace />
+              </>
+            }
+          />
+          <Route
+            path="/products/:productId"
+            element={
+              <>
+                <Navbar />
+                <ProductDetail />
               </>
             }
           />
@@ -277,7 +287,7 @@ const App: React.FC = () => {
             <Route path="orders" element={<OrdersHistory />} />
             <Route path="orders/:orderId" element={<OrderDetails />} />
             <Route path="cart" element={<MyCart />} />
-            <Route path="wishlist" element={<Wishlist />} />
+            <Route path="marketplace" element={<MarketplaceActivity />} />
           </Route>
           <Route path="/forgot-password" element={<ForgotPassword />} />
           <Route path="/reset-password" element={<ResetPassword />} />

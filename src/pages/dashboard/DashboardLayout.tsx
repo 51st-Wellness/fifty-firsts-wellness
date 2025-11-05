@@ -1,12 +1,12 @@
 import React, { useState } from "react";
 import { Link, useLocation, Outlet } from "react-router-dom";
-import { User, ShoppingBag, Heart, Package, ChevronDown } from "lucide-react";
+import { User, ShoppingBag, Package, ChevronDown, Activity } from "lucide-react";
 import Navbar from "../../components/Navbar";
 import Footer from "../../components/Footer";
 import MyAccount from "./MyAccount";
 import OrdersHistory from "./OrdersHistory";
 import MyCart from "./MyCart";
-import Wishlist from "./Wishlist";
+import MarketplaceActivity from "./MarketplaceActivity";
 
 const DashboardLayout: React.FC = () => {
   const location = useLocation();
@@ -20,6 +20,12 @@ const DashboardLayout: React.FC = () => {
       component: <MyAccount />,
     },
     {
+      label: "Marketplace",
+      path: "/dashboard/marketplace",
+      icon: Activity,
+      component: <MarketplaceActivity />,
+    },
+    {
       label: "Orders History",
       path: "/dashboard/orders",
       icon: Package,
@@ -30,12 +36,6 @@ const DashboardLayout: React.FC = () => {
       path: "/dashboard/cart",
       icon: ShoppingBag,
       component: <MyCart />,
-    },
-    {
-      label: "Wishlist",
-      path: "/dashboard/wishlist",
-      icon: Heart,
-      component: <Wishlist />,
     },
   ];
 
