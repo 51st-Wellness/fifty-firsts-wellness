@@ -4,8 +4,8 @@ import SubscriptionsTable from "../../components/admin/SubscriptionsTable";
 import SubscriptionDetailsModal from "../../components/admin/SubscriptionDetailsModal";
 import { type AdminSubscriptionData } from "../../api/subscription.api";
 
-// Dedicated admin page for managing subscriptions
-const AdminSubscriptions: React.FC = () => {
+// Dedicated management page for managing subscriptions
+const ManagementSubscriptions: React.FC = () => {
   const [selectedSubscription, setSelectedSubscription] =
     useState<AdminSubscriptionData | null>(null);
   const [modalOpen, setModalOpen] = useState(false);
@@ -46,4 +46,4 @@ const AdminSubscriptions: React.FC = () => {
   );
 };
 
-export default AdminSubscriptions;
+export default ManagementSubscriptions;

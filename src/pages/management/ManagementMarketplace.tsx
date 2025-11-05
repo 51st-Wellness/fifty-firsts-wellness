@@ -27,8 +27,8 @@ import {
 import type { StoreItem } from "../../types/marketplace.types";
 import StoreItemDialog from "../../components/admin/StoreItemDialog";
 
-// Enhanced marketplace admin with Material UI dialogs and full CRUD support
-const AdminMarketplace: React.FC = () => {
+// Enhanced marketplace management with Material UI dialogs and full CRUD support
+const ManagementMarketplace: React.FC = () => {
   // State for items list
   const [query, setQuery] = useState({ page: 1, limit: 12, search: "" });
   const [loading, setLoading] = useState(false);
@@ -469,7 +469,7 @@ const AdminMarketplace: React.FC = () => {
   );
 };
 
-export default AdminMarketplace;
+export default ManagementMarketplace;
 
 // Debounce hook for search input
 function useDebounce<T>(value: T, delay: number): T {

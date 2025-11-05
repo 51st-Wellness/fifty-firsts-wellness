@@ -137,12 +137,12 @@ export function UserAvatar({ className = "" }: UserAvatarProps) {
                       )}
                     </Link>
                     <Link
-                      to="/admin"
+                      to="/management"
                       onClick={() => setIsDropdownOpen(false)}
                       className="w-full flex items-center gap-3 px-4 py-2 text-sm text-gray-700 hover:bg-gray-50 transition-colors"
                     >
                       <Shield className="w-4 h-4 text-gray-500" />
-                      <span>Admin Dashboard</span>
+                      <span>Management Dashboard</span>
                     </Link>
                   </>
                 ) : (
@@ -182,7 +182,7 @@ export function UserAvatar({ className = "" }: UserAvatarProps) {
             setIsDropdownOpen(false);
             navigate(
               user.role === "ADMIN" || user.role === "MODERATOR"
-                ? "/admin"
+                ? "/management"
                 : "/dashboard"
             );
           }}
@@ -195,10 +195,8 @@ export function UserAvatar({ className = "" }: UserAvatarProps) {
               </span>
               <div className="flex items-center gap-0.5">
                 <span className="text-[10px] text-gray-500 group-hover:text-gray-600 leading-tight">
-                  {user.role === "ADMIN"
-                    ? "Admin dashboard"
-                    : user.role === "MODERATOR"
-                    ? "Moderator dashboard"
+                  {user.role === "ADMIN" || user.role === "MODERATOR"
+                    ? "Management"
                     : "Dashboard"}
                 </span>
                 <svg

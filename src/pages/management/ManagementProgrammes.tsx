@@ -92,7 +92,7 @@ const MuxPlayerModal: React.FC<{
   );
 };
 
-const AdminProgrammes: React.FC = () => {
+const ManagementProgrammes: React.FC = () => {
   const [programmes, setProgrammes] = useState<Programme[]>([]);
   const [loading, setLoading] = useState(true);
   const [viewingProgramme, setViewingProgramme] = useState<Programme | null>(
@@ -121,7 +121,7 @@ const AdminProgrammes: React.FC = () => {
       const res = await fetchProgrammes({
         page: 1,
         limit: 50,
-        isPublished: undefined, // Admin should see all programmes (published and unpublished)
+        isPublished: undefined, // Management should see all programmes (published and unpublished)
       });
       setProgrammes(res.data.data.items || []);
     } catch (e) {
@@ -293,4 +293,4 @@ const AdminProgrammes: React.FC = () => {
   );
 };
 
-export default AdminProgrammes;
+export default ManagementProgrammes;

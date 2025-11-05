@@ -19,8 +19,8 @@ import { User as UserType } from "../../types/user.types";
 import { useAuth } from "../../context/AuthContextProvider";
 import toast from "react-hot-toast";
 
-// User management interface for admin dashboard
-const AdminUsers: React.FC = () => {
+// User management interface for management dashboard
+const ManagementUsers: React.FC = () => {
   const { user: currentUser } = useAuth();
   const [users, setUsers] = useState<UserType[]>([]);
   const [loading, setLoading] = useState(true);
@@ -128,6 +128,16 @@ const AdminUsers: React.FC = () => {
       default:
         return <User size={14} />;
     }
+  };
+
+  // Format role text for display
+  const formatRoleText = (role: string) => {
+    const roleMap: { [key: string]: string } = {
+      ADMIN: "Admin",
+      MODERATOR: "Moderator",
+      USER: "User",
+    };
+    return roleMap[role] || role;
   };
 
   // Use totalPages from backend response instead of calculating
@@ -281,7 +291,7 @@ const AdminUsers: React.FC = () => {
                             user.role
                           )}`}
                         >
-                          {user.role}
+                          {formatRoleText(user.role)}
                         </span>
                       </div>
                     </td>
@@ -438,4 +448,4 @@ const AdminUsers: React.FC = () => {
   );
 };
 
-export default AdminUsers;
+export default ManagementUsers;

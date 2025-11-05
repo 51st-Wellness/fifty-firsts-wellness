@@ -10,9 +10,6 @@ import Navbar from "./components/Navbar";
 import Home from "./pages/Home";
 import About from "./pages/About";
 import MarketPlace from "./pages/MarketPlace";
-import ProductDetail from "./pages/ProductDetail";
-import BlogList from "./pages/BlogList";
-// import BlogPost from "./pages/BlogPost";
 import Blog from "./pages/Blog";
 import AIWellness from "./pages/AIWellness";
 import Membership from "./pages/Membership";
@@ -42,7 +39,7 @@ import ResetPassword from "./pages/ResetPassword";
 import CheckEmail from "./pages/CheckEmail";
 import EmailVerification from "./pages/EmailVerification";
 import EmailVerificationGuard from "./components/EmailVerificationGuard";
-import AdminGuard from "./components/AdminGuard";
+import ManagementGuard from "./components/ManagementGuard";
 import Loader from "./components/Loader";
 import Footer from "./components/Footer";
 import BlogPost from "@/pages/BlogPost";
@@ -53,16 +50,16 @@ import PaymentSuccess from "./pages/PaymentSuccess";
 import NotFound from "./pages/NotFound";
 import AuthSuccess from "./pages/AuthSuccess";
 
-// Admin routes (lazy loaded)
-const AdminLayout = lazy(() => import("./pages/admin/AdminLayout"));
-const AdminOverview = lazy(() => import("./pages/admin/AdminOverview"));
-const AdminGeneral = lazy(() => import("./pages/admin/AdminGeneral"));
-const AdminSubscriptions = lazy(
-  () => import("./pages/admin/AdminSubscriptions")
+// Management routes (lazy loaded)
+const ManagementLayout = lazy(() => import("./pages/management/ManagementLayout"));
+const ManagementOverview = lazy(() => import("./pages/management/ManagementOverview"));
+const ManagementGeneral = lazy(() => import("./pages/management/ManagementGeneral"));
+const ManagementSubscriptions = lazy(
+  () => import("./pages/management/ManagementSubscriptions")
 );
-const AdminMarketplace = lazy(() => import("./pages/admin/AdminMarketplace"));
-const AdminProgrammes = lazy(() => import("./pages/admin/AdminProgrammes"));
-const AdminUsers = lazy(() => import("./pages/admin/AdminUsers"));
+const ManagementMarketplace = lazy(() => import("./pages/management/ManagementMarketplace"));
+const ManagementProgrammes = lazy(() => import("./pages/management/ManagementProgrammes"));
+const ManagementUsers = lazy(() => import("./pages/management/ManagementUsers"));
 
 // Scroll to top component
 const ScrollToTop: React.FC = () => {
@@ -314,24 +311,24 @@ const App: React.FC = () => {
             }
           />
 
-          {/* Admin namespace */}
+          {/* Management namespace */}
           <Route
-            path="/admin"
+            path="/management"
             element={
-              <AdminGuard>
+              <ManagementGuard>
                 <Suspense fallback={<Loader />}>
-                  <AdminLayout />
+                  <ManagementLayout />
                 </Suspense>
-              </AdminGuard>
+              </ManagementGuard>
             }
           >
-            {/* Redirect /admin to /admin/overview by default */}
+            {/* Redirect /management to /management/overview by default */}
             <Route
               // path="overview"
               index
               element={
                 <Suspense fallback={<Loader />}>
-                  <AdminOverview />
+                  <ManagementOverview />
                 </Suspense>
               }
             />
@@ -339,7 +336,7 @@ const App: React.FC = () => {
               path="general"
               element={
                 <Suspense fallback={<Loader />}>
-                  <AdminGeneral />
+                  <ManagementGeneral />
                 </Suspense>
               }
             />
@@ -347,7 +344,7 @@ const App: React.FC = () => {
               path="subscriptions"
               element={
                 <Suspense fallback={<Loader />}>
-                  <AdminSubscriptions />
+                  <ManagementSubscriptions />
                 </Suspense>
               }
             />
@@ -355,7 +352,7 @@ const App: React.FC = () => {
               path="marketplace"
               element={
                 <Suspense fallback={<Loader />}>
-                  <AdminMarketplace />
+                  <ManagementMarketplace />
                 </Suspense>
               }
             />
@@ -363,7 +360,7 @@ const App: React.FC = () => {
               path="programmes"
               element={
                 <Suspense fallback={<Loader />}>
-                  <AdminProgrammes />
+                  <ManagementProgrammes />
                 </Suspense>
               }
             />
@@ -371,7 +368,7 @@ const App: React.FC = () => {
               path="users"
               element={
                 <Suspense fallback={<Loader />}>
-                  <AdminUsers />
+                  <ManagementUsers />
                 </Suspense>
               }
             />

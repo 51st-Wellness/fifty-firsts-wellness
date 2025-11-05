@@ -2,7 +2,7 @@ import React, { useEffect, useState } from "react";
 import { Users, ShoppingBag, Play, Clock, Star } from "lucide-react";
 import { fetchProgrammeStats, type ProgrammeStats } from "@/api/stats.api";
 
-const AdminOverview: React.FC = () => {
+const ManagementOverview: React.FC = () => {
   const [stats, setStats] = useState<ProgrammeStats | null>(null);
   const [loading, setLoading] = useState(true);
 
@@ -136,7 +136,7 @@ const AdminOverview: React.FC = () => {
         </h2>
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
           <a
-            href="/admin/programmes"
+            href="/management/programmes"
             className="flex items-center p-4 rounded-lg border border-gray-200 hover:border-brand-green hover:bg-brand-green/5 transition-colors group"
           >
             <div className="bg-brand-green/10 p-2 rounded-lg group-hover:bg-brand-green/20 transition-colors">
@@ -151,7 +151,7 @@ const AdminOverview: React.FC = () => {
           </a>
 
           <a
-            href="/admin/marketplace"
+            href="/management/marketplace"
             className="flex items-center p-4 rounded-lg border border-gray-200 hover:border-green-300 hover:bg-green-50 transition-colors group"
           >
             <div className="bg-green-100 p-2 rounded-lg group-hover:bg-green-200 transition-colors">
@@ -170,4 +170,4 @@ const AdminOverview: React.FC = () => {
   );
 };
 
-export default AdminOverview;
+export default ManagementOverview;
