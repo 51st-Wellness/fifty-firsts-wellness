@@ -41,6 +41,50 @@ const MarketPlace: React.FC<MarketPlaceProps> = ({ onSearch }) => {
   // Debounced search
   const [debouncedQuery, setDebouncedQuery] = useState<string>("");
 
+  // Demo items to showcase discount/preorder/notify states
+  const demoItems = useMemo<StoreItemType[]>(
+    () => [
+      {
+        productId: "demo-preorder-1" as any,
+        name: "Mindful Tea Set",
+        price: 34.99,
+        oldPrice: 49.99,
+        display: { url: "https://images.unsplash.com/photo-1517686469429-8bdb88b9f907?w=800&q=80" } as any,
+        images: [
+          "https://images.unsplash.com/photo-1517686469429-8bdb88b9f907?w=800&q=80",
+          "https://images.unsplash.com/photo-1505577058444-a3dab90d4253?w=800&q=80",
+        ],
+        stock: 50,
+        // custom field consumed in card
+        // @ts-ignore
+        status: "coming_soon",
+      },
+      {
+        productId: "demo-notify-1" as any,
+        name: "Aromatherapy Candle",
+        price: 14.99,
+        oldPrice: 24.99,
+        display: { url: "https://images.unsplash.com/photo-1519681393784-d120267933ba?w=800&q=80" } as any,
+        images: [
+          "https://images.unsplash.com/photo-1519681393784-d120267933ba?w=800&q=80",
+        ],
+        stock: 0,
+      },
+      {
+        productId: "demo-discount-1" as any,
+        name: "Yoga Mat Pro",
+        price: 29.99,
+        oldPrice: 59.99,
+        display: { url: "https://images.unsplash.com/photo-1552196563-55cd4e45efb3?w=800&q=80" } as any,
+        images: [
+          "https://images.unsplash.com/photo-1552196563-55cd4e45efb3?w=800&q=80",
+        ],
+        stock: 0,
+      },
+    ],
+    []
+  );
+
   useEffect(() => {
     const timer = setTimeout(() => {
       setDebouncedQuery(query);
@@ -136,6 +180,26 @@ const MarketPlace: React.FC<MarketPlaceProps> = ({ onSearch }) => {
     loadItems({ page: 1, reset: true });
   }, [debouncedQuery, selectedCategory]);
 
+  // Client-side filtering for demo: filter by price and rating threshold
+  const ratingThreshold = useMemo(() => {
+    if (selectedRating === "4+") return 4;
+    if (selectedRating === "3+") return 3;
+    if (selectedRating === "2+") return 2;
+    if (selectedRating === "1+") return 1;
+    return 0;
+  }, [selectedRating]);
+
+  const getItemRating = (item: StoreItemType) => 4; // placeholder until backend provides rating
+
+  const filteredItems = useMemo(() => {
+    const combined = [...demoItems, ...items];
+    return combined.filter((it) => {
+      const withinPrice = (it.price ?? 0) >= minPrice && (it.price ?? 0) <= maxPrice;
+      const meetsRating = getItemRating(it) >= ratingThreshold;
+      return withinPrice && meetsRating;
+    });
+  }, [demoItems, items, minPrice, maxPrice, ratingThreshold]);
+
   return (
     <main className="relative min-h-screen pb-0 bg-[#F7F8FA]">
       {/* Hero Section */}
@@ -155,7 +219,7 @@ const MarketPlace: React.FC<MarketPlaceProps> = ({ onSearch }) => {
 
           {/* Search Bar */}
           <div className="mt-6 max-w-xl">
-            <form onSubmit={handleSubmit} className="flex items-center bg-white rounded-xl overflow-hidden focus-within:border-[#4444B3] transition-colors">
+            <form onSubmit={handleSubmit} className="flex items-center bg-white rounded-xl overflow-hidden focus-within:border-brand-green transition-colors">
               <div className="pl-4 text-gray-400">
                 <Search size={20} />
             </div>
@@ -173,7 +237,7 @@ const MarketPlace: React.FC<MarketPlaceProps> = ({ onSearch }) => {
           <div className="mt-4 flex gap-2 md:hidden">
             <button
               onClick={() => setPriceDropdownOpen(true)}
-              className="px-4 py-2 rounded-full border border-[#4444B3] text-[#4444B3] text-sm hover:bg-[#4444B3]/5 transition-colors flex items-center gap-2"
+              className="px-4 py-2 rounded-full border border-brand-green text-brand-green text-sm hover:bg-brand-green/5 transition-colors flex items-center gap-2"
               style={{ fontFamily: '"League Spartan", sans-serif' }}
             >
               Price Range
@@ -182,7 +246,7 @@ const MarketPlace: React.FC<MarketPlaceProps> = ({ onSearch }) => {
 
             <button
               onClick={() => setRatingDropdownOpen(true)}
-              className="px-4 py-2 rounded-full border border-[#4444B3] text-[#4444B3] text-sm hover:bg-[#4444B3]/5 transition-colors flex items-center gap-2"
+              className="px-4 py-2 rounded-full border border-brand-green text-brand-green text-sm hover:bg-brand-green/5 transition-colors flex items-center gap-2"
               style={{ fontFamily: '"League Spartan", sans-serif' }}
             >
               Product Rating
@@ -207,8 +271,8 @@ const MarketPlace: React.FC<MarketPlaceProps> = ({ onSearch }) => {
               onClick={() => setSelectedCategory("All")}
                     className={`px-4 py-1.5 rounded-full text-sm transition-colors border whitespace-nowrap flex-shrink-0 ${
                 selectedCategory === "All"
-                        ? "text-[#4444B3] border-[#4444B3]"
-                        : "text-gray-700 border-gray-300 hover:border-[#4444B3] hover:text-[#4444B3]"
+                        ? "text-brand-green border-brand-green"
+                        : "text-gray-700 border-gray-300 hover:border-brand-green hover:text-brand-green"
               }`}
                     style={{ fontFamily: '"League Spartan", sans-serif' }}
             >
@@ -236,8 +300,8 @@ const MarketPlace: React.FC<MarketPlaceProps> = ({ onSearch }) => {
                   onClick={() => setSelectedCategory(category.name)}
                         className={`px-4 py-1.5 rounded-full text-sm transition-colors border whitespace-nowrap flex-shrink-0 ${
                     selectedCategory === category.name
-                            ? "text-[#4444B3] border-[#4444B3]"
-                            : "text-gray-700 border-gray-300 hover:border-[#4444B3] hover:text-[#4444B3]"
+                            ? "text-brand-green border-brand-green"
+                            : "text-gray-700 border-gray-300 hover:border-brand-green hover:text-brand-green"
                   }`}
                         style={{ fontFamily: '"League Spartan", sans-serif' }}
                 >
@@ -296,7 +360,7 @@ const MarketPlace: React.FC<MarketPlaceProps> = ({ onSearch }) => {
                 <p className="text-white/80 mb-4">{error}</p>
                     <button
                       onClick={() => loadItems({ page: 1, reset: true })}
-                  className="bg-white text-[#4444B3] px-6 py-2 rounded-full hover:bg-gray-50 transition-colors flex items-center gap-2"
+                  className="bg-white text-brand-green px-6 py-2 rounded-full hover:bg-gray-50 transition-colors flex items-center gap-2"
                     >
                       <RefreshCw className="h-4 w-4" />
                       Try Again
@@ -321,7 +385,7 @@ const MarketPlace: React.FC<MarketPlaceProps> = ({ onSearch }) => {
             </div>
           ) : (
             <div className="grid grid-cols-2 md:grid-cols-2 lg:grid-cols-3 gap-4 md:gap-6">
-                  {items.map((item) => (
+                  {filteredItems.map((item) => (
                     <StoreItemCard
                       key={item.productId || item.name}
                       item={item}
@@ -340,7 +404,7 @@ const MarketPlace: React.FC<MarketPlaceProps> = ({ onSearch }) => {
               setPage(next);
               await loadItems({ page: next });
             }}
-              className="px-6 py-3 rounded-full text-white bg-[#4444B3] hover:opacity-90 transition-opacity disabled:opacity-50 disabled:cursor-not-allowed"
+              className="px-6 py-3 rounded-full text-white bg-brand-green hover:opacity-90 transition-opacity disabled:opacity-50 disabled:cursor-not-allowed"
               style={{ fontFamily: '"League Spartan", sans-serif' }}
           >
             {loading ? (
@@ -372,14 +436,14 @@ const MarketPlace: React.FC<MarketPlaceProps> = ({ onSearch }) => {
                             setMinPrice(10);
                             setMaxPrice(200);
                           }}
-                          className="px-2 py-1.5 rounded-full border border-[#4444B3] text-[#4444B3] text-xs hover:bg-[#4444B3]/5 transition-colors"
+                          className="px-2 py-1.5 rounded-full border border-brand-green text-brand-green text-xs hover:bg-brand-green/5 transition-colors"
                           style={{ fontFamily: '"League Spartan", sans-serif' }}
                         >
                           Clear
                         </button>
                         <button
                           onClick={() => loadItems({ page: 1, reset: true })}
-                          className="px-2 py-1.5 rounded-full border border-[#4444B3] text-[#4444B3] text-xs hover:bg-[#4444B3]/5 transition-colors"
+                          className="px-2 py-1.5 rounded-full border border-brand-green text-brand-green text-xs hover:bg-brand-green/5 transition-colors"
                           style={{ fontFamily: '"League Spartan", sans-serif' }}
                         >
                           Apply
@@ -389,11 +453,21 @@ const MarketPlace: React.FC<MarketPlaceProps> = ({ onSearch }) => {
                     <div className="space-y-3">
                       <div className="bg-gray-50 rounded-2xl p-3">
                         <div className="text-xs text-gray-600 mb-1">Minimum Price</div>
-                        <div className="text-lg font-semibold text-gray-400">£{minPrice}</div>
+                        <input
+                          type="number"
+                          value={minPrice}
+                          onChange={(e) => setMinPrice(Number(e.target.value) || 0)}
+                          className="w-full bg-white border border-gray-300 rounded-lg px-3 py-2 text-gray-700"
+                        />
                       </div>
                       <div className="bg-gray-50 rounded-2xl p-3">
                         <div className="text-xs text-gray-600 mb-1">Maximum Price</div>
-                        <div className="text-lg font-semibold text-gray-400">£{maxPrice}</div>
+                        <input
+                          type="number"
+                          value={maxPrice}
+                          onChange={(e) => setMaxPrice(Number(e.target.value) || 0)}
+                          className="w-full bg-white border border-gray-300 rounded-lg px-3 py-2 text-gray-700"
+                        />
                       </div>
                     </div>
                   </div>
@@ -407,14 +481,14 @@ const MarketPlace: React.FC<MarketPlaceProps> = ({ onSearch }) => {
                       <div className="flex items-center gap-2">
                         <button
                           onClick={() => setSelectedRating('all')}
-                          className="px-2 py-1.5 rounded-full border border-[#4444B3] text-[#4444B3] text-xs hover:bg-[#4444B3]/5 transition-colors"
+                          className="px-2 py-1.5 rounded-full border border-brand-green text-brand-green text-xs hover:bg-brand-green/5 transition-colors"
                           style={{ fontFamily: '"League Spartan", sans-serif' }}
                         >
                           Clear
                         </button>
                         <button
                           onClick={() => loadItems({ page: 1, reset: true })}
-                          className="px-2 py-1.5 rounded-full border border-[#4444B3] text-[#4444B3] text-xs hover:bg-[#4444B3]/5 transition-colors"
+                          className="px-2 py-1.5 rounded-full border border-brand-green text-brand-green text-xs hover:bg-brand-green/5 transition-colors"
                           style={{ fontFamily: '"League Spartan", sans-serif' }}
                         >
                           Apply
@@ -435,7 +509,7 @@ const MarketPlace: React.FC<MarketPlaceProps> = ({ onSearch }) => {
                             value={rating.value}
                             checked={selectedRating === rating.value}
                             onChange={(e) => setSelectedRating(e.target.value)}
-                            className="w-5 h-5 text-[#4444B3] accent-[#4444B3] cursor-pointer"
+                            className="w-5 h-5 text-brand-green accent-brand-green cursor-pointer"
                           />
                           <div className="flex items-center">
                             {[...Array(rating.stars)].map((_, i) => (
@@ -492,11 +566,21 @@ const MarketPlace: React.FC<MarketPlaceProps> = ({ onSearch }) => {
             <div className="space-y-4">
               <div className="bg-gray-50 rounded-2xl p-3">
                 <div className="text-xs text-gray-600 mb-1">Minimum Price</div>
-                <div className="text-lg font-semibold text-gray-400">£{minPrice}</div>
+                <input
+                  type="number"
+                  value={minPrice}
+                  onChange={(e) => setMinPrice(Number(e.target.value) || 0)}
+                  className="w-full bg-white border border-gray-300 rounded-lg px-3 py-2 text-gray-700"
+                />
               </div>
               <div className="bg-gray-50 rounded-2xl p-3">
                 <div className="text-xs text-gray-600 mb-1">Maximum Price</div>
-                <div className="text-lg font-semibold text-gray-400">£{maxPrice}</div>
+                <input
+                  type="number"
+                  value={maxPrice}
+                  onChange={(e) => setMaxPrice(Number(e.target.value) || 0)}
+                  className="w-full bg-white border border-gray-300 rounded-lg px-3 py-2 text-gray-700"
+                />
               </div>
               
               {/* Buttons */}
@@ -507,7 +591,7 @@ const MarketPlace: React.FC<MarketPlaceProps> = ({ onSearch }) => {
                     setMaxPrice(200);
                     setPriceDropdownOpen(false);
                   }}
-                  className="flex-1 px-4 py-3 rounded-full border border-[#4444B3] text-[#4444B3] text-sm hover:bg-[#4444B3]/5 transition-colors"
+                  className="flex-1 px-4 py-3 rounded-full border border-brand-green text-brand-green text-sm hover:bg-brand-green/5 transition-colors"
                   style={{ fontFamily: '"League Spartan", sans-serif' }}
                 >
                   Clear
@@ -517,7 +601,7 @@ const MarketPlace: React.FC<MarketPlaceProps> = ({ onSearch }) => {
                     loadItems({ page: 1, reset: true });
                     setPriceDropdownOpen(false);
                   }}
-                  className="flex-1 px-4 py-3 rounded-full border border-[#4444B3] text-[#4444B3] text-sm hover:bg-[#4444B3]/5 transition-colors"
+                  className="flex-1 px-4 py-3 rounded-full border border-brand-green text-brand-green text-sm hover:bg-brand-green/5 transition-colors"
                   style={{ fontFamily: '"League Spartan", sans-serif' }}
                 >
                   Apply
@@ -570,7 +654,7 @@ const MarketPlace: React.FC<MarketPlaceProps> = ({ onSearch }) => {
                     value={rating.value}
                     checked={selectedRating === rating.value}
                     onChange={(e) => setSelectedRating(e.target.value)}
-                    className="w-5 h-5 text-[#4444B3] accent-[#4444B3] cursor-pointer"
+                    className="w-5 h-5 text-brand-green accent-brand-green cursor-pointer"
                   />
                   <div className="flex items-center">
                     {[...Array(rating.stars)].map((_, i) => (
@@ -596,7 +680,7 @@ const MarketPlace: React.FC<MarketPlaceProps> = ({ onSearch }) => {
                   setSelectedRating('all');
                   setRatingDropdownOpen(false);
                 }}
-                className="flex-1 px-4 py-3 rounded-full border border-[#4444B3] text-[#4444B3] text-sm hover:bg-[#4444B3]/5 transition-colors"
+                className="flex-1 px-4 py-3 rounded-full border border-brand-green text-brand-green text-sm hover:bg-brand-green/5 transition-colors"
                 style={{ fontFamily: '"League Spartan", sans-serif' }}
               >
                 Clear
@@ -606,7 +690,7 @@ const MarketPlace: React.FC<MarketPlaceProps> = ({ onSearch }) => {
                   loadItems({ page: 1, reset: true });
                   setRatingDropdownOpen(false);
                 }}
-                className="flex-1 px-4 py-3 rounded-full border border-[#4444B3] text-sm hover:bg-[#4444B3]/5 transition-colors"
+                className="flex-1 px-4 py-3 rounded-full border border-brand-green text-sm hover:bg-brand-green/5 transition-colors"
                 style={{ fontFamily: '"League Spartan", sans-serif' }}
               >
                 Apply

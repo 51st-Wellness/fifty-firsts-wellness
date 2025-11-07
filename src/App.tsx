@@ -10,6 +10,7 @@ import Navbar from "./components/Navbar";
 import Home from "./pages/Home";
 import About from "./pages/About";
 import MarketPlace from "./pages/MarketPlace";
+import ProductDetail from "./pages/ProductDetail";
 import Blog from "./pages/Blog";
 import AIWellness from "./pages/AIWellness";
 import Membership from "./pages/Membership";

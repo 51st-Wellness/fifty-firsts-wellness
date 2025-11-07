@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import { useNavigate, useParams } from "react-router-dom";
+import { useNavigate, useParams, useLocation } from "react-router-dom";
 import { ShoppingCart, ArrowLeft, Star, ChevronLeft, ChevronRight } from "lucide-react";
 import { fetchStoreItemById } from "../api/marketplace.api";
 import type { StoreItem } from "../types/marketplace.types";
@@ -24,6 +24,7 @@ const ProductDetail: React.FC = () => {
   const { addToCart } = useCart();
   const { isAuthenticated } = useAuth();
   const navigate = useNavigate();
+  const location = useLocation();
 
   useEffect(() => {
     (async () => {
@@ -63,15 +64,31 @@ const ProductDetail: React.FC = () => {
 
   if (!item) {
     return (
-      <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16">
-        <p className="text-gray-600">Product not found.</p>
+      <main className="min-h-[60vh] flex items-center justify-center px-4 sm:px-6 lg:px-8 py-16">
+        <div className="text-center">
+          <div className="mx-auto mb-4 w-16 h-16 rounded-full bg-gray-100 flex items-center justify-center">
+            <ShoppingCart className="w-8 h-8 text-gray-400" />
+          </div>
+          <h1 className="text-xl font-semibold text-gray-900 mb-2" style={{ fontFamily: '"League Spartan", sans-serif' }}>Product not found</h1>
+          <p className="text-gray-600 mb-6">The item you’re looking for may have been moved or is unavailable.</p>
+          <button
+            onClick={() => navigate(-1)}
+            className="inline-flex items-center gap-2 px-5 py-2.5 rounded-full bg-brand-green text-white font-semibold hover:bg-brand-green-dark transition-colors"
+          >
+            <ArrowLeft className="w-4 h-4" />
+            Go back
+          </button>
+        </div>
       </main>
     );
   }
 
-  // Use same image logic as StoreItemCard
-  const imageUrl = item.display?.url || item.images?.[0] || "";
-  const images = item.images || (item.display?.url ? [item.display.url] : []);
+  // Use same image logic as StoreItemCard and also fall back to navigation state
+  const state = (location as any)?.state as { cover?: string; images?: string[] } | undefined;
+  const imageUrl = item.display?.url || item.images?.[0] || state?.cover || "";
+  const images = item.images && item.images.length
+    ? item.images
+    : (state?.images && state.images.length ? state.images : (item.display?.url ? [item.display.url] : (state?.cover ? [state.cover] : [])));
   const mainImage = images[selectedImageIndex] || imageUrl || "";
 
   // Demo reviews data
@@ -277,12 +294,21 @@ const ProductDetail: React.FC = () => {
                 <ShoppingCart className="w-4 h-4" />
                 Add to Cart
               </button>
-              <button
-                onClick={() => setReviewModalOpen(true)}
-                className="flex-1 inline-flex items-center justify-center gap-2 border border-brand-green text-brand-green px-6 py-3 rounded-full font-semibold hover:bg-brand-green/5 transition-colors"
-              >
-                Submit Review
-              </button>
+              <span className="relative group flex-1">
+                <button
+                  onClick={() => setReviewModalOpen(true)}
+                  disabled={!isAuthenticated}
+                  title={!isAuthenticated ? "Login required to submit a review" : undefined}
+                  className="w-full inline-flex items-center justify-center gap-2 border border-brand-green text-brand-green px-6 py-3 rounded-full font-semibold hover:bg-brand-green/5 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                >
+                  Submit Review
+                </button>
+                {!isAuthenticated && (
+                  <div className="pointer-events-none absolute -top-9 left-1/2 -translate-x-1/2 whitespace-nowrap bg-gray-900 text-white text-xs px-2 py-1 rounded opacity-0 group-hover:opacity-100 transition-opacity">
+                    Login required
+                  </div>
+                )}
+              </span>
             </div>
           </div>
 
