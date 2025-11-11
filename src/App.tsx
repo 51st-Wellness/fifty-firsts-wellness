@@ -50,17 +50,30 @@ import PaymentCancel from "./pages/PaymentCancel";
 import PaymentSuccess from "./pages/PaymentSuccess";
 import NotFound from "./pages/NotFound";
 import AuthSuccess from "./pages/AuthSuccess";
+import Checkout from "./pages/Checkout";
 
 // Management routes (lazy loaded)
-const ManagementLayout = lazy(() => import("./pages/management/ManagementLayout"));
-const ManagementOverview = lazy(() => import("./pages/management/ManagementOverview"));
-const ManagementGeneral = lazy(() => import("./pages/management/ManagementGeneral"));
+const ManagementLayout = lazy(
+  () => import("./pages/management/ManagementLayout")
+);
+const ManagementOverview = lazy(
+  () => import("./pages/management/ManagementOverview")
+);
+const ManagementGeneral = lazy(
+  () => import("./pages/management/ManagementGeneral")
+);
 const ManagementSubscriptions = lazy(
   () => import("./pages/management/ManagementSubscriptions")
 );
-const ManagementMarketplace = lazy(() => import("./pages/management/ManagementMarketplace"));
-const ManagementProgrammes = lazy(() => import("./pages/management/ManagementProgrammes"));
-const ManagementUsers = lazy(() => import("./pages/management/ManagementUsers"));
+const ManagementMarketplace = lazy(
+  () => import("./pages/management/ManagementMarketplace")
+);
+const ManagementProgrammes = lazy(
+  () => import("./pages/management/ManagementProgrammes")
+);
+const ManagementUsers = lazy(
+  () => import("./pages/management/ManagementUsers")
+);
 
 // Scroll to top component
 const ScrollToTop: React.FC = () => {
@@ -307,6 +320,16 @@ const App: React.FC = () => {
               <>
                 <Navbar />
                 <PaymentSuccess />
+                <Footer />
+              </>
+            }
+          />
+          <Route
+            path="/checkout"
+            element={
+              <>
+                <Navbar />
+                <Checkout />
                 <Footer />
               </>
             }

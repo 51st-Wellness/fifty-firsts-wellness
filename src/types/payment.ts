@@ -1,3 +1,39 @@
+export interface PaymentMetadata {
+  type: "subscription" | "store_checkout";
+  planName?: string;
+  planId?: string;
+  cartItemIds?: string[];
+  deliveryDetails?: {
+    contactName?: string;
+    contactPhone?: string;
+    deliveryAddress?: string;
+    deliveryCity?: string;
+    deliveryInstructions?: string;
+  };
+  orderSummary?: {
+    totalAmount: number;
+    currency: string;
+    itemCount: number;
+  };
+  orderItems?: Array<{
+    productId: string;
+    name: string;
+    quantity: number;
+    unitPrice: number;
+    lineTotal: number;
+  }>;
+}
+
+export interface PaymentOrderItem {
+  id: string;
+  orderId: string;
+  productId: string;
+  quantity: number;
+  price: number;
+  storeItemName: string | null;
+  storeItemImage: Record<string, unknown> | null;
+}
+
 export interface PaymentDetails {
   paymentId: string;
   status: "PAID" | "PENDING" | "FAILED" | "CANCELLED" | "REFUNDED";
@@ -5,12 +41,7 @@ export interface PaymentDetails {
   currency: string;
   provider: "STRIPE" | "PAYPAL" | "FLUTTERWAVE";
   providerRef?: string;
-  metadata: {
-    type: "subscription" | "store_checkout";
-    planName?: string;
-    planId?: string;
-    cartItemIds?: string[];
-  };
+  metadata: PaymentMetadata;
   orders?: PaymentOrder[];
   subscriptions?: PaymentSubscription[];
   createdAt: string;
@@ -25,6 +56,7 @@ export interface PaymentOrder {
   paymentId: string;
   createdAt: string;
   updatedAt: string;
+  items?: PaymentOrderItem[];
 }
 
 export interface PaymentSubscription {

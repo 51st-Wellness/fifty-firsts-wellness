@@ -1,5 +1,5 @@
 import React from "react";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import {
   SwipeableDrawer,
   Box,
@@ -28,6 +28,7 @@ const CartSlider: React.FC<CartSliderProps> = ({ isOpen, onClose }) => {
     removeFromCart,
     clearCart,
   } = useCart();
+  const navigate = useNavigate();
 
   const theme = useTheme();
   const isMobile = useMediaQuery(theme.breakpoints.down("sm"));
@@ -54,6 +55,12 @@ const CartSlider: React.FC<CartSliderProps> = ({ isOpen, onClose }) => {
       currency: "GBP",
       minimumFractionDigits: 2,
     }).format(price);
+  };
+
+  // Directs user to the dedicated checkout page.
+  const handleCheckoutRedirect = () => {
+    onClose();
+    navigate("/checkout");
   };
 
   const CartItem: React.FC<{ item: CartItemWithRelations }> = ({ item }) => {
@@ -101,7 +108,9 @@ const CartSlider: React.FC<CartSliderProps> = ({ isOpen, onClose }) => {
             >
               <Minus className="w-4 h-4 text-white" />
             </button>
-            <span className="w-8 text-center text-sm font-medium">{quantity}</span>
+            <span className="w-8 text-center text-sm font-medium">
+              {quantity}
+            </span>
             <button
               onClick={() => handleQuantityChange(item.productId, quantity + 1)}
               disabled={isLoading}
@@ -114,7 +123,9 @@ const CartSlider: React.FC<CartSliderProps> = ({ isOpen, onClose }) => {
 
         {/* Top right of card: price */}
         <div className="absolute top-4 right-4">
-          <div className="text-sm font-semibold text-gray-900">{formatPrice(storeItem.price)}</div>
+          <div className="text-sm font-semibold text-gray-900">
+            {formatPrice(storeItem.price)}
+          </div>
         </div>
 
         {/* Bottom right of card: delete icon */}
@@ -174,7 +185,7 @@ const CartSlider: React.FC<CartSliderProps> = ({ isOpen, onClose }) => {
           <div className="flex items-center gap-2">
             <ShoppingCart className="w-6 h-6 text-gray-700" />
             <span className="font-semibold text-lg text-gray-900">
-              Shopping Cart ({totalItems})
+              Cart ({totalItems})
             </span>
           </div>
           <IconButton
@@ -245,6 +256,7 @@ const CartSlider: React.FC<CartSliderProps> = ({ isOpen, onClose }) => {
               <Button
                 className="flex-1 bg-brand-green hover:bg-brand-green-dark text-white font-semibold rounded-full py-2 sm:py-3 text-sm"
                 disabled={isLoading}
+                onClick={handleCheckoutRedirect}
               >
                 Checkout
               </Button>

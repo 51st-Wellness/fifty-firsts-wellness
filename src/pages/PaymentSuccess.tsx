@@ -11,7 +11,7 @@ import {
   ShoppingBag,
   Crown,
 } from "lucide-react";
-import http from "../api/http";
+import { paymentAPI } from "../api/payment.api";
 import { PaymentDetails, PaymentStatusResponse } from "../types/payment";
 
 const PaymentSuccess: React.FC = () => {
@@ -34,11 +34,8 @@ const PaymentSuccess: React.FC = () => {
       }
 
       try {
-        const response = await http.get<PaymentStatusResponse>(
-          `/payment/status/${paymentId}`
-        );
-
-        setPaymentDetails(response.data.data);
+        const response = await paymentAPI.getPaymentStatus(paymentId);
+        setPaymentDetails(response.data);
       } catch (err: any) {
         console.error("Payment verification error:", err);
         setError(err.response?.data?.message || "Failed to verify payment");
@@ -86,6 +83,23 @@ const PaymentSuccess: React.FC = () => {
 
   const isSubscription = paymentDetails.metadata?.type === "subscription";
   const isStoreCheckout = paymentDetails.metadata?.type === "store_checkout";
+  const resolvedOrderItems = paymentDetails.metadata?.orderItems?.length
+    ? paymentDetails.metadata.orderItems
+    : paymentDetails.orders?.flatMap((order) =>
+        (order.items ?? []).map((item) => ({
+          productId: item.productId,
+          name: item.storeItemName ?? "Store item",
+          quantity: item.quantity,
+          unitPrice: item.price,
+          lineTotal: item.price * item.quantity,
+        }))
+      ) ?? [];
+  const deliveryDetails = paymentDetails.metadata?.deliveryDetails;
+  const formatCurrency = (amount: number, currencyCode: string) =>
+    new Intl.NumberFormat("en-GB", {
+      style: "currency",
+      currency: currencyCode || "USD",
+    }).format(amount);
 
   // Ensure we have valid payment status
   if (paymentDetails.status !== "PAID") {
@@ -216,6 +230,88 @@ const PaymentSuccess: React.FC = () => {
                 )}
               </div>
             </div>
+
+            {isStoreCheckout && resolvedOrderItems.length > 0 && (
+              <div className="mt-8">
+                <h3 className="text-lg font-semibold text-gray-900 mb-4">
+                  Order Items
+                </h3>
+                <div className="space-y-3">
+                  {resolvedOrderItems.map((item) => (
+                    <div
+                      key={`${item.productId}-${item.name}`}
+                      className="flex items-center justify-between rounded-lg border border-gray-100 p-3"
+                    >
+                      <div>
+                        <p className="font-medium text-gray-900">{item.name}</p>
+                        <p className="text-sm text-gray-500">
+                          Quantity: {item.quantity}
+                        </p>
+                      </div>
+                      <div className="text-right">
+                        <p className="text-sm text-gray-500">
+                          Unit:{" "}
+                          {formatCurrency(
+                            item.unitPrice,
+                            paymentDetails.currency
+                          )}
+                        </p>
+                        <p className="text-base font-semibold text-gray-900">
+                          {formatCurrency(
+                            item.lineTotal,
+                            paymentDetails.currency
+                          )}
+                        </p>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            )}
+
+            {isStoreCheckout && deliveryDetails && (
+              <div className="mt-8">
+                <h3 className="text-lg font-semibold text-gray-900 mb-4">
+                  Delivery Information
+                </h3>
+                <div className="grid gap-4 md:grid-cols-2">
+                  <div className="rounded-lg bg-gray-50 p-4">
+                    <p className="text-sm text-gray-500">Contact Name</p>
+                    <p className="text-base font-semibold text-gray-900">
+                      {deliveryDetails.contactName || "Not provided"}
+                    </p>
+                  </div>
+                  <div className="rounded-lg bg-gray-50 p-4">
+                    <p className="text-sm text-gray-500">Contact Phone</p>
+                    <p className="text-base font-semibold text-gray-900">
+                      {deliveryDetails.contactPhone || "Not provided"}
+                    </p>
+                  </div>
+                  <div className="rounded-lg bg-gray-50 p-4 md:col-span-2">
+                    <p className="text-sm text-gray-500">Delivery Address</p>
+                    <p className="text-base font-semibold text-gray-900">
+                      {deliveryDetails.deliveryAddress || "Not provided"}
+                    </p>
+                  </div>
+                  <div className="rounded-lg bg-gray-50 p-4">
+                    <p className="text-sm text-gray-500">City</p>
+                    <p className="text-base font-semibold text-gray-900">
+                      {deliveryDetails.deliveryCity || "Not provided"}
+                    </p>
+                  </div>
+                  {deliveryDetails.deliveryInstructions && (
+                    <div className="rounded-lg bg-gray-50 p-4 md:col-span-2">
+                      <p className="text-sm text-gray-500">
+                        Delivery Instructions
+                      </p>
+                      <p className="text-base font-semibold text-gray-900">
+                        {deliveryDetails.deliveryInstructions}
+                      </p>
+                    </div>
+                  )}
+                </div>
+              </div>
+            )}
           </div>
 
           {/* Next Steps */}
