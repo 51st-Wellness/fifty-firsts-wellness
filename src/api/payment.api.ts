@@ -3,11 +3,14 @@ import type { ResponseDto } from "../types/response.types";
 import type { PaymentStatusResponse } from "../types/payment";
 
 export interface CartCheckoutPayload {
+  deliveryAddressId?: string; // Use existing address
+  // Custom address fields (used when creating new address)
   contactName?: string;
   contactPhone?: string;
   deliveryAddress?: string;
   deliveryCity?: string;
   deliveryInstructions?: string;
+  saveAddress?: boolean; // Whether to save the custom address
 }
 
 export interface CartCheckoutSummaryItem {
@@ -37,7 +40,15 @@ export interface CartCheckoutSummary {
     itemCount: number;
     totalQuantity: number;
   };
-  deliveryDefaults: CartCheckoutDeliveryDefaults;
+  deliveryAddresses?: Array<{
+    id: string;
+    contactName: string;
+    contactPhone: string;
+    deliveryAddress: string;
+    deliveryCity: string;
+    deliveryInstructions?: string | null;
+    isDefault: boolean;
+  }>;
 }
 
 export interface CartCheckoutResult {
@@ -46,12 +57,13 @@ export interface CartCheckoutResult {
   approvalUrl?: string;
   amount: number;
   currency: string;
-  deliveryDetails: {
-    contactName?: string;
-    contactPhone?: string;
-    deliveryAddress?: string;
-    deliveryCity?: string;
-    deliveryInstructions?: string;
+  deliveryAddress?: {
+    id: string;
+    contactName: string;
+    contactPhone: string;
+    deliveryAddress: string;
+    deliveryCity: string;
+    deliveryInstructions?: string | null;
   };
 }
 

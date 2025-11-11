@@ -7,9 +7,40 @@ type UpdateProfilePayload = {
   firstName?: string;
   lastName?: string;
   phone?: string;
-  city?: string;
-  address?: string;
   bio?: string;
+};
+
+// Delivery Address types
+export type CreateDeliveryAddressPayload = {
+  contactName: string;
+  contactPhone: string;
+  deliveryAddress: string;
+  deliveryCity: string;
+  deliveryInstructions?: string;
+  isDefault?: boolean;
+};
+
+export type UpdateDeliveryAddressPayload = {
+  contactName?: string;
+  contactPhone?: string;
+  deliveryAddress?: string;
+  deliveryCity?: string;
+  deliveryInstructions?: string;
+  isDefault?: boolean;
+};
+
+export type DeliveryAddress = {
+  id: string;
+  userId: string;
+  contactName: string;
+  contactPhone: string;
+  deliveryAddress: string;
+  deliveryCity: string;
+  deliveryInstructions?: string | null;
+  isDefault: boolean;
+  createdAt: string | Date;
+  updatedAt: string | Date;
+  deletedAt?: string | Date | null;
 };
 
 // Get current user profile
@@ -123,6 +154,131 @@ export const changeUserRole = async (
 ): Promise<ResponseDto<{ user: User }>> => {
   const { data } = await http.put(`/user/role/${id}`, { role });
   return data as ResponseDto<{ user: User }>;
+};
+
+// Delivery Address CRUD operations
+
+// Get all delivery addresses for current user
+export const getDeliveryAddresses = async (): Promise<
+  ResponseDto<{ addresses: DeliveryAddress[] }>
+> => {
+  const { data } = await http.get("/user/me/delivery-addresses");
+  return data as ResponseDto<{ addresses: DeliveryAddress[] }>;
+};
+
+// Get a single delivery address
+export const getDeliveryAddress = async (
+  id: string
+): Promise<ResponseDto<{ address: DeliveryAddress }>> => {
+  const { data } = await http.get(`/user/me/delivery-addresses/${id}`);
+  return data as ResponseDto<{ address: DeliveryAddress }>;
+};
+
+// Create a new delivery address
+export const createDeliveryAddress = async (
+  payload: CreateDeliveryAddressPayload
+): Promise<ResponseDto<{ address: DeliveryAddress }>> => {
+  const { data } = await http.post("/user/me/delivery-addresses", payload);
+  return data as ResponseDto<{ address: DeliveryAddress }>;
+};
+
+// Update a delivery address
+export const updateDeliveryAddress = async (
+  id: string,
+  payload: UpdateDeliveryAddressPayload
+): Promise<ResponseDto<{ address: DeliveryAddress }>> => {
+  const { data } = await http.put(`/user/me/delivery-addresses/${id}`, payload);
+  return data as ResponseDto<{ address: DeliveryAddress }>;
+};
+
+// Delete a delivery address (soft delete)
+export const deleteDeliveryAddress = async (
+  id: string
+): Promise<ResponseDto<null>> => {
+  const { data } = await http.delete(`/user/me/delivery-addresses/${id}`);
+  return data as ResponseDto<null>;
+};
+
+// Order types
+export type OrderItem = {
+  id: string;
+  orderId: string;
+  productId: string;
+  quantity: number;
+  price: number;
+  product?: {
+    id: string;
+    type: string;
+    pricingModel: string;
+    createdAt: string | Date;
+    updatedAt: string | Date;
+    storeItem?: {
+      productId: string;
+      name: string;
+      description?: string | null;
+      price: number;
+      stock: number;
+      display: { url: string; type: string };
+      images: string[];
+      categories: string[];
+      isFeatured: boolean;
+      isPublished: boolean;
+      createdAt: string | Date;
+      updatedAt: string | Date;
+    } | null;
+  } | null;
+};
+
+export type Order = {
+  id: string;
+  userId: string;
+  status: string;
+  totalAmount: number;
+  paymentId?: string | null;
+  deliveryAddressId?: string | null;
+  createdAt: string | Date;
+  updatedAt: string | Date;
+  orderItems: OrderItem[];
+  deliveryAddress?: {
+    id: string;
+    userId: string;
+    contactName: string;
+    contactPhone: string;
+    deliveryAddress: string;
+    deliveryCity: string;
+    deliveryInstructions?: string | null;
+    isDefault: boolean;
+    createdAt: string | Date;
+    updatedAt: string | Date;
+    deletedAt?: string | Date | null;
+  } | null;
+  payment?: {
+    id: string;
+    provider: string;
+    providerRef?: string | null;
+    status: string;
+    currency: string;
+    amount: number;
+    metadata?: any;
+    createdAt: string | Date;
+    updatedAt: string | Date;
+  } | null;
+};
+
+// Get all orders for current user
+export const getMyOrders = async (): Promise<
+  ResponseDto<{ orders: Order[] }>
+> => {
+  const { data } = await http.get("/user/orders/me");
+  return data as ResponseDto<{ orders: Order[] }>;
+};
+
+// Get a single order by ID for current user
+export const getMyOrder = async (
+  id: string
+): Promise<ResponseDto<{ order: Order }>> => {
+  const { data } = await http.get(`/user/orders/me/${id}`);
+  return data as ResponseDto<{ order: Order }>;
 };
 
 export type { User };

@@ -94,7 +94,18 @@ const PaymentSuccess: React.FC = () => {
           lineTotal: item.price * item.quantity,
         }))
       ) ?? [];
-  const deliveryDetails = paymentDetails.metadata?.deliveryDetails;
+  // Get delivery details from order's delivery address
+  const deliveryDetails = paymentDetails.orders?.[0]?.deliveryAddress
+    ? {
+        contactName: paymentDetails.orders[0].deliveryAddress.contactName,
+        contactPhone: paymentDetails.orders[0].deliveryAddress.contactPhone,
+        deliveryAddress:
+          paymentDetails.orders[0].deliveryAddress.deliveryAddress,
+        deliveryCity: paymentDetails.orders[0].deliveryAddress.deliveryCity,
+        deliveryInstructions:
+          paymentDetails.orders[0].deliveryAddress.deliveryInstructions,
+      }
+    : null;
   const formatCurrency = (amount: number, currencyCode: string) =>
     new Intl.NumberFormat("en-GB", {
       style: "currency",

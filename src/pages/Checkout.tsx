@@ -6,6 +6,7 @@ import {
   ArrowLeft,
   MapPinned,
   Phone,
+  Plus,
 } from "lucide-react";
 import { useAuth } from "../context/AuthContextProvider";
 import { useCart } from "../context/CartContext";
@@ -14,6 +15,7 @@ import {
   CartCheckoutSummary,
   CartCheckoutPayload,
 } from "../api/payment.api";
+import { getDeliveryAddresses, type DeliveryAddress } from "../api/user.api";
 import toast from "react-hot-toast";
 
 const Checkout: React.FC = () => {
@@ -25,6 +27,12 @@ const Checkout: React.FC = () => {
   const [loading, setLoading] = useState(true);
   const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [addresses, setAddresses] = useState<DeliveryAddress[]>([]);
+  const [selectedAddressId, setSelectedAddressId] = useState<string | null>(
+    null
+  );
+  const [useCustomAddress, setUseCustomAddress] = useState(false);
+  const [saveAddress, setSaveAddress] = useState(false);
   const [formData, setFormData] = useState<CartCheckoutPayload>({
     contactName: "",
     contactPhone: "",
@@ -76,30 +84,61 @@ const Checkout: React.FC = () => {
         ) {
           setSummary(response.data);
 
-          setFormData((prev) => ({
-            ...prev,
-            contactName:
-              prev.contactName ||
-              response.data.deliveryDefaults.contactName ||
-              (user
-                ? `${user.firstName ?? ""} ${user.lastName ?? ""}`.trim()
-                : ""),
-            contactPhone:
-              prev.contactPhone ||
-              response.data.deliveryDefaults.contactPhone ||
-              user?.phone ||
-              "",
-            deliveryAddress:
-              prev.deliveryAddress ||
-              response.data.deliveryDefaults.deliveryAddress ||
-              user?.address ||
-              "",
-            deliveryCity:
-              prev.deliveryCity ||
-              response.data.deliveryDefaults.deliveryCity ||
-              user?.city ||
-              "",
-          }));
+          // Load delivery addresses
+          try {
+            const addressesResponse = await getDeliveryAddresses();
+            if (
+              addressesResponse.success &&
+              addressesResponse.data?.addresses
+            ) {
+              const userAddresses = addressesResponse.data.addresses;
+              setAddresses(userAddresses);
+
+              // Set default address if available
+              const defaultAddress = userAddresses.find((a) => a.isDefault);
+              if (defaultAddress) {
+                setSelectedAddressId(defaultAddress.id);
+                setUseCustomAddress(false);
+              } else if (userAddresses.length > 0) {
+                setSelectedAddressId(userAddresses[0].id);
+                setUseCustomAddress(false);
+              } else {
+                setUseCustomAddress(true);
+                setFormData((prev) => ({
+                  ...prev,
+                  contactName:
+                    prev.contactName ||
+                    (user
+                      ? `${user.firstName ?? ""} ${user.lastName ?? ""}`.trim()
+                      : ""),
+                  contactPhone: prev.contactPhone || user?.phone || "",
+                }));
+              }
+            } else {
+              setUseCustomAddress(true);
+              setFormData((prev) => ({
+                ...prev,
+                contactName:
+                  prev.contactName ||
+                  (user
+                    ? `${user.firstName ?? ""} ${user.lastName ?? ""}`.trim()
+                    : ""),
+                contactPhone: prev.contactPhone || user?.phone || "",
+              }));
+            }
+          } catch (err) {
+            // If addresses fail to load, use custom address
+            setUseCustomAddress(true);
+            setFormData((prev) => ({
+              ...prev,
+              contactName:
+                prev.contactName ||
+                (user
+                  ? `${user.firstName ?? ""} ${user.lastName ?? ""}`.trim()
+                  : ""),
+              contactPhone: prev.contactPhone || user?.phone || "",
+            }));
+          }
         } else {
           setError("Unable to load checkout summary. Please try again.");
         }
@@ -137,13 +176,41 @@ const Checkout: React.FC = () => {
       const sanitize = (value?: string) =>
         value && value.trim().length > 0 ? value.trim() : undefined;
 
-      const payload: CartCheckoutPayload = {
-        contactName: sanitize(formData.contactName),
-        contactPhone: sanitize(formData.contactPhone),
-        deliveryAddress: sanitize(formData.deliveryAddress),
-        deliveryCity: sanitize(formData.deliveryCity),
-        deliveryInstructions: sanitize(formData.deliveryInstructions),
-      };
+      let payload: CartCheckoutPayload;
+
+      if (useCustomAddress) {
+        // Validate custom address fields
+        if (
+          !formData.contactName ||
+          !formData.contactPhone ||
+          !formData.deliveryAddress ||
+          !formData.deliveryCity
+        ) {
+          toast.error("Please fill in all required delivery fields");
+          setSubmitting(false);
+          return;
+        }
+
+        payload = {
+          contactName: sanitize(formData.contactName),
+          contactPhone: sanitize(formData.contactPhone),
+          deliveryAddress: sanitize(formData.deliveryAddress),
+          deliveryCity: sanitize(formData.deliveryCity),
+          deliveryInstructions: sanitize(formData.deliveryInstructions),
+          saveAddress: saveAddress,
+        };
+      } else {
+        // Use selected address
+        if (!selectedAddressId) {
+          toast.error("Please select a delivery address");
+          setSubmitting(false);
+          return;
+        }
+
+        payload = {
+          deliveryAddressId: selectedAddressId,
+        };
+      }
 
       const response = await paymentAPI.checkoutCart(payload);
 
@@ -318,79 +385,185 @@ const Checkout: React.FC = () => {
               </div>
 
               <form className="space-y-6" onSubmit={handleSubmit}>
-                <div className="grid gap-4 md:grid-cols-2">
-                  <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-1">
-                      Contact name
+                {/* Delivery Address Selection */}
+                {addresses.length > 0 && (
+                  <div className="space-y-3">
+                    <label className="block text-sm font-medium text-gray-700 mb-2">
+                      Select Delivery Address
                     </label>
-                    <input
-                      type="text"
-                      value={formData.contactName}
-                      onChange={handleChange("contactName")}
-                      className="w-full rounded-xl border border-gray-200 px-4 py-3 focus:outline-none focus:ring-2 focus:ring-brand-green focus:border-brand-green transition-all"
-                      placeholder="Who should receive the order?"
-                      required
-                    />
-                  </div>
-                  <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-1">
-                      Contact phone
-                    </label>
-                    <div className="relative">
-                      <Phone className="w-4 h-4 text-gray-400 absolute left-3 top-1/2 -translate-y-1/2" />
-                      <input
-                        type="tel"
-                        value={formData.contactPhone}
-                        onChange={handleChange("contactPhone")}
-                        className="w-full rounded-xl border border-gray-200 pl-10 pr-4 py-3 focus:outline-none focus:ring-2 focus:ring-brand-green focus:border-brand-green transition-all"
-                        placeholder="Phone number"
-                        required
-                      />
+                    <div className="space-y-2 max-h-64 overflow-y-auto">
+                      {addresses.map((address) => (
+                        <label
+                          key={address.id}
+                          className={`flex items-start gap-3 p-4 rounded-xl border-2 cursor-pointer transition-all ${
+                            selectedAddressId === address.id &&
+                            !useCustomAddress
+                              ? "border-brand-green bg-brand-green/5"
+                              : "border-gray-200 hover:border-gray-300"
+                          }`}
+                        >
+                          <input
+                            type="radio"
+                            name="deliveryAddress"
+                            value={address.id}
+                            checked={
+                              selectedAddressId === address.id &&
+                              !useCustomAddress
+                            }
+                            onChange={() => {
+                              setSelectedAddressId(address.id);
+                              setUseCustomAddress(false);
+                            }}
+                            className="mt-1 w-4 h-4 text-brand-green border-gray-300 focus:ring-brand-green"
+                          />
+                          <div className="flex-1">
+                            <div className="flex items-center gap-2 mb-1">
+                              <span className="text-sm font-semibold text-gray-900">
+                                {address.contactName}
+                              </span>
+                              {address.isDefault && (
+                                <span className="px-2 py-0.5 rounded-full text-xs font-medium bg-brand-green/10 text-brand-green">
+                                  Default
+                                </span>
+                              )}
+                            </div>
+                            <div className="text-xs text-gray-600 space-y-0.5">
+                              <p>{address.contactPhone}</p>
+                              <p>{address.deliveryAddress}</p>
+                              <p>{address.deliveryCity}</p>
+                              {address.deliveryInstructions && (
+                                <p className="text-gray-500 italic">
+                                  Note: {address.deliveryInstructions}
+                                </p>
+                              )}
+                            </div>
+                          </div>
+                        </label>
+                      ))}
                     </div>
                   </div>
+                )}
+
+                {/* Custom Address Option */}
+                <div className="flex items-center gap-3">
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setUseCustomAddress(true);
+                      setSelectedAddressId(null);
+                    }}
+                    className={`flex items-center gap-2 px-4 py-2 rounded-xl border-2 transition-all ${
+                      useCustomAddress
+                        ? "border-brand-green bg-brand-green/5 text-brand-green"
+                        : "border-gray-200 text-gray-700 hover:border-gray-300"
+                    }`}
+                  >
+                    <Plus className="w-4 h-4" />
+                    <span className="text-sm font-medium">
+                      {addresses.length > 0
+                        ? "Use Custom Address"
+                        : "Enter Delivery Address"}
+                    </span>
+                  </button>
                 </div>
 
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">
-                    Delivery address
-                  </label>
-                  <input
-                    type="text"
-                    value={formData.deliveryAddress}
-                    onChange={handleChange("deliveryAddress")}
-                    className="w-full rounded-xl border border-gray-200 px-4 py-3 focus:outline-none focus:ring-2 focus:ring-brand-green focus:border-brand-green transition-all"
-                    placeholder="Street, building, apartment"
-                    required
-                  />
-                </div>
+                {/* Custom Address Form */}
+                {useCustomAddress && (
+                  <div className="space-y-4 pt-4 border-t border-gray-200">
+                    <div className="grid gap-4 md:grid-cols-2">
+                      <div>
+                        <label className="block text-sm font-medium text-gray-700 mb-1">
+                          Contact name *
+                        </label>
+                        <input
+                          type="text"
+                          value={formData.contactName}
+                          onChange={handleChange("contactName")}
+                          className="w-full rounded-xl border border-gray-200 px-4 py-3 focus:outline-none focus:ring-2 focus:ring-brand-green focus:border-brand-green transition-all"
+                          placeholder="Who should receive the order?"
+                          required={useCustomAddress}
+                        />
+                      </div>
+                      <div>
+                        <label className="block text-sm font-medium text-gray-700 mb-1">
+                          Contact phone *
+                        </label>
+                        <div className="relative">
+                          <Phone className="w-4 h-4 text-gray-400 absolute left-3 top-1/2 -translate-y-1/2" />
+                          <input
+                            type="tel"
+                            value={formData.contactPhone}
+                            onChange={handleChange("contactPhone")}
+                            className="w-full rounded-xl border border-gray-200 pl-10 pr-4 py-3 focus:outline-none focus:ring-2 focus:ring-brand-green focus:border-brand-green transition-all"
+                            placeholder="Phone number"
+                            required={useCustomAddress}
+                          />
+                        </div>
+                      </div>
+                    </div>
 
-                <div className="grid gap-4 md:grid-cols-2">
-                  <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-1">
-                      City
-                    </label>
-                    <input
-                      type="text"
-                      value={formData.deliveryCity}
-                      onChange={handleChange("deliveryCity")}
-                      className="w-full rounded-xl border border-gray-200 px-4 py-3 focus:outline-none focus:ring-2 focus:ring-brand-green focus:border-brand-green transition-all"
-                      placeholder="City / Town"
-                      required
-                    />
+                    <div>
+                      <label className="block text-sm font-medium text-gray-700 mb-1">
+                        Delivery address *
+                      </label>
+                      <input
+                        type="text"
+                        value={formData.deliveryAddress}
+                        onChange={handleChange("deliveryAddress")}
+                        className="w-full rounded-xl border border-gray-200 px-4 py-3 focus:outline-none focus:ring-2 focus:ring-brand-green focus:border-brand-green transition-all"
+                        placeholder="Street, building, apartment"
+                        required={useCustomAddress}
+                      />
+                    </div>
+
+                    <div className="grid gap-4 md:grid-cols-2">
+                      <div>
+                        <label className="block text-sm font-medium text-gray-700 mb-1">
+                          City *
+                        </label>
+                        <input
+                          type="text"
+                          value={formData.deliveryCity}
+                          onChange={handleChange("deliveryCity")}
+                          className="w-full rounded-xl border border-gray-200 px-4 py-3 focus:outline-none focus:ring-2 focus:ring-brand-green focus:border-brand-green transition-all"
+                          placeholder="City / Town"
+                          required={useCustomAddress}
+                        />
+                      </div>
+                      <div>
+                        <label className="block text-sm font-medium text-gray-700 mb-1">
+                          Delivery instructions (optional)
+                        </label>
+                        <input
+                          type="text"
+                          value={formData.deliveryInstructions}
+                          onChange={handleChange("deliveryInstructions")}
+                          className="w-full rounded-xl border border-gray-200 px-4 py-3 focus:outline-none focus:ring-2 focus:ring-brand-green focus:border-brand-green transition-all"
+                          placeholder="Gate code, drop-off guidance, etc."
+                        />
+                      </div>
+                    </div>
+
+                    {/* Save Address Checkbox */}
+                    {addresses.length > 0 && (
+                      <div className="flex items-center gap-2 pt-2">
+                        <input
+                          type="checkbox"
+                          id="saveAddress"
+                          checked={saveAddress}
+                          onChange={(e) => setSaveAddress(e.target.checked)}
+                          className="w-4 h-4 text-brand-green border-gray-300 rounded focus:ring-brand-green"
+                        />
+                        <label
+                          htmlFor="saveAddress"
+                          className="text-sm text-gray-700 cursor-pointer"
+                        >
+                          Save this address for future orders
+                        </label>
+                      </div>
+                    )}
                   </div>
-                  <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-1">
-                      Delivery instructions (optional)
-                    </label>
-                    <input
-                      type="text"
-                      value={formData.deliveryInstructions}
-                      onChange={handleChange("deliveryInstructions")}
-                      className="w-full rounded-xl border border-gray-200 px-4 py-3 focus:outline-none focus:ring-2 focus:ring-brand-green focus:border-brand-green transition-all"
-                      placeholder="Gate code, drop-off guidance, etc."
-                    />
-                  </div>
-                </div>
+                )}
 
                 <div className="pt-4 flex flex-col sm:flex-row gap-3">
                   <Link

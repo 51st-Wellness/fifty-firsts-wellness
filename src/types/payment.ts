@@ -57,6 +57,14 @@ export interface PaymentOrder {
   createdAt: string;
   updatedAt: string;
   items?: PaymentOrderItem[];
+  deliveryAddress?: {
+    id: string;
+    contactName: string;
+    contactPhone: string;
+    deliveryAddress: string;
+    deliveryCity: string;
+    deliveryInstructions?: string | null;
+  } | null;
 }
 
 export interface PaymentSubscription {
