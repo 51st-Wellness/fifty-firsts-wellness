@@ -200,7 +200,7 @@ export const deleteDeliveryAddress = async (
 };
 
 // Order types
-export type OrderItem = {
+export type OrderItemDetail = {
   id: string;
   orderId: string;
   productId: string;
@@ -229,7 +229,7 @@ export type OrderItem = {
   } | null;
 };
 
-export type Order = {
+export type OrderSummary = {
   id: string;
   userId: string;
   status: string;
@@ -238,7 +238,15 @@ export type Order = {
   deliveryAddressId?: string | null;
   createdAt: string | Date;
   updatedAt: string | Date;
-  orderItems: OrderItem[];
+  itemCount: number;
+  totalQuantity: number;
+  paymentStatus?: string | null;
+  paymentProvider?: string | null;
+  paymentCurrency?: string | null;
+};
+
+export type OrderDetail = OrderSummary & {
+  orderItems: OrderItemDetail[];
   deliveryAddress?: {
     id: string;
     userId: string;
@@ -271,18 +279,18 @@ export type Order = {
 
 // Get all orders for current user
 export const getMyOrders = async (): Promise<
-  ResponseDto<{ orders: Order[] }>
+  ResponseDto<{ orders: OrderSummary[] }>
 > => {
   const { data } = await http.get("/user/orders/me");
-  return data as ResponseDto<{ orders: Order[] }>;
+  return data as ResponseDto<{ orders: OrderSummary[] }>;
 };
 
 // Get a single order by ID for current user
 export const getMyOrder = async (
   id: string
-): Promise<ResponseDto<{ order: Order }>> => {
+): Promise<ResponseDto<{ order: OrderDetail }>> => {
   const { data } = await http.get(`/user/orders/me/${id}`);
-  return data as ResponseDto<{ order: Order }>;
+  return data as ResponseDto<{ order: OrderDetail }>;
 };
 
 export type { User };

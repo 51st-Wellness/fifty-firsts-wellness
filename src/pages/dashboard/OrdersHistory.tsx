@@ -13,14 +13,25 @@ import {
   LifeBuoy,
 } from "lucide-react";
 import { toast } from "react-hot-toast";
-import { getMyOrders, type Order } from "../../api/user.api";
+import {
+  getMyOrders,
+  getMyOrder,
+  type OrderSummary,
+  type OrderDetail,
+} from "../../api/user.api";
 import { useCart } from "../../context/CartContext";
 import { cartAPI } from "../../api/cart.api";
 import { useNavigate } from "react-router-dom";
 
 const OrdersHistory: React.FC = () => {
-  const [orders, setOrders] = useState<Order[]>([]);
+  const [orders, setOrders] = useState<OrderSummary[]>([]);
+  const [orderDetails, setOrderDetails] = useState<Record<string, OrderDetail>>(
+    {}
+  );
   const [loadingOrders, setLoadingOrders] = useState(false);
+  const [loadingDetailOrderId, setLoadingDetailOrderId] = useState<
+    string | null
+  >(null);
   const [expandedOrderId, setExpandedOrderId] = useState<string | null>(null);
   const [activeFilter, setActiveFilter] = useState("All");
   const [reorderingOrderId, setReorderingOrderId] = useState<string | null>(
@@ -32,9 +43,8 @@ const OrdersHistory: React.FC = () => {
 
   const filters = ["All", "PAID", "PENDING", "FAILED", "CANCELLED", "REFUNDED"];
 
-  // Load orders
   useEffect(() => {
-    loadOrders();
+    void loadOrders();
   }, []);
 
   const loadOrders = async () => {
@@ -54,7 +64,44 @@ const OrdersHistory: React.FC = () => {
     }
   };
 
-  // Helper function to get status badge color
+  const fetchOrderDetail = async (
+    orderId: string
+  ): Promise<OrderDetail | null> => {
+    if (orderDetails[orderId]) {
+      return orderDetails[orderId];
+    }
+
+    try {
+      setLoadingDetailOrderId(orderId);
+      const response = await getMyOrder(orderId);
+      if (
+        (response.status === "SUCCESS" || response.status === "success") &&
+        response.data?.order
+      ) {
+        setOrderDetails((prev) => ({
+          ...prev,
+          [orderId]: response.data.order,
+        }));
+        return response.data.order;
+      }
+      toast.error(response.message || "Failed to load order details.");
+      return null;
+    } catch (error: any) {
+      toast.error(
+        error?.response?.data?.message || "Failed to load order details."
+      );
+      return null;
+    } finally {
+      setLoadingDetailOrderId(null);
+    }
+  };
+
+  const ensureOrderDetail = async (
+    orderId: string
+  ): Promise<OrderDetail | null> => {
+    return orderDetails[orderId] ?? (await fetchOrderDetail(orderId));
+  };
+
   const getStatusColor = (status: string) => {
     switch (status.toUpperCase()) {
       case "PAID":
@@ -72,7 +119,6 @@ const OrdersHistory: React.FC = () => {
     }
   };
 
-  // Helper function to format date
   const formatDate = (date: string | Date) => {
     return new Date(date).toLocaleDateString("en-US", {
       year: "numeric",
@@ -81,7 +127,6 @@ const OrdersHistory: React.FC = () => {
     });
   };
 
-  // Helper function to format currency
   const formatCurrency = (amount: number, currency: string = "USD") => {
     return new Intl.NumberFormat("en-US", {
       style: "currency",
@@ -89,20 +134,16 @@ const OrdersHistory: React.FC = () => {
     }).format(amount);
   };
 
-  // Get receipt URL from payment metadata
-  const getReceiptUrl = (order: Order): string | null => {
-    if (order.payment?.metadata?.receiptUrl) {
-      return order.payment.metadata.receiptUrl;
+  const handleReorder = async (order: OrderSummary) => {
+    const detail = await ensureOrderDetail(order.id);
+    if (!detail || !detail.orderItems.length) {
+      toast.error("Unable to reorder at this time.");
+      return;
     }
-    return null;
-  };
-
-  const handleReorder = async (order: Order) => {
-    if (!order.orderItems.length) return;
 
     try {
       setReorderingOrderId(order.id);
-      for (const item of order.orderItems) {
+      for (const item of detail.orderItems) {
         if (!item.productId) {
           continue;
         }
@@ -142,7 +183,16 @@ const OrdersHistory: React.FC = () => {
     navigate(`/contact?order=${orderId}`);
   };
 
-  // Filter orders based on active filter
+  const handleToggleOrder = (orderId: string) => {
+    setExpandedOrderId((current) => {
+      const next = current === orderId ? null : orderId;
+      if (next === orderId && !orderDetails[orderId]) {
+        void fetchOrderDetail(orderId);
+      }
+      return next;
+    });
+  };
+
   const filteredOrders = orders.filter((order) => {
     if (activeFilter === "All") return true;
     return order.status.toUpperCase() === activeFilter.toUpperCase();
@@ -158,7 +208,6 @@ const OrdersHistory: React.FC = () => {
           Orders History
         </h2>
 
-        {/* Filter Tabs */}
         <div className="flex gap-2 mb-6 bg-white p-2 rounded-full border border-gray-200">
           {filters.map((filter) => (
             <button
@@ -198,20 +247,19 @@ const OrdersHistory: React.FC = () => {
           </div>
         ) : (
           filteredOrders.map((order) => {
-            const receiptUrl = getReceiptUrl(order);
+            const detail = orderDetails[order.id];
+            const isDetailLoading = loadingDetailOrderId === order.id;
+            const receiptUrl =
+              detail?.payment?.metadata?.receiptUrl ?? undefined;
+
             return (
               <div
                 key={order.id}
                 className="bg-white border border-gray-200 rounded-lg overflow-hidden hover:border-brand-green/50 transition-colors"
               >
-                {/* Order Header */}
                 <div
                   className="p-4 cursor-pointer"
-                  onClick={() =>
-                    setExpandedOrderId(
-                      expandedOrderId === order.id ? null : order.id
-                    )
-                  }
+                  onClick={() => handleToggleOrder(order.id)}
                 >
                   <div className="flex items-start justify-between gap-4">
                     <div className="flex-1">
@@ -232,15 +280,15 @@ const OrdersHistory: React.FC = () => {
                           <span className="text-xs font-medium text-gray-700">
                             {formatCurrency(
                               order.totalAmount,
-                              order.payment?.currency || "USD"
+                              order.paymentCurrency || "USD"
                             )}
                           </span>
                         </div>
                         <div className="flex items-center gap-1.5">
                           <Package className="w-3.5 h-3.5 text-gray-400" />
                           <span className="text-xs text-gray-600">
-                            {order.orderItems.length} item
-                            {order.orderItems.length !== 1 ? "s" : ""}
+                            {order.itemCount} item
+                            {order.itemCount !== 1 ? "s" : ""}
                           </span>
                         </div>
                       </div>
@@ -258,9 +306,7 @@ const OrdersHistory: React.FC = () => {
                         className="p-1.5 rounded-full text-gray-400 hover:bg-gray-100 transition-colors"
                         onClick={(e) => {
                           e.stopPropagation();
-                          setExpandedOrderId(
-                            expandedOrderId === order.id ? null : order.id
-                          );
+                          handleToggleOrder(order.id);
                         }}
                       >
                         {expandedOrderId === order.id ? (
@@ -273,147 +319,167 @@ const OrdersHistory: React.FC = () => {
                   </div>
                 </div>
 
-                {/* Order Details (Expandable) */}
                 {expandedOrderId === order.id && (
                   <div className="border-t border-gray-200 bg-gray-50">
-                    {/* Order Items */}
-                    <div className="p-4 space-y-3">
-                      <h5 className="text-xs font-semibold text-gray-700 uppercase tracking-wide mb-3">
-                        Order Items
-                      </h5>
-                      {order.orderItems.map((item) => (
-                        <div
-                          key={item.id}
-                          className="bg-white rounded-lg p-3 border border-gray-200"
-                        >
-                          <div className="flex items-start gap-3">
-                            {item.product?.storeItem?.display?.url && (
-                              <img
-                                src={item.product.storeItem.display.url}
-                                alt={item.product.storeItem.name}
-                                className="w-16 h-16 object-cover rounded border border-gray-200"
-                              />
-                            )}
-                            <div className="flex-1 min-w-0">
-                              <h6 className="text-sm font-medium text-gray-900 truncate">
-                                {item.product?.storeItem?.name || "Product"}
-                              </h6>
-                              {item.product?.storeItem?.description && (
-                                <p className="text-xs text-gray-500 mt-0.5 line-clamp-2">
-                                  {item.product.storeItem.description}
+                    {isDetailLoading && (
+                      <div className="flex items-center justify-center py-6">
+                        <Loader className="w-5 h-5 animate-spin text-brand-green" />
+                      </div>
+                    )}
+
+                    {!isDetailLoading && !detail && (
+                      <div className="p-4 text-sm text-gray-500">
+                        Order details are currently unavailable. Please try
+                        again later.
+                      </div>
+                    )}
+
+                    {detail && (
+                      <>
+                        <div className="p-4 space-y-3">
+                          <h5 className="text-xs font-semibold text-gray-700 uppercase tracking-wide mb-3">
+                            Order Items
+                          </h5>
+                          {detail.orderItems.map((item) => (
+                            <div
+                              key={item.id}
+                              className="bg-white rounded-lg p-3 border border-gray-200"
+                            >
+                              <div className="flex items-start gap-3">
+                                {item.product?.storeItem?.display?.url && (
+                                  <img
+                                    src={item.product.storeItem.display.url}
+                                    alt={item.product.storeItem.name}
+                                    className="w-16 h-16 object-cover rounded border border-gray-200"
+                                  />
+                                )}
+                                <div className="flex-1 min-w-0">
+                                  <h6 className="text-sm font-medium text-gray-900 truncate">
+                                    {item.product?.storeItem?.name || "Product"}
+                                  </h6>
+                                  {item.product?.storeItem?.description && (
+                                    <p className="text-xs text-gray-500 mt-0.5 line-clamp-2">
+                                      {item.product.storeItem.description}
+                                    </p>
+                                  )}
+                                  <div className="flex items-center gap-4 mt-2">
+                                    <span className="text-xs text-gray-600">
+                                      Qty: {item.quantity}
+                                    </span>
+                                    <span className="text-xs font-medium text-gray-900">
+                                      {formatCurrency(
+                                        item.price,
+                                        detail.payment?.currency ||
+                                          order.paymentCurrency ||
+                                          "USD"
+                                      )}
+                                    </span>
+                                  </div>
+                                </div>
+                              </div>
+                            </div>
+                          ))}
+                        </div>
+
+                        {detail.deliveryAddress && (
+                          <div className="p-4 border-t border-gray-200">
+                            <h5 className="text-xs font-semibold text-gray-700 uppercase tracking-wide mb-3 flex items-center gap-2">
+                              <MapPin className="w-3.5 h-3.5" />
+                              Delivery Address
+                            </h5>
+                            <div className="bg-white rounded-lg p-3 border border-gray-200">
+                              <p className="text-sm font-medium text-gray-900">
+                                {detail.deliveryAddress.contactName}
+                              </p>
+                              <p className="text-xs text-gray-600 mt-1">
+                                {detail.deliveryAddress.contactPhone}
+                              </p>
+                              <p className="text-xs text-gray-600 mt-1">
+                                {detail.deliveryAddress.deliveryAddress}
+                              </p>
+                              <p className="text-xs text-gray-600">
+                                {detail.deliveryAddress.deliveryCity}
+                              </p>
+                              {detail.deliveryAddress.deliveryInstructions && (
+                                <p className="text-xs text-gray-500 italic mt-2">
+                                  Note:{" "}
+                                  {detail.deliveryAddress.deliveryInstructions}
                                 </p>
                               )}
-                              <div className="flex items-center gap-4 mt-2">
-                                <span className="text-xs text-gray-600">
-                                  Qty: {item.quantity}
-                                </span>
-                                <span className="text-xs font-medium text-gray-900">
-                                  {formatCurrency(
-                                    item.price,
-                                    order.payment?.currency || "USD"
-                                  )}
-                                </span>
-                              </div>
                             </div>
                           </div>
-                        </div>
-                      ))}
-                    </div>
+                        )}
 
-                    {/* Delivery Address */}
-                    {order.deliveryAddress && (
-                      <div className="p-4 border-t border-gray-200">
-                        <h5 className="text-xs font-semibold text-gray-700 uppercase tracking-wide mb-3 flex items-center gap-2">
-                          <MapPin className="w-3.5 h-3.5" />
-                          Delivery Address
-                        </h5>
-                        <div className="bg-white rounded-lg p-3 border border-gray-200">
-                          <p className="text-sm font-medium text-gray-900">
-                            {order.deliveryAddress.contactName}
-                          </p>
-                          <p className="text-xs text-gray-600 mt-1">
-                            {order.deliveryAddress.contactPhone}
-                          </p>
-                          <p className="text-xs text-gray-600 mt-1">
-                            {order.deliveryAddress.deliveryAddress}
-                          </p>
-                          <p className="text-xs text-gray-600">
-                            {order.deliveryAddress.deliveryCity}
-                          </p>
-                          {order.deliveryAddress.deliveryInstructions && (
-                            <p className="text-xs text-gray-500 italic mt-2">
-                              Note: {order.deliveryAddress.deliveryInstructions}
-                            </p>
-                          )}
-                        </div>
-                      </div>
-                    )}
-
-                    {/* Payment Information */}
-                    {order.payment && (
-                      <div className="p-4 border-t border-gray-200">
-                        <h5 className="text-xs font-semibold text-gray-700 uppercase tracking-wide mb-3 flex items-center gap-2">
-                          <CreditCard className="w-3.5 h-3.5" />
-                          Payment Information
-                        </h5>
-                        <div className="bg-white rounded-lg p-3 border border-gray-200">
-                          <div className="grid grid-cols-2 gap-3">
-                            <div>
-                              <p className="text-xs text-gray-500">Provider</p>
-                              <p className="text-sm font-medium text-gray-900 mt-0.5">
-                                {order.payment.provider}
-                              </p>
-                            </div>
-                            <div>
-                              <p className="text-xs text-gray-500">Status</p>
-                              <span
-                                className={`inline-block px-2 py-0.5 rounded-full text-xs font-medium border mt-0.5 ${getStatusColor(
-                                  order.payment.status
-                                )}`}
-                              >
-                                {order.payment.status}
-                              </span>
-                            </div>
-                            <div>
-                              <p className="text-xs text-gray-500">Amount</p>
-                              <p className="text-sm font-medium text-gray-900 mt-0.5">
-                                {formatCurrency(
-                                  order.payment.amount,
-                                  order.payment.currency
+                        {detail.payment && (
+                          <div className="p-4 border-t border-gray-200">
+                            <h5 className="text-xs font-semibold text-gray-700 uppercase tracking-wide mb-3 flex items-center gap-2">
+                              <CreditCard className="w-3.5 h-3.5" />
+                              Payment Information
+                            </h5>
+                            <div className="bg-white rounded-lg p-3 border border-gray-200">
+                              <div className="grid grid-cols-2 gap-3">
+                                <div>
+                                  <p className="text-xs text-gray-500">
+                                    Provider
+                                  </p>
+                                  <p className="text-sm font-medium text-gray-900 mt-0.5">
+                                    {detail.payment.provider}
+                                  </p>
+                                </div>
+                                <div>
+                                  <p className="text-xs text-gray-500">
+                                    Status
+                                  </p>
+                                  <span
+                                    className={`inline-block px-2 py-0.5 rounded-full text-xs font-medium border mt-0.5 ${getStatusColor(
+                                      detail.payment.status
+                                    )}`}
+                                  >
+                                    {detail.payment.status}
+                                  </span>
+                                </div>
+                                <div>
+                                  <p className="text-xs text-gray-500">
+                                    Amount
+                                  </p>
+                                  <p className="text-sm font-medium text-gray-900 mt-0.5">
+                                    {formatCurrency(
+                                      detail.payment.amount,
+                                      detail.payment.currency
+                                    )}
+                                  </p>
+                                </div>
+                                {detail.payment.providerRef && (
+                                  <div>
+                                    <p className="text-xs text-gray-500">
+                                      Reference
+                                    </p>
+                                    <p className="text-xs font-mono text-gray-700 mt-0.5 truncate">
+                                      {detail.payment.providerRef}
+                                    </p>
+                                  </div>
                                 )}
-                              </p>
-                            </div>
-                            {order.payment.providerRef && (
-                              <div>
-                                <p className="text-xs text-gray-500">
-                                  Reference
-                                </p>
-                                <p className="text-xs font-mono text-gray-700 mt-0.5 truncate">
-                                  {order.payment.providerRef}
-                                </p>
                               </div>
-                            )}
-                          </div>
-                          {/* Receipt URL */}
-                          {receiptUrl && (
-                            <div className="mt-3 pt-3 border-t border-gray-200">
-                              <a
-                                href={receiptUrl}
-                                target="_blank"
-                                rel="noopener noreferrer"
-                                className="flex items-center gap-2 text-sm font-medium text-brand-green hover:text-brand-green-dark transition-colors"
-                              >
-                                <FileText className="w-4 h-4" />
-                                <span>View Receipt</span>
-                                <ExternalLink className="w-3 h-3" />
-                              </a>
+                              {receiptUrl && (
+                                <div className="mt-3 pt-3 border-t border-gray-200">
+                                  <a
+                                    href={receiptUrl}
+                                    target="_blank"
+                                    rel="noopener noreferrer"
+                                    className="flex items-center gap-2 text-sm font-medium text-brand-green hover:text-brand-green-dark transition-colors"
+                                  >
+                                    <FileText className="w-4 h-4" />
+                                    <span>View Receipt</span>
+                                    <ExternalLink className="w-3 h-3" />
+                                  </a>
+                                </div>
+                              )}
                             </div>
-                          )}
-                        </div>
-                      </div>
+                          </div>
+                        )}
+                      </>
                     )}
 
-                    {/* Order Summary */}
                     <div className="p-4 border-t border-gray-200 bg-white">
                       <div className="flex items-center justify-between">
                         <span className="text-sm font-semibold text-gray-900">
@@ -422,7 +488,7 @@ const OrdersHistory: React.FC = () => {
                         <span className="text-lg font-bold text-brand-green">
                           {formatCurrency(
                             order.totalAmount,
-                            order.payment?.currency || "USD"
+                            order.paymentCurrency || "USD"
                           )}
                         </span>
                       </div>
