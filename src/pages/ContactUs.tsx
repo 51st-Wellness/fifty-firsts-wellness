@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import {
   Mail,
   Instagram,
@@ -15,8 +15,11 @@ import Footer from "../components/Footer";
 import Navbar from "../components/Navbar";
 import { submitContactForm } from "../api/contact-subscription.api";
 import toast from "react-hot-toast";
+import { useSearchParams } from "react-router-dom";
 
 const ContactUs: React.FC = () => {
+  const [searchParams] = useSearchParams();
+  const orderId = searchParams.get("order");
   const [formData, setFormData] = useState({
     firstName: "",
     lastName: "",
@@ -63,6 +66,17 @@ const ContactUs: React.FC = () => {
       setIsSubmitting(false);
     }
   };
+
+  useEffect(() => {
+    if (orderId) {
+      setFormData((prev) => ({
+        ...prev,
+        message:
+          prev.message ||
+          `Hello team, I have a concern regarding order #${orderId}. Please assist.`,
+      }));
+    }
+  }, [orderId]);
 
   return (
     <div
@@ -195,6 +209,21 @@ const ContactUs: React.FC = () => {
             >
               Send us a Message
             </h2>
+
+            {orderId && (
+              <div className="mb-6 p-4 bg-brand-green/10 border border-brand-green/20 rounded-xl text-sm text-gray-700">
+                <p>
+                  <span className="font-semibold text-brand-green-dark">
+                    Order reference:
+                  </span>{" "}
+                  {orderId}
+                </p>
+                <p className="mt-1">
+                  We've pre-filled your message so you can tell us what went
+                  wrong. Add any extra details before sending.
+                </p>
+              </div>
+            )}
 
             {isSubmitted ? (
               <div className="text-center py-12">

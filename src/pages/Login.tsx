@@ -1,7 +1,7 @@
 import React, { useState } from "react";
 import logo from "../assets/images/logo-with-name.png";
 import { Eye, EyeOff, ArrowLeft } from "lucide-react";
-import { Link, useNavigate } from "react-router-dom";
+import { Link, useNavigate, useSearchParams } from "react-router-dom";
 import { useAuth } from "../context/AuthContextProvider";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -14,6 +14,7 @@ const Login: React.FC = () => {
 
   const { login } = useAuth();
   const navigate = useNavigate();
+  const [searchParams] = useSearchParams();
 
   // React Hook Form setup
   const {
@@ -30,7 +31,12 @@ const Login: React.FC = () => {
 
     const result = await login(email, password);
     if (result === true) {
-      navigate("/");
+      // Get redirect URL from query parameter, default to home
+      const redirectUrl = searchParams.get("redirect") || "/";
+      // Validate redirect URL to prevent open redirects
+      const isValidRedirect =
+        redirectUrl.startsWith("/") && !redirectUrl.startsWith("//");
+      navigate(isValidRedirect ? redirectUrl : "/");
     } else if (result === "verification_required") {
       // Show info message and redirect to email verification page
       setTimeout(() => {

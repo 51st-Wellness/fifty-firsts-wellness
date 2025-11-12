@@ -40,6 +40,7 @@ export interface CartCheckoutSummary {
     itemCount: number;
     totalQuantity: number;
   };
+  deliveryDefaults?: CartCheckoutDeliveryDefaults;
   deliveryAddresses?: Array<{
     id: string;
     contactName: string;

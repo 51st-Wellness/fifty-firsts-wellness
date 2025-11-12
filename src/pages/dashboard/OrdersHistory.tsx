@@ -9,15 +9,26 @@ import {
   Loader,
   FileText,
   ExternalLink,
+  RefreshCcw,
+  LifeBuoy,
 } from "lucide-react";
 import { toast } from "react-hot-toast";
 import { getMyOrders, type Order } from "../../api/user.api";
+import { useCart } from "../../context/CartContext";
+import { cartAPI } from "../../api/cart.api";
+import { useNavigate } from "react-router-dom";
 
 const OrdersHistory: React.FC = () => {
   const [orders, setOrders] = useState<Order[]>([]);
   const [loadingOrders, setLoadingOrders] = useState(false);
   const [expandedOrderId, setExpandedOrderId] = useState<string | null>(null);
   const [activeFilter, setActiveFilter] = useState("All");
+  const [reorderingOrderId, setReorderingOrderId] = useState<string | null>(
+    null
+  );
+
+  const { refreshCart, openCart } = useCart();
+  const navigate = useNavigate();
 
   const filters = ["All", "PAID", "PENDING", "FAILED", "CANCELLED", "REFUNDED"];
 
@@ -84,6 +95,51 @@ const OrdersHistory: React.FC = () => {
       return order.payment.metadata.receiptUrl;
     }
     return null;
+  };
+
+  const handleReorder = async (order: Order) => {
+    if (!order.orderItems.length) return;
+
+    try {
+      setReorderingOrderId(order.id);
+      for (const item of order.orderItems) {
+        if (!item.productId) {
+          continue;
+        }
+
+        const addResponse = await cartAPI.addToCart({
+          productId: item.productId,
+          quantity: Math.max(1, item.quantity ?? 1),
+        });
+
+        if (
+          !(
+            (addResponse.status === "SUCCESS" ||
+              addResponse.status === "success") &&
+            addResponse.data
+          )
+        ) {
+          throw new Error(addResponse.message || "Unable to add item to cart");
+        }
+      }
+
+      await refreshCart();
+      toast.success(
+        "Order items added to your cart. Review and checkout when ready."
+      );
+      openCart();
+    } catch (error) {
+      console.error("Order again failed:", error);
+      toast.error(
+        "We couldn't add those items to your cart. Please try again."
+      );
+    } finally {
+      setReorderingOrderId(null);
+    }
+  };
+
+  const handleContactSupport = (orderId: string) => {
+    navigate(`/contact?order=${orderId}`);
   };
 
   // Filter orders based on active filter
@@ -371,6 +427,38 @@ const OrdersHistory: React.FC = () => {
                         </span>
                       </div>
                     </div>
+
+                    {order.status.toUpperCase() === "PENDING" && (
+                      <div className="p-4 border-t border-gray-200 bg-white">
+                        <div className="flex flex-col sm:flex-row gap-3">
+                          <button
+                            type="button"
+                            onClick={() => handleReorder(order)}
+                            disabled={reorderingOrderId === order.id}
+                            className="inline-flex items-center justify-center gap-2 rounded-full bg-brand-green text-white px-4 py-2 text-sm font-semibold hover:bg-brand-green-dark transition-colors disabled:opacity-60 disabled:cursor-not-allowed"
+                          >
+                            {reorderingOrderId === order.id ? (
+                              <Loader className="w-4 h-4 animate-spin" />
+                            ) : (
+                              <RefreshCcw className="w-4 h-4" />
+                            )}
+                            <span>Order Again</span>
+                          </button>
+                          <button
+                            type="button"
+                            onClick={() => handleContactSupport(order.id)}
+                            className="inline-flex items-center justify-center gap-2 rounded-full border border-gray-300 text-gray-700 px-4 py-2 text-sm font-semibold hover:bg-gray-100 transition-colors"
+                          >
+                            <LifeBuoy className="w-4 h-4" />
+                            <span>Contact Support</span>
+                          </button>
+                        </div>
+                        <p className="text-xs text-gray-500 mt-2">
+                          If something feels off, reach out or rebuild the order
+                          right away.
+                        </p>
+                      </div>
+                    )}
                   </div>
                 )}
               </div>

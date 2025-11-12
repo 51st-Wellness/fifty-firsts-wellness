@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import { Navigate, useNavigate } from "react-router-dom";
+import { Navigate, useNavigate, useLocation } from "react-router-dom";
 import { useAuth } from "../context/AuthContextProvider";
 import { getUserProfile } from "../api/user.api";
 import Loader from "./Loader";
@@ -11,6 +11,7 @@ interface ManagementGuardProps {
 const ManagementGuard: React.FC<ManagementGuardProps> = ({ children }) => {
   const { isAuthenticated, user, loading: authLoading } = useAuth();
   const navigate = useNavigate();
+  const location = useLocation();
   const [isCheckingProfile, setIsCheckingProfile] = useState(false);
   const [profileError, setProfileError] = useState<string | null>(null);
 
@@ -84,12 +85,18 @@ const ManagementGuard: React.FC<ManagementGuardProps> = ({ children }) => {
               Authentication Required
             </h3>
             <p className="text-gray-600 mb-6">
-              You need to be logged in to access the management panel. Please sign in
-              to continue.
+              You need to be logged in to access the management panel. Please
+              sign in to continue.
             </p>
           </div>
           <button
-            onClick={() => navigate("/login")}
+            onClick={() => {
+              const redirectPath = location.pathname + location.search;
+              const loginPath = `/login?redirect=${encodeURIComponent(
+                redirectPath
+              )}`;
+              navigate(loginPath);
+            }}
             className="bg-[#4444B3] text-white px-6 py-3 rounded-full hover:bg-[#343494] transition font-medium"
           >
             Sign In

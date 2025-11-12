@@ -28,11 +28,18 @@ const Checkout: React.FC = () => {
   const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [addresses, setAddresses] = useState<DeliveryAddress[]>([]);
+  const [previousAddressId, setPreviousAddressId] = useState<string | null>(
+    null
+  );
   const [selectedAddressId, setSelectedAddressId] = useState<string | null>(
     null
   );
   const [useCustomAddress, setUseCustomAddress] = useState(false);
   const [saveAddress, setSaveAddress] = useState(false);
+  const [contactDefaults, setContactDefaults] = useState({
+    contactName: "",
+    contactPhone: "",
+  });
   const [formData, setFormData] = useState<CartCheckoutPayload>({
     contactName: "",
     contactPhone: "",
@@ -82,62 +89,71 @@ const Checkout: React.FC = () => {
           (response.status === "SUCCESS" || response.status === "success") &&
           response.data
         ) {
-          setSummary(response.data);
+          const summaryData = response.data;
+          setSummary(summaryData);
 
-          // Load delivery addresses
-          try {
-            const addressesResponse = await getDeliveryAddresses();
-            if (
-              addressesResponse.success &&
-              addressesResponse.data?.addresses
-            ) {
-              const userAddresses = addressesResponse.data.addresses;
-              setAddresses(userAddresses);
+          const prefillContactName =
+            summaryData.deliveryDefaults?.contactName ||
+            (user
+              ? `${user.firstName ?? ""} ${user.lastName ?? ""}`.trim()
+              : "");
+          const prefillContactPhone =
+            summaryData.deliveryDefaults?.contactPhone || user?.phone || "";
 
-              // Set default address if available
-              const defaultAddress = userAddresses.find((a) => a.isDefault);
-              if (defaultAddress) {
-                setSelectedAddressId(defaultAddress.id);
-                setUseCustomAddress(false);
-              } else if (userAddresses.length > 0) {
-                setSelectedAddressId(userAddresses[0].id);
-                setUseCustomAddress(false);
-              } else {
-                setUseCustomAddress(true);
-                setFormData((prev) => ({
-                  ...prev,
-                  contactName:
-                    prev.contactName ||
-                    (user
-                      ? `${user.firstName ?? ""} ${user.lastName ?? ""}`.trim()
-                      : ""),
-                  contactPhone: prev.contactPhone || user?.phone || "",
-                }));
-              }
+          setContactDefaults({
+            contactName: prefillContactName,
+            contactPhone: prefillContactPhone,
+          });
+          setFormData((prev) => ({
+            ...prev,
+            contactName: prev.contactName || prefillContactName,
+            contactPhone: prev.contactPhone || prefillContactPhone,
+          }));
+
+          const applyAddresses = (addressList: DeliveryAddress[]) => {
+            setAddresses(addressList);
+            setPreviousAddressId(null);
+
+            if (addressList.length > 0) {
+              const defaultAddress =
+                addressList.find((address) => address.isDefault) ??
+                addressList[0];
+              setSelectedAddressId(defaultAddress.id);
+              setUseCustomAddress(false);
+              setSaveAddress(false);
             } else {
+              setSelectedAddressId(null);
               setUseCustomAddress(true);
+              setSaveAddress(true);
               setFormData((prev) => ({
                 ...prev,
-                contactName:
-                  prev.contactName ||
-                  (user
-                    ? `${user.firstName ?? ""} ${user.lastName ?? ""}`.trim()
-                    : ""),
-                contactPhone: prev.contactPhone || user?.phone || "",
+                contactName: prev.contactName || prefillContactName,
+                contactPhone: prev.contactPhone || prefillContactPhone,
+                deliveryAddress: prev.deliveryAddress || "",
+                deliveryCity: prev.deliveryCity || "",
+                deliveryInstructions: prev.deliveryInstructions || "",
               }));
             }
-          } catch (err) {
-            // If addresses fail to load, use custom address
-            setUseCustomAddress(true);
-            setFormData((prev) => ({
-              ...prev,
-              contactName:
-                prev.contactName ||
-                (user
-                  ? `${user.firstName ?? ""} ${user.lastName ?? ""}`.trim()
-                  : ""),
-              contactPhone: prev.contactPhone || user?.phone || "",
-            }));
+          };
+
+          if (summaryData.deliveryAddresses?.length) {
+            applyAddresses(summaryData.deliveryAddresses as DeliveryAddress[]);
+          } else {
+            try {
+              const addressesResponse = await getDeliveryAddresses();
+              if (
+                (addressesResponse.status === "SUCCESS" ||
+                  addressesResponse.status === "success") &&
+                addressesResponse.data?.addresses
+              ) {
+                applyAddresses(addressesResponse.data.addresses);
+              } else {
+                applyAddresses([]);
+              }
+            } catch (fetchError) {
+              console.error("Failed to fetch delivery addresses:", fetchError);
+              applyAddresses([]);
+            }
           }
         } else {
           setError("Unable to load checkout summary. Please try again.");
@@ -164,6 +180,33 @@ const Checkout: React.FC = () => {
         [field]: event.target.value,
       }));
     };
+
+  const handleToggleCustomAddress = () => {
+    if (useCustomAddress) {
+      const fallbackAddress =
+        (previousAddressId &&
+          addresses.find((address) => address.id === previousAddressId)) ??
+        addresses[0] ??
+        null;
+
+      setUseCustomAddress(false);
+      setSaveAddress(false);
+      if (fallbackAddress) {
+        setSelectedAddressId(fallbackAddress.id);
+      }
+      setPreviousAddressId(null);
+    } else {
+      setPreviousAddressId(selectedAddressId);
+      setSelectedAddressId(null);
+      setUseCustomAddress(true);
+      setSaveAddress(true);
+      setFormData((prev) => ({
+        ...prev,
+        contactName: prev.contactName || contactDefaults.contactName,
+        contactPhone: prev.contactPhone || contactDefaults.contactPhone,
+      }));
+    }
+  };
 
   const handleSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
@@ -386,7 +429,7 @@ const Checkout: React.FC = () => {
 
               <form className="space-y-6" onSubmit={handleSubmit}>
                 {/* Delivery Address Selection */}
-                {addresses.length > 0 && (
+                {addresses.length > 0 && !useCustomAddress && (
                   <div className="space-y-3">
                     <label className="block text-sm font-medium text-gray-700 mb-2">
                       Select Delivery Address
@@ -444,31 +487,36 @@ const Checkout: React.FC = () => {
                   </div>
                 )}
 
-                {/* Custom Address Option */}
-                <div className="flex items-center gap-3">
-                  <button
-                    type="button"
-                    onClick={() => {
-                      setUseCustomAddress(true);
-                      setSelectedAddressId(null);
-                    }}
-                    className={`flex items-center gap-2 px-4 py-2 rounded-xl border-2 transition-all ${
-                      useCustomAddress
-                        ? "border-brand-green bg-brand-green/5 text-brand-green"
-                        : "border-gray-200 text-gray-700 hover:border-gray-300"
-                    }`}
-                  >
-                    <Plus className="w-4 h-4" />
-                    <span className="text-sm font-medium">
-                      {addresses.length > 0
-                        ? "Use Custom Address"
-                        : "Enter Delivery Address"}
-                    </span>
-                  </button>
-                </div>
+                {addresses.length === 0 && (
+                  <p className="text-sm text-gray-500">
+                    You have not saved any delivery addresses yet. Provide the
+                    details below to continue.
+                  </p>
+                )}
+
+                {addresses.length > 0 && (
+                  <div className="flex items-center gap-3">
+                    <button
+                      type="button"
+                      onClick={handleToggleCustomAddress}
+                      className={`flex items-center gap-2 px-4 py-2 rounded-xl border-2 transition-all ${
+                        useCustomAddress
+                          ? "border-brand-green bg-brand-green/5 text-brand-green"
+                          : "border-gray-200 text-gray-700 hover:border-gray-300"
+                      }`}
+                    >
+                      <Plus className="w-4 h-4" />
+                      <span className="text-sm font-medium">
+                        {useCustomAddress
+                          ? "Back to saved addresses"
+                          : "Add new delivery address"}
+                      </span>
+                    </button>
+                  </div>
+                )}
 
                 {/* Custom Address Form */}
-                {useCustomAddress && (
+                {(useCustomAddress || addresses.length === 0) && (
                   <div className="space-y-4 pt-4 border-t border-gray-200">
                     <div className="grid gap-4 md:grid-cols-2">
                       <div>

@@ -8,6 +8,7 @@ const httpClient: AxiosInstance = axios.create({
     "Content-Type": "application/json",
     Accept: "application/json",
   },
+  timeout: 30000, // 30 seconds timeout to prevent hanging requests
 });
 
 // Add request interceptor to dynamically add auth token to every request

@@ -43,14 +43,32 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
         return;
       }
 
-      // Check if token is valid
-      await checkAuth();
+      // Check if token is valid with timeout handling
+      try {
+        await checkAuth();
+      } catch (authError: any) {
+        // If it's a timeout or network error, don't clear token immediately
+        // Let the request complete or timeout properly
+        if (
+          authError.code === "ECONNABORTED" ||
+          authError.message?.includes("timeout")
+        ) {
+          // Timeout occurred - clear auth state
+          removeAuthToken();
+          setIsAuthenticated(false);
+          setUser(null);
+          setLoading(false);
+          return;
+        }
+        // For other auth errors, rethrow to be handled below
+        throw authError;
+      }
 
       // If check passes, load user profile
       await loadUserProfile();
       setIsAuthenticated(true);
     } catch (error: any) {
-      // Token is invalid or expired
+      // Token is invalid or expired, or network error
       removeAuthToken();
       setIsAuthenticated(false);
       setUser(null);
