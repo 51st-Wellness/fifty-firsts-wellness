@@ -259,7 +259,11 @@ export type Order = {
     status: string;
     currency: string;
     amount: number;
-    metadata?: any;
+    metadata?: {
+      type?: string;
+      receiptUrl?: string;
+      [key: string]: any;
+    } | null;
     createdAt: string | Date;
     updatedAt: string | Date;
   } | null;

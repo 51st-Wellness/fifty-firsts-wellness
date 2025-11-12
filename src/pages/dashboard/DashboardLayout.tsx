@@ -1,12 +1,20 @@
 import React, { useState } from "react";
 import { Link, useLocation, Outlet } from "react-router-dom";
-import { User, ShoppingBag, Package, ChevronDown, Activity } from "lucide-react";
+import {
+  User,
+  ShoppingBag,
+  Package,
+  ChevronDown,
+  Activity,
+  MapPin,
+} from "lucide-react";
 import Navbar from "../../components/Navbar";
 import Footer from "../../components/Footer";
 import MyAccount from "./MyAccount";
 import OrdersHistory from "./OrdersHistory";
 import MyCart from "./MyCart";
 import MarketplaceActivity from "./MarketplaceActivity";
+import DeliveryAddresses from "./DeliveryAddresses";
 
 const DashboardLayout: React.FC = () => {
   const location = useLocation();
@@ -32,6 +40,12 @@ const DashboardLayout: React.FC = () => {
       component: <OrdersHistory />,
     },
     {
+      label: "Delivery Addresses",
+      path: "/dashboard/addresses",
+      icon: MapPin,
+      component: <DeliveryAddresses />,
+    },
+    {
       label: "My Cart",
       path: "/dashboard/cart",
       icon: ShoppingBag,
@@ -49,54 +63,58 @@ const DashboardLayout: React.FC = () => {
       <div className="min-h-screen bg-white">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
           <div className="flex flex-col lg:flex-row gap-6">
-              {/* Mobile Accordion Sidebar */}
-              <aside className="lg:hidden">
-                <div className="bg-white rounded-lg shadow-sm border border-gray-200 overflow-hidden">
-                  <nav className="space-y-0">
-                    {menuItems.map((item, index) => {
-                      const Icon = item.icon;
-                      const isExpanded = expandedItem === item.path;
-                      
-                      return (
-                        <div key={item.path}>
-                          <button
-                            onClick={() => toggleItem(item.path)}
-                            className={`w-full relative flex items-center justify-between gap-3 px-6 py-4 text-sm font-medium transition-all duration-300 ${
-                              isExpanded 
-                                ? 'bg-white text-gray-900' 
-                                : 'bg-white text-gray-900 hover:bg-gray-50'
-                            }`}
-                            style={{ fontFamily: '"League Spartan", sans-serif' }}
-                          >
-                            {isExpanded && (
-                              <div className="absolute left-0 top-0 bottom-0 w-1 bg-brand-green"></div>
-                            )}
-                            <div className="flex items-center gap-3">
-                              <Icon className="w-5 h-5" />
-                              <span>{item.label}</span>
-                            </div>
-                            <ChevronDown 
-                              className={`w-4 h-4 transition-transform duration-300 ${isExpanded ? 'rotate-180' : ''}`} 
-                            />
-                          </button>
-                          <div
-                            className={`overflow-hidden transition-all duration-300 ease-in-out ${
-                              isExpanded ? 'max-h-[9999px] opacity-100' : 'max-h-0 opacity-0'
-                            }`}
-                          >
-                            <div className="px-4 pt-6 pb-4 bg-gray-50">
-                              {item.component}
-                            </div>
-                          </div>
-                          {index < menuItems.length - 1 && (
-                            <div className="h-px bg-gray-300" />
+            {/* Mobile Accordion Sidebar */}
+            <aside className="lg:hidden">
+              <div className="bg-white rounded-lg shadow-sm border border-gray-200 overflow-hidden">
+                <nav className="space-y-0">
+                  {menuItems.map((item, index) => {
+                    const Icon = item.icon;
+                    const isExpanded = expandedItem === item.path;
+
+                    return (
+                      <div key={item.path}>
+                        <button
+                          onClick={() => toggleItem(item.path)}
+                          className={`w-full relative flex items-center justify-between gap-3 px-6 py-4 text-sm font-medium transition-all duration-300 ${
+                            isExpanded
+                              ? "bg-white text-gray-900"
+                              : "bg-white text-gray-900 hover:bg-gray-50"
+                          }`}
+                          style={{ fontFamily: '"League Spartan", sans-serif' }}
+                        >
+                          {isExpanded && (
+                            <div className="absolute left-0 top-0 bottom-0 w-1 bg-brand-green"></div>
                           )}
+                          <div className="flex items-center gap-3">
+                            <Icon className="w-5 h-5" />
+                            <span>{item.label}</span>
+                          </div>
+                          <ChevronDown
+                            className={`w-4 h-4 transition-transform duration-300 ${
+                              isExpanded ? "rotate-180" : ""
+                            }`}
+                          />
+                        </button>
+                        <div
+                          className={`overflow-hidden transition-all duration-300 ease-in-out ${
+                            isExpanded
+                              ? "max-h-[9999px] opacity-100"
+                              : "max-h-0 opacity-0"
+                          }`}
+                        >
+                          <div className="px-4 pt-6 pb-4 bg-gray-50">
+                            {item.component}
+                          </div>
                         </div>
-                      );
-                    })}
-                  </nav>
-                </div>
-              </aside>
+                        {index < menuItems.length - 1 && (
+                          <div className="h-px bg-gray-300" />
+                        )}
+                      </div>
+                    );
+                  })}
+                </nav>
+              </div>
+            </aside>
 
             {/* Desktop Sidebar */}
             <aside className="hidden lg:block lg:w-64 flex-shrink-0 lg:sticky lg:top-20 lg:self-start">
@@ -105,7 +123,7 @@ const DashboardLayout: React.FC = () => {
                   {menuItems.map((item) => {
                     const Icon = item.icon;
                     const isActive = location.pathname === item.path;
-                    
+
                     return (
                       <Link
                         key={item.path}

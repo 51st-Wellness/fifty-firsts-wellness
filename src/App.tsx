@@ -24,6 +24,7 @@ import OrdersHistory from "./pages/dashboard/OrdersHistory";
 import OrderDetails from "./pages/dashboard/OrderDetails";
 import MyCart from "./pages/dashboard/MyCart";
 import MarketplaceActivity from "./pages/dashboard/MarketplaceActivity";
+import DeliveryAddresses from "./pages/dashboard/DeliveryAddresses";
 import PersonalWellnessProgrammes from "./pages/service/PersonalWellnessProgrammes";
 import WellnessProgramDetails from "./pages/service/WellnessProgramDetails";
 import ProgrammeDetail from "./pages/ProgrammeDetail";
@@ -297,6 +298,7 @@ const App: React.FC = () => {
             <Route index element={<MyAccount />} />
             <Route path="orders" element={<OrdersHistory />} />
             <Route path="orders/:orderId" element={<OrderDetails />} />
+            <Route path="addresses" element={<DeliveryAddresses />} />
             <Route path="cart" element={<MyCart />} />
             <Route path="marketplace" element={<MarketplaceActivity />} />
           </Route>
