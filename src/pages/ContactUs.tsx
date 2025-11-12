@@ -16,9 +16,12 @@ import Navbar from "../components/Navbar";
 import { submitContactForm } from "../api/contact-subscription.api";
 import toast from "react-hot-toast";
 import { useSearchParams } from "react-router-dom";
+import { useAuth } from "../context/AuthContextProvider";
 
+// ContactUs renders the contact page and handles the contact form flow
 const ContactUs: React.FC = () => {
   const [searchParams] = useSearchParams();
+  const { user, isAuthenticated } = useAuth();
   const orderId = searchParams.get("order");
   const [formData, setFormData] = useState({
     firstName: "",
@@ -66,6 +69,36 @@ const ContactUs: React.FC = () => {
       setIsSubmitting(false);
     }
   };
+
+  // Prefill contact form when user is authenticated
+  useEffect(() => {
+    if (!isAuthenticated || !user) {
+      return;
+    }
+
+    setFormData((prev) => {
+      const shouldUpdateFirstName = !prev.firstName;
+      const shouldUpdateLastName = !prev.lastName;
+      const shouldUpdateEmail = !prev.email;
+
+      if (
+        !shouldUpdateFirstName &&
+        !shouldUpdateLastName &&
+        !shouldUpdateEmail
+      ) {
+        return prev;
+      }
+
+      return {
+        ...prev,
+        firstName: shouldUpdateFirstName
+          ? user.firstName ?? ""
+          : prev.firstName,
+        lastName: shouldUpdateLastName ? user.lastName ?? "" : prev.lastName,
+        email: shouldUpdateEmail ? user.email ?? "" : prev.email,
+      };
+    });
+  }, [isAuthenticated, user]);
 
   useEffect(() => {
     if (orderId) {
