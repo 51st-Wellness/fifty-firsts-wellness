@@ -49,10 +49,12 @@ const PaymentSuccess: React.FC = () => {
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-green-50 to-blue-50 flex items-center justify-center">
+      <div className="min-h-screen bg-gray-50 flex items-center justify-center px-4">
         <div className="text-center">
-          <Loader2 className="w-12 h-12 text-green-600 animate-spin mx-auto mb-4" />
-          <p className="text-lg text-gray-600">Verifying your payment...</p>
+          <Loader2 className="w-10 h-10 sm:w-12 sm:h-12 text-brand-green animate-spin mx-auto mb-4" />
+          <p className="text-sm sm:text-base text-gray-600">
+            Verifying your payment...
+          </p>
         </div>
       </div>
     );
@@ -60,18 +62,21 @@ const PaymentSuccess: React.FC = () => {
 
   if (error || !paymentDetails) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-red-50 to-orange-50 flex items-center justify-center">
-        <div className="max-w-md mx-auto text-center p-8">
-          <AlertCircle className="w-16 h-16 text-red-500 mx-auto mb-4" />
-          <h1 className="text-2xl font-bold text-gray-900 mb-4">
+      <div className="min-h-screen bg-gray-50 flex items-center justify-center px-4">
+        <div className="max-w-md mx-auto text-center p-6 sm:p-8">
+          <AlertCircle className="w-12 h-12 sm:w-16 sm:h-16 text-red-500 mx-auto mb-4" />
+          <h1
+            className="text-xl sm:text-2xl font-bold text-gray-900 mb-3 sm:mb-4"
+            style={{ fontFamily: '"League Spartan", sans-serif' }}
+          >
             Payment Verification Failed
           </h1>
-          <p className="text-gray-600 mb-6">
+          <p className="text-sm sm:text-base text-gray-600 mb-6">
             {error || "Unable to verify your payment. Please contact support."}
           </p>
           <Link
             to="/"
-            className="inline-flex items-center gap-2 bg-blue-600 text-white px-6 py-3 rounded-lg font-medium hover:bg-blue-700 transition-colors"
+            className="inline-flex items-center gap-2 bg-brand-green text-white px-5 py-2.5 rounded-full text-sm font-semibold hover:bg-brand-green-dark transition-colors"
           >
             <Home className="w-4 h-4" />
             Return Home
@@ -115,13 +120,16 @@ const PaymentSuccess: React.FC = () => {
   // Ensure we have valid payment status
   if (paymentDetails.status !== "PAID") {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-yellow-50 to-orange-50 flex items-center justify-center">
-        <div className="max-w-md mx-auto text-center p-8">
-          <AlertCircle className="w-16 h-16 text-yellow-500 mx-auto mb-4" />
-          <h1 className="text-2xl font-bold text-gray-900 mb-4">
+      <div className="min-h-screen bg-gray-50 flex items-center justify-center px-4">
+        <div className="max-w-md mx-auto text-center p-6 sm:p-8">
+          <AlertCircle className="w-12 h-12 sm:w-16 sm:h-16 text-yellow-500 mx-auto mb-4" />
+          <h1
+            className="text-xl sm:text-2xl font-bold text-gray-900 mb-3 sm:mb-4"
+            style={{ fontFamily: '"League Spartan", sans-serif' }}
+          >
             Payment Status: {paymentDetails.status}
           </h1>
-          <p className="text-gray-600 mb-6">
+          <p className="text-sm sm:text-base text-gray-600 mb-6">
             Your payment is currently {paymentDetails.status.toLowerCase()}.
             {paymentDetails.status === "PENDING" &&
               " Please wait while we process your payment."}
@@ -130,7 +138,7 @@ const PaymentSuccess: React.FC = () => {
           </p>
           <Link
             to="/"
-            className="inline-flex items-center gap-2 bg-blue-600 text-white px-6 py-3 rounded-lg font-medium hover:bg-blue-700 transition-colors"
+            className="inline-flex items-center gap-2 bg-brand-green text-white px-5 py-2.5 rounded-full text-sm font-semibold hover:bg-brand-green-dark transition-colors"
           >
             <Home className="w-4 h-4" />
             Return Home
@@ -141,88 +149,104 @@ const PaymentSuccess: React.FC = () => {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-green-50 to-blue-50">
-      <div className="py-16 px-4">
+    <div className="min-h-screen bg-gray-50">
+      <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-8 sm:py-12">
         {/* Success Header */}
-        <div className="text-center mb-12">
-          <div className="flex justify-center mb-6">
+        <div className="text-center mb-8 sm:mb-10">
+          <div className="flex justify-center mb-4 sm:mb-6">
             <div className="relative">
-              <CheckCircle className="w-24 h-24 text-green-500" />
-              <div className="absolute -top-2 -right-2 w-8 h-8 bg-green-100 rounded-full flex items-center justify-center">
-                <CheckCircle className="w-5 h-5 text-green-600" />
+              <CheckCircle className="w-16 h-16 sm:w-20 sm:h-24 text-brand-green" />
+              <div className="absolute -top-1 -right-1 sm:-top-2 sm:-right-2 w-6 h-6 sm:w-8 sm:h-8 bg-brand-green/10 rounded-full flex items-center justify-center">
+                <CheckCircle className="w-3 h-3 sm:w-4 sm:h-5 text-brand-green" />
               </div>
             </div>
           </div>
-          <h1 className="text-4xl sm:text-5xl font-bold text-gray-900 mb-4">
+          <h1
+            className="text-2xl sm:text-3xl lg:text-4xl font-bold text-gray-900 mb-3 sm:mb-4"
+            style={{ fontFamily: '"League Spartan", sans-serif' }}
+          >
             Payment Successful!
           </h1>
-          <p className="text-lg text-gray-600 max-w-2xl mx-auto">
+          <p className="text-sm sm:text-base text-gray-600 max-w-2xl mx-auto">
             {isSubscription
               ? "Welcome to your wellness journey! Your subscription is now active."
               : "Thank you for your purchase! Your order has been confirmed."}
           </p>
         </div>
 
-        <div className="max-w-4xl mx-auto">
+        <div className="space-y-6 sm:space-y-8">
           {/* Payment Details Card */}
-          <div className="bg-white rounded-2xl shadow-xl p-8 mb-8">
-            <div className="flex items-center gap-3 mb-6">
+          <div className="bg-white rounded-3xl shadow-sm border border-gray-100 p-5 sm:p-6 lg:p-8">
+            <div className="flex items-center gap-3 mb-5 sm:mb-6">
               {isSubscription ? (
-                <Crown className="w-6 h-6 text-purple-600" />
+                <Crown className="w-5 h-5 sm:w-6 sm:h-6 text-brand-purple" />
               ) : (
-                <Package className="w-6 h-6 text-blue-600" />
+                <Package className="w-5 h-5 sm:w-6 sm:h-6 text-brand-green" />
               )}
-              <h2 className="text-2xl font-bold text-gray-900">
+              <h2
+                className="text-xl sm:text-2xl font-semibold text-gray-900"
+                style={{ fontFamily: '"League Spartan", sans-serif' }}
+              >
                 {isSubscription ? "Subscription Details" : "Order Details"}
               </h2>
             </div>
 
-            <div className="grid md:grid-cols-2 gap-8">
+            <div className="grid md:grid-cols-2 gap-6 sm:gap-8">
               {/* Payment Info */}
-              <div className="space-y-4">
-                <div className="flex justify-between items-center py-3 border-b border-gray-100">
-                  <span className="text-gray-600">Payment ID</span>
-                  <span className="font-mono text-sm bg-gray-100 px-2 py-1 rounded">
+              <div className="space-y-3 sm:space-y-4">
+                <div className="flex justify-between items-center py-2.5 sm:py-3 border-b border-gray-100">
+                  <span className="text-xs sm:text-sm text-gray-600">
+                    Payment ID
+                  </span>
+                  <span className="font-mono text-xs sm:text-sm bg-gray-100 px-2 py-1 rounded">
                     {paymentDetails.paymentId}
                   </span>
                 </div>
-                <div className="flex justify-between items-center py-3 border-b border-gray-100">
-                  <span className="text-gray-600">Status</span>
-                  <span className="inline-flex items-center gap-1 bg-green-100 text-green-800 px-3 py-1 rounded-full text-sm font-medium">
-                    <CheckCircle className="w-4 h-4" />
+                <div className="flex justify-between items-center py-2.5 sm:py-3 border-b border-gray-100">
+                  <span className="text-xs sm:text-sm text-gray-600">Status</span>
+                  <span className="inline-flex items-center gap-1 bg-brand-green/10 text-brand-green px-2.5 py-1 rounded-full text-xs sm:text-sm font-medium">
+                    <CheckCircle className="w-3 h-3 sm:w-4 sm:h-4" />
                     {paymentDetails.status}
                   </span>
                 </div>
-                <div className="flex justify-between items-center py-3 border-b border-gray-100">
-                  <span className="text-gray-600">Amount</span>
-                  <span className="text-xl font-bold text-gray-900">
-                    ${paymentDetails.amount.toFixed(2)}{" "}
-                    {paymentDetails.currency}
+                <div className="flex justify-between items-center py-2.5 sm:py-3 border-b border-gray-100">
+                  <span className="text-xs sm:text-sm text-gray-600">Amount</span>
+                  <span className="text-lg sm:text-xl font-bold text-gray-900">
+                    {formatCurrency(
+                      paymentDetails.amount,
+                      paymentDetails.currency
+                    )}
                   </span>
                 </div>
               </div>
 
               {/* Subscription/Order Specific Info */}
-              <div className="space-y-4">
+              <div className="space-y-3 sm:space-y-4">
                 {isSubscription && paymentDetails.subscriptions?.[0] && (
                   <>
-                    <div className="flex justify-between items-center py-3 border-b border-gray-100">
-                      <span className="text-gray-600">Plan</span>
-                      <span className="font-semibold text-gray-900">
+                    <div className="flex justify-between items-center py-2.5 sm:py-3 border-b border-gray-100">
+                      <span className="text-xs sm:text-sm text-gray-600">
+                        Plan
+                      </span>
+                      <span className="text-sm sm:text-base font-semibold text-gray-900">
                         {paymentDetails.metadata.planName || "Wellness Plan"}
                       </span>
                     </div>
-                    <div className="flex justify-between items-center py-3 border-b border-gray-100">
-                      <span className="text-gray-600">Start Date</span>
-                      <span className="text-gray-900">
+                    <div className="flex justify-between items-center py-2.5 sm:py-3 border-b border-gray-100">
+                      <span className="text-xs sm:text-sm text-gray-600">
+                        Start Date
+                      </span>
+                      <span className="text-xs sm:text-sm text-gray-900">
                         {new Date(
                           paymentDetails.subscriptions[0].startDate
                         ).toLocaleDateString()}
                       </span>
                     </div>
-                    <div className="flex justify-between items-center py-3 border-b border-gray-100">
-                      <span className="text-gray-600">End Date</span>
-                      <span className="text-gray-900">
+                    <div className="flex justify-between items-center py-2.5 sm:py-3 border-b border-gray-100">
+                      <span className="text-xs sm:text-sm text-gray-600">
+                        End Date
+                      </span>
+                      <span className="text-xs sm:text-sm text-gray-900">
                         {new Date(
                           paymentDetails.subscriptions[0].endDate
                         ).toLocaleDateString()}
@@ -232,9 +256,11 @@ const PaymentSuccess: React.FC = () => {
                 )}
 
                 {isStoreCheckout && paymentDetails.orders?.[0] && (
-                  <div className="flex justify-between items-center py-3 border-b border-gray-100">
-                    <span className="text-gray-600">Order ID</span>
-                    <span className="font-mono text-sm bg-gray-100 px-2 py-1 rounded">
+                  <div className="flex justify-between items-center py-2.5 sm:py-3 border-b border-gray-100">
+                    <span className="text-xs sm:text-sm text-gray-600">
+                      Order ID
+                    </span>
+                    <span className="font-mono text-xs sm:text-sm bg-gray-100 px-2 py-1 rounded">
                       {paymentDetails.orders[0].id}
                     </span>
                   </div>
@@ -243,31 +269,36 @@ const PaymentSuccess: React.FC = () => {
             </div>
 
             {isStoreCheckout && resolvedOrderItems.length > 0 && (
-              <div className="mt-8">
-                <h3 className="text-lg font-semibold text-gray-900 mb-4">
+              <div className="mt-6 sm:mt-8">
+                <h3
+                  className="text-base sm:text-lg font-semibold text-gray-900 mb-3 sm:mb-4"
+                  style={{ fontFamily: '"League Spartan", sans-serif' }}
+                >
                   Order Items
                 </h3>
-                <div className="space-y-3">
+                <div className="space-y-2.5 sm:space-y-3">
                   {resolvedOrderItems.map((item) => (
                     <div
                       key={`${item.productId}-${item.name}`}
-                      className="flex items-center justify-between rounded-lg border border-gray-100 p-3"
+                      className="flex items-center justify-between rounded-xl border border-gray-100 p-3 sm:p-4"
                     >
-                      <div>
-                        <p className="font-medium text-gray-900">{item.name}</p>
-                        <p className="text-sm text-gray-500">
+                      <div className="flex-1 min-w-0">
+                        <p className="text-sm sm:text-base font-medium text-gray-900">
+                          {item.name}
+                        </p>
+                        <p className="text-xs sm:text-sm text-gray-500 mt-0.5">
                           Quantity: {item.quantity}
                         </p>
                       </div>
-                      <div className="text-right">
-                        <p className="text-sm text-gray-500">
+                      <div className="text-right flex-shrink-0 ml-4">
+                        <p className="text-xs sm:text-sm text-gray-500">
                           Unit:{" "}
                           {formatCurrency(
                             item.unitPrice,
                             paymentDetails.currency
                           )}
                         </p>
-                        <p className="text-base font-semibold text-gray-900">
+                        <p className="text-sm sm:text-base font-semibold text-gray-900">
                           {formatCurrency(
                             item.lineTotal,
                             paymentDetails.currency
@@ -281,41 +312,50 @@ const PaymentSuccess: React.FC = () => {
             )}
 
             {isStoreCheckout && deliveryDetails && (
-              <div className="mt-8">
-                <h3 className="text-lg font-semibold text-gray-900 mb-4">
+              <div className="mt-6 sm:mt-8">
+                <h3
+                  className="text-base sm:text-lg font-semibold text-gray-900 mb-3 sm:mb-4"
+                  style={{ fontFamily: '"League Spartan", sans-serif' }}
+                >
                   Delivery Information
                 </h3>
-                <div className="grid gap-4 md:grid-cols-2">
-                  <div className="rounded-lg bg-gray-50 p-4">
-                    <p className="text-sm text-gray-500">Contact Name</p>
-                    <p className="text-base font-semibold text-gray-900">
+                <div className="grid gap-3 sm:gap-4 md:grid-cols-2">
+                  <div className="rounded-xl bg-gray-50 p-3 sm:p-4">
+                    <p className="text-xs sm:text-sm text-gray-500">
+                      Contact Name
+                    </p>
+                    <p className="text-sm sm:text-base font-semibold text-gray-900 mt-1">
                       {deliveryDetails.contactName || "Not provided"}
                     </p>
                   </div>
-                  <div className="rounded-lg bg-gray-50 p-4">
-                    <p className="text-sm text-gray-500">Contact Phone</p>
-                    <p className="text-base font-semibold text-gray-900">
+                  <div className="rounded-xl bg-gray-50 p-3 sm:p-4">
+                    <p className="text-xs sm:text-sm text-gray-500">
+                      Contact Phone
+                    </p>
+                    <p className="text-sm sm:text-base font-semibold text-gray-900 mt-1">
                       {deliveryDetails.contactPhone || "Not provided"}
                     </p>
                   </div>
-                  <div className="rounded-lg bg-gray-50 p-4 md:col-span-2">
-                    <p className="text-sm text-gray-500">Delivery Address</p>
-                    <p className="text-base font-semibold text-gray-900">
+                  <div className="rounded-xl bg-gray-50 p-3 sm:p-4 md:col-span-2">
+                    <p className="text-xs sm:text-sm text-gray-500">
+                      Delivery Address
+                    </p>
+                    <p className="text-sm sm:text-base font-semibold text-gray-900 mt-1">
                       {deliveryDetails.deliveryAddress || "Not provided"}
                     </p>
                   </div>
-                  <div className="rounded-lg bg-gray-50 p-4">
-                    <p className="text-sm text-gray-500">City</p>
-                    <p className="text-base font-semibold text-gray-900">
+                  <div className="rounded-xl bg-gray-50 p-3 sm:p-4">
+                    <p className="text-xs sm:text-sm text-gray-500">City</p>
+                    <p className="text-sm sm:text-base font-semibold text-gray-900 mt-1">
                       {deliveryDetails.deliveryCity || "Not provided"}
                     </p>
                   </div>
                   {deliveryDetails.deliveryInstructions && (
-                    <div className="rounded-lg bg-gray-50 p-4 md:col-span-2">
-                      <p className="text-sm text-gray-500">
+                    <div className="rounded-xl bg-gray-50 p-3 sm:p-4 md:col-span-2">
+                      <p className="text-xs sm:text-sm text-gray-500">
                         Delivery Instructions
                       </p>
-                      <p className="text-base font-semibold text-gray-900">
+                      <p className="text-sm sm:text-base font-semibold text-gray-900 mt-1">
                         {deliveryDetails.deliveryInstructions}
                       </p>
                     </div>
@@ -326,68 +366,83 @@ const PaymentSuccess: React.FC = () => {
           </div>
 
           {/* Next Steps */}
-          <div className="bg-white rounded-2xl shadow-xl p-8">
-            <h2 className="text-2xl font-bold text-gray-900 mb-6">
+          <div className="bg-white rounded-3xl shadow-sm border border-gray-100 p-5 sm:p-6 lg:p-8">
+            <h2
+              className="text-xl sm:text-2xl font-semibold text-gray-900 mb-5 sm:mb-6"
+              style={{ fontFamily: '"League Spartan", sans-serif' }}
+            >
               What's Next?
             </h2>
 
             {isSubscription ? (
-              <div className="grid md:grid-cols-2 gap-6">
-                <div className="p-6 bg-purple-50 rounded-xl">
-                  <Crown className="w-8 h-8 text-purple-600 mb-4" />
-                  <h3 className="text-lg font-semibold text-gray-900 mb-2">
+              <div className="grid md:grid-cols-2 gap-4 sm:gap-6">
+                <div className="p-4 sm:p-6 bg-brand-purple/5 rounded-xl border border-brand-purple/20">
+                  <Crown className="w-6 h-6 sm:w-8 sm:h-8 text-brand-purple mb-3 sm:mb-4" />
+                  <h3
+                    className="text-base sm:text-lg font-semibold text-gray-900 mb-2"
+                    style={{ fontFamily: '"League Spartan", sans-serif' }}
+                  >
                     Access Your Programs
                   </h3>
-                  <p className="text-gray-600 mb-4">
+                  <p className="text-xs sm:text-sm text-gray-600 mb-4">
                     Explore your personalized wellness programs and start your
                     journey.
                   </p>
                   <Link
                     to="/programmes"
-                    className="inline-flex items-center gap-2 text-purple-600 hover:text-purple-800 font-medium"
+                    className="inline-flex items-center gap-2 text-brand-purple hover:text-brand-purple-dark text-sm font-semibold"
                   >
                     View Programs <ArrowRight className="w-4 h-4" />
                   </Link>
                 </div>
-                <div className="p-6 bg-blue-50 rounded-xl">
-                  <Calendar className="w-8 h-8 text-blue-600 mb-4" />
-                  <h3 className="text-lg font-semibold text-gray-900 mb-2">
+                <div className="p-4 sm:p-6 bg-brand-green/5 rounded-xl border border-brand-green/20">
+                  <Calendar className="w-6 h-6 sm:w-8 sm:h-8 text-brand-green mb-3 sm:mb-4" />
+                  <h3
+                    className="text-base sm:text-lg font-semibold text-gray-900 mb-2"
+                    style={{ fontFamily: '"League Spartan", sans-serif' }}
+                  >
                     Manage Subscription
                   </h3>
-                  <p className="text-gray-600 mb-4">
+                  <p className="text-xs sm:text-sm text-gray-600 mb-4">
                     View your subscription details and manage your account.
                   </p>
                   <Link
                     to="/profile"
-                    className="inline-flex items-center gap-2 text-blue-600 hover:text-blue-800 font-medium"
+                    className="inline-flex items-center gap-2 text-brand-green hover:text-brand-green-dark text-sm font-semibold"
                   >
                     Go to Profile <ArrowRight className="w-4 h-4" />
                   </Link>
                 </div>
               </div>
             ) : (
-              <div className="grid md:grid-cols-2 gap-6">
-                <div className="p-6 bg-green-50 rounded-xl">
-                  <Package className="w-8 h-8 text-green-600 mb-4" />
-                  <h3 className="text-lg font-semibold text-gray-900 mb-2">
+              <div className="grid md:grid-cols-2 gap-4 sm:gap-6">
+                <div className="p-4 sm:p-6 bg-brand-green/5 rounded-xl border border-brand-green/20">
+                  <Package className="w-6 h-6 sm:w-8 sm:h-8 text-brand-green mb-3 sm:mb-4" />
+                  <h3
+                    className="text-base sm:text-lg font-semibold text-gray-900 mb-2"
+                    style={{ fontFamily: '"League Spartan", sans-serif' }}
+                  >
                     Order Confirmation
                   </h3>
-                  <p className="text-gray-600 mb-4">
+                  <p className="text-xs sm:text-sm text-gray-600 mb-4">
                     You'll receive an email confirmation with your order details
                     shortly.
                   </p>
                 </div>
-                <div className="p-6 bg-blue-50 rounded-xl">
-                  <ShoppingBag className="w-8 h-8 text-blue-600 mb-4" />
-                  <h3 className="text-lg font-semibold text-gray-900 mb-2">
+                <div className="p-4 sm:p-6 bg-brand-green/5 rounded-xl border border-brand-green/20">
+                  <ShoppingBag className="w-6 h-6 sm:w-8 sm:h-8 text-brand-green mb-3 sm:mb-4" />
+                  <h3
+                    className="text-base sm:text-lg font-semibold text-gray-900 mb-2"
+                    style={{ fontFamily: '"League Spartan", sans-serif' }}
+                  >
                     Continue Shopping
                   </h3>
-                  <p className="text-gray-600 mb-4">
+                  <p className="text-xs sm:text-sm text-gray-600 mb-4">
                     Discover more wellness products in our marketplace.
                   </p>
                   <Link
                     to="/marketplace"
-                    className="inline-flex items-center gap-2 text-blue-600 hover:text-blue-800 font-medium"
+                    className="inline-flex items-center gap-2 text-brand-green hover:text-brand-green-dark text-sm font-semibold"
                   >
                     Browse Marketplace <ArrowRight className="w-4 h-4" />
                   </Link>
@@ -395,21 +450,21 @@ const PaymentSuccess: React.FC = () => {
               </div>
             )}
 
-            <div className="mt-8 pt-6 border-t border-gray-200 text-center">
-              <p className="text-gray-600 mb-4">
+            <div className="mt-6 sm:mt-8 pt-5 sm:pt-6 border-t border-gray-200 text-center">
+              <p className="text-xs sm:text-sm text-gray-600 mb-4">
                 Need help or have questions about your{" "}
                 {isSubscription ? "subscription" : "order"}?
               </p>
-              <div className="flex flex-col sm:flex-row gap-4 justify-center">
+              <div className="flex flex-col sm:flex-row gap-3 sm:gap-4 justify-center">
                 <Link
                   to="/contact"
-                  className="inline-flex items-center gap-2 bg-gray-100 text-gray-700 px-6 py-3 rounded-lg font-medium hover:bg-gray-200 transition-colors"
+                  className="inline-flex items-center gap-2 bg-gray-100 text-gray-700 px-5 py-2.5 rounded-full text-sm font-semibold hover:bg-gray-200 transition-colors"
                 >
                   Contact Support
                 </Link>
                 <Link
                   to="/"
-                  className="inline-flex items-center gap-2 bg-blue-600 text-white px-6 py-3 rounded-lg font-medium hover:bg-blue-700 transition-colors"
+                  className="inline-flex items-center gap-2 bg-brand-green text-white px-5 py-2.5 rounded-full text-sm font-semibold hover:bg-brand-green-dark transition-colors"
                 >
                   <Home className="w-4 h-4" />
                   Return Home

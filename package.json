@@ -20,6 +20,7 @@
     "@mui/material": "^7.3.2",
     "@mux/mux-player-react": "^3.6.1",
     "@radix-ui/react-dialog": "^1.1.15",
+    "@radix-ui/react-select": "^2.2.6",
     "@radix-ui/react-slot": "^1.2.3",
     "@strapi/blocks-react-renderer": "^1.0.2",
     "@types/google.accounts": "^0.0.18",

@@ -11,12 +11,17 @@ import {
   ImageList,
   ImageListItem,
   TextField,
+  Tabs,
+  Tab,
 } from "@mui/material";
 import {
   Add as AddIcon,
   Edit as EditIcon,
   Delete as DeleteIcon,
   Image as ImageIcon,
+  ShoppingCart as ShoppingCartIcon,
+  RateReview as RateReviewIcon,
+  Notifications as NotificationsIcon,
 } from "@mui/icons-material";
 import toast from "react-hot-toast";
 import {
@@ -26,9 +31,14 @@ import {
 } from "../../api/marketplace.api";
 import type { StoreItem } from "../../types/marketplace.types";
 import StoreItemDialog from "../../components/admin/StoreItemDialog";
+import ReviewManagement from "../../components/admin/ReviewManagement";
+import NotificationsPreOrdersManagement from "../../components/admin/NotificationsPreOrdersManagement";
 
 // Enhanced marketplace management with Material UI dialogs and full CRUD support
 const ManagementMarketplace: React.FC = () => {
+  // Tab state
+  const [tabValue, setTabValue] = useState(0);
+
   // State for items list
   const [query, setQuery] = useState({ page: 1, limit: 12, search: "" });
   const [loading, setLoading] = useState(false);
@@ -122,6 +132,10 @@ const ManagementMarketplace: React.FC = () => {
     }
   };
 
+  const handleTabChange = (event: React.SyntheticEvent, newValue: number) => {
+    setTabValue(newValue);
+  };
+
   return (
     <div className="p-6 font-primary">
       {/* Header */}
@@ -129,8 +143,45 @@ const ManagementMarketplace: React.FC = () => {
         Marketplace Management
       </h1>
 
-      {/* Store Items Section */}
-      <div>
+      {/* Tabs */}
+      <div className="bg-white rounded-xl border border-gray-200 mb-6 overflow-hidden">
+        <Tabs
+          value={tabValue}
+          onChange={handleTabChange}
+          aria-label="marketplace management tabs"
+          className="px-4"
+          sx={{
+            "& .MuiTab-root": {
+              textTransform: "none",
+              fontWeight: 600,
+              minHeight: 64,
+              px: 3,
+              fontFamily: '"Poppins", sans-serif',
+            },
+          }}
+        >
+          <Tab
+            icon={<ShoppingCartIcon />}
+            label="Store Items"
+            iconPosition="start"
+          />
+          <Tab
+            icon={<RateReviewIcon />}
+            label="Reviews"
+            iconPosition="start"
+          />
+          <Tab
+            icon={<NotificationsIcon />}
+            label="Notifications & Pre-Orders"
+            iconPosition="start"
+          />
+        </Tabs>
+      </div>
+
+      {/* Tab Content */}
+      {tabValue === 0 && (
+        <div>
+          {/* Store Items Section */}
         {/* Store Items Header */}
         <div className="flex justify-between items-center mb-6">
           <h2 className="text-2xl font-accent font-semibold text-gray-900">
@@ -464,7 +515,20 @@ const ManagementMarketplace: React.FC = () => {
           item={dialogMode === "edit" ? selected : null}
           mode={dialogMode}
         />
-      </div>
+        </div>
+      )}
+
+      {tabValue === 1 && (
+        <div>
+          <ReviewManagement />
+        </div>
+      )}
+
+      {tabValue === 2 && (
+        <div>
+          <NotificationsPreOrdersManagement />
+        </div>
+      )}
     </div>
   );
 };

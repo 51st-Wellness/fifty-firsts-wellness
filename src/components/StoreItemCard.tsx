@@ -114,19 +114,19 @@ const StoreItemCard: React.FC<StoreItemCardProps> = ({ item, onAddToCart }) => {
           <div className="mt-auto pt-3 md:pt-6 cart-controls flex flex-wrap items-center gap-2" onClick={(e) => e.stopPropagation()}>
             {!isComingSoon && !isOutOfStock && (
               <span className="relative group">
-              <button
-                type="button"
-                onClick={handleAddToCart}
+            <button
+              type="button"
+              onClick={handleAddToCart}
                 disabled={itemLoading || !isAuthenticated}
                 title={!isAuthenticated ? "Login required to add items to cart" : undefined}
-                className="inline-flex items-center gap-1 md:gap-2 bg-brand-green text-white px-2 md:px-4 py-1.5 md:py-2 rounded-full text-[10px] md:text-sm font-semibold hover:bg-brand-green-dark transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
-              >
-                {itemLoading ? (
-                  <div className="animate-spin rounded-full h-3 w-3 md:h-4 md:w-4 border-2 border-white border-t-transparent"></div>
-                ) : (
-                  <ShoppingCart className="w-3 h-3 md:w-4 md:h-4" />
-                )}
-                <span className="hidden md:inline">{itemLoading ? "Adding..." : "Add to Cart"}</span>
+              className="inline-flex items-center gap-1 md:gap-2 bg-brand-green text-white px-2 md:px-4 py-1.5 md:py-2 rounded-full text-[10px] md:text-sm font-semibold hover:bg-brand-green-dark transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+            >
+              {itemLoading ? (
+                <div className="animate-spin rounded-full h-3 w-3 md:h-4 md:w-4 border-2 border-white border-t-transparent"></div>
+              ) : (
+                <ShoppingCart className="w-3 h-3 md:w-4 md:h-4" />
+              )}
+              <span className="hidden md:inline">{itemLoading ? "Adding..." : "Add to Cart"}</span>
                 <span className="md:hidden">{itemLoading ? "..." : "Add"}</span>
               </button>
               {!isAuthenticated && (
@@ -179,7 +179,7 @@ const StoreItemCard: React.FC<StoreItemCardProps> = ({ item, onAddToCart }) => {
                 <Bell className="w-3 h-3 md:w-4 md:h-4" />
                 <span className="hidden md:inline">Notify me</span>
                 <span className="md:hidden">Notify</span>
-              </button>
+            </button>
               {!isAuthenticated && (
                 <div className="pointer-events-none absolute -top-9 left-1/2 -translate-x-1/2 whitespace-nowrap bg-gray-900 text-white text-[10px] px-2 py-1 rounded opacity-0 group-hover:opacity-100 transition-opacity">
                   Login required

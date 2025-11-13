@@ -47,6 +47,10 @@ const StoreItemDialog: React.FC<StoreItemDialogProps> = ({
   const [formData, setFormData] = useState({
     name: "",
     description: "",
+    productDescription: "",
+    productUsage: "",
+    productBenefits: "",
+    productIngredients: "",
     price: 0,
     stock: 0,
     categories: [] as string[],
@@ -67,6 +71,10 @@ const StoreItemDialog: React.FC<StoreItemDialogProps> = ({
         setFormData({
           name: item.name || "",
           description: item.description || "",
+          productDescription: (item as any).productDescription || "",
+          productUsage: (item as any).productUsage || "",
+          productBenefits: (item as any).productBenefits || "",
+          productIngredients: (item as any).productIngredients || "",
           price: item.price || 0,
           stock: item.stock || 0,
           categories: item.categories || [],
@@ -79,6 +87,10 @@ const StoreItemDialog: React.FC<StoreItemDialogProps> = ({
         setFormData({
           name: "",
           description: "",
+          productDescription: "",
+          productUsage: "",
+          productBenefits: "",
+          productIngredients: "",
           price: 0,
           stock: 0,
           categories: [],
@@ -147,6 +159,10 @@ const StoreItemDialog: React.FC<StoreItemDialogProps> = ({
       const submitData = new FormData();
       submitData.append("name", formData.name);
       submitData.append("description", formData.description);
+      submitData.append("productDescription", formData.productDescription);
+      submitData.append("productUsage", formData.productUsage);
+      submitData.append("productBenefits", formData.productBenefits);
+      submitData.append("productIngredients", formData.productIngredients);
       submitData.append("price", formData.price.toString());
       submitData.append("stock", formData.stock.toString());
       submitData.append("isFeatured", formData.isFeatured.toString());
@@ -287,6 +303,74 @@ const StoreItemDialog: React.FC<StoreItemDialogProps> = ({
                     setFormData((prev) => ({
                       ...prev,
                       description: e.target.value,
+                    }))
+                  }
+                />
+              </Box>
+
+              <Box>
+                <TextField
+                  fullWidth
+                  label="Product Description"
+                  placeholder="Detailed description of the product"
+                  multiline
+                  rows={4}
+                  value={formData.productDescription}
+                  onChange={(e) =>
+                    setFormData((prev) => ({
+                      ...prev,
+                      productDescription: e.target.value,
+                    }))
+                  }
+                />
+              </Box>
+
+              <Box>
+                <TextField
+                  fullWidth
+                  label="Product Usage"
+                  placeholder="How to use this product"
+                  multiline
+                  rows={4}
+                  value={formData.productUsage}
+                  onChange={(e) =>
+                    setFormData((prev) => ({
+                      ...prev,
+                      productUsage: e.target.value,
+                    }))
+                  }
+                />
+              </Box>
+
+              <Box>
+                <TextField
+                  fullWidth
+                  label="Product Benefits"
+                  placeholder="Benefits of using this product"
+                  multiline
+                  rows={4}
+                  value={formData.productBenefits}
+                  onChange={(e) =>
+                    setFormData((prev) => ({
+                      ...prev,
+                      productBenefits: e.target.value,
+                    }))
+                  }
+                />
+              </Box>
+
+              <Box>
+                <TextField
+                  fullWidth
+                  label="Product Ingredients"
+                  placeholder="List of ingredients"
+                  multiline
+                  rows={4}
+                  value={formData.productIngredients}
+                  onChange={(e) =>
+                    setFormData((prev) => ({
+                      ...prev,
+                      productIngredients: e.target.value,
                     }))
                   }
                 />
