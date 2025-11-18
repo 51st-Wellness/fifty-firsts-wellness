@@ -20,7 +20,6 @@ import {
   IconButton,
   Menu,
   Button,
-  Stack,
 } from "@mui/material";
 import {
   Search as SearchIcon,
@@ -184,10 +183,6 @@ const OrdersManagement: React.FC = () => {
   const handleMenuOpen = (event: React.MouseEvent<HTMLButtonElement>, order: Order) => {
     setAnchorEl(event.currentTarget);
     setActiveOrder(order);
-  };
-  const handleViewDetails = () => {
-    setDetailsOpen(true);
-    handleMenuClose();
   };
 
 
@@ -369,14 +364,20 @@ const OrdersManagement: React.FC = () => {
                       </Typography>
                     </TableCell>
                     <TableCell align="right">
-                      <Stack direction="row" spacing={1} justifyContent="flex-end">
-                        <IconButton size="small" onClick={() => { setActiveOrder(order); setDetailsOpen(true); }}>
+                      <Box sx={{ display: "flex", gap: 0.5, justifyContent: "flex-end" }}>
+                        <IconButton
+                          size="small"
+                          onClick={() => {
+                            setActiveOrder(order);
+                            setDetailsOpen(true);
+                          }}
+                        >
                           <VisibilityIcon fontSize="small" />
                         </IconButton>
                         <IconButton size="small" onClick={(e) => handleMenuOpen(e, order)}>
                           <MoreVertIcon />
                         </IconButton>
-                      </Stack>
+                      </Box>
                     </TableCell>
                   </TableRow>
                 ))
@@ -402,12 +403,6 @@ const OrdersManagement: React.FC = () => {
         anchorOrigin={{ vertical: "bottom", horizontal: "right" }}
         transformOrigin={{ vertical: "top", horizontal: "right" }}
       >
-        {activeOrder && (
-          <MenuItem onClick={handleViewDetails}>
-            <VisibilityIcon sx={{ fontSize: 20, mr: 1 }} />
-            View details
-          </MenuItem>
-        )}
         {activeOrder?.status !== "FULFILLED" && (
           <MenuItem onClick={handleFulfill}>
             <CheckCircleIcon sx={{ fontSize: 20, mr: 1 }} />
@@ -430,7 +425,10 @@ const OrdersManagement: React.FC = () => {
 
       <OrderDetailsModal
         open={detailsOpen}
-        onClose={() => setDetailsOpen(false)}
+        onClose={() => {
+          setDetailsOpen(false);
+          setActiveOrder(null);
+        }}
         order={activeOrder}
       />
     </div>

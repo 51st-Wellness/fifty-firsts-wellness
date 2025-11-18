@@ -434,7 +434,7 @@ const ReviewManagement: React.FC = () => {
                       </Typography>
                     </TableCell>
                     <TableCell align="right">
-                      <Box sx={{ display: "flex", justifyContent: "flex-end", gap: 1 }}>
+                      <Box sx={{ display: "flex", gap: 0.5, justifyContent: "flex-end" }}>
                         <IconButton
                           size="small"
                           onClick={() => {
@@ -483,61 +483,55 @@ const ReviewManagement: React.FC = () => {
           horizontal: "right",
         }}
       >
-        {selectedReview && (
-          <MenuItem
-            onClick={() => {
-              setDetailsOpen(true);
-              handleMenuClose();
-            }}
-          >
-            <VisibilityIcon sx={{ mr: 1, fontSize: 20 }} />
-            View details
+        {selectedReview?.status === "PENDING" && (
+          <MenuItem onClick={() => handleMenuAction("approve")}>
+            <CheckCircleIcon sx={{ mr: 1, fontSize: 20 }} />
+            Approve
           </MenuItem>
         )}
         {selectedReview?.status === "PENDING" && (
-          <>
-            <MenuItem onClick={() => handleMenuAction("approve")}>
-              <CheckCircleIcon sx={{ mr: 1, fontSize: 20 }} />
-              Approve
-            </MenuItem>
-            <MenuItem onClick={() => handleMenuAction("reject")}>
-              <CancelIcon sx={{ mr: 1, fontSize: 20 }} />
-              Reject
-            </MenuItem>
-            <MenuItem onClick={() => handleMenuAction("delete")}>
-              <DeleteIcon sx={{ mr: 1, fontSize: 20 }} />
-              Delete
-            </MenuItem>
-          </>
+          <MenuItem onClick={() => handleMenuAction("reject")}>
+            <CancelIcon sx={{ mr: 1, fontSize: 20 }} />
+            Reject
+          </MenuItem>
+        )}
+        {selectedReview?.status === "PENDING" && (
+          <MenuItem onClick={() => handleMenuAction("delete")}>
+            <DeleteIcon sx={{ mr: 1, fontSize: 20 }} />
+            Delete
+          </MenuItem>
         )}
         {selectedReview?.status === "APPROVED" && (
-          <>
-            <MenuItem onClick={() => handleMenuAction("reject")}>
-              <CancelIcon sx={{ mr: 1, fontSize: 20 }} />
-              Reject
-            </MenuItem>
-            <MenuItem onClick={() => handleMenuAction("delete")}>
-              <DeleteIcon sx={{ mr: 1, fontSize: 20 }} />
-              Delete
-            </MenuItem>
-          </>
+          <MenuItem onClick={() => handleMenuAction("reject")}>
+            <CancelIcon sx={{ mr: 1, fontSize: 20 }} />
+            Reject
+          </MenuItem>
+        )}
+        {selectedReview?.status === "APPROVED" && (
+          <MenuItem onClick={() => handleMenuAction("delete")}>
+            <DeleteIcon sx={{ mr: 1, fontSize: 20 }} />
+            Delete
+          </MenuItem>
         )}
         {selectedReview?.status === "REJECTED" && (
-          <>
-            <MenuItem onClick={() => handleMenuAction("approve")}>
-              <CheckCircleIcon sx={{ mr: 1, fontSize: 20 }} />
-              Approve
-            </MenuItem>
-            <MenuItem onClick={() => handleMenuAction("delete")}>
-              <DeleteIcon sx={{ mr: 1, fontSize: 20 }} />
-              Delete
-            </MenuItem>
-          </>
+          <MenuItem onClick={() => handleMenuAction("approve")}>
+            <CheckCircleIcon sx={{ mr: 1, fontSize: 20 }} />
+            Approve
+          </MenuItem>
+        )}
+        {selectedReview?.status === "REJECTED" && (
+          <MenuItem onClick={() => handleMenuAction("delete")}>
+            <DeleteIcon sx={{ mr: 1, fontSize: 20 }} />
+            Delete
+          </MenuItem>
         )}
       </Menu>
       <ReviewDetailsModal
         open={detailsOpen}
-        onClose={() => setDetailsOpen(false)}
+        onClose={() => {
+          setDetailsOpen(false);
+          setSelectedReview(null);
+        }}
         review={selectedReview}
       />
 

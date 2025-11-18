@@ -176,6 +176,43 @@ const StoreItemDialog: React.FC<StoreItemDialogProps> = ({
     }));
   };
 
+  const handleDiscountTypeChange = (
+    event: React.ChangeEvent<HTMLInputElement>
+  ) => {
+    const nextType = event.target.value as DiscountType;
+    setFormData((prev) => ({
+      ...prev,
+      discountType: nextType,
+      discountActive: nextType === "NONE" ? false : prev.discountActive,
+    }));
+  };
+
+  const handleDiscountValueChange = (
+    event: React.ChangeEvent<HTMLInputElement>
+  ) => {
+    setFormData((prev) => ({
+      ...prev,
+      discountValue: Number(event.target.value) || 0,
+    }));
+  };
+
+  const handleDiscountSwitch = (event: React.ChangeEvent<HTMLInputElement>) => {
+    setFormData((prev) => ({
+      ...prev,
+      discountActive: event.target.checked,
+    }));
+  };
+
+  const handleDiscountDateChange =
+    (field: "discountStart" | "discountEnd") =>
+    (event: React.ChangeEvent<HTMLInputElement>) => {
+      const value = event.target.value;
+      setFormData((prev) => ({
+        ...prev,
+        [field]: value ? new Date(value).toISOString() : "",
+    }));
+  };
+
   // Handle form submission
   const handleSubmit = async () => {
     // Validation

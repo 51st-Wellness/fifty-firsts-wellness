@@ -23,6 +23,7 @@ import {
   LocalShipping as LocalShippingIcon,
   RateReview as RateReviewIcon,
   Notifications as NotificationsIcon,
+  Percent as PercentIcon,
 } from "@mui/icons-material";
 import toast from "react-hot-toast";
 import {
@@ -35,6 +36,8 @@ import StoreItemDialog from "../../components/admin/StoreItemDialog";
 import ReviewManagement from "../../components/admin/ReviewManagement";
 import NotificationsPreOrdersManagement from "../../components/admin/NotificationsPreOrdersManagement";
 import OrdersManagement from "../../components/admin/OrdersManagement";
+import GlobalDiscountDialog from "../../components/admin/GlobalDiscountDialog";
+import DiscountManagement from "../../components/admin/DiscountManagement";
 
 // Enhanced marketplace management with Material UI dialogs and full CRUD support
 const ManagementMarketplace: React.FC = () => {
@@ -56,6 +59,7 @@ const ManagementMarketplace: React.FC = () => {
   // Dialog state
   const [dialogOpen, setDialogOpen] = useState(false);
   const [dialogMode, setDialogMode] = useState<"create" | "edit">("create");
+  const [globalDiscountOpen, setGlobalDiscountOpen] = useState(false);
 
   const debouncedSearch = useDebounce(query.search, 350);
 
@@ -185,21 +189,35 @@ const ManagementMarketplace: React.FC = () => {
             label="Notifications & Pre-Orders"
             iconPosition="start"
           />
+          <Tab
+            icon={<PercentIcon />}
+            label="Discounts"
+            iconPosition="start"
+          />
         </Tabs>
       </div>
 
       {/* Tab Content */}
       {tabValue === 0 && (
         <div>
-          {/* Store Items Section */}
+      {/* Store Items Section */}
         {/* Store Items Header */}
-        <div className="flex justify-between items-center mb-6">
-          <h2
-            className="text-2xl font-semibold text-gray-900"
-            style={{ fontFamily: '"League Spartan", sans-serif' }}
-          >
+          <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between mb-6">
+            <h2
+              className="text-2xl font-semibold text-gray-900"
+              style={{ fontFamily: '"League Spartan", sans-serif' }}
+            >
             Store Items
           </h2>
+            <div className="flex flex-wrap gap-2 justify-end">
+              <Button
+                variant="outlined"
+                startIcon={<PercentIcon />}
+                onClick={() => setGlobalDiscountOpen(true)}
+                color="primary"
+              >
+                Global Discount
+              </Button>
           <Button
             variant="contained"
             startIcon={<AddIcon />}
@@ -208,270 +226,271 @@ const ManagementMarketplace: React.FC = () => {
           >
             Add New Item
           </Button>
+            </div>
         </div>
 
-          <Box sx={{ display: "flex", gap: 3, height: "calc(100vh - 200px)" }}>
-            {/* Items List - Fixed Left Side */}
-            <Box
-              sx={{
-                width: { xs: "100%", md: "420px" },
-                flexShrink: 0,
-                display: "flex",
-                flexDirection: "column",
-              }}
-            >
-              <Card sx={{ flex: 1, display: "flex", flexDirection: "column" }}>
-                <Box sx={{ p: 2, borderBottom: 1, borderColor: "divider" }}>
-                  <TextField
-                    fullWidth
-                    size="small"
-                    placeholder="Search items..."
-                    value={query.search}
-                    onChange={(e) =>
-                      setQuery((q) => ({
-                        ...q,
-                        search: e.target.value,
-                        page: 1,
-                      }))
-                    }
-                  />
-                </Box>
+        <Box sx={{ display: "flex", gap: 3, height: "calc(100vh - 200px)" }}>
+          {/* Items List - Fixed Left Side */}
+          <Box
+            sx={{
+              width: { xs: "100%", md: "420px" },
+              flexShrink: 0,
+              display: "flex",
+              flexDirection: "column",
+            }}
+          >
+            <Card sx={{ flex: 1, display: "flex", flexDirection: "column" }}>
+              <Box sx={{ p: 2, borderBottom: 1, borderColor: "divider" }}>
+                <TextField
+                  fullWidth
+                  size="small"
+                  placeholder="Search items..."
+                  value={query.search}
+                  onChange={(e) =>
+                    setQuery((q) => ({
+                      ...q,
+                      search: e.target.value,
+                      page: 1,
+                    }))
+                  }
+                />
+              </Box>
 
-                <Box sx={{ flex: 1, overflow: "auto" }}>
-                  {loading && items.length === 0 ? (
-                    <Box sx={{ p: 3, textAlign: "center" }}>
-                      <CircularProgress size={24} />
-                      <Typography variant="body2" sx={{ mt: 1 }}>
-                        Loading items...
-                      </Typography>
-                    </Box>
-                  ) : items.length === 0 ? (
-                    <Box sx={{ p: 3, textAlign: "center" }}>
-                      <Typography variant="body2" color="text.secondary">
-                        No items found
-                      </Typography>
-                    </Box>
-                  ) : (
-                    items.map((item) => (
-                      <Card
-                        key={item.productId}
-                        variant={
-                          selected?.productId === item.productId
-                            ? "outlined"
-                            : "elevation"
-                        }
-                        sx={{
-                          m: 1,
-                          cursor: "pointer",
-                          bgcolor:
-                            selected?.productId === item.productId
-                              ? "action.selected"
-                              : "background.paper",
-                          "&:hover": { bgcolor: "action.hover" },
-                        }}
-                        onClick={() => onSelectItem(item)}
-                      >
-                        <Box sx={{ display: "flex", p: 2 }}>
-                          <Box
-                            sx={{
-                              width: 60,
-                              height: 60,
-                              bgcolor: "grey.100",
-                              borderRadius: 1,
-                              overflow: "hidden",
-                              mr: 2,
-                              display: "flex",
-                              alignItems: "center",
-                              justifyContent: "center",
-                            }}
-                          >
-                            {item.display?.url ? (
-                              <img
-                                src={item.display.url}
-                                alt={item.name}
-                                style={{
-                                  width: "100%",
-                                  height: "100%",
-                                  objectFit: "cover",
-                                }}
-                              />
-                            ) : (
-                              <ImageIcon color="disabled" />
-                            )}
-                          </Box>
-                          <Box sx={{ flexGrow: 1 }}>
-                            <Typography
-                              variant="subtitle2"
-                              sx={{ fontWeight: 600 }}
-                            >
-                              {item.name}
-                            </Typography>
-                            <Typography variant="body2" color="text.secondary">
-                              ${item.price}
-                            </Typography>
-                            <Box sx={{ display: "flex", gap: 1, mt: 0.5 }}>
-                              {item.isFeatured && (
-                                <Chip
-                                  label="Featured"
-                                  size="small"
-                                  color="primary"
-                                />
-                              )}
-                              {item.isPublished && (
-                                <Chip
-                                  label="Published"
-                                  size="small"
-                                  sx={{
-                                    bgcolor: "primary.light",
-                                    color: "white",
-                                    "&:hover": { bgcolor: "primary.main" },
-                                  }}
-                                />
-                              )}
-                            </Box>
-                          </Box>
-                        </Box>
-                      </Card>
-                    ))
-                  )}
-                </Box>
-
-                <Box sx={{ p: 2, borderTop: 1, borderColor: "divider" }}>
-                  <Typography variant="caption" color="text.secondary">
-                    Page {pagination.page} of{" "}
-                    {Math.max(1, pagination.totalPages)} • {pagination.total}{" "}
-                    items
-                  </Typography>
-                </Box>
-              </Card>
-            </Box>
-
-            {/* Item Details - Right Side */}
-            <Box
-              sx={{
-                flex: 1,
-                minWidth: 0,
-                display: { xs: selected ? "block" : "none", md: "block" },
-              }}
-            >
-              <Card sx={{ height: "fit-content" }}>
-                {!selected ? (
-                  <Box sx={{ p: 4, textAlign: "center" }}>
-                    <Typography variant="body1" color="text.secondary">
-                      Select an item to view details
+              <Box sx={{ flex: 1, overflow: "auto" }}>
+                {loading && items.length === 0 ? (
+                  <Box sx={{ p: 3, textAlign: "center" }}>
+                    <CircularProgress size={24} />
+                    <Typography variant="body2" sx={{ mt: 1 }}>
+                      Loading items...
+                    </Typography>
+                  </Box>
+                ) : items.length === 0 ? (
+                  <Box sx={{ p: 3, textAlign: "center" }}>
+                    <Typography variant="body2" color="text.secondary">
+                      No items found
                     </Typography>
                   </Box>
                 ) : (
-                  <CardContent>
-                    <Box
+                  items.map((item) => (
+                    <Card
+                      key={item.productId}
+                      variant={
+                        selected?.productId === item.productId
+                          ? "outlined"
+                          : "elevation"
+                      }
                       sx={{
-                        display: "flex",
-                        justifyContent: "space-between",
-                        alignItems: "start",
-                        mb: 2,
+                        m: 1,
+                        cursor: "pointer",
+                        bgcolor:
+                          selected?.productId === item.productId
+                            ? "action.selected"
+                            : "background.paper",
+                        "&:hover": { bgcolor: "action.hover" },
                       }}
+                      onClick={() => onSelectItem(item)}
                     >
-                      <Typography variant="h5" component="h2">
-                        {selected.name}
-                      </Typography>
-                      <Box sx={{ display: "flex", gap: 1 }}>
-                        <IconButton onClick={openEditDialog} color="primary">
-                          <EditIcon />
-                        </IconButton>
-                        <IconButton onClick={handleDelete} color="error">
-                          <DeleteIcon />
-                        </IconButton>
-                      </Box>
-                    </Box>
-
-                    <Box
-                      sx={{
-                        display: "flex",
-                        flexDirection: { xs: "column", md: "row" },
-                        gap: 3,
-                      }}
-                    >
-                      <Box sx={{ flex: 1 }}>
-                        {/* Display Image/Video */}
+                      <Box sx={{ display: "flex", p: 2 }}>
                         <Box
                           sx={{
-                            aspectRatio: "1",
+                            width: 60,
+                            height: 60,
                             bgcolor: "grey.100",
-                            borderRadius: 2,
+                            borderRadius: 1,
                             overflow: "hidden",
+                            mr: 2,
                             display: "flex",
                             alignItems: "center",
                             justifyContent: "center",
-                            mb: 2,
                           }}
                         >
-                          {selected.display?.url ? (
-                            selected.display.type === "video" ? (
-                              <video
-                                src={selected.display.url}
-                                controls
-                                style={{
-                                  width: "100%",
-                                  height: "100%",
-                                  objectFit: "cover",
-                                }}
-                              />
-                            ) : (
-                              <img
-                                src={selected.display.url}
-                                alt={selected.name}
-                                style={{
-                                  width: "100%",
-                                  height: "100%",
-                                  objectFit: "cover",
-                                }}
-                              />
-                            )
+                          {item.display?.url ? (
+                            <img
+                              src={item.display.url}
+                              alt={item.name}
+                              style={{
+                                width: "100%",
+                                height: "100%",
+                                objectFit: "cover",
+                              }}
+                            />
                           ) : (
+                            <ImageIcon color="disabled" />
+                          )}
+                        </Box>
+                        <Box sx={{ flexGrow: 1 }}>
+                          <Typography
+                            variant="subtitle2"
+                            sx={{ fontWeight: 600 }}
+                          >
+                            {item.name}
+                          </Typography>
+                          <Typography variant="body2" color="text.secondary">
+                            ${item.price}
+                          </Typography>
+                          <Box sx={{ display: "flex", gap: 1, mt: 0.5 }}>
+                            {item.isFeatured && (
+                              <Chip
+                                label="Featured"
+                                size="small"
+                                color="primary"
+                              />
+                            )}
+                            {item.isPublished && (
+                              <Chip
+                                label="Published"
+                                size="small"
+                                sx={{
+                                  bgcolor: "primary.light",
+                                  color: "white",
+                                  "&:hover": { bgcolor: "primary.main" },
+                                }}
+                              />
+                            )}
+                          </Box>
+                        </Box>
+                      </Box>
+                    </Card>
+                  ))
+                )}
+              </Box>
+
+              <Box sx={{ p: 2, borderTop: 1, borderColor: "divider" }}>
+                <Typography variant="caption" color="text.secondary">
+                    Page {pagination.page} of{" "}
+                    {Math.max(1, pagination.totalPages)} • {pagination.total}{" "}
+                    items
+                </Typography>
+              </Box>
+            </Card>
+          </Box>
+
+          {/* Item Details - Right Side */}
+          <Box
+            sx={{
+              flex: 1,
+              minWidth: 0,
+              display: { xs: selected ? "block" : "none", md: "block" },
+            }}
+          >
+            <Card sx={{ height: "fit-content" }}>
+              {!selected ? (
+                <Box sx={{ p: 4, textAlign: "center" }}>
+                  <Typography variant="body1" color="text.secondary">
+                    Select an item to view details
+                  </Typography>
+                </Box>
+              ) : (
+                <CardContent>
+                  <Box
+                    sx={{
+                      display: "flex",
+                      justifyContent: "space-between",
+                      alignItems: "start",
+                      mb: 2,
+                    }}
+                  >
+                    <Typography variant="h5" component="h2">
+                      {selected.name}
+                    </Typography>
+                    <Box sx={{ display: "flex", gap: 1 }}>
+                      <IconButton onClick={openEditDialog} color="primary">
+                        <EditIcon />
+                      </IconButton>
+                      <IconButton onClick={handleDelete} color="error">
+                        <DeleteIcon />
+                      </IconButton>
+                    </Box>
+                  </Box>
+
+                  <Box
+                    sx={{
+                      display: "flex",
+                      flexDirection: { xs: "column", md: "row" },
+                      gap: 3,
+                    }}
+                  >
+                    <Box sx={{ flex: 1 }}>
+                      {/* Display Image/Video */}
+                      <Box
+                        sx={{
+                          aspectRatio: "1",
+                          bgcolor: "grey.100",
+                          borderRadius: 2,
+                          overflow: "hidden",
+                          display: "flex",
+                          alignItems: "center",
+                          justifyContent: "center",
+                          mb: 2,
+                        }}
+                      >
+                        {selected.display?.url ? (
+                          selected.display.type === "video" ? (
+                            <video
+                              src={selected.display.url}
+                              controls
+                              style={{
+                                width: "100%",
+                                height: "100%",
+                                objectFit: "cover",
+                              }}
+                            />
+                          ) : (
+                            <img
+                              src={selected.display.url}
+                              alt={selected.name}
+                              style={{
+                                width: "100%",
+                                height: "100%",
+                                objectFit: "cover",
+                              }}
+                            />
+                          )
+                        ) : (
                             <ImageIcon
                               sx={{ fontSize: 64, color: "grey.400" }}
                             />
-                          )}
-                        </Box>
-
-                        {/* Additional Images */}
-                        {selected.images && selected.images.length > 0 && (
-                          <ImageList cols={4} gap={8}>
-                            {selected.images.map((img, idx) => (
-                              <ImageListItem key={idx}>
-                                <img
-                                  src={img}
-                                  alt={`Additional ${idx + 1}`}
-                                  style={{
-                                    width: "100%",
-                                    height: "60px",
-                                    objectFit: "cover",
-                                    borderRadius: 4,
-                                  }}
-                                />
-                              </ImageListItem>
-                            ))}
-                          </ImageList>
                         )}
                       </Box>
 
-                      <Box sx={{ flex: 1 }}>
-                        <Typography variant="body1" sx={{ mb: 2 }}>
-                          {selected.description || "No description provided"}
-                        </Typography>
+                      {/* Additional Images */}
+                      {selected.images && selected.images.length > 0 && (
+                        <ImageList cols={4} gap={8}>
+                          {selected.images.map((img, idx) => (
+                            <ImageListItem key={idx}>
+                              <img
+                                src={img}
+                                alt={`Additional ${idx + 1}`}
+                                style={{
+                                  width: "100%",
+                                  height: "60px",
+                                  objectFit: "cover",
+                                  borderRadius: 4,
+                                }}
+                              />
+                            </ImageListItem>
+                          ))}
+                        </ImageList>
+                      )}
+                    </Box>
 
-                        <Box sx={{ mb: 2 }}>
-                          <Typography
-                            variant="h4"
-                            color="primary"
-                            sx={{ fontWeight: 600 }}
-                          >
-                            ${selected.price}
-                          </Typography>
-                          <Typography variant="body2" color="text.secondary">
-                            Stock: {selected.stock} items
-                          </Typography>
-                        </Box>
+                    <Box sx={{ flex: 1 }}>
+                      <Typography variant="body1" sx={{ mb: 2 }}>
+                        {selected.description || "No description provided"}
+                      </Typography>
+
+                      <Box sx={{ mb: 2 }}>
+                        <Typography
+                          variant="h4"
+                          color="primary"
+                          sx={{ fontWeight: 600 }}
+                        >
+                          ${selected.price}
+                        </Typography>
+                        <Typography variant="body2" color="text.secondary">
+                          Stock: {selected.stock} items
+                        </Typography>
+                      </Box>
 
                         {selected.discountType &&
                           selected.discountType !== "NONE" && (
@@ -501,64 +520,69 @@ const ManagementMarketplace: React.FC = () => {
                             </Box>
                           )}
 
-                        {/* Categories */}
-                        {selected.categories &&
-                          selected.categories.length > 0 && (
-                            <Box sx={{ mb: 2 }}>
-                              <Typography variant="subtitle2" sx={{ mb: 1 }}>
-                                Categories:
-                              </Typography>
-                              <Box
+                      {/* Categories */}
+                      {selected.categories &&
+                        selected.categories.length > 0 && (
+                          <Box sx={{ mb: 2 }}>
+                            <Typography variant="subtitle2" sx={{ mb: 1 }}>
+                              Categories:
+                            </Typography>
+                            <Box
                                 sx={{
                                   display: "flex",
                                   flexWrap: "wrap",
                                   gap: 1,
                                 }}
-                              >
-                                {selected.categories.map((category, idx) => (
-                                  <Chip
-                                    key={idx}
-                                    label={category}
-                                    size="small"
-                                    variant="outlined"
-                                  />
-                                ))}
-                              </Box>
+                            >
+                              {selected.categories.map((category, idx) => (
+                                <Chip
+                                  key={idx}
+                                  label={category}
+                                  size="small"
+                                  variant="outlined"
+                                />
+                              ))}
                             </Box>
-                          )}
+                          </Box>
+                        )}
 
-                        {/* Status */}
-                        <Box sx={{ display: "flex", gap: 1 }}>
-                          {selected.isFeatured && (
+                      {/* Status */}
+                      <Box sx={{ display: "flex", gap: 1 }}>
+                        {selected.isFeatured && (
                             <Chip label="Featured" color="primary" />
-                          )}
-                          {selected.isPublished ? (
-                            <Chip
-                              label="Published"
-                              sx={{
-                                bgcolor: "primary.light",
-                                color: "white",
-                              }}
-                            />
-                          ) : (
-                            <Chip label="Draft" color="default" />
-                          )}
-                        </Box>
+                        )}
+                        {selected.isPublished ? (
+                          <Chip
+                            label="Published"
+                            sx={{
+                              bgcolor: "primary.light",
+                              color: "white",
+                            }}
+                          />
+                        ) : (
+                          <Chip label="Draft" color="default" />
+                        )}
                       </Box>
                     </Box>
-                  </CardContent>
-                )}
-              </Card>
-            </Box>
+                  </Box>
+                </CardContent>
+              )}
+            </Card>
           </Box>
+        </Box>
 
-          {/* Store Item Dialog */}
-          <StoreItemDialog
-            open={dialogOpen}
-            onClose={() => setDialogOpen(false)}
+        {/* Store Item Dialog */}
+        <StoreItemDialog
+          open={dialogOpen}
+          onClose={() => setDialogOpen(false)}
+          onSuccess={handleDialogSuccess}
+          item={dialogMode === "edit" ? selected : null}
+          mode={dialogMode}
+        />
+          <GlobalDiscountDialog
+            open={globalDiscountOpen}
+            onClose={() => setGlobalDiscountOpen(false)}
             onSuccess={handleDialogSuccess}
-            item={dialogMode === "edit" ? selected : null}
-            mode={dialogMode}
           />
         </div>
       )}
@@ -579,6 +603,12 @@ const ManagementMarketplace: React.FC = () => {
         <div>
           <NotificationsPreOrdersManagement />
         </div>
+      )}
+
+      {tabValue === 4 && (
+        <div>
+          <DiscountManagement />
+      </div>
       )}
     </div>
   );

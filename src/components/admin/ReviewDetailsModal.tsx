@@ -23,28 +23,27 @@ const ReviewDetailsModal: React.FC<ReviewDetailsModalProps> = ({
   onClose,
   review,
 }) => {
-  if (!review) return null;
-
   return (
-    <Dialog open={open} onClose={onClose} maxWidth="sm" fullWidth>
+    <Dialog open={open && !!review} onClose={onClose} maxWidth="sm" fullWidth>
       <DialogTitle
         sx={{ fontFamily: '"League Spartan", sans-serif', fontWeight: 600 }}
       >
         Review Details
       </DialogTitle>
       <DialogContent dividers>
-        <Stack spacing={3}>
-          <Box>
-            <Typography
-              variant="subtitle2"
-              sx={{ fontFamily: '"League Spartan", sans-serif', mb: 0.5 }}
-            >
-              Product
-            </Typography>
-            <Typography fontWeight={600}>
-              {review.productName || `Product ${review.productId}`}
-            </Typography>
-          </Box>
+        {review ? (
+          <Stack spacing={3}>
+            <Box>
+              <Typography
+                variant="subtitle2"
+                sx={{ fontFamily: '"League Spartan", sans-serif', mb: 0.5 }}
+              >
+                Product
+              </Typography>
+              <Typography fontWeight={600}>
+                {review.productName || `Product ${review.productId}`}
+              </Typography>
+            </Box>
 
           <Box>
             <Typography
@@ -106,6 +105,7 @@ const ReviewDetailsModal: React.FC<ReviewDetailsModalProps> = ({
             </Typography>
           </Box>
         </Stack>
+        ) : null}
       </DialogContent>
       <DialogActions>
         <Button onClick={onClose}>Close</Button>

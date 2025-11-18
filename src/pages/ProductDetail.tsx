@@ -11,6 +11,7 @@ import StoreItemCard from "../components/StoreItemCard";
 import { fetchStoreItems } from "../api/marketplace.api";
 import SubmitReviewModal from "../components/SubmitReviewModal";
 import AllReviewsModal from "../components/AllReviewsModal";
+import { getStoreItemPricing } from "../utils/discounts";
 import toast from "react-hot-toast";
 
 const ProductDetail: React.FC = () => {
@@ -108,6 +109,9 @@ const ProductDetail: React.FC = () => {
       (ingredient) => typeof ingredient === "string" && ingredient.trim().length > 0
     ) || [];
   const hasIngredients = productIngredients.length > 0;
+  const pricing = getStoreItemPricing(item);
+  const displayPrice = pricing.currentPrice ?? item.price ?? 0;
+  const strikePrice = pricing.hasDiscount ? pricing.basePrice : item.oldPrice;
 
   // Demo reviews data
   const reviews = [
@@ -245,7 +249,12 @@ const ProductDetail: React.FC = () => {
 
             {/* Price & Discount */}
             <div className="flex items-center gap-3 mb-4">
-              <Price price={item.price} oldPrice={item.oldPrice} />
+              <Price price={displayPrice} oldPrice={strikePrice} />
+              {pricing.hasDiscount && (
+                <span className="px-3 py-1 rounded-full bg-brand-green/10 text-brand-green text-xs font-semibold">
+                  Save {pricing.discountPercent}%
+                </span>
+              )}
             </div>
 
             {/* Rating */}

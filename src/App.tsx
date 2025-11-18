@@ -23,7 +23,6 @@ import MyAccount from "./pages/dashboard/MyAccount";
 import OrdersHistory from "./pages/dashboard/OrdersHistory";
 import OrderDetails from "./pages/dashboard/OrderDetails";
 import MyCart from "./pages/dashboard/MyCart";
-import MarketplaceActivity from "./pages/dashboard/MarketplaceActivity";
 import DeliveryAddresses from "./pages/dashboard/DeliveryAddresses";
 import PersonalWellnessProgrammes from "./pages/service/PersonalWellnessProgrammes";
 import WellnessProgramDetails from "./pages/service/WellnessProgramDetails";
@@ -300,7 +299,6 @@ const App: React.FC = () => {
             <Route path="orders/:orderId" element={<OrderDetails />} />
             <Route path="addresses" element={<DeliveryAddresses />} />
             <Route path="cart" element={<MyCart />} />
-            <Route path="marketplace" element={<MarketplaceActivity />} />
           </Route>
           <Route path="/forgot-password" element={<ForgotPassword />} />
           <Route path="/reset-password" element={<ResetPassword />} />

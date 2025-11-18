@@ -20,7 +20,10 @@ const StoreItemCard: React.FC<StoreItemCardProps> = ({ item, onAddToCart }) => {
   const imageUrl = item.display?.url || item.images?.[0] || ""; // pick cover image
   const title = item.name || "Product";
   const pricing = getStoreItemPricing(item);
-  const price = pricing.currentPrice;
+  const displayPrice = pricing.currentPrice ?? item.price ?? 0;
+  const strikeThroughPrice = pricing.hasDiscount
+    ? pricing.basePrice
+    : item.oldPrice;
 
   const { isAuthenticated } = useAuth();
   const { addToCart, getItemQuantity, isInCart } = useCart();
@@ -95,8 +98,8 @@ const StoreItemCard: React.FC<StoreItemCardProps> = ({ item, onAddToCart }) => {
 
           <div className="mt-0 flex items-center justify-between min-h-[12px] md:min-h-[16px]">
             <Price
-              price={price}
-              oldPrice={item.oldPrice}
+              price={displayPrice}
+              oldPrice={strikeThroughPrice}
               priceClassName="text-lg md:text-xl font-semibold"
               oldPriceClassName="text-xs md:text-sm"
               badgeClassName="text-[10px] md:text-xs px-1.5 py-0.5"
