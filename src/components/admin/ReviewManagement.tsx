@@ -1,4 +1,4 @@
-import React, { useState, useMemo } from "react";
+import React, { useState, useMemo, useEffect } from "react";
 import {
   Box,
   Typography,
@@ -21,6 +21,7 @@ import {
   TablePagination,
   Menu,
   Tooltip,
+  CircularProgress,
 } from "@mui/material";
 import {
   CheckCircle as CheckCircleIcon,
@@ -32,7 +33,14 @@ import {
 } from "@mui/icons-material";
 import toast from "react-hot-toast";
 import ConfirmationDialog from "./ConfirmationDialog";
+import {
+  getAdminReviews,
+  updateReviewStatus,
+  deleteReview,
+} from "../../api/review.api";
+import type { AdminReview } from "../../types/review.types";
 
+// Keep local Review type for backward compatibility with existing code
 export interface Review {
   id: string;
   productId: string;
@@ -59,10 +67,15 @@ const generateDemoReviews = (): Review[] => {
       userEmail: "maria.jacobs@example.com",
       userName: "Maria Jacobs",
       rating: 5,
-      comment: "This is 10/10 super amazing. The quality is outstanding and I would definitely recommend this to everyone!",
+      comment:
+        "This is 10/10 super amazing. The quality is outstanding and I would definitely recommend this to everyone!",
       status: "PENDING",
-      createdAt: new Date(now.getTime() - 2 * 24 * 60 * 60 * 1000).toISOString(),
-      updatedAt: new Date(now.getTime() - 2 * 24 * 60 * 60 * 1000).toISOString(),
+      createdAt: new Date(
+        now.getTime() - 2 * 24 * 60 * 60 * 1000
+      ).toISOString(),
+      updatedAt: new Date(
+        now.getTime() - 2 * 24 * 60 * 60 * 1000
+      ).toISOString(),
     },
     {
       id: "2",
@@ -72,10 +85,15 @@ const generateDemoReviews = (): Review[] => {
       userEmail: "john.smith@example.com",
       userName: "John Smith",
       rating: 5,
-      comment: "Absolutely love this product! It exceeded my expectations in every way. The packaging was beautiful and the product itself is fantastic.",
+      comment:
+        "Absolutely love this product! It exceeded my expectations in every way. The packaging was beautiful and the product itself is fantastic.",
       status: "APPROVED",
-      createdAt: new Date(now.getTime() - 5 * 24 * 60 * 60 * 1000).toISOString(),
-      updatedAt: new Date(now.getTime() - 4 * 24 * 60 * 60 * 1000).toISOString(),
+      createdAt: new Date(
+        now.getTime() - 5 * 24 * 60 * 60 * 1000
+      ).toISOString(),
+      updatedAt: new Date(
+        now.getTime() - 4 * 24 * 60 * 60 * 1000
+      ).toISOString(),
     },
     {
       id: "3",
@@ -85,10 +103,15 @@ const generateDemoReviews = (): Review[] => {
       userEmail: "sarah.williams@example.com",
       userName: "Sarah Williams",
       rating: 4,
-      comment: "Great product overall. The quality is good and it arrived quickly. Would purchase again.",
+      comment:
+        "Great product overall. The quality is good and it arrived quickly. Would purchase again.",
       status: "APPROVED",
-      createdAt: new Date(now.getTime() - 7 * 24 * 60 * 60 * 1000).toISOString(),
-      updatedAt: new Date(now.getTime() - 6 * 24 * 60 * 60 * 1000).toISOString(),
+      createdAt: new Date(
+        now.getTime() - 7 * 24 * 60 * 60 * 1000
+      ).toISOString(),
+      updatedAt: new Date(
+        now.getTime() - 6 * 24 * 60 * 60 * 1000
+      ).toISOString(),
     },
     {
       id: "4",
@@ -98,10 +121,15 @@ const generateDemoReviews = (): Review[] => {
       userEmail: "david.brown@example.com",
       userName: "David Brown",
       rating: 5,
-      comment: "Perfect! Exactly as described. Highly recommend this product to anyone looking for quality items.",
+      comment:
+        "Perfect! Exactly as described. Highly recommend this product to anyone looking for quality items.",
       status: "APPROVED",
-      createdAt: new Date(now.getTime() - 10 * 24 * 60 * 60 * 1000).toISOString(),
-      updatedAt: new Date(now.getTime() - 9 * 24 * 60 * 60 * 1000).toISOString(),
+      createdAt: new Date(
+        now.getTime() - 10 * 24 * 60 * 60 * 1000
+      ).toISOString(),
+      updatedAt: new Date(
+        now.getTime() - 9 * 24 * 60 * 60 * 1000
+      ).toISOString(),
     },
     {
       id: "5",
@@ -111,10 +139,15 @@ const generateDemoReviews = (): Review[] => {
       userEmail: "emily.chen@example.com",
       userName: "Emily Chen",
       rating: 3,
-      comment: "The product is okay, but I expected more based on the description. The scent is nice but doesn't last very long.",
+      comment:
+        "The product is okay, but I expected more based on the description. The scent is nice but doesn't last very long.",
       status: "PENDING",
-      createdAt: new Date(now.getTime() - 1 * 24 * 60 * 60 * 1000).toISOString(),
-      updatedAt: new Date(now.getTime() - 1 * 24 * 60 * 60 * 1000).toISOString(),
+      createdAt: new Date(
+        now.getTime() - 1 * 24 * 60 * 60 * 1000
+      ).toISOString(),
+      updatedAt: new Date(
+        now.getTime() - 1 * 24 * 60 * 60 * 1000
+      ).toISOString(),
     },
     {
       id: "6",
@@ -124,10 +157,15 @@ const generateDemoReviews = (): Review[] => {
       userEmail: "michael.jones@example.com",
       userName: "Michael Jones",
       rating: 2,
-      comment: "Not what I expected. The material feels cheap and it's not as thick as advertised. Would not recommend.",
+      comment:
+        "Not what I expected. The material feels cheap and it's not as thick as advertised. Would not recommend.",
       status: "REJECTED",
-      createdAt: new Date(now.getTime() - 3 * 24 * 60 * 60 * 1000).toISOString(),
-      updatedAt: new Date(now.getTime() - 2 * 24 * 60 * 60 * 1000).toISOString(),
+      createdAt: new Date(
+        now.getTime() - 3 * 24 * 60 * 60 * 1000
+      ).toISOString(),
+      updatedAt: new Date(
+        now.getTime() - 2 * 24 * 60 * 60 * 1000
+      ).toISOString(),
     },
     {
       id: "7",
@@ -137,7 +175,8 @@ const generateDemoReviews = (): Review[] => {
       userEmail: "lisa.anderson@example.com",
       userName: "Lisa Anderson",
       rating: 5,
-      comment: "Absolutely fantastic! The tea set is beautifully crafted and the tea itself is delicious. Will definitely order again!",
+      comment:
+        "Absolutely fantastic! The tea set is beautifully crafted and the tea itself is delicious. Will definitely order again!",
       status: "PENDING",
       createdAt: new Date(now.getTime() - 6 * 60 * 60 * 1000).toISOString(),
       updatedAt: new Date(now.getTime() - 6 * 60 * 60 * 1000).toISOString(),
@@ -150,58 +189,101 @@ const generateDemoReviews = (): Review[] => {
       userEmail: "robert.taylor@example.com",
       userName: "Robert Taylor",
       rating: 4,
-      comment: "Good quality oils with nice scents. The bundle is great value for money. Delivery was fast too.",
+      comment:
+        "Good quality oils with nice scents. The bundle is great value for money. Delivery was fast too.",
       status: "APPROVED",
-      createdAt: new Date(now.getTime() - 12 * 24 * 60 * 60 * 1000).toISOString(),
-      updatedAt: new Date(now.getTime() - 11 * 24 * 60 * 60 * 1000).toISOString(),
+      createdAt: new Date(
+        now.getTime() - 12 * 24 * 60 * 60 * 1000
+      ).toISOString(),
+      updatedAt: new Date(
+        now.getTime() - 11 * 24 * 60 * 60 * 1000
+      ).toISOString(),
     },
   ];
 };
 
 const ReviewManagement: React.FC = () => {
-  const [reviews, setReviews] = useState<Review[]>(generateDemoReviews());
-  const [statusFilter, setStatusFilter] = useState<"PENDING" | "APPROVED" | "REJECTED" | "">("");
+  const [reviews, setReviews] = useState<AdminReview[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [statusFilter, setStatusFilter] = useState<
+    "PENDING" | "APPROVED" | "REJECTED" | ""
+  >("");
   const [searchQuery, setSearchQuery] = useState("");
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
   const [reviewToDelete, setReviewToDelete] = useState<Review | null>(null);
   const [page, setPage] = useState(0);
   const [rowsPerPage, setRowsPerPage] = useState(10);
+  const [totalReviews, setTotalReviews] = useState(0);
   const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
   const [selectedReview, setSelectedReview] = useState<Review | null>(null);
 
-  const handleApprove = (reviewId: string) => {
-    setReviews((prev) =>
-      prev.map((review) =>
-        review.id === reviewId
-          ? { ...review, status: "APPROVED" as const, updatedAt: new Date().toISOString() }
-          : review
-      )
-    );
-    toast.success("Review approved");
+  // Load reviews from API
+  const loadReviews = async () => {
+    setLoading(true);
+    try {
+      const response = await getAdminReviews({
+        page: page + 1,
+        pageSize: rowsPerPage,
+        status: statusFilter || undefined,
+        search: searchQuery || undefined,
+      });
+
+      if (
+        (response.status === "SUCCESS" || response.status === "success") &&
+        response.data
+      ) {
+        setReviews(response.data.reviews || []);
+        setTotalReviews(response.data.pagination?.total || 0);
+      }
+    } catch (error: any) {
+      toast.error(error?.response?.data?.message || "Failed to load reviews");
+    } finally {
+      setLoading(false);
+    }
   };
 
-  const handleReject = (reviewId: string) => {
-    setReviews((prev) =>
-      prev.map((review) =>
-        review.id === reviewId
-          ? { ...review, status: "REJECTED" as const, updatedAt: new Date().toISOString() }
-          : review
-      )
-    );
-    toast.success("Review rejected");
+  useEffect(() => {
+    loadReviews();
+  }, [page, rowsPerPage, statusFilter, searchQuery]);
+
+  const handleApprove = async (reviewId: string) => {
+    try {
+      await updateReviewStatus(reviewId, "APPROVED");
+      toast.success("Review approved");
+      await loadReviews();
+    } catch (error: any) {
+      toast.error(error?.response?.data?.message || "Failed to approve review");
+    }
   };
 
-  const handleDeleteClick = (review: Review) => {
+  const handleReject = async (reviewId: string) => {
+    try {
+      await updateReviewStatus(reviewId, "REJECTED");
+      toast.success("Review rejected");
+      await loadReviews();
+    } catch (error: any) {
+      toast.error(error?.response?.data?.message || "Failed to reject review");
+    }
+  };
+
+  const handleDeleteClick = (review: AdminReview) => {
     setReviewToDelete(review);
     setDeleteDialogOpen(true);
   };
 
-  const handleDeleteConfirm = () => {
+  const handleDeleteConfirm = async () => {
     if (reviewToDelete) {
-      setReviews((prev) => prev.filter((review) => review.id !== reviewToDelete.id));
-      toast.success("Review deleted");
-      setDeleteDialogOpen(false);
-      setReviewToDelete(null);
+      try {
+        await deleteReview(reviewToDelete.id);
+        toast.success("Review deleted");
+        setDeleteDialogOpen(false);
+        setReviewToDelete(null);
+        await loadReviews();
+      } catch (error: any) {
+        toast.error(
+          error?.response?.data?.message || "Failed to delete review"
+        );
+      }
     }
   };
 
@@ -249,22 +331,32 @@ const ReviewManagement: React.FC = () => {
     });
   }, [reviews, statusFilter, searchQuery]);
 
-  // Paginated reviews
-  const paginatedReviews = useMemo(() => {
-    const startIndex = page * rowsPerPage;
-    return filteredReviews.slice(startIndex, startIndex + rowsPerPage);
-  }, [filteredReviews, page, rowsPerPage]);
+  // Use reviews directly from API (already paginated)
+  const paginatedReviews = reviews;
 
   const handleChangePage = (event: unknown, newPage: number) => {
     setPage(newPage);
   };
 
-  const handleChangeRowsPerPage = (event: React.ChangeEvent<HTMLInputElement>) => {
+  const handleChangeRowsPerPage = (
+    event: React.ChangeEvent<HTMLInputElement>
+  ) => {
     setRowsPerPage(parseInt(event.target.value, 10));
     setPage(0);
   };
 
-  const handleMenuOpen = (event: React.MouseEvent<HTMLElement>, review: Review) => {
+  // Debounce search query
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      setPage(0); // Reset to first page when search changes
+    }, 500);
+    return () => clearTimeout(timer);
+  }, [searchQuery]);
+
+  const handleMenuOpen = (
+    event: React.MouseEvent<HTMLElement>,
+    review: AdminReview
+  ) => {
     setAnchorEl(event.currentTarget);
     setSelectedReview(review);
   };
@@ -312,7 +404,9 @@ const ReviewManagement: React.FC = () => {
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
               InputProps={{
-                startAdornment: <SearchIcon sx={{ mr: 1, color: "text.secondary" }} />,
+                startAdornment: (
+                  <SearchIcon sx={{ mr: 1, color: "text.secondary" }} />
+                ),
               }}
               sx={{ flex: 1, minWidth: 200 }}
             />
@@ -322,7 +416,9 @@ const ReviewManagement: React.FC = () => {
                 value={statusFilter}
                 label="Status"
                 onChange={(e) =>
-                  setStatusFilter(e.target.value as "PENDING" | "APPROVED" | "REJECTED" | "")
+                  setStatusFilter(
+                    e.target.value as "PENDING" | "APPROVED" | "REJECTED" | ""
+                  )
                 }
               >
                 <MenuItem value="">All</MenuItem>
@@ -351,7 +447,13 @@ const ReviewManagement: React.FC = () => {
               </TableRow>
             </TableHead>
             <TableBody>
-              {paginatedReviews.length === 0 ? (
+              {loading ? (
+                <TableRow>
+                  <TableCell colSpan={7} align="center" sx={{ py: 4 }}>
+                    <CircularProgress size={24} />
+                  </TableCell>
+                </TableRow>
+              ) : paginatedReviews.length === 0 ? (
                 <TableRow>
                   <TableCell colSpan={7} align="center" sx={{ py: 4 }}>
                     <Typography variant="body1" color="text.secondary">
@@ -363,7 +465,9 @@ const ReviewManagement: React.FC = () => {
                 paginatedReviews.map((review) => (
                   <TableRow key={review.id} hover>
                     <TableCell>
-                      <Box sx={{ display: "flex", alignItems: "center", gap: 1.5 }}>
+                      <Box
+                        sx={{ display: "flex", alignItems: "center", gap: 1.5 }}
+                      >
                         <Avatar
                           sx={{
                             bgcolor: "#00969b",
@@ -420,11 +524,14 @@ const ReviewManagement: React.FC = () => {
                     </TableCell>
                     <TableCell>
                       <Typography variant="caption" color="text.secondary">
-                        {new Date(review.createdAt).toLocaleDateString("en-GB", {
-                          year: "numeric",
-                          month: "short",
-                          day: "numeric",
-                        })}
+                        {new Date(review.createdAt).toLocaleDateString(
+                          "en-GB",
+                          {
+                            year: "numeric",
+                            month: "short",
+                            day: "numeric",
+                          }
+                        )}
                       </Typography>
                     </TableCell>
                     <TableCell align="right">
@@ -443,7 +550,7 @@ const ReviewManagement: React.FC = () => {
         </TableContainer>
         <TablePagination
           component="div"
-          count={filteredReviews.length}
+          count={totalReviews}
           page={page}
           onPageChange={handleChangePage}
           rowsPerPage={rowsPerPage}
@@ -514,7 +621,9 @@ const ReviewManagement: React.FC = () => {
         onClose={handleDeleteCancel}
         onConfirm={handleDeleteConfirm}
         title="Delete Review"
-        message={`Are you sure you want to delete this review from ${reviewToDelete?.userName || "this user"}? This action cannot be undone.`}
+        message={`Are you sure you want to delete this review from ${
+          reviewToDelete?.userName || "this user"
+        }? This action cannot be undone.`}
         confirmText="Delete"
         cancelText="Cancel"
         variant="danger"
@@ -524,4 +633,3 @@ const ReviewManagement: React.FC = () => {
 };
 
 export default ReviewManagement;
-

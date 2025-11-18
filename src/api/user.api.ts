@@ -297,4 +297,18 @@ export const getMyOrder = async (
   return data as ResponseDto<{ order: OrderDetail }>;
 };
 
+// Verify payment status for an order
+export const verifyOrderPayment = async (
+  orderId: string
+): Promise<
+  ResponseDto<{ updated: boolean; status: string; message: string }>
+> => {
+  const { data } = await http.post(`/user/orders/me/${orderId}/verify-payment`);
+  return data as ResponseDto<{
+    updated: boolean;
+    status: string;
+    message: string;
+  }>;
+};
+
 export type { User };

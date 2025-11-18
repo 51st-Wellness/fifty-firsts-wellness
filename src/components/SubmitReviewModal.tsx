@@ -1,10 +1,14 @@
 import React, { useState } from "react";
 import { X, Star } from "lucide-react";
+import { createReview } from "../api/review.api";
+import toast from "react-hot-toast";
 
 interface SubmitReviewModalProps {
   isOpen: boolean;
   onClose: () => void;
   productName: string;
+  productId: string;
+  orderItemId?: string;
   onSubmit?: (review: { rating: number; comment: string }) => void;
 }
 
@@ -12,6 +16,8 @@ const SubmitReviewModal: React.FC<SubmitReviewModalProps> = ({
   isOpen,
   onClose,
   productName,
+  productId,
+  orderItemId,
   onSubmit,
 }) => {
   const [rating, setRating] = useState(5);
@@ -22,14 +28,26 @@ const SubmitReviewModal: React.FC<SubmitReviewModalProps> = ({
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    if (!orderItemId) {
+      toast.error("Order item ID is required");
+      return;
+    }
+
     setSubmitting(true);
-    // Simulate API call
-    await new Promise((resolve) => setTimeout(resolve, 500));
-    onSubmit?.({ rating, comment });
-    setSubmitting(false);
-    setComment("");
-    setRating(5);
-    onClose();
+    try {
+      await createReview(productId, orderItemId, { rating, comment });
+      toast.success(
+        "Review submitted successfully! It will be visible after approval."
+      );
+      onSubmit?.({ rating, comment });
+      setComment("");
+      setRating(5);
+      onClose();
+    } catch (error: any) {
+      toast.error(error?.response?.data?.message || "Failed to submit review");
+    } finally {
+      setSubmitting(false);
+    }
   };
 
   return (
@@ -37,7 +55,10 @@ const SubmitReviewModal: React.FC<SubmitReviewModalProps> = ({
       <div className="absolute inset-0 bg-black/50" onClick={onClose} />
       <div className="relative bg-white w-full max-w-md mx-4 rounded-2xl shadow-xl">
         <div className="flex items-center justify-between p-6 border-b border-gray-200">
-          <h3 className="text-xl font-semibold text-gray-900" style={{ fontFamily: '"League Spartan", sans-serif' }}>
+          <h3
+            className="text-xl font-semibold text-gray-900"
+            style={{ fontFamily: '"League Spartan", sans-serif' }}
+          >
             Submit Review
           </h3>
           <button
@@ -117,4 +138,3 @@ const SubmitReviewModal: React.FC<SubmitReviewModalProps> = ({
 };
 
 export default SubmitReviewModal;
-

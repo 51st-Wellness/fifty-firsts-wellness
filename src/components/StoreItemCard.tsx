@@ -1,6 +1,7 @@
 import React, { useState } from "react";
-import { ShoppingCart, Heart, Bell, Package } from "lucide-react";
+import { ShoppingCart, Heart, Bell, Package, Star } from "lucide-react";
 import type { StoreItem } from "../types/marketplace.types";
+import type { ReviewSummary } from "../types/review.types";
 import { useCart } from "../context/CartContext";
 import { useAuth } from "../context/AuthContextProvider";
 import NotificationOptIn from "./NotificationOptIn";
@@ -12,11 +13,16 @@ import toast from "react-hot-toast";
 
 interface StoreItemCardProps {
   item: StoreItem;
+  reviewSummary?: ReviewSummary;
   onAddToCart?: (item: StoreItem) => void;
 }
 
 // Reusable card for rendering a single store item
-const StoreItemCard: React.FC<StoreItemCardProps> = ({ item, onAddToCart }) => {
+const StoreItemCard: React.FC<StoreItemCardProps> = ({
+  item,
+  reviewSummary,
+  onAddToCart,
+}) => {
   const imageUrl = item.display?.url || item.images?.[0] || ""; // pick cover image
   const title = item.name || "Product";
   const pricing = getStoreItemPricing(item);
@@ -100,12 +106,26 @@ const StoreItemCard: React.FC<StoreItemCardProps> = ({ item, onAddToCart }) => {
             />
           </div>
 
-          <div className="mt-2 md:mt-3 flex flex-col md:flex-row md:items-center gap-1 md:gap-2 text-xs md:text-base text-gray-600 min-h-[28px] md:min-h-[20px]">
-            <span className="text-yellow-400 text-sm md:text-lg">★★★★</span>
-            <span className="text-gray-500 text-[10px] md:text-sm">
-              (124 reviews)
-            </span>
-          </div>
+          {reviewSummary && reviewSummary.reviewCount > 0 && (
+            <div className="mt-2 md:mt-3 flex flex-col md:flex-row md:items-center gap-1 md:gap-2 text-xs md:text-base text-gray-600 min-h-[28px] md:min-h-[20px]">
+              <div className="flex items-center gap-0.5">
+                {[...Array(5)].map((_, i) => (
+                  <Star
+                    key={i}
+                    className={`w-3 h-3 md:w-4 md:h-4 ${
+                      i < Math.round(reviewSummary.averageRating)
+                        ? "fill-yellow-400 text-yellow-400"
+                        : "text-gray-300"
+                    }`}
+                  />
+                ))}
+              </div>
+              <span className="text-gray-500 text-[10px] md:text-sm">
+                ({reviewSummary.reviewCount}{" "}
+                {reviewSummary.reviewCount === 1 ? "review" : "reviews"})
+              </span>
+            </div>
+          )}
 
           <div
             className="mt-auto pt-3 md:pt-6 cart-controls flex flex-wrap items-center gap-2"

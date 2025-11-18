@@ -11,17 +11,21 @@ import {
   ExternalLink,
   RefreshCcw,
   LifeBuoy,
+  Star,
 } from "lucide-react";
 import { toast } from "react-hot-toast";
 import {
   getMyOrders,
   getMyOrder,
+  verifyOrderPayment,
   type OrderSummary,
   type OrderDetail,
 } from "../../api/user.api";
 import { useCart } from "../../context/CartContext";
 import { cartAPI } from "../../api/cart.api";
 import { useNavigate } from "react-router-dom";
+import SubmitReviewModal from "../../components/SubmitReviewModal";
+import { checkUserReviewForOrderItem } from "../../api/review.api";
 
 const OrdersHistory: React.FC = () => {
   const [orders, setOrders] = useState<OrderSummary[]>([]);
@@ -36,6 +40,19 @@ const OrdersHistory: React.FC = () => {
   const [activeFilter, setActiveFilter] = useState("All");
   const [reorderingOrderId, setReorderingOrderId] = useState<string | null>(
     null
+  );
+  const [verifyingOrderId, setVerifyingOrderId] = useState<string | null>(null);
+  const [reviewModalOpen, setReviewModalOpen] = useState(false);
+  const [selectedOrderItem, setSelectedOrderItem] = useState<{
+    orderItemId: string;
+    productId: string;
+    productName: string;
+  } | null>(null);
+  const [reviewedOrderItems, setReviewedOrderItems] = useState<Set<string>>(
+    new Set()
+  );
+  const [checkingReviews, setCheckingReviews] = useState<Set<string>>(
+    new Set()
   );
 
   const { refreshCart, openCart } = useCart();
@@ -183,6 +200,39 @@ const OrdersHistory: React.FC = () => {
     navigate(`/contact?order=${orderId}`);
   };
 
+  const handleVerifyPayment = async (orderId: string) => {
+    try {
+      setVerifyingOrderId(orderId);
+      const response = await verifyOrderPayment(orderId);
+      if (
+        (response.status === "SUCCESS" || response.status === "success") &&
+        response.data
+      ) {
+        if (response.data.updated) {
+          toast.success(
+            response.data.message || "Payment status verified and updated"
+          );
+          // Reload orders to get updated status
+          await loadOrders();
+          // If order is expanded, reload its details
+          if (expandedOrderId === orderId) {
+            await fetchOrderDetail(orderId);
+          }
+        } else {
+          toast.success(
+            response.data.message || "Payment status verified (no changes)"
+          );
+        }
+      } else {
+        toast.error(response.message || "Failed to verify payment");
+      }
+    } catch (error: any) {
+      toast.error(error?.response?.data?.message || "Failed to verify payment");
+    } finally {
+      setVerifyingOrderId(null);
+    }
+  };
+
   const handleToggleOrder = (orderId: string) => {
     setExpandedOrderId((current) => {
       const next = current === orderId ? null : orderId;
@@ -191,6 +241,56 @@ const OrdersHistory: React.FC = () => {
       }
       return next;
     });
+  };
+
+  const checkOrderItemReview = async (orderItemId: string) => {
+    if (
+      checkingReviews.has(orderItemId) ||
+      reviewedOrderItems.has(orderItemId)
+    ) {
+      return;
+    }
+
+    try {
+      setCheckingReviews((prev) => new Set(prev).add(orderItemId));
+      const response = await checkUserReviewForOrderItem(orderItemId);
+      if (
+        (response.status === "SUCCESS" || response.status === "success") &&
+        response.data &&
+        response.data.hasReviewed
+      ) {
+        setReviewedOrderItems((prev) => new Set(prev).add(orderItemId));
+      }
+    } catch (error) {
+      // Silently fail - don't block UI
+      console.error("Failed to check review status:", error);
+    } finally {
+      setCheckingReviews((prev) => {
+        const next = new Set(prev);
+        next.delete(orderItemId);
+        return next;
+      });
+    }
+  };
+
+  const handleReviewClick = (item: OrderDetail["orderItems"][0]) => {
+    if (!item.productId || !item.id) return;
+    setSelectedOrderItem({
+      orderItemId: item.id,
+      productId: item.productId,
+      productName: item.product?.storeItem?.name || "Product",
+    });
+    setReviewModalOpen(true);
+  };
+
+  const handleReviewSubmit = () => {
+    if (selectedOrderItem) {
+      setReviewedOrderItems((prev) =>
+        new Set(prev).add(selectedOrderItem.orderItemId)
+      );
+    }
+    setReviewModalOpen(false);
+    setSelectedOrderItem(null);
   };
 
   const filteredOrders = orders.filter((order) => {
@@ -340,45 +440,81 @@ const OrdersHistory: React.FC = () => {
                           <h5 className="text-xs font-semibold text-gray-700 uppercase tracking-wide mb-3">
                             Order Items
                           </h5>
-                          {detail.orderItems.map((item) => (
-                            <div
-                              key={item.id}
-                              className="bg-white rounded-lg p-3 border border-gray-200"
-                            >
-                              <div className="flex items-start gap-3">
-                                {item.product?.storeItem?.display?.url && (
-                                  <img
-                                    src={item.product.storeItem.display.url}
-                                    alt={item.product.storeItem.name}
-                                    className="w-16 h-16 object-cover rounded border border-gray-200"
-                                  />
-                                )}
-                                <div className="flex-1 min-w-0">
-                                  <h6 className="text-sm font-medium text-gray-900 truncate">
-                                    {item.product?.storeItem?.name || "Product"}
-                                  </h6>
-                                  {item.product?.storeItem?.description && (
-                                    <p className="text-xs text-gray-500 mt-0.5 line-clamp-2">
-                                      {item.product.storeItem.description}
-                                    </p>
+                          {detail.orderItems.map((item) => {
+                            const hasReviewed = reviewedOrderItems.has(item.id);
+                            const isChecking = checkingReviews.has(item.id);
+                            const canReview =
+                              item.productId &&
+                              item.product?.type === "STORE" &&
+                              order.status === "PAID";
+
+                            // Check review status when item is rendered
+                            if (canReview && !hasReviewed && !isChecking) {
+                              void checkOrderItemReview(item.id);
+                            }
+
+                            return (
+                              <div
+                                key={item.id}
+                                className="bg-white rounded-lg p-3 border border-gray-200"
+                              >
+                                <div className="flex items-start gap-3">
+                                  {item.product?.storeItem?.display?.url && (
+                                    <img
+                                      src={item.product.storeItem.display.url}
+                                      alt={item.product.storeItem.name}
+                                      className="w-16 h-16 object-cover rounded border border-gray-200"
+                                    />
                                   )}
-                                  <div className="flex items-center gap-4 mt-2">
-                                    <span className="text-xs text-gray-600">
-                                      Qty: {item.quantity}
-                                    </span>
-                                    <span className="text-xs font-medium text-gray-900">
-                                      {formatCurrency(
-                                        item.price,
-                                        detail.payment?.currency ||
-                                          order.paymentCurrency ||
-                                          "USD"
-                                      )}
-                                    </span>
+                                  <div className="flex-1 min-w-0">
+                                    <h6 className="text-sm font-medium text-gray-900 truncate">
+                                      {item.product?.storeItem?.name ||
+                                        "Product"}
+                                    </h6>
+                                    {item.product?.storeItem?.description && (
+                                      <p className="text-xs text-gray-500 mt-0.5 line-clamp-2">
+                                        {item.product.storeItem.description}
+                                      </p>
+                                    )}
+                                    <div className="flex items-center gap-4 mt-2">
+                                      <span className="text-xs text-gray-600">
+                                        Qty: {item.quantity}
+                                      </span>
+                                      <span className="text-xs font-medium text-gray-900">
+                                        {formatCurrency(
+                                          item.price,
+                                          detail.payment?.currency ||
+                                            order.paymentCurrency ||
+                                            "USD"
+                                        )}
+                                      </span>
+                                    </div>
+                                    {canReview && (
+                                      <div className="mt-3">
+                                        {hasReviewed ? (
+                                          <span className="inline-flex items-center gap-1 text-xs text-green-600 font-medium">
+                                            <Star className="w-3 h-3 fill-green-600" />
+                                            Review submitted
+                                          </span>
+                                        ) : (
+                                          <button
+                                            type="button"
+                                            onClick={() =>
+                                              handleReviewClick(item)
+                                            }
+                                            className="inline-flex items-center gap-1.5 text-xs font-medium text-brand-green hover:text-brand-green-dark transition-colors"
+                                          >
+                                            <Star className="w-3 h-3" />
+                                            Write a Review
+                                          </button>
+                                        )}
+                                      </div>
+                                    )}
                                   </div>
                                 </div>
                               </div>
-                            </div>
-                          ))}
+                            );
+                          })}
                         </div>
 
                         {detail.deliveryAddress && (
@@ -502,6 +638,19 @@ const OrdersHistory: React.FC = () => {
                         <div className="flex flex-col sm:flex-row gap-3">
                           <button
                             type="button"
+                            onClick={() => handleVerifyPayment(order.id)}
+                            disabled={verifyingOrderId === order.id}
+                            className="inline-flex items-center justify-center gap-2 rounded-full bg-blue-600 text-white px-4 py-2 text-sm font-semibold hover:bg-blue-700 transition-colors disabled:opacity-60 disabled:cursor-not-allowed"
+                          >
+                            {verifyingOrderId === order.id ? (
+                              <Loader className="w-4 h-4 animate-spin" />
+                            ) : (
+                              <RefreshCcw className="w-4 h-4" />
+                            )}
+                            <span>Verify Payment</span>
+                          </button>
+                          <button
+                            type="button"
                             onClick={() => handleReorder(order)}
                             disabled={reorderingOrderId === order.id}
                             className="inline-flex items-center justify-center gap-2 rounded-full bg-brand-green text-white px-4 py-2 text-sm font-semibold hover:bg-brand-green-dark transition-colors disabled:opacity-60 disabled:cursor-not-allowed"
@@ -523,7 +672,8 @@ const OrdersHistory: React.FC = () => {
                           </button>
                         </div>
                         <p className="text-xs text-gray-500 mt-2">
-                          If something feels off, reach out or rebuild the order
+                          If payment seems stuck, verify it with Stripe. If
+                          something feels off, reach out or rebuild the order
                           right away.
                         </p>
                       </div>
@@ -535,6 +685,21 @@ const OrdersHistory: React.FC = () => {
           })
         )}
       </div>
+
+      {/* Review Modal */}
+      {selectedOrderItem && (
+        <SubmitReviewModal
+          isOpen={reviewModalOpen}
+          onClose={() => {
+            setReviewModalOpen(false);
+            setSelectedOrderItem(null);
+          }}
+          productName={selectedOrderItem.productName}
+          productId={selectedOrderItem.productId}
+          orderItemId={selectedOrderItem.orderItemId}
+          onSubmit={handleReviewSubmit}
+        />
+      )}
     </div>
   );
 };
