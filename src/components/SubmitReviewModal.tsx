@@ -8,6 +8,8 @@ interface SubmitReviewModalProps {
   onSubmit?: (review: { rating: number; comment: string }) => void;
 }
 
+const COMMENT_CHAR_LIMIT = 500;
+
 const SubmitReviewModal: React.FC<SubmitReviewModalProps> = ({
   isOpen,
   onClose,
@@ -87,11 +89,15 @@ const SubmitReviewModal: React.FC<SubmitReviewModalProps> = ({
             <textarea
               value={comment}
               onChange={(e) => setComment(e.target.value)}
+              maxLength={COMMENT_CHAR_LIMIT}
               rows={4}
               className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-brand-green/20 focus:border-brand-green"
               placeholder="Share your thoughts about this product..."
               required
             />
+            <div className="mt-1 text-xs text-gray-500 text-right">
+              {comment.length}/{COMMENT_CHAR_LIMIT} characters
+            </div>
           </div>
 
           <div className="flex gap-3 pt-4">

@@ -323,7 +323,10 @@ const NotificationsPreOrdersManagement: React.FC = () => {
     <div className="space-y-6">
       {/* Header */}
       <div>
-        <h2 className="text-2xl font-accent font-semibold text-gray-900">
+        <h2
+          className="text-2xl font-semibold text-gray-900"
+          style={{ fontFamily: '"League Spartan", sans-serif' }}
+        >
           Notifications & Pre-Orders
         </h2>
         <p className="text-sm text-gray-600 mt-1">
@@ -349,7 +352,11 @@ const NotificationsPreOrdersManagement: React.FC = () => {
                 <NotificationsIcon sx={{ color: "white", fontSize: 28 }} />
               </Box>
               <Box sx={{ flex: 1 }}>
-                <Typography variant="h6" fontWeight={600}>
+                <Typography
+                  variant="h6"
+                  fontWeight={600}
+                  sx={{ fontFamily: '"League Spartan", sans-serif' }}
+                >
                   Notification Requests
                 </Typography>
                 <Typography variant="body2" color="text.secondary">
@@ -380,7 +387,11 @@ const NotificationsPreOrdersManagement: React.FC = () => {
                 <ShoppingBagIcon sx={{ color: "white", fontSize: 28 }} />
               </Box>
               <Box sx={{ flex: 1 }}>
-                <Typography variant="h6" fontWeight={600}>
+                <Typography
+                  variant="h6"
+                  fontWeight={600}
+                  sx={{ fontFamily: '"League Spartan", sans-serif' }}
+                >
                   Pre-Orders
                 </Typography>
                 <Typography variant="body2" color="text.secondary">
@@ -410,6 +421,7 @@ const NotificationsPreOrdersManagement: React.FC = () => {
               fontWeight: 600,
               minHeight: 64,
               px: 3,
+              fontFamily: '"League Spartan", sans-serif',
             },
           }}
         >

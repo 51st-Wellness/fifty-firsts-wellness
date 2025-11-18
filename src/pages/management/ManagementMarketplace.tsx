@@ -20,6 +20,7 @@ import {
   Delete as DeleteIcon,
   Image as ImageIcon,
   ShoppingCart as ShoppingCartIcon,
+  LocalShipping as LocalShippingIcon,
   RateReview as RateReviewIcon,
   Notifications as NotificationsIcon,
 } from "@mui/icons-material";
@@ -33,6 +34,7 @@ import type { StoreItem } from "../../types/marketplace.types";
 import StoreItemDialog from "../../components/admin/StoreItemDialog";
 import ReviewManagement from "../../components/admin/ReviewManagement";
 import NotificationsPreOrdersManagement from "../../components/admin/NotificationsPreOrdersManagement";
+import OrdersManagement from "../../components/admin/OrdersManagement";
 
 // Enhanced marketplace management with Material UI dialogs and full CRUD support
 const ManagementMarketplace: React.FC = () => {
@@ -139,7 +141,10 @@ const ManagementMarketplace: React.FC = () => {
   return (
     <div className="p-6 font-primary">
       {/* Header */}
-      <h1 className="text-3xl font-accent font-semibold text-gray-900 mb-6">
+      <h1
+        className="text-3xl font-semibold text-gray-900 mb-6"
+        style={{ fontFamily: '"League Spartan", sans-serif' }}
+      >
         Marketplace Management
       </h1>
 
@@ -156,13 +161,18 @@ const ManagementMarketplace: React.FC = () => {
               fontWeight: 600,
               minHeight: 64,
               px: 3,
-              fontFamily: '"Poppins", sans-serif',
+              fontFamily: '"League Spartan", sans-serif',
             },
           }}
         >
           <Tab
             icon={<ShoppingCartIcon />}
             label="Store Items"
+            iconPosition="start"
+          />
+          <Tab
+            icon={<LocalShippingIcon />}
+            label="Orders"
             iconPosition="start"
           />
           <Tab
@@ -184,7 +194,10 @@ const ManagementMarketplace: React.FC = () => {
           {/* Store Items Section */}
         {/* Store Items Header */}
         <div className="flex justify-between items-center mb-6">
-          <h2 className="text-2xl font-accent font-semibold text-gray-900">
+          <h2
+            className="text-2xl font-semibold text-gray-900"
+            style={{ fontFamily: '"League Spartan", sans-serif' }}
+          >
             Store Items
           </h2>
           <Button
@@ -520,11 +533,17 @@ const ManagementMarketplace: React.FC = () => {
 
       {tabValue === 1 && (
         <div>
-          <ReviewManagement />
+          <OrdersManagement />
         </div>
       )}
 
       {tabValue === 2 && (
+        <div>
+          <ReviewManagement />
+        </div>
+      )}
+
+      {tabValue === 3 && (
         <div>
           <NotificationsPreOrdersManagement />
         </div>

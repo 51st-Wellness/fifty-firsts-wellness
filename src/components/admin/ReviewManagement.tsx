@@ -29,9 +29,11 @@ import {
   Star as StarIcon,
   Search as SearchIcon,
   MoreVert as MoreVertIcon,
+  Visibility as VisibilityIcon,
 } from "@mui/icons-material";
 import toast from "react-hot-toast";
 import ConfirmationDialog from "./ConfirmationDialog";
+import ReviewDetailsModal from "./ReviewDetailsModal";
 
 export interface Review {
   id: string;
@@ -168,6 +170,7 @@ const ReviewManagement: React.FC = () => {
   const [rowsPerPage, setRowsPerPage] = useState(10);
   const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
   const [selectedReview, setSelectedReview] = useState<Review | null>(null);
+  const [detailsOpen, setDetailsOpen] = useState(false);
 
   const handleApprove = (reviewId: string) => {
     setReviews((prev) =>
@@ -293,7 +296,10 @@ const ReviewManagement: React.FC = () => {
       {/* Header and Filters */}
       <div className="flex flex-col sm:flex-row gap-4 items-start sm:items-center justify-between">
         <div>
-          <h2 className="text-2xl font-accent font-semibold text-gray-900">
+          <h2
+            className="text-2xl font-semibold text-gray-900"
+            style={{ fontFamily: '"League Spartan", sans-serif' }}
+          >
             Product Reviews
           </h2>
           <p className="text-sm text-gray-600 mt-1">
@@ -428,12 +434,23 @@ const ReviewManagement: React.FC = () => {
                       </Typography>
                     </TableCell>
                     <TableCell align="right">
-                      <IconButton
-                        size="small"
-                        onClick={(e) => handleMenuOpen(e, review)}
-                      >
-                        <MoreVertIcon />
-                      </IconButton>
+                      <Box sx={{ display: "flex", justifyContent: "flex-end", gap: 1 }}>
+                        <IconButton
+                          size="small"
+                          onClick={() => {
+                            setSelectedReview(review);
+                            setDetailsOpen(true);
+                          }}
+                        >
+                          <VisibilityIcon fontSize="small" />
+                        </IconButton>
+                        <IconButton
+                          size="small"
+                          onClick={(e) => handleMenuOpen(e, review)}
+                        >
+                          <MoreVertIcon />
+                        </IconButton>
+                      </Box>
                     </TableCell>
                   </TableRow>
                 ))
@@ -466,6 +483,17 @@ const ReviewManagement: React.FC = () => {
           horizontal: "right",
         }}
       >
+        {selectedReview && (
+          <MenuItem
+            onClick={() => {
+              setDetailsOpen(true);
+              handleMenuClose();
+            }}
+          >
+            <VisibilityIcon sx={{ mr: 1, fontSize: 20 }} />
+            View details
+          </MenuItem>
+        )}
         {selectedReview?.status === "PENDING" && (
           <>
             <MenuItem onClick={() => handleMenuAction("approve")}>
@@ -507,6 +535,11 @@ const ReviewManagement: React.FC = () => {
           </>
         )}
       </Menu>
+      <ReviewDetailsModal
+        open={detailsOpen}
+        onClose={() => setDetailsOpen(false)}
+        review={selectedReview}
+      />
 
       {/* Delete Confirmation Dialog */}
       <ConfirmationDialog

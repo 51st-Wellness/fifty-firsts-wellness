@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from "react";
 import { useNavigate, useParams, useLocation } from "react-router-dom";
-import { ShoppingCart, ArrowLeft, Star, ChevronLeft, ChevronRight } from "lucide-react";
+import { ShoppingCart, ArrowLeft, Star, Eye } from "lucide-react";
 import { fetchStoreItemById } from "../api/marketplace.api";
 import type { StoreItem } from "../types/marketplace.types";
 import NotificationOptIn from "../components/NotificationOptIn";
@@ -10,6 +10,7 @@ import Price from "../components/Price";
 import StoreItemCard from "../components/StoreItemCard";
 import { fetchStoreItems } from "../api/marketplace.api";
 import SubmitReviewModal from "../components/SubmitReviewModal";
+import AllReviewsModal from "../components/AllReviewsModal";
 import toast from "react-hot-toast";
 
 const ProductDetail: React.FC = () => {
@@ -21,6 +22,7 @@ const ProductDetail: React.FC = () => {
   const [reviewModalOpen, setReviewModalOpen] = useState(false);
   const [reviewCarouselIndex, setReviewCarouselIndex] = useState(0);
   const [relatedProducts, setRelatedProducts] = useState<StoreItem[]>([]);
+  const [reviewsModalOpen, setReviewsModalOpen] = useState(false);
   const { addToCart } = useCart();
   const { isAuthenticated } = useAuth();
   const navigate = useNavigate();
@@ -90,6 +92,22 @@ const ProductDetail: React.FC = () => {
     ? item.images
     : (state?.images && state.images.length ? state.images : (item.display?.url ? [item.display.url] : (state?.cover ? [state.cover] : [])));
   const mainImage = images[selectedImageIndex] || imageUrl || "";
+
+  const defaultDescription =
+    "We're here to help! Whether you have a question about our services, need assistance with your wellness journey, or want to learn more about what we offer, our team is ready to assist you.";
+  const defaultUsage =
+    "Follow the included instructions for best results. This product is designed for daily use and can be incorporated into your wellness routine. Store in a cool, dry place and keep away from direct sunlight.";
+  const defaultBenefits =
+    "This product offers numerous benefits including improved wellness, enhanced daily routines, and a sense of calm and balance. Our carefully curated selection ensures you receive the highest quality items designed to support your holistic health journey.";
+
+  const descriptionContent = item.description?.trim() || defaultDescription;
+  const productUsage = (item as any).productUsage?.trim() || defaultUsage;
+  const productBenefits = (item as any).productBenefits?.trim() || defaultBenefits;
+  const productIngredients =
+    ((item as any).productIngredients as string[] | undefined)?.filter(
+      (ingredient) => typeof ingredient === "string" && ingredient.trim().length > 0
+    ) || [];
+  const hasIngredients = productIngredients.length > 0;
 
   // Demo reviews data
   const reviews = [
@@ -197,23 +215,23 @@ const ProductDetail: React.FC = () => {
               Product Benefits
             </h2>
             <p className="text-gray-600 leading-relaxed">
-              This product offers numerous benefits including improved wellness, enhanced daily routines, and a sense of calm and balance. Our carefully curated selection ensures you receive the highest quality items designed to support your holistic health journey.
+              {productBenefits}
             </p>
           </div>
 
           {/* Product Ingredients - Desktop only (mobile moved below) */}
-          <div className="hidden lg:block">
-            <h2 className="text-xl font-semibold text-gray-900 mb-4" style={{ fontFamily: '"League Spartan", sans-serif' }}>
-              Product Ingredients
-            </h2>
-            <ul className="space-y-2 text-gray-600">
-              <li>• Natural and organic ingredients</li>
-              <li>• Ethically sourced materials</li>
-              <li>• No harmful chemicals</li>
-              <li>• Sustainable production methods</li>
-              <li>• Cruelty-free certified</li>
-            </ul>
-          </div>
+          {hasIngredients && (
+            <div className="hidden lg:block">
+              <h2 className="text-xl font-semibold text-gray-900 mb-4" style={{ fontFamily: '"League Spartan", sans-serif' }}>
+                Product Ingredients
+              </h2>
+              <ul className="space-y-2 text-gray-600">
+                {productIngredients.map((ingredient, idx) => (
+                  <li key={`${ingredient}-${idx}`}>• {ingredient}</li>
+                ))}
+              </ul>
+            </div>
+          )}
         </div>
 
         {/* Right Column - Desktop: Product Info, Description, Usage */}
@@ -261,7 +279,7 @@ const ProductDetail: React.FC = () => {
 
             {/* Description */}
             <p className="text-gray-600 mb-6 leading-relaxed">
-              {item.description || "We're here to help! Whether you have a question about our services, need assistance with your wellness journey, or want to learn more about what we offer, our team is ready to assist you."}
+              {descriptionContent}
             </p>
 
             {/* Quantity Selector */}
@@ -318,7 +336,7 @@ const ProductDetail: React.FC = () => {
               Product Description
             </h2>
             <p className="text-gray-600 leading-relaxed">
-              We're here to help! Whether you have a question about our services, need assistance with your wellness journey, or want to learn more about what we offer, our team is ready to assist you. Reach out to us through any of the channels below, and we'll get back to you as soon as possible.
+              {descriptionContent}
             </p>
           </div>
 
@@ -327,11 +345,8 @@ const ProductDetail: React.FC = () => {
             <h2 className="text-xl font-semibold text-gray-900 mb-4" style={{ fontFamily: '"League Spartan", sans-serif' }}>
               Product Usage
             </h2>
-            <p className="text-gray-600 leading-relaxed mb-4">
-              Follow the included instructions for best results. This product is designed for daily use and can be incorporated into your wellness routine. Store in a cool, dry place and keep away from direct sunlight.
-            </p>
             <p className="text-gray-600 leading-relaxed">
-              We're here to help! Whether you have a question about our services, need assistance with your account, or want to provide feedback, our team is ready to assist you.
+              {productUsage}
             </p>
           </div>
         </div>
@@ -344,23 +359,23 @@ const ProductDetail: React.FC = () => {
               Product Benefits
             </h2>
             <p className="text-gray-600 leading-relaxed">
-              This product offers numerous benefits including improved wellness, enhanced daily routines, and a sense of calm and balance. Our carefully curated selection ensures you receive the highest quality items designed to support your holistic health journey.
+              {productBenefits}
             </p>
           </div>
 
           {/* Product Ingredients */}
-          <div>
-            <h2 className="text-xl font-semibold text-gray-900 mb-4" style={{ fontFamily: '"League Spartan", sans-serif' }}>
-              Product Ingredients
-            </h2>
-            <ul className="space-y-2 text-gray-600">
-              <li>• Natural and organic ingredients</li>
-              <li>• Ethically sourced materials</li>
-              <li>• No harmful chemicals</li>
-              <li>• Sustainable production methods</li>
-              <li>• Cruelty-free certified</li>
-            </ul>
-          </div>
+          {hasIngredients && (
+            <div>
+              <h2 className="text-xl font-semibold text-gray-900 mb-4" style={{ fontFamily: '"League Spartan", sans-serif' }}>
+                Product Ingredients
+              </h2>
+              <ul className="space-y-2 text-gray-600">
+                {productIngredients.map((ingredient, idx) => (
+                  <li key={`mobile-${ingredient}-${idx}`}>• {ingredient}</li>
+                ))}
+              </ul>
+            </div>
+          )}
         </div>
       </div>
 
@@ -370,6 +385,15 @@ const ProductDetail: React.FC = () => {
           <h2 className="text-2xl font-semibold text-gray-900" style={{ fontFamily: '"League Spartan", sans-serif' }}>
             Customer Reviews
           </h2>
+          <button
+            type="button"
+            onClick={() => setReviewsModalOpen(true)}
+            className="inline-flex items-center gap-2 text-sm font-semibold text-brand-green hover:text-brand-green-dark transition-colors"
+            aria-label="View all reviews"
+          >
+            <Eye className="w-5 h-5" />
+            <span>See all</span>
+          </button>
         </div>
 
         <div className="relative">
@@ -409,11 +433,6 @@ const ProductDetail: React.FC = () => {
                           <span className="text-xs text-gray-500">{review.date}</span>
                         </div>
                         <p className="text-sm text-gray-600 mb-2 leading-relaxed">{review.comment}</p>
-                        {review.verified && (
-                          <span className="inline-block px-2 py-1 rounded-full bg-green-100 text-green-700 text-xs font-medium">
-                            Verified Purchase
-                          </span>
-                        )}
                         </div>
                       ))
                     ) : null}
@@ -457,6 +476,11 @@ const ProductDetail: React.FC = () => {
         onClose={() => setReviewModalOpen(false)}
         productName={item.name}
         onSubmit={handleReviewSubmit}
+      />
+      <AllReviewsModal
+        isOpen={reviewsModalOpen}
+        onClose={() => setReviewsModalOpen(false)}
+        reviews={reviews}
       />
     </main>
   );
