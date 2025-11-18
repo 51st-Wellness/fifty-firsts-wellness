@@ -102,11 +102,11 @@ const PaymentSuccess: React.FC = () => {
   // Get delivery details from order's delivery address
   const deliveryDetails = paymentDetails.orders?.[0]?.deliveryAddress
     ? {
-        contactName: paymentDetails.orders[0].deliveryAddress.contactName,
+        recipientName: paymentDetails.orders[0].deliveryAddress.recipientName,
         contactPhone: paymentDetails.orders[0].deliveryAddress.contactPhone,
-        deliveryAddress:
-          paymentDetails.orders[0].deliveryAddress.deliveryAddress,
-        deliveryCity: paymentDetails.orders[0].deliveryAddress.deliveryCity,
+        addressLine1: paymentDetails.orders[0].deliveryAddress.addressLine1,
+        postTown: paymentDetails.orders[0].deliveryAddress.postTown,
+        postcode: paymentDetails.orders[0].deliveryAddress.postcode,
         deliveryInstructions:
           paymentDetails.orders[0].deliveryAddress.deliveryInstructions,
       }
@@ -203,14 +203,18 @@ const PaymentSuccess: React.FC = () => {
                   </span>
                 </div>
                 <div className="flex justify-between items-center py-2.5 sm:py-3 border-b border-gray-100">
-                  <span className="text-xs sm:text-sm text-gray-600">Status</span>
+                  <span className="text-xs sm:text-sm text-gray-600">
+                    Status
+                  </span>
                   <span className="inline-flex items-center gap-1 bg-brand-green/10 text-brand-green px-2.5 py-1 rounded-full text-xs sm:text-sm font-medium">
                     <CheckCircle className="w-3 h-3 sm:w-4 sm:h-4" />
                     {paymentDetails.status}
                   </span>
                 </div>
                 <div className="flex justify-between items-center py-2.5 sm:py-3 border-b border-gray-100">
-                  <span className="text-xs sm:text-sm text-gray-600">Amount</span>
+                  <span className="text-xs sm:text-sm text-gray-600">
+                    Amount
+                  </span>
                   <span className="text-lg sm:text-xl font-bold text-gray-900">
                     {formatCurrency(
                       paymentDetails.amount,
@@ -322,10 +326,10 @@ const PaymentSuccess: React.FC = () => {
                 <div className="grid gap-3 sm:gap-4 md:grid-cols-2">
                   <div className="rounded-xl bg-gray-50 p-3 sm:p-4">
                     <p className="text-xs sm:text-sm text-gray-500">
-                      Contact Name
+                      Recipient
                     </p>
                     <p className="text-sm sm:text-base font-semibold text-gray-900 mt-1">
-                      {deliveryDetails.contactName || "Not provided"}
+                      {deliveryDetails.recipientName || "Not provided"}
                     </p>
                   </div>
                   <div className="rounded-xl bg-gray-50 p-3 sm:p-4">
@@ -338,16 +342,24 @@ const PaymentSuccess: React.FC = () => {
                   </div>
                   <div className="rounded-xl bg-gray-50 p-3 sm:p-4 md:col-span-2">
                     <p className="text-xs sm:text-sm text-gray-500">
-                      Delivery Address
+                      Address Line 1
                     </p>
                     <p className="text-sm sm:text-base font-semibold text-gray-900 mt-1">
-                      {deliveryDetails.deliveryAddress || "Not provided"}
+                      {deliveryDetails.addressLine1 || "Not provided"}
                     </p>
                   </div>
                   <div className="rounded-xl bg-gray-50 p-3 sm:p-4">
-                    <p className="text-xs sm:text-sm text-gray-500">City</p>
+                    <p className="text-xs sm:text-sm text-gray-500">
+                      Post town
+                    </p>
                     <p className="text-sm sm:text-base font-semibold text-gray-900 mt-1">
-                      {deliveryDetails.deliveryCity || "Not provided"}
+                      {deliveryDetails.postTown || "Not provided"}
+                    </p>
+                  </div>
+                  <div className="rounded-xl bg-gray-50 p-3 sm:p-4">
+                    <p className="text-xs sm:text-sm text-gray-500">Postcode</p>
+                    <p className="text-sm sm:text-base font-semibold text-gray-900 mt-1">
+                      {deliveryDetails.postcode || "Not provided"}
                     </p>
                   </div>
                   {deliveryDetails.deliveryInstructions && (

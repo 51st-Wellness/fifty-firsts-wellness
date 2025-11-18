@@ -1,14 +1,16 @@
 import http from "./http";
 import type { ResponseDto } from "../types/response.types";
+import type { DiscountType } from "../types/marketplace.types";
 import type { PaymentStatusResponse } from "../types/payment";
 
 export interface CartCheckoutPayload {
   deliveryAddressId?: string; // Use existing address
   // Custom address fields (used when creating new address)
-  contactName?: string;
+  recipientName?: string;
   contactPhone?: string;
-  deliveryAddress?: string;
-  deliveryCity?: string;
+  addressLine1?: string;
+  postTown?: string;
+  postcode?: string;
   deliveryInstructions?: string;
   saveAddress?: boolean; // Whether to save the custom address
 }
@@ -18,15 +20,25 @@ export interface CartCheckoutSummaryItem {
   name: string;
   quantity: number;
   unitPrice: number;
+  baseUnitPrice?: number;
   lineTotal: number;
+  baseLineTotal?: number;
+  discount?: {
+    isActive: boolean;
+    type: DiscountType;
+    value: number;
+    amountPerUnit: number;
+    totalAmount: number;
+  };
   image?: { url: string; type: string };
 }
 
 export interface CartCheckoutDeliveryDefaults {
-  contactName?: string;
+  recipientName?: string;
   contactPhone?: string;
-  deliveryAddress?: string;
-  deliveryCity?: string;
+  addressLine1?: string;
+  postTown?: string;
+  postcode?: string;
 }
 
 export interface CartCheckoutSummary {
@@ -39,14 +51,50 @@ export interface CartCheckoutSummary {
     currency: string;
     itemCount: number;
     totalQuantity: number;
+    subtotalBeforeDiscounts?: number;
+    productDiscountTotal?: number;
+    globalDiscountTotal?: number;
+    discountTotal?: number;
   };
   deliveryDefaults?: CartCheckoutDeliveryDefaults;
+  pricing?: {
+    currency: string;
+    baseSubtotal: number;
+    subtotalAfterProductDiscounts: number;
+    productDiscountTotal: number;
+    globalDiscountTotal: number;
+    totalDiscount: number;
+    grandTotal: number;
+  };
+  discounts?: {
+    productDiscountTotal: number;
+    globalDiscount: {
+      isActive: boolean;
+      type: DiscountType;
+      value: number;
+      minOrderTotal?: number;
+      label?: string;
+      applied?: boolean;
+      amountApplied?: number;
+    };
+    totalDiscount: number;
+  };
+  globalDiscount?: {
+    isActive: boolean;
+    type: DiscountType;
+    value: number;
+    minOrderTotal?: number;
+    label?: string;
+    applied?: boolean;
+    amountApplied?: number;
+  };
   deliveryAddresses?: Array<{
     id: string;
-    contactName: string;
+    recipientName: string;
     contactPhone: string;
-    deliveryAddress: string;
-    deliveryCity: string;
+    addressLine1: string;
+    postTown: string;
+    postcode: string;
     deliveryInstructions?: string | null;
     isDefault: boolean;
   }>;
@@ -60,10 +108,11 @@ export interface CartCheckoutResult {
   currency: string;
   deliveryAddress?: {
     id: string;
-    contactName: string;
+    recipientName: string;
     contactPhone: string;
-    deliveryAddress: string;
-    deliveryCity: string;
+    addressLine1: string;
+    postTown: string;
+    postcode: string;
     deliveryInstructions?: string | null;
   };
 }

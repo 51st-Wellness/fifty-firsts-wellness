@@ -1,6 +1,10 @@
 import { useState } from "react";
 
-type AddressInput = { postcode: string; line1: string; city: string };
+type AddressInput = {
+  postcode: string;
+  addressLine1: string;
+  postTown: string;
+};
 
 export default function useRoyalMailAddress() {
   const [loading, setLoading] = useState(false);
@@ -12,7 +16,9 @@ export default function useRoyalMailAddress() {
       setError(null);
       // Placeholder for backend validation call
       await new Promise((r) => setTimeout(r, 500));
-      if (!/^([A-Z]{1,2}\d[\dA-Z]? ?\d[ABD-HJLNP-UW-Z]{2})$/i.test(input.postcode)) {
+      if (
+        !/^([A-Z]{1,2}\d[\dA-Z]? ?\d[ABD-HJLNP-UW-Z]{2})$/i.test(input.postcode)
+      ) {
         setError("Enter a valid UK postcode");
         return { valid: false } as const;
       }
@@ -27,5 +33,3 @@ export default function useRoyalMailAddress() {
 
   return { validateAddress, loading, error };
 }
-
-

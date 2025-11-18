@@ -17,6 +17,7 @@ import {
   Tab,
   InputAdornment,
   Stack,
+  MenuItem,
 } from "@mui/material";
 import {
   CloudUpload as UploadIcon,
@@ -24,7 +25,7 @@ import {
 } from "@mui/icons-material";
 import toast from "react-hot-toast";
 import { createStoreItem, updateStoreItem } from "../../api/marketplace.api";
-import type { StoreItem } from "../../types/marketplace.types";
+import type { StoreItem, DiscountType } from "../../types/marketplace.types";
 import CategorySelector from "./CategorySelector";
 
 interface StoreItemDialogProps {
@@ -55,6 +56,11 @@ const StoreItemDialog: React.FC<StoreItemDialogProps> = ({
     categories: [] as string[],
     isFeatured: false,
     isPublished: false,
+    discountType: "NONE" as DiscountType,
+    discountValue: 0,
+    discountActive: false,
+    discountStart: "",
+    discountEnd: "",
   });
   const [displayFile, setDisplayFile] = useState<File | null>(null);
   const [imageFiles, setImageFiles] = useState<File[]>([]);
@@ -63,6 +69,9 @@ const StoreItemDialog: React.FC<StoreItemDialogProps> = ({
   const [submitting, setSubmitting] = useState(false);
   const [tabIndex, setTabIndex] = useState(0);
   const [ingredientInput, setIngredientInput] = useState("");
+  const toIsoString = (value?: string | Date | null) =>
+    value ? new Date(value).toISOString() : "";
+  const toInputValue = (value?: string) => (value ? value.slice(0, 16) : "");
 
   // Reset form when dialog opens/closes or item changes
   useEffect(() => {
@@ -79,6 +88,14 @@ const StoreItemDialog: React.FC<StoreItemDialogProps> = ({
           categories: item.categories || [],
           isFeatured: item.isFeatured || false,
           isPublished: item.isPublished || false,
+          discountType: (item as any).discountType || "NONE",
+          discountValue: (item as any).discountValue || 0,
+          discountActive: Boolean(
+            (item as any).discountActive &&
+              (item as any).discountType !== "NONE"
+          ),
+          discountStart: toIsoString((item as any).discountStart),
+          discountEnd: toIsoString((item as any).discountEnd),
         });
         setDisplayPreview(item.display?.url || "");
         setImagePreviews(item.images || []);
@@ -94,6 +111,11 @@ const StoreItemDialog: React.FC<StoreItemDialogProps> = ({
           categories: [],
           isFeatured: false,
           isPublished: false,
+          discountType: "NONE",
+          discountValue: 0,
+          discountActive: false,
+          discountStart: "",
+          discountEnd: "",
         });
         setDisplayPreview("");
         setImagePreviews([]);
@@ -185,6 +207,15 @@ const StoreItemDialog: React.FC<StoreItemDialogProps> = ({
       submitData.append("stock", formData.stock.toString());
       submitData.append("isFeatured", formData.isFeatured.toString());
       submitData.append("isPublished", formData.isPublished.toString());
+      submitData.append("discountType", formData.discountType);
+      submitData.append("discountValue", formData.discountValue.toString());
+      submitData.append("discountActive", formData.discountActive.toString());
+      if (formData.discountStart) {
+        submitData.append("discountStart", formData.discountStart);
+      }
+      if (formData.discountEnd) {
+        submitData.append("discountEnd", formData.discountEnd);
+      }
 
       // Add tags
       formData.categories.forEach((tag) => {
@@ -455,6 +486,87 @@ const StoreItemDialog: React.FC<StoreItemDialogProps> = ({
                     }
                     label="Published"
                   />
+                </Stack>
+              </Box>
+
+              <Box>
+                <Divider sx={{ my: 1 }} />
+                <Stack spacing={2}>
+                  <Typography variant="subtitle2">Discounts</Typography>
+                  <TextField
+                    select
+                    label="Discount type"
+                    size="small"
+                    value={formData.discountType}
+                    onChange={handleDiscountTypeChange}
+                  >
+                    <MenuItem value="NONE">None</MenuItem>
+                    <MenuItem value="PERCENTAGE">Percentage</MenuItem>
+                    <MenuItem value="FLAT">Flat amount</MenuItem>
+                  </TextField>
+
+                  {formData.discountType !== "NONE" && (
+                    <>
+                      <Stack
+                        direction={{ xs: "column", sm: "row" }}
+                        spacing={2}
+                      >
+                        <TextField
+                          label={
+                            formData.discountType === "PERCENTAGE"
+                              ? "Discount (%)"
+                              : "Discount amount"
+                          }
+                          type="number"
+                          size="small"
+                          value={formData.discountValue}
+                          onChange={handleDiscountValueChange}
+                          inputProps={{
+                            min: 0,
+                            max:
+                              formData.discountType === "PERCENTAGE"
+                                ? 100
+                                : undefined,
+                          }}
+                          fullWidth
+                        />
+                        <FormControlLabel
+                          control={
+                            <Switch
+                              checked={formData.discountActive}
+                              onChange={handleDiscountSwitch}
+                              color="primary"
+                            />
+                          }
+                          label="Active"
+                        />
+                      </Stack>
+
+                      <Stack
+                        direction={{ xs: "column", sm: "row" }}
+                        spacing={2}
+                      >
+                        <TextField
+                          label="Starts at"
+                          type="datetime-local"
+                          size="small"
+                          value={toInputValue(formData.discountStart)}
+                          onChange={handleDiscountDateChange("discountStart")}
+                          fullWidth
+                          InputLabelProps={{ shrink: true }}
+                        />
+                        <TextField
+                          label="Ends at"
+                          type="datetime-local"
+                          size="small"
+                          value={toInputValue(formData.discountEnd)}
+                          onChange={handleDiscountDateChange("discountEnd")}
+                          fullWidth
+                          InputLabelProps={{ shrink: true }}
+                        />
+                      </Stack>
+                    </>
+                  )}
                 </Stack>
               </Box>
             </Stack>

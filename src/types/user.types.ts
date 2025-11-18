@@ -27,10 +27,11 @@ export type User = {
 export type DeliveryAddress = {
   id: string;
   userId: string;
-  contactName: string;
+  recipientName: string;
   contactPhone: string;
-  deliveryAddress: string;
-  deliveryCity: string;
+  addressLine1: string;
+  postTown: string;
+  postcode: string;
   deliveryInstructions?: string | null;
   isDefault: boolean;
   createdAt: string | Date;

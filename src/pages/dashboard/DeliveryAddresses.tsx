@@ -17,10 +17,11 @@ const DeliveryAddresses: React.FC = () => {
   const [showAddAddress, setShowAddAddress] = useState(false);
   const [editingAddressId, setEditingAddressId] = useState<string | null>(null);
   const [addressForm, setAddressForm] = useState({
-    contactName: "",
+    recipientName: "",
     contactPhone: "",
-    deliveryAddress: "",
-    deliveryCity: "",
+    addressLine1: "",
+    postTown: "",
+    postcode: "",
     deliveryInstructions: "",
     isDefault: false,
   });
@@ -61,10 +62,11 @@ const DeliveryAddresses: React.FC = () => {
 
   const handleAddAddress = async () => {
     if (
-      !addressForm.contactName ||
+      !addressForm.recipientName ||
       !addressForm.contactPhone ||
-      !addressForm.deliveryAddress ||
-      !addressForm.deliveryCity
+      !addressForm.addressLine1 ||
+      !addressForm.postTown ||
+      !addressForm.postcode
     ) {
       toast.error("Please fill in all required fields");
       return;
@@ -72,10 +74,11 @@ const DeliveryAddresses: React.FC = () => {
 
     try {
       const payload: CreateDeliveryAddressPayload = {
-        contactName: addressForm.contactName,
+        recipientName: addressForm.recipientName,
         contactPhone: addressForm.contactPhone,
-        deliveryAddress: addressForm.deliveryAddress,
-        deliveryCity: addressForm.deliveryCity,
+        addressLine1: addressForm.addressLine1,
+        postTown: addressForm.postTown,
+        postcode: addressForm.postcode,
         deliveryInstructions: addressForm.deliveryInstructions || undefined,
         isDefault: addressForm.isDefault,
       };
@@ -95,10 +98,11 @@ const DeliveryAddresses: React.FC = () => {
   const handleEditAddress = (address: DeliveryAddress) => {
     setEditingAddressId(address.id);
     setAddressForm({
-      contactName: address.contactName,
+      recipientName: address.recipientName,
       contactPhone: address.contactPhone,
-      deliveryAddress: address.deliveryAddress,
-      deliveryCity: address.deliveryCity,
+      addressLine1: address.addressLine1,
+      postTown: address.postTown,
+      postcode: address.postcode,
       deliveryInstructions: address.deliveryInstructions || "",
       isDefault: address.isDefault,
     });
@@ -109,10 +113,11 @@ const DeliveryAddresses: React.FC = () => {
     if (!editingAddressId) return;
 
     if (
-      !addressForm.contactName ||
+      !addressForm.recipientName ||
       !addressForm.contactPhone ||
-      !addressForm.deliveryAddress ||
-      !addressForm.deliveryCity
+      !addressForm.addressLine1 ||
+      !addressForm.postTown ||
+      !addressForm.postcode
     ) {
       toast.error("Please fill in all required fields");
       return;
@@ -120,10 +125,11 @@ const DeliveryAddresses: React.FC = () => {
 
     try {
       const payload: UpdateDeliveryAddressPayload = {
-        contactName: addressForm.contactName,
+        recipientName: addressForm.recipientName,
         contactPhone: addressForm.contactPhone,
-        deliveryAddress: addressForm.deliveryAddress,
-        deliveryCity: addressForm.deliveryCity,
+        addressLine1: addressForm.addressLine1,
+        postTown: addressForm.postTown,
+        postcode: addressForm.postcode,
         deliveryInstructions: addressForm.deliveryInstructions || undefined,
         isDefault: addressForm.isDefault,
       };
@@ -159,10 +165,11 @@ const DeliveryAddresses: React.FC = () => {
 
   const resetAddressForm = () => {
     setAddressForm({
-      contactName: "",
+      recipientName: "",
       contactPhone: "",
-      deliveryAddress: "",
-      deliveryCity: "",
+      addressLine1: "",
+      postTown: "",
+      postcode: "",
       deliveryInstructions: "",
       isDefault: false,
     });
@@ -209,12 +216,12 @@ const DeliveryAddresses: React.FC = () => {
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div>
                   <label className="text-xs font-medium text-gray-700 mb-1 block">
-                    Contact Name *
+                    Recipient Name *
                   </label>
                   <input
                     type="text"
-                    name="contactName"
-                    value={addressForm.contactName}
+                    name="recipientName"
+                    value={addressForm.recipientName}
                     onChange={handleAddressFormChange}
                     className="w-full rounded-lg px-4 py-2 text-sm text-gray-900 border border-gray-300 focus:outline-none focus:ring-2 focus:ring-brand-green/20"
                     placeholder="Full name"
@@ -236,29 +243,44 @@ const DeliveryAddresses: React.FC = () => {
               </div>
               <div>
                 <label className="text-xs font-medium text-gray-700 mb-1 block">
-                  Delivery Address *
+                  Address Line 1 *
                 </label>
                 <textarea
-                  name="deliveryAddress"
-                  value={addressForm.deliveryAddress}
+                  name="addressLine1"
+                  value={addressForm.addressLine1}
                   onChange={handleAddressFormChange}
                   rows={2}
                   className="w-full rounded-lg px-4 py-2 text-sm text-gray-900 border border-gray-300 focus:outline-none focus:ring-2 focus:ring-brand-green/20 resize-none"
                   placeholder="Street address"
                 />
               </div>
-              <div>
-                <label className="text-xs font-medium text-gray-700 mb-1 block">
-                  City *
-                </label>
-                <input
-                  type="text"
-                  name="deliveryCity"
-                  value={addressForm.deliveryCity}
-                  onChange={handleAddressFormChange}
-                  className="w-full rounded-lg px-4 py-2 text-sm text-gray-900 border border-gray-300 focus:outline-none focus:ring-2 focus:ring-brand-green/20"
-                  placeholder="City"
-                />
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div>
+                  <label className="text-xs font-medium text-gray-700 mb-1 block">
+                    Post Town *
+                  </label>
+                  <input
+                    type="text"
+                    name="postTown"
+                    value={addressForm.postTown}
+                    onChange={handleAddressFormChange}
+                    className="w-full rounded-lg px-4 py-2 text-sm text-gray-900 border border-gray-300 focus:outline-none focus:ring-2 focus:ring-brand-green/20"
+                    placeholder="Town / City"
+                  />
+                </div>
+                <div>
+                  <label className="text-xs font-medium text-gray-700 mb-1 block">
+                    Postcode *
+                  </label>
+                  <input
+                    type="text"
+                    name="postcode"
+                    value={addressForm.postcode}
+                    onChange={handleAddressFormChange}
+                    className="w-full rounded-lg px-4 py-2 text-sm text-gray-900 border border-gray-300 focus:outline-none focus:ring-2 focus:ring-brand-green/20 uppercase"
+                    placeholder="e.g. SW1A 1AA"
+                  />
+                </div>
               </div>
               <div>
                 <label className="text-xs font-medium text-gray-700 mb-1 block">
@@ -338,7 +360,7 @@ const DeliveryAddresses: React.FC = () => {
                     <div className="flex items-center gap-2 mb-2">
                       <MapPin className="w-4 h-4 text-gray-400" />
                       <h4 className="text-sm font-semibold text-gray-900">
-                        {address.contactName}
+                        {address.recipientName}
                       </h4>
                       {address.isDefault && (
                         <span className="px-2 py-0.5 rounded-full text-xs font-medium bg-brand-green/10 text-brand-green">
@@ -348,8 +370,9 @@ const DeliveryAddresses: React.FC = () => {
                     </div>
                     <div className="text-xs text-gray-600 space-y-1 ml-6">
                       <p>{address.contactPhone}</p>
-                      <p>{address.deliveryAddress}</p>
-                      <p>{address.deliveryCity}</p>
+                      <p>{address.addressLine1}</p>
+                      <p>{address.postTown}</p>
+                      <p>{address.postcode}</p>
                       {address.deliveryInstructions && (
                         <p className="text-gray-500 italic">
                           Note: {address.deliveryInstructions}

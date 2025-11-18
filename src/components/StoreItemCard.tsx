@@ -6,6 +6,7 @@ import { useAuth } from "../context/AuthContextProvider";
 import NotificationOptIn from "./NotificationOptIn";
 import { useNavigate } from "react-router-dom";
 import Price from "./Price";
+import { getStoreItemPricing } from "../utils/discounts";
 import { preorderProduct } from "../api/marketplace.api";
 import toast from "react-hot-toast";
 
@@ -18,14 +19,11 @@ interface StoreItemCardProps {
 const StoreItemCard: React.FC<StoreItemCardProps> = ({ item, onAddToCart }) => {
   const imageUrl = item.display?.url || item.images?.[0] || ""; // pick cover image
   const title = item.name || "Product";
-  const price = item.price ?? 0;
+  const pricing = getStoreItemPricing(item);
+  const price = pricing.currentPrice;
 
   const { isAuthenticated } = useAuth();
-  const {
-    addToCart,
-    getItemQuantity,
-    isInCart,
-  } = useCart();
+  const { addToCart, getItemQuantity, isInCart } = useCart();
   const [itemLoading, setItemLoading] = useState(false);
   const navigate = useNavigate();
   const [notifyOpen, setNotifyOpen] = useState(false);
@@ -62,18 +60,14 @@ const StoreItemCard: React.FC<StoreItemCardProps> = ({ item, onAddToCart }) => {
     if ((e.target as HTMLElement).closest(".cart-controls")) {
       return;
     }
-    navigate(`/products/${item.productId}` , { state: { cover: imageUrl, images: item.images } });
+    navigate(`/products/${item.productId}`, {
+      state: { cover: imageUrl, images: item.images },
+    });
   };
-
-  // Calculate discount percentage if there's an old price (displayed in price area, not as a badge)
-  const hasDiscount = item.oldPrice && item.oldPrice > price;
-  const discountPercent = hasDiscount && item.oldPrice
-    ? Math.round(((item.oldPrice - price) / item.oldPrice) * 100)
-    : 0;
 
   return (
     <>
-      <div 
+      <div
         className="bg-white rounded-2xl shadow-md p-3 cursor-pointer hover:shadow-lg transition-shadow flex flex-col h-full"
         onClick={handleCardClick}
       >
@@ -90,7 +84,7 @@ const StoreItemCard: React.FC<StoreItemCardProps> = ({ item, onAddToCart }) => {
             </div>
           )}
         </div>
-        
+
         <div className="p-2 md:p-4 flex flex-col flex-1">
           <h3
             className="text-base md:text-xl font-medium text-gray-900 leading-snug line-clamp-2 min-h-[38px] md:min-h-[44px]"
@@ -111,7 +105,9 @@ const StoreItemCard: React.FC<StoreItemCardProps> = ({ item, onAddToCart }) => {
 
           <div className="mt-0 md:mt-0.5 flex flex-col md:flex-row md:items-center gap-0.5 md:gap-0.5 text-xs md:text-base text-gray-600 min-h-[16px] md:min-h-[14px]">
             <span className="text-yellow-400 text-sm md:text-lg">★★★★</span>
-            <span className="text-gray-500 text-[10px] md:text-sm">(124 reviews)</span>
+            <span className="text-gray-500 text-[10px] md:text-sm">
+              (124 reviews)
+            </span>
           </div>
 
           <div
@@ -197,7 +193,11 @@ const StoreItemCard: React.FC<StoreItemCardProps> = ({ item, onAddToCart }) => {
         </div>
       </div>
 
-      <NotificationOptIn item={item} isOpen={notifyOpen} onClose={() => setNotifyOpen(false)} />
+      <NotificationOptIn
+        item={item}
+        isOpen={notifyOpen}
+        onClose={() => setNotifyOpen(false)}
+      />
     </>
   );
 };
