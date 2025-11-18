@@ -40,8 +40,8 @@ export type CreateReviewPayload = {
 export type Review = ProductReview;
 
 export type ReviewQueryParams = {
+  limit?: number;
   page?: number;
-  pageSize?: number;
   sortBy?: "newest" | "oldest" | "rating_high" | "rating_low";
 };
 

@@ -10,12 +10,12 @@ import {
   Chip,
   Stack,
 } from "@mui/material";
-import type { Review } from "./ReviewManagement";
+import type { AdminReview } from "../../types/review.types";
 
 interface ReviewDetailsModalProps {
   open: boolean;
   onClose: () => void;
-  review: Review | null;
+  review: AdminReview | null;
 }
 
 const ReviewDetailsModal: React.FC<ReviewDetailsModalProps> = ({
@@ -41,70 +41,70 @@ const ReviewDetailsModal: React.FC<ReviewDetailsModalProps> = ({
                 Product
               </Typography>
               <Typography fontWeight={600}>
-                {review.productName || `Product ${review.productId}`}
+                {`Product ${review.productId}`}
               </Typography>
             </Box>
 
-          <Box>
-            <Typography
-              variant="subtitle2"
-              sx={{ fontFamily: '"League Spartan", sans-serif', mb: 0.5 }}
-            >
-              Reviewer
-            </Typography>
-            <Typography fontWeight={600}>
-              {review.userName || "Anonymous"}
-            </Typography>
-            <Typography variant="body2" color="text.secondary">
-              {review.userEmail}
-            </Typography>
-          </Box>
+            <Box>
+              <Typography
+                variant="subtitle2"
+                sx={{ fontFamily: '"League Spartan", sans-serif', mb: 0.5 }}
+              >
+                Reviewer
+              </Typography>
+              <Typography fontWeight={600}>
+                {review.author.name || "Anonymous"}
+              </Typography>
+              <Typography variant="body2" color="text.secondary">
+                {review.author.email || "No email"}
+              </Typography>
+            </Box>
 
-          <Box>
-            <Typography
-              variant="subtitle2"
-              sx={{ fontFamily: '"League Spartan", sans-serif', mb: 0.5 }}
-            >
-              Rating
-            </Typography>
-            <Typography fontWeight={600}>{review.rating}/5</Typography>
-          </Box>
+            <Box>
+              <Typography
+                variant="subtitle2"
+                sx={{ fontFamily: '"League Spartan", sans-serif', mb: 0.5 }}
+              >
+                Rating
+              </Typography>
+              <Typography fontWeight={600}>{review.rating}/5</Typography>
+            </Box>
 
-          <Box>
-            <Typography
-              variant="subtitle2"
-              sx={{ fontFamily: '"League Spartan", sans-serif', mb: 0.5 }}
-            >
-              Comment
-            </Typography>
-            <Typography>{review.comment}</Typography>
-          </Box>
+            <Box>
+              <Typography
+                variant="subtitle2"
+                sx={{ fontFamily: '"League Spartan", sans-serif', mb: 0.5 }}
+              >
+                Comment
+              </Typography>
+              <Typography>{review.comment || "No comment"}</Typography>
+            </Box>
 
-          <Box>
-            <Typography
-              variant="subtitle2"
-              sx={{ fontFamily: '"League Spartan", sans-serif', mb: 0.5 }}
-            >
-              Status
-            </Typography>
-            <Chip label={review.status} color="primary" size="small" />
-          </Box>
+            <Box>
+              <Typography
+                variant="subtitle2"
+                sx={{ fontFamily: '"League Spartan", sans-serif', mb: 0.5 }}
+              >
+                Status
+              </Typography>
+              <Chip label={review.status} color="primary" size="small" />
+            </Box>
 
-          <Box>
-            <Typography
-              variant="subtitle2"
-              sx={{ fontFamily: '"League Spartan", sans-serif', mb: 0.5 }}
-            >
-              Submitted
-            </Typography>
-            <Typography variant="body2" color="text.secondary">
-              {new Date(review.createdAt).toLocaleString("en-GB", {
-                dateStyle: "medium",
-                timeStyle: "short",
-              })}
-            </Typography>
-          </Box>
-        </Stack>
+            <Box>
+              <Typography
+                variant="subtitle2"
+                sx={{ fontFamily: '"League Spartan", sans-serif', mb: 0.5 }}
+              >
+                Submitted
+              </Typography>
+              <Typography variant="body2" color="text.secondary">
+                {new Date(review.createdAt).toLocaleString("en-GB", {
+                  dateStyle: "medium",
+                  timeStyle: "short",
+                })}
+              </Typography>
+            </Box>
+          </Stack>
         ) : null}
       </DialogContent>
       <DialogActions>
@@ -115,4 +115,3 @@ const ReviewDetailsModal: React.FC<ReviewDetailsModalProps> = ({
 };
 
 export default ReviewDetailsModal;
-
