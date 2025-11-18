@@ -209,6 +209,7 @@ export type OrderItemDetail = {
   productId: string;
   quantity: number;
   price: number;
+  hasReviewed?: boolean; // Added for review status
   product?: {
     id: string;
     type: string;

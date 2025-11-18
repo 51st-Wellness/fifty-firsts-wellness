@@ -63,7 +63,7 @@ export type ProductReviewResponse = {
 
 export type AdminReviewQueryParams = {
   page?: number;
-  pageSize?: number;
+  limit?: number; // Backend expects 'limit', not 'pageSize'
   status?: ReviewStatus;
   search?: string;
   productId?: string;

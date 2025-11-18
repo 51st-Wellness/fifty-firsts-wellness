@@ -210,12 +210,16 @@ const ReviewManagement: React.FC = () => {
   >("");
   const [searchQuery, setSearchQuery] = useState("");
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
-  const [reviewToDelete, setReviewToDelete] = useState<Review | null>(null);
+  const [reviewToDelete, setReviewToDelete] = useState<AdminReview | null>(
+    null
+  );
   const [page, setPage] = useState(0);
   const [rowsPerPage, setRowsPerPage] = useState(10);
   const [totalReviews, setTotalReviews] = useState(0);
   const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
-  const [selectedReview, setSelectedReview] = useState<Review | null>(null);
+  const [selectedReview, setSelectedReview] = useState<AdminReview | null>(
+    null
+  );
 
   // Load reviews from API
   const loadReviews = async () => {
@@ -223,15 +227,12 @@ const ReviewManagement: React.FC = () => {
     try {
       const response = await getAdminReviews({
         page: page + 1,
-        pageSize: rowsPerPage,
+        limit: rowsPerPage, // Backend expects 'limit', not 'pageSize'
         status: statusFilter || undefined,
         search: searchQuery || undefined,
       });
 
-      if (
-        (response.status === "SUCCESS" || response.status === "success") &&
-        response.data
-      ) {
+      if (response.status === "success" && response.data) {
         setReviews(response.data.reviews || []);
         setTotalReviews(response.data.pagination?.total || 0);
       }
@@ -292,7 +293,7 @@ const ReviewManagement: React.FC = () => {
     setReviewToDelete(null);
   };
 
-  const getStatusColor = (status: Review["status"]) => {
+  const getStatusColor = (status: AdminReview["status"]) => {
     switch (status) {
       case "APPROVED":
         return "success";
@@ -323,10 +324,12 @@ const ReviewManagement: React.FC = () => {
       const matchesStatus = !statusFilter || review.status === statusFilter;
       const matchesSearch =
         !searchQuery ||
-        review.productName?.toLowerCase().includes(searchQuery.toLowerCase()) ||
-        review.userName?.toLowerCase().includes(searchQuery.toLowerCase()) ||
-        review.userEmail?.toLowerCase().includes(searchQuery.toLowerCase()) ||
-        review.comment.toLowerCase().includes(searchQuery.toLowerCase());
+        review.author.name?.toLowerCase().includes(searchQuery.toLowerCase()) ||
+        review.author.email
+          ?.toLowerCase()
+          .includes(searchQuery.toLowerCase()) ||
+        (review.comment?.toLowerCase().includes(searchQuery.toLowerCase()) ??
+          false);
       return matchesStatus && matchesSearch;
     });
   }, [reviews, statusFilter, searchQuery]);
@@ -476,23 +479,23 @@ const ReviewManagement: React.FC = () => {
                             fontSize: "0.875rem",
                           }}
                         >
-                          {review.userName?.[0]?.toUpperCase() ||
-                            review.userEmail?.[0]?.toUpperCase() ||
+                          {review.author.name?.[0]?.toUpperCase() ||
+                            review.author.email?.[0]?.toUpperCase() ||
                             "U"}
                         </Avatar>
                         <Box>
                           <Typography variant="body2" fontWeight={500}>
-                            {review.userName || "Anonymous User"}
+                            {review.author.name || "Anonymous User"}
                           </Typography>
                           <Typography variant="caption" color="text.secondary">
-                            {review.userEmail}
+                            {review.author.email || "No email"}
                           </Typography>
                         </Box>
                       </Box>
                     </TableCell>
                     <TableCell>
                       <Typography variant="body2">
-                        {review.productName || `Product ${review.productId}`}
+                        {`Product ${review.productId}`}
                       </Typography>
                     </TableCell>
                     <TableCell>
@@ -501,7 +504,7 @@ const ReviewManagement: React.FC = () => {
                       </Typography>
                     </TableCell>
                     <TableCell>
-                      <Tooltip title={review.comment}>
+                      <Tooltip title={review.comment || ""}>
                         <Typography
                           variant="body2"
                           sx={{
@@ -511,7 +514,7 @@ const ReviewManagement: React.FC = () => {
                             whiteSpace: "nowrap",
                           }}
                         >
-                          {review.comment}
+                          {review.comment || "No comment"}
                         </Typography>
                       </Tooltip>
                     </TableCell>
@@ -622,7 +625,7 @@ const ReviewManagement: React.FC = () => {
         onConfirm={handleDeleteConfirm}
         title="Delete Review"
         message={`Are you sure you want to delete this review from ${
-          reviewToDelete?.userName || "this user"
+          reviewToDelete?.author.name || "this user"
         }? This action cannot be undone.`}
         confirmText="Delete"
         cancelText="Cancel"

@@ -19,7 +19,7 @@ export const createReview = async (
   orderItemId: string,
   payload: { rating: number; comment: string }
 ): Promise<ResponseDto<Review>> => {
-  const { data } = await http.post(`/review/product/${productId}`, {
+  const { data } = await http.post(`/reviews`, {
     ...payload,
     orderItemId,
   });
@@ -31,7 +31,7 @@ export const getProductReviews = async (
   productId: string,
   params?: ReviewQueryParams
 ): Promise<ProductReviewResponse> => {
-  const { data } = await http.get(`/review/product/${productId}`, { params });
+  const { data } = await http.get(`/reviews/product/${productId}`, { params });
   return data as ProductReviewResponse;
 };
 
@@ -39,7 +39,7 @@ export const getProductReviews = async (
 export const getProductReviewSummary = async (
   productId: string
 ): Promise<ResponseDto<ReviewSummary>> => {
-  const { data } = await http.get(`/review/product/${productId}/summary`);
+  const { data } = await http.get(`/reviews/product/${productId}/summary`);
   return data as ResponseDto<ReviewSummary>;
 };
 
@@ -47,7 +47,7 @@ export const getProductReviewSummary = async (
 export const getProductReviewSummaries = async (
   productIds: string[]
 ): Promise<ResponseDto<Record<string, ReviewSummary>>> => {
-  const { data } = await http.post("/review/products/summaries", {
+  const { data } = await http.post("/reviews/products/summaries", {
     productIds,
   });
   return data as ResponseDto<Record<string, ReviewSummary>>;
@@ -57,7 +57,7 @@ export const getProductReviewSummaries = async (
 export const checkUserReviewForOrderItem = async (
   orderItemId: string
 ): Promise<ResponseDto<{ hasReviewed: boolean; reviewId?: string }>> => {
-  const { data } = await http.get(`/review/order-item/${orderItemId}/check`);
+  const { data } = await http.get(`/reviews/order-item/${orderItemId}/check`);
   return data as ResponseDto<{ hasReviewed: boolean; reviewId?: string }>;
 };
 
@@ -65,7 +65,7 @@ export const checkUserReviewForOrderItem = async (
 export const getAdminReviews = async (
   params?: AdminReviewQueryParams
 ): Promise<AdminReviewResponse> => {
-  const { data } = await http.get("/admin/review", { params });
+  const { data } = await http.get("/admin/reviews", { params });
   return data as AdminReviewResponse;
 };
 
@@ -74,7 +74,7 @@ export const updateReviewStatus = async (
   reviewId: string,
   status: "APPROVED" | "REJECTED"
 ): Promise<ResponseDto<Review>> => {
-  const { data } = await http.put(`/admin/review/${reviewId}/status`, {
+  const { data } = await http.patch(`/admin/reviews/${reviewId}/status`, {
     status,
   });
   return data as ResponseDto<Review>;
@@ -84,6 +84,6 @@ export const updateReviewStatus = async (
 export const deleteReview = async (
   reviewId: string
 ): Promise<ResponseDto<{ id: string }>> => {
-  const { data } = await http.delete(`/admin/review/${reviewId}`);
+  const { data } = await http.delete(`/admin/reviews/${reviewId}`);
   return data as ResponseDto<{ id: string }>;
 };

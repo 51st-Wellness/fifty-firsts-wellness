@@ -64,6 +64,44 @@ const OrdersHistory: React.FC = () => {
     void loadOrders();
   }, []);
 
+  // Check review status for order items when order details are loaded
+  useEffect(() => {
+    if (!expandedOrderId) return;
+
+    const detail = orderDetails[expandedOrderId];
+    if (!detail || !detail.orderItems) return;
+
+    // Also populate reviewedOrderItems from backend hasReviewed first
+    detail.orderItems.forEach((item) => {
+      if (item.hasReviewed === true) {
+        setReviewedOrderItems((prev) => {
+          if (prev.has(item.id)) return prev;
+          return new Set(prev).add(item.id);
+        });
+      }
+    });
+
+    // Check reviews for items that can be reviewed and don't have backend value
+    const itemsToCheck = detail.orderItems.filter((item) => {
+      const canReview =
+        item.productId &&
+        item.product?.type === "STORE" &&
+        detail.status === "PAID";
+      const alreadyChecked =
+        reviewedOrderItems.has(item.id) || checkingReviews.has(item.id);
+      // Use backend hasReviewed if available, otherwise check
+      const hasBackendValue = item.hasReviewed !== undefined;
+
+      return canReview && !alreadyChecked && !hasBackendValue;
+    });
+
+    // Check reviews for items that need checking
+    itemsToCheck.forEach((item) => {
+      void checkOrderItemReview(item.id);
+    });
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [expandedOrderId, orderDetails]);
+
   const loadOrders = async () => {
     setLoadingOrders(true);
     try {
@@ -95,11 +133,12 @@ const OrdersHistory: React.FC = () => {
         (response.status === "SUCCESS" || response.status === "success") &&
         response.data?.order
       ) {
+        const order = response.data.order;
         setOrderDetails((prev) => ({
           ...prev,
-          [orderId]: response.data.order,
+          [orderId]: order,
         }));
-        return response.data.order;
+        return order;
       }
       toast.error(response.message || "Failed to load order details.");
       return null;
@@ -441,17 +480,15 @@ const OrdersHistory: React.FC = () => {
                             Order Items
                           </h5>
                           {detail.orderItems.map((item) => {
-                            const hasReviewed = reviewedOrderItems.has(item.id);
+                            // Use backend hasReviewed if available, otherwise use local state
+                            const hasReviewed =
+                              item.hasReviewed ??
+                              reviewedOrderItems.has(item.id);
                             const isChecking = checkingReviews.has(item.id);
                             const canReview =
                               item.productId &&
                               item.product?.type === "STORE" &&
                               order.status === "PAID";
-
-                            // Check review status when item is rendered
-                            if (canReview && !hasReviewed && !isChecking) {
-                              void checkOrderItemReview(item.id);
-                            }
 
                             return (
                               <div
