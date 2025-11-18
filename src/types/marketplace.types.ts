@@ -7,6 +7,8 @@ export type StoreItemDisplay = {
   type?: MediaType;
 } | null;
 
+export type DiscountType = "NONE" | "PERCENTAGE" | "FLAT";
+
 export type StoreItem = {
   productId: string;
   name: string;
@@ -21,6 +23,11 @@ export type StoreItem = {
   isPublished?: boolean;
   createdAt?: string | Date;
   updatedAt?: string | Date;
+  discountType?: DiscountType;
+  discountValue?: number;
+  discountActive?: boolean;
+  discountStart?: string | Date | null;
+  discountEnd?: string | Date | null;
 };
 
 export type StoreItemListParams = {

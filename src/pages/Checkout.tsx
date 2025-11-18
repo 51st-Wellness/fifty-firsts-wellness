@@ -42,15 +42,16 @@ const Checkout: React.FC = () => {
   );
   const [useCustomAddress, setUseCustomAddress] = useState(false);
   const [saveAddress, setSaveAddress] = useState(false);
-  const [contactDefaults, setContactDefaults] = useState({
-    contactName: "",
+  const [recipientDefaults, setRecipientDefaults] = useState({
+    recipientName: "",
     contactPhone: "",
   });
   const [formData, setFormData] = useState<CartCheckoutPayload>({
-    contactName: "",
+    recipientName: "",
     contactPhone: "",
-    deliveryAddress: "",
-    deliveryCity: "",
+    addressLine1: "",
+    postTown: "",
+    postcode: "",
     deliveryInstructions: "",
   });
   const [updatingProductId, setUpdatingProductId] = useState<string | null>(
@@ -68,17 +69,55 @@ const Checkout: React.FC = () => {
     }).format(amount);
 
   const orderTotals = useMemo(() => {
+    const fallbackCurrency = summary?.currency || "USD";
     if (!summary) {
       return {
         subtotal: 0,
-        currency: "USD",
+        baseSubtotal: 0,
+        productDiscountTotal: 0,
+        globalDiscountTotal: 0,
+        totalDiscount: 0,
+        currency: fallbackCurrency,
         itemCount: 0,
         totalQuantity: 0,
       };
     }
-    return summary.summary;
-  }, [summary]);
-  const currencyCode = summary?.currency || "USD";
+    const summaryBreakdown = summary.summary as CartCheckoutSummary["summary"];
+    const baseSubtotal =
+      summary.pricing?.baseSubtotal ||
+      summaryBreakdown?.subtotalBeforeDiscounts ||
+      summaryBreakdown?.subtotal ||
+      0;
+    const productDiscountTotal =
+      summary.pricing?.productDiscountTotal ||
+      summaryBreakdown?.productDiscountTotal ||
+      0;
+    const globalDiscountTotal =
+      summary.pricing?.globalDiscountTotal ||
+      summaryBreakdown?.globalDiscountTotal ||
+      0;
+    const totalDiscount =
+      summary.pricing?.totalDiscount ||
+      summaryBreakdown?.discountTotal ||
+      productDiscountTotal + globalDiscountTotal;
+    const subtotal =
+      summary.pricing?.grandTotal || summaryBreakdown?.subtotal || 0;
+
+    return {
+      subtotal,
+      baseSubtotal,
+      productDiscountTotal,
+      globalDiscountTotal,
+      totalDiscount,
+      currency: summary.pricing?.currency || fallbackCurrency,
+      itemCount: summaryBreakdown?.itemCount || items.length,
+      totalQuantity: summaryBreakdown?.totalQuantity || items.length,
+    };
+  }, [summary, items.length]);
+  const currencyCode = summary?.pricing?.currency || summary?.currency || "USD";
+  const discountSummary = summary?.discounts;
+  const globalDiscountInfo =
+    summary?.globalDiscount || discountSummary?.globalDiscount;
 
   useEffect(() => {
     if (!isAuthenticated) {
@@ -107,22 +146,29 @@ const Checkout: React.FC = () => {
           const summaryData = response.data;
           setSummary(summaryData);
 
-          const prefillContactName =
-            summaryData.deliveryDefaults?.contactName ||
+          const prefillRecipientName =
+            summaryData.deliveryDefaults?.recipientName ||
             (user
               ? `${user.firstName ?? ""} ${user.lastName ?? ""}`.trim()
               : "");
           const prefillContactPhone =
             summaryData.deliveryDefaults?.contactPhone || user?.phone || "";
+          const prefillAddressLine1 =
+            summaryData.deliveryDefaults?.addressLine1 || "";
+          const prefillPostTown = summaryData.deliveryDefaults?.postTown || "";
+          const prefillPostcode = summaryData.deliveryDefaults?.postcode || "";
 
-          setContactDefaults({
-            contactName: prefillContactName,
+          setRecipientDefaults({
+            recipientName: prefillRecipientName,
             contactPhone: prefillContactPhone,
           });
           setFormData((prev) => ({
             ...prev,
-            contactName: prev.contactName || prefillContactName,
+            recipientName: prev.recipientName || prefillRecipientName,
             contactPhone: prev.contactPhone || prefillContactPhone,
+            addressLine1: prev.addressLine1 || prefillAddressLine1,
+            postTown: prev.postTown || prefillPostTown,
+            postcode: prev.postcode || prefillPostcode,
           }));
 
           const applyAddresses = (addressList: DeliveryAddress[]) => {
@@ -142,10 +188,11 @@ const Checkout: React.FC = () => {
               setSaveAddress(true);
               setFormData((prev) => ({
                 ...prev,
-                contactName: prev.contactName || prefillContactName,
+                recipientName: prev.recipientName || prefillRecipientName,
                 contactPhone: prev.contactPhone || prefillContactPhone,
-                deliveryAddress: prev.deliveryAddress || "",
-                deliveryCity: prev.deliveryCity || "",
+                addressLine1: prev.addressLine1 || prefillAddressLine1,
+                postTown: prev.postTown || prefillPostTown,
+                postcode: prev.postcode || prefillPostcode,
                 deliveryInstructions: prev.deliveryInstructions || "",
               }));
             }
@@ -252,8 +299,8 @@ const Checkout: React.FC = () => {
       setSaveAddress(true);
       setFormData((prev) => ({
         ...prev,
-        contactName: prev.contactName || contactDefaults.contactName,
-        contactPhone: prev.contactPhone || contactDefaults.contactPhone,
+        recipientName: prev.recipientName || recipientDefaults.recipientName,
+        contactPhone: prev.contactPhone || recipientDefaults.contactPhone,
       }));
     }
   };
@@ -274,10 +321,11 @@ const Checkout: React.FC = () => {
       if (useCustomAddress) {
         // Validate custom address fields
         if (
-          !formData.contactName ||
+          !formData.recipientName ||
           !formData.contactPhone ||
-          !formData.deliveryAddress ||
-          !formData.deliveryCity
+          !formData.addressLine1 ||
+          !formData.postTown ||
+          !formData.postcode
         ) {
           toast.error("Please fill in all required delivery fields");
           setSubmitting(false);
@@ -285,10 +333,11 @@ const Checkout: React.FC = () => {
         }
 
         payload = {
-          contactName: sanitize(formData.contactName),
+          recipientName: sanitize(formData.recipientName),
           contactPhone: sanitize(formData.contactPhone),
-          deliveryAddress: sanitize(formData.deliveryAddress),
-          deliveryCity: sanitize(formData.deliveryCity),
+          addressLine1: sanitize(formData.addressLine1),
+          postTown: sanitize(formData.postTown),
+          postcode: sanitize(formData.postcode),
           deliveryInstructions: sanitize(formData.deliveryInstructions),
           saveAddress: saveAddress,
         };
@@ -393,6 +442,42 @@ const Checkout: React.FC = () => {
           </p>
         </div>
 
+        {globalDiscountInfo && (
+          <div
+            className={`mb-6 rounded-3xl border p-4 sm:p-5 ${
+              globalDiscountInfo.applied
+                ? "bg-emerald-50 border-emerald-200"
+                : "bg-amber-50 border-amber-200"
+            }`}
+          >
+            <p className="text-sm font-semibold text-gray-900">
+              {globalDiscountInfo.label || "Storewide discount"}
+            </p>
+            <p className="text-xs sm:text-sm text-gray-700 mt-1">
+              {globalDiscountInfo.applied
+                ? `You just saved ${formatCurrency(
+                    globalDiscountInfo.amountApplied || 0,
+                    currencyCode
+                  )} with this offer.`
+                : `Spend at least ${
+                    globalDiscountInfo.minOrderTotal
+                      ? formatCurrency(
+                          globalDiscountInfo.minOrderTotal,
+                          currencyCode
+                        )
+                      : "the required amount"
+                  } to unlock ${
+                    globalDiscountInfo.type === "PERCENTAGE"
+                      ? `${globalDiscountInfo.value}%`
+                      : formatCurrency(
+                          globalDiscountInfo.value || 0,
+                          currencyCode
+                        )
+                  } off your total.`}
+            </p>
+          </div>
+        )}
+
         <div className="grid gap-5 sm:gap-6 lg:gap-8 lg:grid-cols-[1.6fr,1fr]">
           <section className="order-1 lg:order-1 lg:col-start-1 lg:col-end-2">
             <div className="bg-white rounded-3xl shadow-sm border border-gray-100 p-5 sm:p-6 lg:p-7">
@@ -445,6 +530,12 @@ const Checkout: React.FC = () => {
                           submitting ||
                           cartLoading ||
                           isRefreshingSummary;
+                        const showBaseUnit =
+                          item.baseUnitPrice &&
+                          item.baseUnitPrice > item.unitPrice;
+                        const showBaseLine =
+                          item.baseLineTotal &&
+                          item.baseLineTotal > item.lineTotal;
 
                         return (
                           <div
@@ -465,8 +556,36 @@ const Checkout: React.FC = () => {
                                 </p>
                                 <p className="mt-1 text-xs text-gray-500">
                                   Unit price:{" "}
-                                  {formatCurrency(item.unitPrice, currencyCode)}
+                                  <span className="font-medium text-gray-900">
+                                    {formatCurrency(
+                                      item.unitPrice,
+                                      currencyCode
+                                    )}
+                                  </span>
+                                  {showBaseUnit && (
+                                    <span className="ml-1 line-through text-gray-400">
+                                      {formatCurrency(
+                                        item.baseUnitPrice!,
+                                        currencyCode
+                                      )}
+                                    </span>
+                                  )}
                                 </p>
+                                {item.discount?.isActive &&
+                                  item.discount.totalAmount > 0 && (
+                                    <p className="text-[11px] text-emerald-600 mt-0.5">
+                                      -
+                                      {formatCurrency(
+                                        item.discount.totalAmount,
+                                        currencyCode
+                                      )}{" "}
+                                      savings (
+                                      {item.discount.type === "PERCENTAGE"
+                                        ? `${item.discount.value}%`
+                                        : "instant"}
+                                      )
+                                    </p>
+                                  )}
                                 <div className="mt-2.5 flex flex-wrap items-center gap-2.5">
                                   <div className="inline-flex items-center rounded-full border border-gray-200">
                                     <button
@@ -516,6 +635,14 @@ const Checkout: React.FC = () => {
                               <p className="text-sm sm:text-base font-semibold text-gray-900">
                                 {formatCurrency(item.lineTotal, currencyCode)}
                               </p>
+                              {showBaseLine && (
+                                <p className="text-xs text-gray-400 line-through">
+                                  {formatCurrency(
+                                    item.baseLineTotal!,
+                                    currencyCode
+                                  )}
+                                </p>
+                              )}
                               <p className="text-xs text-gray-500">
                                 ({quantity} item{quantity > 1 ? "s" : ""})
                               </p>
@@ -529,9 +656,36 @@ const Checkout: React.FC = () => {
                       <div className="flex justify-between text-gray-600">
                         <span>Items ({orderTotals.itemCount})</span>
                         <span>
-                          {formatCurrency(orderTotals.subtotal, currencyCode)}
+                          {formatCurrency(
+                            orderTotals.baseSubtotal ?? orderTotals.subtotal,
+                            currencyCode
+                          )}
                         </span>
                       </div>
+                      {orderTotals.productDiscountTotal > 0 && (
+                        <div className="flex justify-between text-rose-600">
+                          <span>Product savings</span>
+                          <span>
+                            -{" "}
+                            {formatCurrency(
+                              orderTotals.productDiscountTotal,
+                              currencyCode
+                            )}
+                          </span>
+                        </div>
+                      )}
+                      {orderTotals.globalDiscountTotal > 0 && (
+                        <div className="flex justify-between text-rose-600">
+                          <span>Global discount</span>
+                          <span>
+                            -{" "}
+                            {formatCurrency(
+                              orderTotals.globalDiscountTotal,
+                              currencyCode
+                            )}
+                          </span>
+                        </div>
+                      )}
                       <div className="flex justify-between text-gray-600">
                         <span>Delivery</span>
                         <span className="text-xs sm:text-sm">
@@ -546,6 +700,16 @@ const Checkout: React.FC = () => {
                           {formatCurrency(orderTotals.subtotal, currencyCode)}
                         </span>
                       </div>
+                      {orderTotals.totalDiscount > 0 && (
+                        <p className="text-[11px] text-gray-500">
+                          You save{" "}
+                          {formatCurrency(
+                            orderTotals.totalDiscount,
+                            currencyCode
+                          )}{" "}
+                          with applied discounts.
+                        </p>
+                      )}
                     </div>
                   </div>
                 </div>
@@ -605,7 +769,7 @@ const Checkout: React.FC = () => {
                           <div className="flex-1">
                             <div className="flex items-center gap-2 mb-1">
                               <span className="text-sm font-semibold text-gray-900">
-                                {address.contactName}
+                                {address.recipientName}
                               </span>
                               {address.isDefault && (
                                 <span className="px-2 py-0.5 rounded-full text-[10px] font-medium bg-brand-green/10 text-brand-green">
@@ -615,8 +779,9 @@ const Checkout: React.FC = () => {
                             </div>
                             <div className="text-[11px] sm:text-xs text-gray-600 space-y-0.5">
                               <p>{address.contactPhone}</p>
-                              <p>{address.deliveryAddress}</p>
-                              <p>{address.deliveryCity}</p>
+                              <p>{address.addressLine1}</p>
+                              <p>{address.postTown}</p>
+                              <p>{address.postcode}</p>
                               {address.deliveryInstructions && (
                                 <p className="text-gray-500 italic">
                                   Note: {address.deliveryInstructions}
@@ -663,12 +828,12 @@ const Checkout: React.FC = () => {
                     <div className="grid gap-3.5 sm:gap-4 sm:grid-cols-2">
                       <div>
                         <label className="block text-xs sm:text-sm font-medium text-gray-700 mb-1">
-                          Contact name *
+                          Recipient name *
                         </label>
                         <input
                           type="text"
-                          value={formData.contactName}
-                          onChange={handleChange("contactName")}
+                          value={formData.recipientName}
+                          onChange={handleChange("recipientName")}
                           className="w-full rounded-xl border border-gray-200 px-3.5 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-brand-green focus:border-brand-green transition-all"
                           placeholder="Who should receive the order?"
                           required={useCustomAddress}
@@ -694,14 +859,14 @@ const Checkout: React.FC = () => {
 
                     <div>
                       <label className="block text-xs sm:text-sm font-medium text-gray-700 mb-1">
-                        Delivery address *
+                        Address line 1 *
                       </label>
                       <input
                         type="text"
-                        value={formData.deliveryAddress}
-                        onChange={handleChange("deliveryAddress")}
+                        value={formData.addressLine1}
+                        onChange={handleChange("addressLine1")}
                         className="w-full rounded-xl border border-gray-200 px-3.5 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-brand-green focus:border-brand-green transition-all"
-                        placeholder="Street, building, apartment"
+                        placeholder="Building, street, apartment"
                         required={useCustomAddress}
                       />
                     </div>
@@ -709,29 +874,44 @@ const Checkout: React.FC = () => {
                     <div className="grid gap-3.5 sm:gap-4 sm:grid-cols-2">
                       <div>
                         <label className="block text-xs sm:text-sm font-medium text-gray-700 mb-1">
-                          City *
+                          Post town *
                         </label>
                         <input
                           type="text"
-                          value={formData.deliveryCity}
-                          onChange={handleChange("deliveryCity")}
+                          value={formData.postTown}
+                          onChange={handleChange("postTown")}
                           className="w-full rounded-xl border border-gray-200 px-3.5 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-brand-green focus:border-brand-green transition-all"
                           placeholder="City / Town"
                           required={useCustomAddress}
                         />
                       </div>
                       <div>
+                        {/* // TODO: Integrate Royal Mail / AddressNow API search here for auto-suggest. */}
                         <label className="block text-xs sm:text-sm font-medium text-gray-700 mb-1">
-                          Delivery instructions (optional)
+                          Postcode *
                         </label>
                         <input
                           type="text"
-                          value={formData.deliveryInstructions}
-                          onChange={handleChange("deliveryInstructions")}
-                          className="w-full rounded-xl border border-gray-200 px-3.5 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-brand-green focus:border-brand-green transition-all"
-                          placeholder="Gate code, drop-off guidance, etc."
+                          value={formData.postcode}
+                          onChange={handleChange("postcode")}
+                          className="w-full rounded-xl border border-gray-200 px-3.5 py-2.5 text-sm uppercase focus:outline-none focus:ring-2 focus:ring-brand-green focus:border-brand-green transition-all"
+                          placeholder="e.g. SW1A 1AA"
+                          required={useCustomAddress}
                         />
                       </div>
+                    </div>
+
+                    <div>
+                      <label className="block text-xs sm:text-sm font-medium text-gray-700 mb-1">
+                        Delivery instructions (optional)
+                      </label>
+                      <input
+                        type="text"
+                        value={formData.deliveryInstructions}
+                        onChange={handleChange("deliveryInstructions")}
+                        className="w-full rounded-xl border border-gray-200 px-3.5 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-brand-green focus:border-brand-green transition-all"
+                        placeholder="Gate code, drop-off guidance, etc."
+                      />
                     </div>
 
                     {addresses.length > 0 && (

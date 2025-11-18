@@ -389,16 +389,19 @@ const OrdersHistory: React.FC = () => {
                             </h5>
                             <div className="bg-white rounded-lg p-3 border border-gray-200">
                               <p className="text-sm font-medium text-gray-900">
-                                {detail.deliveryAddress.contactName}
+                                {detail.deliveryAddress.recipientName}
                               </p>
                               <p className="text-xs text-gray-600 mt-1">
                                 {detail.deliveryAddress.contactPhone}
                               </p>
                               <p className="text-xs text-gray-600 mt-1">
-                                {detail.deliveryAddress.deliveryAddress}
+                                {detail.deliveryAddress.addressLine1}
                               </p>
                               <p className="text-xs text-gray-600">
-                                {detail.deliveryAddress.deliveryCity}
+                                {detail.deliveryAddress.postTown}
+                              </p>
+                              <p className="text-xs text-gray-600">
+                                {detail.deliveryAddress.postcode}
                               </p>
                               {detail.deliveryAddress.deliveryInstructions && (
                                 <p className="text-xs text-gray-500 italic mt-2">

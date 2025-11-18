@@ -4,10 +4,11 @@ export interface PaymentMetadata {
   planId?: string;
   cartItemIds?: string[];
   deliveryDetails?: {
-    contactName?: string;
+    recipientName?: string;
     contactPhone?: string;
-    deliveryAddress?: string;
-    deliveryCity?: string;
+    addressLine1?: string;
+    postTown?: string;
+    postcode?: string;
     deliveryInstructions?: string;
   };
   orderSummary?: {
@@ -59,10 +60,11 @@ export interface PaymentOrder {
   items?: PaymentOrderItem[];
   deliveryAddress?: {
     id: string;
-    contactName: string;
+    recipientName: string;
     contactPhone: string;
-    deliveryAddress: string;
-    deliveryCity: string;
+    addressLine1: string;
+    postTown: string;
+    postcode: string;
     deliveryInstructions?: string | null;
   } | null;
 }

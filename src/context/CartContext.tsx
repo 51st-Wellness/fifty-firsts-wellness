@@ -13,6 +13,7 @@ import {
 } from "../api/cart.api";
 import toast from "react-hot-toast";
 import { useAuth } from "./AuthContextProvider";
+import { getStoreItemPricing } from "../utils/discounts";
 
 // Cart state interface
 interface CartState {
@@ -141,7 +142,9 @@ export const CartProvider: React.FC<CartProviderProps> = ({ children }) => {
     0
   );
   const totalPrice = state.items.reduce((total, item) => {
-    const price = item.product.storeItem?.price ?? 0;
+    const storeItem = item.product.storeItem;
+    if (!storeItem) return total;
+    const price = getStoreItemPricing(storeItem).currentPrice;
     return total + price * item.quantity;
   }, 0);
 

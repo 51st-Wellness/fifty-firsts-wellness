@@ -6,6 +6,7 @@ import {
   Storage as StorageIcon,
 } from "@mui/icons-material";
 import CategoryManagement from "../../components/admin/CategoryManagement";
+import GlobalDiscountSettings from "../../components/admin/GlobalDiscountSettings";
 
 // General management page for managing categories and other general settings
 const ManagementGeneral: React.FC = () => {
@@ -49,12 +50,7 @@ const ManagementGeneral: React.FC = () => {
             label="Categories"
             iconPosition="start"
           />
-          <Tab
-            icon={<SettingsIcon />}
-            label="Settings"
-            iconPosition="start"
-            disabled
-          />
+          <Tab icon={<SettingsIcon />} label="Settings" iconPosition="start" />
           <Tab
             icon={<StorageIcon />}
             label="Storage"
@@ -70,30 +66,15 @@ const ManagementGeneral: React.FC = () => {
       )}
 
       {tabValue === 1 && (
-        <div className="bg-white rounded-xl border border-gray-200 shadow-sm">
-          <div className="text-center py-12 px-6">
-            <SettingsIcon
-              sx={{ fontSize: 64, color: "#6b7280", mb: 3 }}
-            />
-            <h3 className="text-xl font-accent font-semibold text-gray-900 mb-2">
-              Settings Management
-            </h3>
-            <p className="text-base text-gray-600 font-primary mb-4">
-              System settings and configuration options will be available soon.
-            </p>
-            <p className="text-sm text-gray-500 font-primary">
-              This feature is currently under development.
-            </p>
-          </div>
+        <div className="bg-white rounded-xl border border-gray-200 shadow-sm p-4">
+          <GlobalDiscountSettings />
         </div>
       )}
 
       {tabValue === 2 && (
         <div className="bg-white rounded-xl border border-gray-200 shadow-sm">
           <div className="text-center py-12 px-6">
-            <StorageIcon
-              sx={{ fontSize: 64, color: "#6b7280", mb: 3 }}
-            />
+            <StorageIcon sx={{ fontSize: 64, color: "#6b7280", mb: 3 }} />
             <h3 className="text-xl font-accent font-semibold text-gray-900 mb-2">
               Storage Management
             </h3>
