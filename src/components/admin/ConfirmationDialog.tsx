@@ -61,7 +61,7 @@ const ConfirmationDialog: React.FC<ConfirmationDialogProps> = ({
         <div className="flex items-center justify-between p-6 border-b">
           <div className="flex items-center gap-3">
             {variantStyles.icon}
-            <h3 className="text-lg font-semibold text-gray-900">{title}</h3>
+            <h3 className="text-lg font-semibold text-gray-900" style={{ fontFamily: '"League Spartan", sans-serif' }}>{title}</h3>
           </div>
           <button
             onClick={onClose}

@@ -100,7 +100,7 @@ const SubscriptionDetailsModal: React.FC<SubscriptionDetailsModalProps> = ({
             alignItems: "center",
           }}
         >
-          <Typography variant="h5" fontWeight={600}>
+          <Typography variant="h5" fontWeight={600} sx={{ fontFamily: '"League Spartan", sans-serif' }}>
             Subscription Details
           </Typography>
           <IconButton onClick={onClose} size="small">
@@ -119,7 +119,7 @@ const SubscriptionDetailsModal: React.FC<SubscriptionDetailsModalProps> = ({
                 {subscription.userLastName.charAt(0)}
               </Avatar>
               <Box>
-                <Typography variant="h6" fontWeight={600}>
+                <Typography variant="h6" fontWeight={600} sx={{ fontFamily: '"League Spartan", sans-serif' }}>
                   {subscription.userFirstName} {subscription.userLastName}
                 </Typography>
                 <Typography variant="body2" color="text.secondary">
@@ -156,7 +156,7 @@ const SubscriptionDetailsModal: React.FC<SubscriptionDetailsModalProps> = ({
                 sx={{ display: "flex", alignItems: "center", gap: 1, mb: 2 }}
               >
                 <CreditCardIcon color="primary" />
-                <Typography variant="h6" fontWeight={600}>
+                <Typography variant="h6" fontWeight={600} sx={{ fontFamily: '"League Spartan", sans-serif' }}>
                   Subscription Details
                 </Typography>
               </Box>
@@ -186,7 +186,7 @@ const SubscriptionDetailsModal: React.FC<SubscriptionDetailsModalProps> = ({
                 <Typography variant="body2" color="text.secondary">
                   Amount
                 </Typography>
-                <Typography variant="h6" color="primary.main" fontWeight={600}>
+                <Typography variant="h6" color="primary.main" fontWeight={600} sx={{ fontFamily: '"League Spartan", sans-serif' }}>
                   {formatCurrency(subscription.planPrice)}
                 </Typography>
               </Box>
@@ -228,7 +228,7 @@ const SubscriptionDetailsModal: React.FC<SubscriptionDetailsModalProps> = ({
                 sx={{ display: "flex", alignItems: "center", gap: 1, mb: 2 }}
               >
                 <CalendarIcon color="primary" />
-                <Typography variant="h6" fontWeight={600}>
+                <Typography variant="h6" fontWeight={600} sx={{ fontFamily: '"League Spartan", sans-serif' }}>
                   Timeline
                 </Typography>
               </Box>
@@ -279,7 +279,7 @@ const SubscriptionDetailsModal: React.FC<SubscriptionDetailsModalProps> = ({
           <Paper sx={{ p: 3, borderRadius: 2 }}>
             <Box sx={{ display: "flex", alignItems: "center", gap: 1, mb: 2 }}>
               <MoneyIcon color="primary" />
-              <Typography variant="h6" fontWeight={600}>
+              <Typography variant="h6" fontWeight={600} sx={{ fontFamily: '"League Spartan", sans-serif' }}>
                 Payment Information
               </Typography>
             </Box>
@@ -323,7 +323,7 @@ const SubscriptionDetailsModal: React.FC<SubscriptionDetailsModalProps> = ({
           {/* Plan Description */}
           {subscription.planDescription && (
             <Paper sx={{ p: 3, borderRadius: 2 }}>
-              <Typography variant="h6" fontWeight={600} sx={{ mb: 1 }}>
+              <Typography variant="h6" fontWeight={600} sx={{ mb: 1, fontFamily: '"League Spartan", sans-serif' }}>
                 Plan Description
               </Typography>
               <Typography variant="body1" color="text.secondary">

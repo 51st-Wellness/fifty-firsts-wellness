@@ -20,7 +20,7 @@ const ManagementGeneral: React.FC = () => {
     <div className="p-4 md:p-6 bg-gray-50 min-h-screen font-primary">
       {/* Header */}
       <div className="mb-6">
-        <h1 className="text-3xl font-accent font-semibold text-gray-900 mb-2">
+        <h1 className="text-3xl font-semibold text-gray-900 mb-2" style={{ fontFamily: '"League Spartan", sans-serif' }}>
           General Management
         </h1>
         <p className="text-base text-gray-600 font-primary">
@@ -41,7 +41,7 @@ const ManagementGeneral: React.FC = () => {
               fontWeight: 600,
               minHeight: 64,
               px: 3,
-              fontFamily: '"Poppins", sans-serif',
+              fontFamily: '"League Spartan", sans-serif',
             },
           }}
         >
@@ -75,7 +75,7 @@ const ManagementGeneral: React.FC = () => {
         <div className="bg-white rounded-xl border border-gray-200 shadow-sm">
           <div className="text-center py-12 px-6">
             <StorageIcon sx={{ fontSize: 64, color: "#6b7280", mb: 3 }} />
-            <h3 className="text-xl font-accent font-semibold text-gray-900 mb-2">
+            <h3 className="text-xl font-semibold text-gray-900 mb-2" style={{ fontFamily: '"League Spartan", sans-serif' }}>
               Storage Management
             </h3>
             <p className="text-base text-gray-600 font-primary mb-4">

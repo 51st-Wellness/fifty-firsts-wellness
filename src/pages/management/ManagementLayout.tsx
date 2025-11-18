@@ -186,7 +186,7 @@ const ManagementLayout: React.FC = () => {
                 >
                   <Menu size={20} />
                 </button>
-                <h1 className="text-lg font-semibold text-gray-900">
+                <h1 className="text-lg font-semibold text-gray-900" style={{ fontFamily: '"League Spartan", sans-serif' }}>
                   Dashboard
                 </h1>
               </div>
