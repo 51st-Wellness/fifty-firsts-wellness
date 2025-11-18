@@ -430,7 +430,7 @@ const CreateProgrammeDialog: React.FC<CreateProgrammeDialogProps> = ({
             <CloudUpload
               sx={{ fontSize: 48, color: "text.secondary", mb: 2 }}
             />
-            <Typography variant="h6" gutterBottom>
+            <Typography variant="h6" gutterBottom sx={{ fontFamily: '"League Spartan", sans-serif' }}>
               Drag and drop your video file here
             </Typography>
             <Typography variant="body2" color="text.secondary" gutterBottom>
@@ -607,6 +607,8 @@ const CreateProgrammeDialog: React.FC<CreateProgrammeDialogProps> = ({
           display: "flex",
           alignItems: "center",
           justifyContent: "space-between",
+          fontFamily: '"League Spartan", sans-serif',
+          fontWeight: 600,
         }}
       >
         {isEditMode ? "Edit Programme" : "Create New Programme"}

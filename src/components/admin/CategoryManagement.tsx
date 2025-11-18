@@ -212,7 +212,7 @@ const CategoryManagement: React.FC<CategoryManagementProps> = ({
           <CategoryIcon sx={{ color: "primary.main", fontSize: 28 }} />
         </Box>
         <Box>
-          <Typography variant="h4" fontWeight="700" sx={{ mb: 0.5 }}>
+          <Typography variant="h4" fontWeight="700" sx={{ mb: 0.5, fontFamily: '"League Spartan", sans-serif' }}>
             {title || "Categories"}
           </Typography>
           <Typography variant="body2" color="text.secondary">
@@ -300,7 +300,7 @@ const CategoryManagement: React.FC<CategoryManagementProps> = ({
             <CategoryIcon
               sx={{ fontSize: 64, color: "#6b7280", mb: 3 }}
             />
-            <h3 className="text-lg font-accent font-semibold text-gray-600 mb-2">
+            <h3 className="text-lg font-semibold text-gray-600 mb-2" style={{ fontFamily: '"League Spartan", sans-serif' }}>
               {searchTerm ? "No categories found" : "No categories yet"}
             </h3>
             <p className="text-sm text-gray-600 font-primary mb-4">
@@ -352,7 +352,7 @@ const CategoryManagement: React.FC<CategoryManagementProps> = ({
                     sx={{ mb: 2 }}
                   >
                     <div className="flex-1 min-w-0 pr-2">
-                      <h4 className="font-accent font-semibold text-gray-900 mb-2 line-clamp-2">
+                      <h4 className="font-semibold text-gray-900 mb-2 line-clamp-2" style={{ fontFamily: '"League Spartan", sans-serif' }}>
                         {category.name}
                       </h4>
                       <Chip

@@ -24,7 +24,7 @@ const ManagementSubscriptions: React.FC = () => {
     <div className="p-6 bg-gray-50 min-h-screen font-primary">
       {/* Header */}
       <div className="mb-6">
-        <h1 className="text-3xl font-accent font-semibold text-gray-900 mb-2">
+        <h1 className="text-3xl font-semibold text-gray-900 mb-2" style={{ fontFamily: '"League Spartan", sans-serif' }}>
           Subscription Management
         </h1>
         <p className="text-base text-gray-600">

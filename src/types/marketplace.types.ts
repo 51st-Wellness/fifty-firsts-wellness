@@ -13,6 +13,9 @@ export type StoreItem = {
   productId: string;
   name: string;
   description?: string | null;
+  productUsage?: string | null;
+  productBenefits?: string | null;
+  productIngredients?: string[] | null;
   price: number;
   oldPrice?: number;
   stock: number;

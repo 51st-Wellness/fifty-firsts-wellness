@@ -135,7 +135,7 @@ const AdminProgrammeCard: React.FC<AdminProgrammeCardProps> = ({
           )}
         </div>
 
-        <h3 className="text-lg font-bold text-gray-900 line-clamp-2 group-hover:text-slate-600 transition-colors leading-tight">
+        <h3 className="text-lg font-bold text-gray-900 line-clamp-2 group-hover:text-slate-600 transition-colors leading-tight" style={{ fontFamily: '"League Spartan", sans-serif' }}>
           {programme.title}
         </h3>
 

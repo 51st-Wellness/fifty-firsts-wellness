@@ -209,7 +209,7 @@ const DeliveryAddresses: React.FC = () => {
         {/* Add/Edit Address Form */}
         {showAddAddress && (
           <div className="bg-gray-50 rounded-lg p-6 border border-gray-200">
-            <h3 className="text-sm font-semibold text-gray-900 mb-4">
+            <h3 className="text-sm font-semibold text-gray-900 mb-4" style={{ fontFamily: '"League Spartan", sans-serif' }}>
               {editingAddressId ? "Edit Address" : "Add New Address"}
             </h3>
             <div className="space-y-4">
@@ -359,7 +359,7 @@ const DeliveryAddresses: React.FC = () => {
                   <div className="flex-1">
                     <div className="flex items-center gap-2 mb-2">
                       <MapPin className="w-4 h-4 text-gray-400" />
-                      <h4 className="text-sm font-semibold text-gray-900">
+                      <h4 className="text-sm font-semibold text-gray-900" style={{ fontFamily: '"League Spartan", sans-serif' }}>
                         {address.recipientName}
                       </h4>
                       {address.isDefault && (

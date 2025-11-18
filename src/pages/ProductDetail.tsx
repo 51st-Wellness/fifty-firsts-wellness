@@ -16,6 +16,8 @@ import Price from "../components/Price";
 import StoreItemCard from "../components/StoreItemCard";
 import { fetchStoreItems } from "../api/marketplace.api";
 import SubmitReviewModal from "../components/SubmitReviewModal";
+import AllReviewsModal from "../components/AllReviewsModal";
+import { getStoreItemPricing } from "../utils/discounts";
 import toast from "react-hot-toast";
 import { getProductReviews, getProductReviewSummary } from "../api/review.api";
 import type { ProductReview, ReviewSummary } from "../types/review.types";
@@ -77,19 +79,11 @@ const ProductDetail: React.FC = () => {
           getProductReviewSummary(productId),
         ]);
 
-        if (
-          (reviewsRes.status === "SUCCESS" ||
-            reviewsRes.status === "success") &&
-          reviewsRes.data?.reviews
-        ) {
+        if (reviewsRes.status === "success" && reviewsRes.data?.reviews) {
           setReviews(reviewsRes.data.reviews);
         }
 
-        if (
-          (summaryRes.status === "SUCCESS" ||
-            summaryRes.status === "success") &&
-          summaryRes.data
-        ) {
+        if (summaryRes.status === "success" && summaryRes.data) {
           setReviewSummary(summaryRes.data);
         }
       } catch (error) {
@@ -165,6 +159,27 @@ const ProductDetail: React.FC = () => {
       : [];
   const mainImage = images[selectedImageIndex] || imageUrl || "";
 
+  const defaultDescription =
+    "We're here to help! Whether you have a question about our services, need assistance with your wellness journey, or want to learn more about what we offer, our team is ready to assist you.";
+  const defaultUsage =
+    "Follow the included instructions for best results. This product is designed for daily use and can be incorporated into your wellness routine. Store in a cool, dry place and keep away from direct sunlight.";
+  const defaultBenefits =
+    "This product offers numerous benefits including improved wellness, enhanced daily routines, and a sense of calm and balance. Our carefully curated selection ensures you receive the highest quality items designed to support your holistic health journey.";
+
+  const descriptionContent = item.description?.trim() || defaultDescription;
+  const productUsage = (item as any).productUsage?.trim() || defaultUsage;
+  const productBenefits =
+    (item as any).productBenefits?.trim() || defaultBenefits;
+  const productIngredients =
+    ((item as any).productIngredients as string[] | undefined)?.filter(
+      (ingredient) =>
+        typeof ingredient === "string" && ingredient.trim().length > 0
+    ) || [];
+  const hasIngredients = productIngredients.length > 0;
+  const pricing = getStoreItemPricing(item);
+  const displayPrice = pricing.currentPrice ?? item.price ?? 0;
+  const strikePrice = pricing.hasDiscount ? pricing.basePrice : item.oldPrice;
+
   const averageRating = reviewSummary?.averageRating || 0;
   const reviewCount = reviewSummary?.reviewCount || reviews.length;
 
@@ -232,30 +247,25 @@ const ProductDetail: React.FC = () => {
             >
               Product Benefits
             </h2>
-            <p className="text-gray-600 leading-relaxed">
-              This product offers numerous benefits including improved wellness,
-              enhanced daily routines, and a sense of calm and balance. Our
-              carefully curated selection ensures you receive the highest
-              quality items designed to support your holistic health journey.
-            </p>
+            <p className="text-gray-600 leading-relaxed">{productBenefits}</p>
           </div>
 
           {/* Product Ingredients - Desktop only (mobile moved below) */}
-          <div className="hidden lg:block">
-            <h2
-              className="text-xl font-semibold text-gray-900 mb-4"
-              style={{ fontFamily: '"League Spartan", sans-serif' }}
-            >
-              Product Ingredients
-            </h2>
-            <ul className="space-y-2 text-gray-600">
-              <li>• Natural and organic ingredients</li>
-              <li>• Ethically sourced materials</li>
-              <li>• No harmful chemicals</li>
-              <li>• Sustainable production methods</li>
-              <li>• Cruelty-free certified</li>
-            </ul>
-          </div>
+          {hasIngredients && (
+            <div className="hidden lg:block">
+              <h2
+                className="text-xl font-semibold text-gray-900 mb-4"
+                style={{ fontFamily: '"League Spartan", sans-serif' }}
+              >
+                Product Ingredients
+              </h2>
+              <ul className="space-y-2 text-gray-600">
+                {productIngredients.map((ingredient, idx) => (
+                  <li key={`${ingredient}-${idx}`}>• {ingredient}</li>
+                ))}
+              </ul>
+            </div>
+          )}
         </div>
 
         {/* Right Column - Desktop: Product Info, Description, Usage */}
@@ -272,7 +282,12 @@ const ProductDetail: React.FC = () => {
 
             {/* Price & Discount */}
             <div className="flex items-center gap-3 mb-4">
-              <Price price={item.price} oldPrice={item.oldPrice} />
+              <Price price={displayPrice} oldPrice={strikePrice} />
+              {pricing.hasDiscount && (
+                <span className="px-3 py-1 rounded-full bg-brand-green/10 text-brand-green text-xs font-semibold">
+                  Save {pricing.discountPercent}%
+                </span>
+              )}
             </div>
 
             {/* Rating */}
@@ -310,8 +325,7 @@ const ProductDetail: React.FC = () => {
 
             {/* Description */}
             <p className="text-gray-600 mb-6 leading-relaxed">
-              {item.description ||
-                "We're here to help! Whether you have a question about our services, need assistance with your wellness journey, or want to learn more about what we offer, our team is ready to assist you."}
+              {descriptionContent}
             </p>
 
             {/* Quantity Selector */}
@@ -361,11 +375,7 @@ const ProductDetail: React.FC = () => {
               Product Description
             </h2>
             <p className="text-gray-600 leading-relaxed">
-              We're here to help! Whether you have a question about our
-              services, need assistance with your wellness journey, or want to
-              learn more about what we offer, our team is ready to assist you.
-              Reach out to us through any of the channels below, and we'll get
-              back to you as soon as possible.
+              {descriptionContent}
             </p>
           </div>
 
@@ -377,17 +387,7 @@ const ProductDetail: React.FC = () => {
             >
               Product Usage
             </h2>
-            <p className="text-gray-600 leading-relaxed mb-4">
-              Follow the included instructions for best results. This product is
-              designed for daily use and can be incorporated into your wellness
-              routine. Store in a cool, dry place and keep away from direct
-              sunlight.
-            </p>
-            <p className="text-gray-600 leading-relaxed">
-              We're here to help! Whether you have a question about our
-              services, need assistance with your account, or want to provide
-              feedback, our team is ready to assist you.
-            </p>
+            <p className="text-gray-600 leading-relaxed">{productUsage}</p>
           </div>
         </div>
 
@@ -401,30 +401,25 @@ const ProductDetail: React.FC = () => {
             >
               Product Benefits
             </h2>
-            <p className="text-gray-600 leading-relaxed">
-              This product offers numerous benefits including improved wellness,
-              enhanced daily routines, and a sense of calm and balance. Our
-              carefully curated selection ensures you receive the highest
-              quality items designed to support your holistic health journey.
-            </p>
+            <p className="text-gray-600 leading-relaxed">{productBenefits}</p>
           </div>
 
           {/* Product Ingredients */}
-          <div>
-            <h2
-              className="text-xl font-semibold text-gray-900 mb-4"
-              style={{ fontFamily: '"League Spartan", sans-serif' }}
-            >
-              Product Ingredients
-            </h2>
-            <ul className="space-y-2 text-gray-600">
-              <li>• Natural and organic ingredients</li>
-              <li>• Ethically sourced materials</li>
-              <li>• No harmful chemicals</li>
-              <li>• Sustainable production methods</li>
-              <li>• Cruelty-free certified</li>
-            </ul>
-          </div>
+          {hasIngredients && (
+            <div>
+              <h2
+                className="text-xl font-semibold text-gray-900 mb-4"
+                style={{ fontFamily: '"League Spartan", sans-serif' }}
+              >
+                Product Ingredients
+              </h2>
+              <ul className="space-y-2 text-gray-600">
+                {productIngredients.map((ingredient, idx) => (
+                  <li key={`mobile-${ingredient}-${idx}`}>• {ingredient}</li>
+                ))}
+              </ul>
+            </div>
+          )}
         </div>
       </div>
 

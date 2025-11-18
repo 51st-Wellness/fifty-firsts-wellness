@@ -156,9 +156,6 @@ const PaymentSuccess: React.FC = () => {
           <div className="flex justify-center mb-4 sm:mb-6">
             <div className="relative">
               <CheckCircle className="w-16 h-16 sm:w-20 sm:h-24 text-brand-green" />
-              <div className="absolute -top-1 -right-1 sm:-top-2 sm:-right-2 w-6 h-6 sm:w-8 sm:h-8 bg-brand-green/10 rounded-full flex items-center justify-center">
-                <CheckCircle className="w-3 h-3 sm:w-4 sm:h-5 text-brand-green" />
-              </div>
             </div>
           </div>
           <h1

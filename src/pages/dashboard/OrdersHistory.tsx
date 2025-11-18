@@ -405,7 +405,12 @@ const OrdersHistory: React.FC = () => {
                       <div className="flex items-center gap-3 mb-2">
                         <Package className="w-5 h-5 text-gray-400" />
                         <div>
-                          <h4 className="text-sm font-semibold text-gray-900">
+                          <h4
+                            className="text-sm font-semibold text-gray-900"
+                            style={{
+                              fontFamily: '"League Spartan", sans-serif',
+                            }}
+                          >
                             Order #{order.id.slice(0, 8).toUpperCase()}
                           </h4>
                           <p className="text-xs text-gray-500 mt-0.5">
@@ -476,7 +481,12 @@ const OrdersHistory: React.FC = () => {
                     {detail && (
                       <>
                         <div className="p-4 space-y-3">
-                          <h5 className="text-xs font-semibold text-gray-700 uppercase tracking-wide mb-3">
+                          <h5
+                            className="text-xs font-semibold text-gray-700 uppercase tracking-wide mb-3"
+                            style={{
+                              fontFamily: '"League Spartan", sans-serif',
+                            }}
+                          >
                             Order Items
                           </h5>
                           {detail.orderItems.map((item) => {
@@ -504,7 +514,13 @@ const OrdersHistory: React.FC = () => {
                                     />
                                   )}
                                   <div className="flex-1 min-w-0">
-                                    <h6 className="text-sm font-medium text-gray-900 truncate">
+                                    <h6
+                                      className="text-sm font-medium text-gray-900 truncate"
+                                      style={{
+                                        fontFamily:
+                                          '"League Spartan", sans-serif',
+                                      }}
+                                    >
                                       {item.product?.storeItem?.name ||
                                         "Product"}
                                     </h6>
@@ -556,7 +572,12 @@ const OrdersHistory: React.FC = () => {
 
                         {detail.deliveryAddress && (
                           <div className="p-4 border-t border-gray-200">
-                            <h5 className="text-xs font-semibold text-gray-700 uppercase tracking-wide mb-3 flex items-center gap-2">
+                            <h5
+                              className="text-xs font-semibold text-gray-700 uppercase tracking-wide mb-3 flex items-center gap-2"
+                              style={{
+                                fontFamily: '"League Spartan", sans-serif',
+                              }}
+                            >
                               <MapPin className="w-3.5 h-3.5" />
                               Delivery Address
                             </h5>
@@ -588,7 +609,12 @@ const OrdersHistory: React.FC = () => {
 
                         {detail.payment && (
                           <div className="p-4 border-t border-gray-200">
-                            <h5 className="text-xs font-semibold text-gray-700 uppercase tracking-wide mb-3 flex items-center gap-2">
+                            <h5
+                              className="text-xs font-semibold text-gray-700 uppercase tracking-wide mb-3 flex items-center gap-2"
+                              style={{
+                                fontFamily: '"League Spartan", sans-serif',
+                              }}
+                            >
                               <CreditCard className="w-3.5 h-3.5" />
                               Payment Information
                             </h5>
@@ -658,7 +684,10 @@ const OrdersHistory: React.FC = () => {
 
                     <div className="p-4 border-t border-gray-200 bg-white">
                       <div className="flex items-center justify-between">
-                        <span className="text-sm font-semibold text-gray-900">
+                        <span
+                          className="text-sm font-semibold text-gray-900"
+                          style={{ fontFamily: '"League Spartan", sans-serif' }}
+                        >
                           Total Amount
                         </span>
                         <span className="text-lg font-bold text-brand-green">

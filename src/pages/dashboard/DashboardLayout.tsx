@@ -5,7 +5,6 @@ import {
   ShoppingBag,
   Package,
   ChevronDown,
-  Activity,
   MapPin,
 } from "lucide-react";
 import Navbar from "../../components/Navbar";
@@ -13,7 +12,6 @@ import Footer from "../../components/Footer";
 import MyAccount from "./MyAccount";
 import OrdersHistory from "./OrdersHistory";
 import MyCart from "./MyCart";
-import MarketplaceActivity from "./MarketplaceActivity";
 import DeliveryAddresses from "./DeliveryAddresses";
 
 const DashboardLayout: React.FC = () => {
@@ -26,12 +24,6 @@ const DashboardLayout: React.FC = () => {
       path: "/dashboard",
       icon: User,
       component: <MyAccount />,
-    },
-    {
-      label: "Marketplace",
-      path: "/dashboard/marketplace",
-      icon: Activity,
-      component: <MarketplaceActivity />,
     },
     {
       label: "Orders History",

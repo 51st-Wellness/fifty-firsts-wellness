@@ -48,10 +48,9 @@ const StoreItemDialog: React.FC<StoreItemDialogProps> = ({
   const [formData, setFormData] = useState({
     name: "",
     description: "",
-    productDescription: "",
     productUsage: "",
     productBenefits: "",
-    productIngredients: "",
+    productIngredients: [] as string[],
     price: 0,
     stock: 0,
     categories: [] as string[],
@@ -69,6 +68,7 @@ const StoreItemDialog: React.FC<StoreItemDialogProps> = ({
   const [imagePreviews, setImagePreviews] = useState<string[]>([]);
   const [submitting, setSubmitting] = useState(false);
   const [tabIndex, setTabIndex] = useState(0);
+  const [ingredientInput, setIngredientInput] = useState("");
   const toIsoString = (value?: string | Date | null) =>
     value ? new Date(value).toISOString() : "";
   const toInputValue = (value?: string) => (value ? value.slice(0, 16) : "");
@@ -80,10 +80,9 @@ const StoreItemDialog: React.FC<StoreItemDialogProps> = ({
         setFormData({
           name: item.name || "",
           description: item.description || "",
-          productDescription: (item as any).productDescription || "",
           productUsage: (item as any).productUsage || "",
           productBenefits: (item as any).productBenefits || "",
-          productIngredients: (item as any).productIngredients || "",
+          productIngredients: ((item as any).productIngredients as string[]) || [],
           price: item.price || 0,
           stock: item.stock || 0,
           categories: item.categories || [],
@@ -104,10 +103,9 @@ const StoreItemDialog: React.FC<StoreItemDialogProps> = ({
         setFormData({
           name: "",
           description: "",
-          productDescription: "",
           productUsage: "",
           productBenefits: "",
-          productIngredients: "",
+          productIngredients: [],
           price: 0,
           stock: 0,
           categories: [],
@@ -124,6 +122,7 @@ const StoreItemDialog: React.FC<StoreItemDialogProps> = ({
       }
       setDisplayFile(null);
       setImageFiles([]);
+      setIngredientInput("");
     }
   }, [open, mode, item]);
 
@@ -156,6 +155,24 @@ const StoreItemDialog: React.FC<StoreItemDialogProps> = ({
     setFormData((prev) => ({
       ...prev,
       categories: categories,
+    }));
+  };
+
+  const handleAddIngredient = () => {
+    const trimmed = ingredientInput.trim();
+    if (!trimmed) return;
+
+    setFormData((prev) => ({
+      ...prev,
+      productIngredients: [...prev.productIngredients, trimmed],
+    }));
+    setIngredientInput("");
+  };
+
+  const handleRemoveIngredient = (index: number) => {
+    setFormData((prev) => ({
+      ...prev,
+      productIngredients: prev.productIngredients.filter((_, idx) => idx !== index),
     }));
   };
 
@@ -193,8 +210,8 @@ const StoreItemDialog: React.FC<StoreItemDialogProps> = ({
       setFormData((prev) => ({
         ...prev,
         [field]: value ? new Date(value).toISOString() : "",
-      }));
-    };
+    }));
+  };
 
   // Handle form submission
   const handleSubmit = async () => {
@@ -218,10 +235,11 @@ const StoreItemDialog: React.FC<StoreItemDialogProps> = ({
       const submitData = new FormData();
       submitData.append("name", formData.name);
       submitData.append("description", formData.description);
-      submitData.append("productDescription", formData.productDescription);
       submitData.append("productUsage", formData.productUsage);
       submitData.append("productBenefits", formData.productBenefits);
-      submitData.append("productIngredients", formData.productIngredients);
+      formData.productIngredients.forEach((ingredient) => {
+        submitData.append("productIngredients", ingredient);
+      });
       submitData.append("price", formData.price.toString());
       submitData.append("stock", formData.stock.toString());
       submitData.append("isFeatured", formData.isFeatured.toString());
@@ -379,23 +397,6 @@ const StoreItemDialog: React.FC<StoreItemDialogProps> = ({
               <Box>
                 <TextField
                   fullWidth
-                  label="Product Description"
-                  placeholder="Detailed description of the product"
-                  multiline
-                  rows={4}
-                  value={formData.productDescription}
-                  onChange={(e) =>
-                    setFormData((prev) => ({
-                      ...prev,
-                      productDescription: e.target.value,
-                    }))
-                  }
-                />
-              </Box>
-
-              <Box>
-                <TextField
-                  fullWidth
                   label="Product Usage"
                   placeholder="How to use this product"
                   multiline
@@ -428,20 +429,54 @@ const StoreItemDialog: React.FC<StoreItemDialogProps> = ({
               </Box>
 
               <Box>
-                <TextField
-                  fullWidth
-                  label="Product Ingredients"
-                  placeholder="List of ingredients"
-                  multiline
-                  rows={4}
-                  value={formData.productIngredients}
-                  onChange={(e) =>
-                    setFormData((prev) => ({
-                      ...prev,
-                      productIngredients: e.target.value,
-                    }))
-                  }
-                />
+                <Typography variant="subtitle1" sx={{ mb: 1 }}>
+                  Product Ingredients
+                </Typography>
+                <Stack
+                  direction={{ xs: "column", sm: "row" }}
+                  spacing={1}
+                  alignItems={{ xs: "stretch", sm: "center" }}
+                  sx={{ mb: 1 }}
+                >
+                  <TextField
+                    fullWidth
+                    size="small"
+                    label="Add ingredient"
+                    placeholder="e.g. Organic lavender"
+                    value={ingredientInput}
+                    onChange={(e) => setIngredientInput(e.target.value)}
+                    onKeyDown={(e) => {
+                      if (e.key === "Enter") {
+                        e.preventDefault();
+                        handleAddIngredient();
+                      }
+                    }}
+                  />
+                  <Button
+                    variant="outlined"
+                    onClick={handleAddIngredient}
+                    disabled={!ingredientInput.trim()}
+                    sx={{ whiteSpace: "nowrap" }}
+                  >
+                    Add
+                  </Button>
+                </Stack>
+                {formData.productIngredients.length > 0 ? (
+                  <Box sx={{ display: "flex", flexWrap: "wrap", gap: 1 }}>
+                    {formData.productIngredients.map((ingredient, idx) => (
+                      <Chip
+                        key={`${ingredient}-${idx}`}
+                        label={ingredient}
+                        onDelete={() => handleRemoveIngredient(idx)}
+                        variant="outlined"
+                      />
+                    ))}
+                  </Box>
+                ) : (
+                  <Typography variant="body2" color="text.secondary">
+                    No ingredients added. Leave empty if this product doesn’t need ingredient details.
+                  </Typography>
+                )}
               </Box>
 
               {/* Categories */}

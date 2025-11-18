@@ -135,6 +135,7 @@ const GlobalDiscountSettings: React.FC = () => {
       <CardHeader
         title="Global Discount"
         subheader="Configure flash sales or storewide incentives with optional thresholds."
+        titleTypographyProps={{ sx: { fontFamily: '"League Spartan", sans-serif', fontWeight: 600 } }}
       />
       <CardContent>
         <Stack spacing={3}>
