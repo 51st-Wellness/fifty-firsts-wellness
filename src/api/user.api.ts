@@ -312,4 +312,90 @@ export const verifyOrderPayment = async (
   }>;
 };
 
+// Admin order types
+export type AdminOrderStatus =
+  | "PENDING"
+  | "PROCESSING"
+  | "PACKAGING"
+  | "IN_TRANSIT"
+  | "FULFILLED";
+
+export type AdminOrderCustomer = {
+  id: string;
+  firstName: string | null;
+  lastName: string | null;
+  email: string;
+  phone?: string | null;
+};
+
+export type AdminOrderListItem = OrderSummary & {
+  customer: AdminOrderCustomer;
+  paymentAmount?: number | null;
+  items: {
+    productId: string;
+    name: string | null;
+    quantity: number;
+  }[];
+};
+
+export type AdminOrderDetail = OrderDetail & {
+  customer: AdminOrderCustomer;
+};
+
+// Admin: Get all orders
+export const getAdminOrders = async (params?: {
+  page?: number;
+  limit?: number;
+  status?: AdminOrderStatus;
+  search?: string;
+}): Promise<
+  ResponseDto<{
+    orders: AdminOrderListItem[];
+    pagination: {
+      page: number;
+      limit: number;
+      total: number;
+      totalPages: number;
+    };
+  }>
+> => {
+  const queryParams = new URLSearchParams();
+  if (params?.page) queryParams.append("page", params.page.toString());
+  if (params?.limit) queryParams.append("limit", params.limit.toString());
+  if (params?.status) queryParams.append("status", params.status);
+  if (params?.search) queryParams.append("search", params.search);
+
+  const { data } = await http.get(
+    `/user/orders/admin?${queryParams.toString()}`
+  );
+  return data as ResponseDto<{
+    orders: AdminOrderListItem[];
+    pagination: {
+      page: number;
+      limit: number;
+      total: number;
+      totalPages: number;
+    };
+  }>;
+};
+
+// Admin: Get single order
+export const getAdminOrder = async (
+  orderId: string
+): Promise<ResponseDto<{ order: AdminOrderDetail }>> => {
+  const { data } = await http.get(`/user/orders/admin/${orderId}`);
+  return data as ResponseDto<{ order: AdminOrderDetail }>;
+};
+
+// Admin: Update order status
+export const updateOrderStatus = async (
+  orderId: string,
+  status: AdminOrderStatus
+): Promise<ResponseDto<{ order: AdminOrderDetail }>> => {
+  const { data } = await http.put(`/user/orders/admin/${orderId}/status`, {
+    status,
+  });
+  return data as ResponseDto<{ order: AdminOrderDetail }>;
+};
+
 export type { User };
