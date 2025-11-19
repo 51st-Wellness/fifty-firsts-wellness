@@ -33,6 +33,13 @@ export type StoreItem = {
   discountEnd?: string | Date | null;
   averageRating?: number;
   reviewCount?: number;
+  preOrderEnabled?: boolean;
+  preOrderStart?: string | Date | null;
+  preOrderEnd?: string | Date | null;
+  preOrderFulfillmentDate?: string | Date | null;
+  preOrderDepositRequired?: boolean;
+  preOrderDepositAmount?: number;
+  reservedPreOrderQuantity?: number;
 };
 
 export type StoreItemListParams = {

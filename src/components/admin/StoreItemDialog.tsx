@@ -18,10 +18,13 @@ import {
   InputAdornment,
   Stack,
   MenuItem,
+  IconButton,
+  Collapse,
 } from "@mui/material";
 import {
   CloudUpload as UploadIcon,
   Image as ImageIcon,
+  Close as CloseIcon,
 } from "@mui/icons-material";
 import toast from "react-hot-toast";
 import { createStoreItem, updateStoreItem } from "../../api/marketplace.api";
@@ -61,11 +64,18 @@ const StoreItemDialog: React.FC<StoreItemDialogProps> = ({
     discountActive: false,
     discountStart: "",
     discountEnd: "",
+    preOrderEnabled: false,
+    preOrderStart: "",
+    preOrderEnd: "",
+    preOrderFulfillmentDate: "",
+    preOrderDepositRequired: false,
+    preOrderDepositAmount: 0,
   });
   const [displayFile, setDisplayFile] = useState<File | null>(null);
   const [imageFiles, setImageFiles] = useState<File[]>([]);
   const [displayPreview, setDisplayPreview] = useState<string>("");
   const [imagePreviews, setImagePreviews] = useState<string[]>([]);
+  const [existingImageUrls, setExistingImageUrls] = useState<string[]>([]);
   const [submitting, setSubmitting] = useState(false);
   const [tabIndex, setTabIndex] = useState(0);
   const [ingredientInput, setIngredientInput] = useState("");
@@ -82,7 +92,8 @@ const StoreItemDialog: React.FC<StoreItemDialogProps> = ({
           description: item.description || "",
           productUsage: (item as any).productUsage || "",
           productBenefits: (item as any).productBenefits || "",
-          productIngredients: ((item as any).productIngredients as string[]) || [],
+          productIngredients:
+            ((item as any).productIngredients as string[]) || [],
           price: item.price || 0,
           stock: item.stock || 0,
           categories: item.categories || [],
@@ -96,9 +107,23 @@ const StoreItemDialog: React.FC<StoreItemDialogProps> = ({
           ),
           discountStart: toIsoString((item as any).discountStart),
           discountEnd: toIsoString((item as any).discountEnd),
+          preOrderEnabled: Boolean((item as any).preOrderEnabled),
+          preOrderStart: toIsoString((item as any).preOrderStart),
+          preOrderEnd: toIsoString((item as any).preOrderEnd),
+          preOrderFulfillmentDate: toIsoString(
+            (item as any).preOrderFulfillmentDate
+          ),
+          preOrderDepositRequired: Boolean(
+            (item as any).preOrderDepositRequired
+          ),
+          preOrderDepositAmount: Number(
+            (item as any).preOrderDepositAmount ?? 0
+          ),
         });
         setDisplayPreview(item.display?.url || "");
-        setImagePreviews(item.images || []);
+        const existingImages = item.images || [];
+        setImagePreviews(existingImages);
+        setExistingImageUrls(existingImages);
       } else {
         setFormData({
           name: "",
@@ -116,9 +141,16 @@ const StoreItemDialog: React.FC<StoreItemDialogProps> = ({
           discountActive: false,
           discountStart: "",
           discountEnd: "",
+          preOrderEnabled: false,
+          preOrderStart: "",
+          preOrderEnd: "",
+          preOrderFulfillmentDate: "",
+          preOrderDepositRequired: false,
+          preOrderDepositAmount: 0,
         });
         setDisplayPreview("");
         setImagePreviews([]);
+        setExistingImageUrls([]);
       }
       setDisplayFile(null);
       setImageFiles([]);
@@ -143,11 +175,49 @@ const StoreItemDialog: React.FC<StoreItemDialogProps> = ({
     event: React.ChangeEvent<HTMLInputElement>
   ) => {
     const files = Array.from(event.target.files || []);
-    setImageFiles(files);
+    const currentTotal = imagePreviews.length;
+    const remainingSlots = Math.max(0, 5 - currentTotal);
 
-    // Create previews
-    const previews = files.map((file) => URL.createObjectURL(file));
-    setImagePreviews(previews);
+    if (files.length > remainingSlots) {
+      toast.error(
+        `You can only add up to ${remainingSlots} more image(s). Maximum 5 images allowed.`
+      );
+      return;
+    }
+
+    const newFiles = files.slice(0, remainingSlots);
+    setImageFiles((prev) => [...prev, ...newFiles]);
+
+    // Create previews for new files
+    const newPreviews = newFiles.map((file) => URL.createObjectURL(file));
+    setImagePreviews((prev) => [...prev, ...newPreviews]);
+  };
+
+  // Handle removing an additional image
+  const handleRemoveImage = (index: number) => {
+    const previewToRemove = imagePreviews[index];
+    const isExistingImage = index < existingImageUrls.length;
+
+    // Remove from previews
+    setImagePreviews((prev) => prev.filter((_, idx) => idx !== index));
+
+    if (isExistingImage) {
+      // Remove from existing URLs (mark for deletion on backend)
+      setExistingImageUrls((prev) => {
+        const newUrls = [...prev];
+        newUrls.splice(index, 1);
+        return newUrls;
+      });
+    } else {
+      // Remove from new files and revoke blob URL
+      const fileIndex = index - existingImageUrls.length;
+      setImageFiles((prev) => {
+        const newFiles = [...prev];
+        newFiles.splice(fileIndex, 1);
+        return newFiles;
+      });
+      URL.revokeObjectURL(previewToRemove);
+    }
   };
 
   // Handle category selection
@@ -172,7 +242,9 @@ const StoreItemDialog: React.FC<StoreItemDialogProps> = ({
   const handleRemoveIngredient = (index: number) => {
     setFormData((prev) => ({
       ...prev,
-      productIngredients: prev.productIngredients.filter((_, idx) => idx !== index),
+      productIngredients: prev.productIngredients.filter(
+        (_, idx) => idx !== index
+      ),
     }));
   };
 
@@ -210,8 +282,18 @@ const StoreItemDialog: React.FC<StoreItemDialogProps> = ({
       setFormData((prev) => ({
         ...prev,
         [field]: value ? new Date(value).toISOString() : "",
-    }));
-  };
+      }));
+    };
+
+  const handlePreOrderDateChange =
+    (field: "preOrderStart" | "preOrderEnd" | "preOrderFulfillmentDate") =>
+    (event: React.ChangeEvent<HTMLInputElement>) => {
+      const value = event.target.value;
+      setFormData((prev) => ({
+        ...prev,
+        [field]: value ? new Date(value).toISOString() : "",
+      }));
+    };
 
   // Handle form submission
   const handleSubmit = async () => {
@@ -253,6 +335,27 @@ const StoreItemDialog: React.FC<StoreItemDialogProps> = ({
       if (formData.discountEnd) {
         submitData.append("discountEnd", formData.discountEnd);
       }
+      submitData.append("preOrderEnabled", formData.preOrderEnabled.toString());
+      if (formData.preOrderStart) {
+        submitData.append("preOrderStart", formData.preOrderStart);
+      }
+      if (formData.preOrderEnd) {
+        submitData.append("preOrderEnd", formData.preOrderEnd);
+      }
+      if (formData.preOrderFulfillmentDate) {
+        submitData.append(
+          "preOrderFulfillmentDate",
+          formData.preOrderFulfillmentDate
+        );
+      }
+      submitData.append(
+        "preOrderDepositRequired",
+        formData.preOrderDepositRequired.toString()
+      );
+      submitData.append(
+        "preOrderDepositAmount",
+        formData.preOrderDepositAmount.toString()
+      );
 
       // Add tags
       formData.categories.forEach((tag) => {
@@ -268,6 +371,14 @@ const StoreItemDialog: React.FC<StoreItemDialogProps> = ({
       imageFiles.forEach((file) => {
         submitData.append("images", file);
       });
+
+      // For edit mode, always send existing image URLs to keep (even if empty)
+      // This tells the backend which existing images to preserve
+      if (mode === "edit") {
+        existingImageUrls.forEach((url) => {
+          submitData.append("existingImages", url);
+        });
+      }
 
       if (mode === "create") {
         await createStoreItem(submitData as any);
@@ -474,7 +585,8 @@ const StoreItemDialog: React.FC<StoreItemDialogProps> = ({
                   </Box>
                 ) : (
                   <Typography variant="body2" color="text.secondary">
-                    No ingredients added. Leave empty if this product doesn’t need ingredient details.
+                    No ingredients added. Leave empty if this product doesn’t
+                    need ingredient details.
                   </Typography>
                 )}
               </Box>
@@ -606,6 +718,123 @@ const StoreItemDialog: React.FC<StoreItemDialogProps> = ({
                   )}
                 </Stack>
               </Box>
+
+              <Box>
+                <Divider sx={{ my: 1 }} />
+                <Stack spacing={2}>
+                  <Stack
+                    direction={{ xs: "column", sm: "row" }}
+                    justifyContent="space-between"
+                    alignItems={{ xs: "flex-start", sm: "center" }}
+                    spacing={1}
+                  >
+                    <Typography variant="subtitle2">
+                      Pre-order settings
+                    </Typography>
+                    <FormControlLabel
+                      control={
+                        <Switch
+                          checked={formData.preOrderEnabled}
+                          onChange={(e) =>
+                            setFormData((prev) => ({
+                              ...prev,
+                              preOrderEnabled: e.target.checked,
+                            }))
+                          }
+                        />
+                      }
+                      label="Enable pre-orders"
+                    />
+                  </Stack>
+
+                  <Collapse in={formData.preOrderEnabled} unmountOnExit>
+                    <Stack spacing={2} sx={{ mt: 1 }}>
+                      <Stack
+                        direction={{ xs: "column", sm: "row" }}
+                        spacing={2}
+                      >
+                        <TextField
+                          label="Pre-order starts"
+                          type="datetime-local"
+                          size="small"
+                          value={toInputValue(formData.preOrderStart)}
+                          onChange={handlePreOrderDateChange("preOrderStart")}
+                          fullWidth
+                          InputLabelProps={{ shrink: true }}
+                        />
+                        <TextField
+                          label="Pre-order ends"
+                          type="datetime-local"
+                          size="small"
+                          value={toInputValue(formData.preOrderEnd)}
+                          onChange={handlePreOrderDateChange("preOrderEnd")}
+                          fullWidth
+                          InputLabelProps={{ shrink: true }}
+                        />
+                      </Stack>
+
+                      <TextField
+                        label="Estimated fulfillment date"
+                        type="datetime-local"
+                        size="small"
+                        value={toInputValue(formData.preOrderFulfillmentDate)}
+                        onChange={handlePreOrderDateChange(
+                          "preOrderFulfillmentDate"
+                        )}
+                        fullWidth
+                        InputLabelProps={{ shrink: true }}
+                        helperText="Let customers know when to expect shipping"
+                      />
+
+                      <FormControlLabel
+                        control={
+                          <Switch
+                            checked={formData.preOrderDepositRequired}
+                            onChange={(e) =>
+                              setFormData((prev) => ({
+                                ...prev,
+                                preOrderDepositRequired: e.target.checked,
+                              }))
+                            }
+                          />
+                        }
+                        label="Require deposit at checkout"
+                      />
+
+                      {formData.preOrderDepositRequired && (
+                        <TextField
+                          label="Deposit amount"
+                          type="number"
+                          size="small"
+                          inputProps={{ min: 0, step: 0.01 }}
+                          value={formData.preOrderDepositAmount}
+                          onChange={(e) =>
+                            setFormData((prev) => ({
+                              ...prev,
+                              preOrderDepositAmount:
+                                Number(e.target.value) || 0,
+                            }))
+                          }
+                          InputProps={{
+                            startAdornment: (
+                              <InputAdornment position="start">
+                                $
+                              </InputAdornment>
+                            ),
+                          }}
+                          helperText="Charged per unit during checkout"
+                        />
+                      )}
+
+                      <Typography variant="caption" color="text.secondary">
+                        Customers will see clear pre-order messaging on the
+                        storefront. Deposits are captured now; remaining balance
+                        is due when the order ships.
+                      </Typography>
+                    </Stack>
+                  </Collapse>
+                </Stack>
+              </Box>
             </Stack>
           )}
 
@@ -693,17 +922,43 @@ const StoreItemDialog: React.FC<StoreItemDialogProps> = ({
                     sx={{ mt: 1, display: "flex", flexWrap: "wrap", gap: 1 }}
                   >
                     {imagePreviews.map((preview, idx) => (
-                      <img
+                      <Box
                         key={idx}
-                        src={preview}
-                        alt={`Preview ${idx + 1}`}
-                        style={{
-                          width: 80,
-                          height: 80,
-                          objectFit: "cover",
-                          borderRadius: 6,
+                        sx={{
+                          position: "relative",
+                          display: "inline-block",
                         }}
-                      />
+                      >
+                        <img
+                          src={preview}
+                          alt={`Preview ${idx + 1}`}
+                          style={{
+                            width: 80,
+                            height: 80,
+                            objectFit: "cover",
+                            borderRadius: 6,
+                          }}
+                        />
+                        <IconButton
+                          size="small"
+                          onClick={() => handleRemoveImage(idx)}
+                          sx={{
+                            position: "absolute",
+                            top: -6,
+                            right: -6,
+                            bgcolor: "error.main",
+                            color: "white",
+                            width: 24,
+                            height: 24,
+                            boxShadow: "0 2px 4px rgba(0,0,0,0.2)",
+                            "&:hover": {
+                              bgcolor: "error.dark",
+                            },
+                          }}
+                        >
+                          <CloseIcon sx={{ fontSize: 16 }} />
+                        </IconButton>
+                      </Box>
                     ))}
                   </Box>
                 )}

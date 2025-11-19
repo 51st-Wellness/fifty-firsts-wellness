@@ -8,6 +8,7 @@ import {
   Phone,
   Plus,
   Minus,
+  Package,
 } from "lucide-react";
 import { useAuth } from "../context/AuthContextProvider";
 import { useCart } from "../context/CartContext";
@@ -15,9 +16,11 @@ import {
   paymentAPI,
   CartCheckoutSummary,
   CartCheckoutPayload,
+  CartCheckoutSummaryItem,
 } from "../api/payment.api";
 import { getDeliveryAddresses, type DeliveryAddress } from "../api/user.api";
 import toast from "react-hot-toast";
+import { ResponseStatus } from "@/types/response.types";
 
 const Checkout: React.FC = () => {
   const navigate = useNavigate();
@@ -59,7 +62,36 @@ const Checkout: React.FC = () => {
   );
   const [isRefreshingSummary, setIsRefreshingSummary] = useState(false);
 
+  const computeDueNowForItem = useCallback(
+    (
+      item: CartCheckoutSummaryItem
+    ): { dueNow: number; balanceLater: number; perUnitDue: number } => {
+      if (!item?.isPreOrder) {
+        return {
+          dueNow: item.lineTotal,
+          balanceLater: 0,
+          perUnitDue: item.unitPrice,
+        };
+      }
+      const depositPerUnitRaw = item.preOrderDepositRequired
+        ? item.preOrderDepositAmount ?? item.unitPrice
+        : item.unitPrice;
+      const depositPerUnit = Math.max(
+        0,
+        Math.min(depositPerUnitRaw ?? item.unitPrice, item.unitPrice)
+      );
+      const dueNow = item.preOrderDepositRequired
+        ? depositPerUnit * item.quantity
+        : item.lineTotal;
+      const balanceLater = Math.max(item.lineTotal - dueNow, 0);
+      return { dueNow, balanceLater, perUnitDue: depositPerUnit };
+    },
+    []
+  );
+
   const hasCartItems = items.length > 0;
+  const isSuccessStatus = (status?: string | null) =>
+    typeof status === "string" && status.toUpperCase() === "SUCCESS";
 
   // Format helper for currency display
   const formatCurrency = (amount: number, currencyCode: string) =>
@@ -114,10 +146,36 @@ const Checkout: React.FC = () => {
       totalQuantity: summaryBreakdown?.totalQuantity || items.length,
     };
   }, [summary, items.length]);
+  const preOrderTotals = useMemo(() => {
+    if (!summary?.orderItems?.length) {
+      return {
+        dueNowTotal: orderTotals.subtotal,
+        remainingBalanceTotal: 0,
+        hasPreOrders: false,
+      };
+    }
+    let dueNow = 0;
+    let balanceLater = 0;
+    summary.orderItems.forEach((orderItem) => {
+      const breakdown = computeDueNowForItem(orderItem);
+      dueNow += breakdown.dueNow;
+      balanceLater += breakdown.balanceLater;
+    });
+    return {
+      dueNowTotal: dueNow,
+      remainingBalanceTotal: balanceLater,
+      hasPreOrders: summary.orderItems.some(
+        (orderItem) => orderItem.isPreOrder
+      ),
+    };
+  }, [summary, orderTotals.subtotal, computeDueNowForItem]);
   const currencyCode = summary?.pricing?.currency || summary?.currency || "USD";
   const discountSummary = summary?.discounts;
   const globalDiscountInfo =
     summary?.globalDiscount || discountSummary?.globalDiscount;
+  const totalDueToday = preOrderTotals.dueNowTotal ?? orderTotals.subtotal;
+  const remainingBalanceTotal = preOrderTotals.remainingBalanceTotal;
+  const hasPreOrders = preOrderTotals.hasPreOrders;
 
   useEffect(() => {
     if (!isAuthenticated) {
@@ -139,10 +197,7 @@ const Checkout: React.FC = () => {
         setError(null);
         const response = await paymentAPI.getCartCheckoutSummary();
 
-        if (
-          (response.status === "SUCCESS" || response.status === "success") &&
-          response.data
-        ) {
+        if (isSuccessStatus(response.status) && response.data) {
           const summaryData = response.data;
           setSummary(summaryData);
 
@@ -204,8 +259,7 @@ const Checkout: React.FC = () => {
             try {
               const addressesResponse = await getDeliveryAddresses();
               if (
-                (addressesResponse.status === "SUCCESS" ||
-                  addressesResponse.status === "success") &&
+                isSuccessStatus(addressesResponse.status) &&
                 addressesResponse.data?.addresses
               ) {
                 applyAddresses(addressesResponse.data.addresses);
@@ -356,10 +410,7 @@ const Checkout: React.FC = () => {
 
       const response = await paymentAPI.checkoutCart(payload);
 
-      if (
-        (response.status === "SUCCESS" || response.status === "success") &&
-        response.data
-      ) {
+      if (response.status === ResponseStatus.SUCCESS && response.data) {
         toast.success("Redirecting you to securely complete payment");
         if (response.data.approvalUrl) {
           window.location.href = response.data.approvalUrl;
@@ -491,6 +542,20 @@ const Checkout: React.FC = () => {
                 </h2>
               </div>
 
+              {hasPreOrders && (
+                <div className="mb-4 rounded-2xl border border-amber-200 bg-amber-50/80 p-3 text-xs text-amber-900">
+                  <p className="font-semibold">
+                    Pre-orders detected — pay deposits today, remaining at
+                    dispatch.
+                  </p>
+                  <p className="mt-1 text-[11px] text-amber-800/90">
+                    Due now: {formatCurrency(totalDueToday, currencyCode)} ·
+                    Remaining later:{" "}
+                    {formatCurrency(remainingBalanceTotal, currencyCode)}
+                  </p>
+                </div>
+              )}
+
               {isInitialLoading ? (
                 <div className="flex items-center justify-center py-10">
                   <Loader2 className="w-7 h-7 text-brand-green animate-spin" />
@@ -536,6 +601,10 @@ const Checkout: React.FC = () => {
                         const showBaseLine =
                           item.baseLineTotal &&
                           item.baseLineTotal > item.lineTotal;
+                        const itemBreakdown = computeDueNowForItem(item);
+                        const itemDueNow = itemBreakdown.dueNow;
+                        const itemBalanceLater = itemBreakdown.balanceLater;
+                        const isPreOrderItem = Boolean(item.isPreOrder);
 
                         return (
                           <div
@@ -554,6 +623,12 @@ const Checkout: React.FC = () => {
                                 <p className="text-sm sm:text-base font-semibold text-gray-900">
                                   {item.name}
                                 </p>
+                                {isPreOrderItem && (
+                                  <span className="inline-flex items-center gap-1 rounded-full bg-amber-100 text-amber-800 text-[10px] font-semibold px-2 py-0.5 mt-0.5">
+                                    <Package className="w-3 h-3" />
+                                    Pre-order
+                                  </span>
+                                )}
                                 <p className="mt-1 text-xs text-gray-500">
                                   Unit price:{" "}
                                   <span className="font-medium text-gray-900">
@@ -586,6 +661,25 @@ const Checkout: React.FC = () => {
                                       )
                                     </p>
                                   )}
+                                {isPreOrderItem && (
+                                  <p className="text-[11px] text-amber-600 mt-0.5">
+                                    Due today{" "}
+                                    <strong className="text-amber-700">
+                                      {formatCurrency(itemDueNow, currencyCode)}
+                                    </strong>
+                                    {itemBalanceLater > 0 && (
+                                      <>
+                                        {" "}
+                                        · Remaining{" "}
+                                        {formatCurrency(
+                                          itemBalanceLater,
+                                          currencyCode
+                                        )}{" "}
+                                        at fulfillment
+                                      </>
+                                    )}
+                                  </p>
+                                )}
                                 <div className="mt-2.5 flex flex-wrap items-center gap-2.5">
                                   <div className="inline-flex items-center rounded-full border border-gray-200">
                                     <button
@@ -692,12 +786,23 @@ const Checkout: React.FC = () => {
                           Calculated at dispatch
                         </span>
                       </div>
+                      {hasPreOrders && remainingBalanceTotal > 0 && (
+                        <div className="flex justify-between text-gray-600">
+                          <span>Pending at fulfillment</span>
+                          <span>
+                            {formatCurrency(
+                              remainingBalanceTotal,
+                              currencyCode
+                            )}
+                          </span>
+                        </div>
+                      )}
                       <div className="border-t border-gray-200 pt-3 flex justify-between items-center">
                         <span className="text-base sm:text-lg font-semibold text-gray-900">
-                          Total due
+                          Total due today
                         </span>
                         <span className="text-xl sm:text-2xl font-bold text-brand-green">
-                          {formatCurrency(orderTotals.subtotal, currencyCode)}
+                          {formatCurrency(totalDueToday, currencyCode)}
                         </span>
                       </div>
                       {orderTotals.totalDiscount > 0 && (
@@ -710,6 +815,12 @@ const Checkout: React.FC = () => {
                           with applied discounts.
                         </p>
                       )}
+                      {hasPreOrders && remainingBalanceTotal > 0 && (
+                        <p className="text-[11px] text-amber-600">
+                          Remaining balance will be charged automatically when
+                          your pre-order ships.
+                        </p>
+                      )}
                     </div>
                   </div>
                 </div>
@@ -719,7 +830,7 @@ const Checkout: React.FC = () => {
 
           {summary && (
             <section className="order-2 lg:order-2 lg:col-start-2 lg:col-end-3">
-              {deliveryDetailsCard(summary, formatCurrency)}
+              {deliveryDetailsCard(summary, formatCurrency, preOrderTotals)}
             </section>
           )}
 
@@ -986,11 +1097,23 @@ const Checkout: React.FC = () => {
 // Render delivery defaults in a subtle card to reassure the user
 const deliveryDetailsCard = (
   summary: CartCheckoutSummary | null,
-  formatCurrency: (amount: number, currencyCode: string) => string
+  formatCurrency: (amount: number, currencyCode: string) => string,
+  preOrderDetails?: {
+    dueNowTotal: number;
+    remainingBalanceTotal: number;
+    hasPreOrders: boolean;
+  }
 ) => {
   if (!summary) {
     return null;
   }
+
+  const dueToday =
+    preOrderDetails?.dueNowTotal ??
+    summary.totalAmount ??
+    summary.summary.subtotal;
+  const remainingLater = preOrderDetails?.remainingBalanceTotal ?? 0;
+  const hasPreOrders = preOrderDetails?.hasPreOrders;
 
   return (
     <div className="bg-white rounded-3xl shadow-sm border border-gray-100 p-5 sm:p-6">
@@ -1019,6 +1142,20 @@ const deliveryDetailsCard = (
             {formatCurrency(summary.totalAmount, summary.currency)}
           </span>
         </li>
+        <li>
+          Due today:{" "}
+          <span className="font-semibold text-gray-900">
+            {formatCurrency(dueToday, summary.currency)}
+          </span>
+        </li>
+        {hasPreOrders && remainingLater > 0 && (
+          <li>
+            Scheduled at fulfillment:{" "}
+            <span className="font-semibold text-gray-900">
+              {formatCurrency(remainingLater, summary.currency)}
+            </span>
+          </li>
+        )}
       </ul>
       <p className="mt-3 text-[11px] sm:text-xs text-gray-500">
         Delivery fees are calculated separately based on your location and the

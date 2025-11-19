@@ -1,5 +1,8 @@
 // Response status union to be tolerant to backend enum/value casing
-export type ResponseStatus = "SUCCESS" | "ERROR" | "success" | "error";
+export enum ResponseStatus {
+  SUCCESS = "SUCCESS",
+  ERROR = "ERROR",
+}
 
 // Generic response DTO (aligns with backend ResponseDto)
 export type ResponseDto<T = any> = {

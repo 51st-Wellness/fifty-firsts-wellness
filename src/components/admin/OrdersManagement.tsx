@@ -39,6 +39,7 @@ import {
   type AdminOrderListItem,
   type AdminOrderDetail,
 } from "../../api/user.api";
+import { ResponseStatus } from "../../types/response.types";
 
 const currency = (value: number) =>
   new Intl.NumberFormat("en-GB", {
@@ -89,6 +90,31 @@ const getPreviousStatus = (
   return null;
 };
 
+// Normalize status from backend (handles old payment statuses)
+const normalizeOrderStatus = (status: string): AdminOrderStatus => {
+  // Map old payment statuses to new order statuses
+  const statusMap: Record<string, AdminOrderStatus> = {
+    PAID: "PROCESSING", // Paid orders should be in processing
+    PENDING: "PENDING",
+    CANCELLED: "PENDING", // Cancelled orders can't be changed, but show as pending for now
+    FAILED: "PENDING",
+    REFUNDED: "PENDING",
+    // New order statuses
+    PROCESSING: "PROCESSING",
+    PACKAGING: "PACKAGING",
+    IN_TRANSIT: "IN_TRANSIT",
+    FULFILLED: "FULFILLED",
+  };
+
+  return statusMap[status] || "PENDING";
+};
+
+// Get status config safely
+const getStatusConfig = (status: string) => {
+  const normalizedStatus = normalizeOrderStatus(status);
+  return statusConfig[normalizedStatus] || statusConfig.PENDING;
+};
+
 const OrdersManagement: React.FC = () => {
   const [orders, setOrders] = useState<AdminOrderListItem[]>([]);
   const [loading, setLoading] = useState(false);
@@ -117,8 +143,13 @@ const OrdersManagement: React.FC = () => {
         status: statusFilter || undefined,
         search: searchQuery || undefined,
       });
-      if (response.success && response.data) {
-        setOrders(response.data.orders);
+      if (response.status === ResponseStatus.SUCCESS && response.data) {
+        // Ensure items array exists for each order
+        const ordersWithItems = response.data.orders.map((order) => ({
+          ...order,
+          items: order.items || [],
+        }));
+        setOrders(ordersWithItems);
         setPagination({
           total: response.data.pagination.total,
           totalPages: response.data.pagination.totalPages,
@@ -140,7 +171,7 @@ const OrdersManagement: React.FC = () => {
     setLoadingDetail(true);
     try {
       const response = await getAdminOrder(orderId);
-      if (response.success && response.data) {
+      if (response.status === ResponseStatus.SUCCESS && response.data) {
         setOrderDetail(response.data.order);
         setDetailsOpen(true);
       }
@@ -184,7 +215,7 @@ const OrdersManagement: React.FC = () => {
 
     try {
       const response = await updateOrderStatus(activeOrder.id, newStatus);
-      if (response.success && response.data) {
+      if (response.status === ResponseStatus.SUCCESS && response.data) {
         toast.success(
           `Order status updated to ${statusConfig[newStatus].label}`
         );
@@ -212,9 +243,11 @@ const OrdersManagement: React.FC = () => {
     setPage(0);
   };
 
-  const nextStatus = activeOrder ? getNextStatus(activeOrder.status) : null;
+  const nextStatus = activeOrder
+    ? getNextStatus(normalizeOrderStatus(activeOrder.status))
+    : null;
   const previousStatus = activeOrder
-    ? getPreviousStatus(activeOrder.status)
+    ? getPreviousStatus(normalizeOrderStatus(activeOrder.status))
     : null;
 
   return (
@@ -321,11 +354,15 @@ const OrdersManagement: React.FC = () => {
               ) : (
                 orders.map((order) => {
                   const customerName =
-                    order.customer.firstName && order.customer.lastName
+                    order.customer?.firstName && order.customer?.lastName
                       ? `${order.customer.firstName} ${order.customer.lastName}`
-                      : order.customer.email;
+                      : order.customer?.email || "Unknown Customer";
                   const paymentMethod = order.paymentProvider || "Unknown";
                   const shippingMethod = "Standard"; // This would come from delivery address metadata if available
+                  const normalizedStatus = normalizeOrderStatus(
+                    order.status || "PENDING"
+                  );
+                  const statusInfo = getStatusConfig(order.status || "PENDING");
 
                   return (
                     <TableRow
@@ -360,12 +397,16 @@ const OrdersManagement: React.FC = () => {
                             textOverflow: "ellipsis",
                           }}
                         >
-                          {order.items
-                            .map(
-                              (item) =>
-                                `${item.name || "Unknown"} ×${item.quantity}`
-                            )
-                            .join(", ")}
+                          {order.items && order.items.length > 0
+                            ? order.items
+                                .map(
+                                  (item) =>
+                                    `${item.name || "Unknown Product"} ×${
+                                      item.quantity || 0
+                                    }`
+                                )
+                                .join(", ")
+                            : "No items"}
                         </Typography>
                       </TableCell>
                       <TableCell>
@@ -375,8 +416,8 @@ const OrdersManagement: React.FC = () => {
                       </TableCell>
                       <TableCell>
                         <Chip
-                          label={statusConfig[order.status].label}
-                          color={statusConfig[order.status].color}
+                          label={statusInfo.label}
+                          color={statusInfo.color}
                           size="small"
                           onClick={(e) => handleStatusClick(e, order)}
                           sx={{ cursor: "pointer" }}
