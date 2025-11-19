@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from "react";
 import {
+  Box,
   Card,
   CardContent,
   CardHeader,
@@ -33,7 +34,15 @@ const DEFAULT_STATE: GlobalDiscountSetting = {
   label: "Storewide discount",
 };
 
-const GlobalDiscountSettings: React.FC = () => {
+interface GlobalDiscountSettingsProps {
+  variant?: "card" | "plain";
+  onSaved?: () => void;
+}
+
+const GlobalDiscountSettings: React.FC<GlobalDiscountSettingsProps> = ({
+  variant = "card",
+  onSaved,
+}) => {
   const [form, setForm] = useState<GlobalDiscountSetting>(DEFAULT_STATE);
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
@@ -86,8 +95,8 @@ const GlobalDiscountSettings: React.FC = () => {
       }));
     };
 
-  const handleSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
-    event.preventDefault();
+  const handleSubmit = async (event?: React.FormEvent<HTMLFormElement>) => {
+    event?.preventDefault();
     setSaving(true);
     try {
       const payload = {
@@ -104,6 +113,7 @@ const GlobalDiscountSettings: React.FC = () => {
       ) {
         setForm({ ...form, ...response.data });
         toast.success("Global discount updated");
+        onSaved?.();
       }
     } catch (error: any) {
       toast.error(
@@ -115,112 +125,144 @@ const GlobalDiscountSettings: React.FC = () => {
     }
   };
 
+  const loadingContent = (
+    <Box className="flex items-center gap-2">
+      <CircularProgress size={20} />
+      <Typography variant="body2" color="text.secondary">
+        Loading settings...
+      </Typography>
+    </Box>
+  );
+
   if (loading) {
-    return (
+    return variant === "card" ? (
       <Card>
-        <CardContent className="flex items-center gap-2">
-          <CircularProgress size={20} />
-          <Typography variant="body2" color="text.secondary">
-            Loading settings...
-          </Typography>
-        </CardContent>
+        <CardContent>{loadingContent}</CardContent>
       </Card>
+    ) : (
+      loadingContent
     );
   }
 
   const showValueField = form.type !== "NONE";
+
+  const formContent = (
+    <Stack spacing={3}>
+      <FormControlLabel
+        control={
+          <Switch
+            checked={form.isActive}
+            onChange={handleFieldChange("isActive")}
+            color="primary"
+            disabled={form.type === "NONE"}
+          />
+        }
+        label="Enable discount"
+      />
+
+      <TextField
+        select
+        label="Discount type"
+        value={form.type}
+        onChange={handleFieldChange("type")}
+        size="small"
+        fullWidth
+      >
+        {DISCOUNT_TYPES.map((option) => (
+          <MenuItem key={option.value} value={option.value}>
+            {option.label}
+          </MenuItem>
+        ))}
+      </TextField>
+
+      {showValueField && (
+        <TextField
+          label={
+            form.type === "PERCENTAGE"
+              ? "Discount percentage (%)"
+              : "Discount value"
+          }
+          type="number"
+          size="small"
+          value={form.value}
+          onChange={handleFieldChange("value")}
+          inputProps={{
+            min: 0,
+            max: form.type === "PERCENTAGE" ? 100 : undefined,
+          }}
+          helperText={
+            form.type === "PERCENTAGE"
+              ? "Maximum 100%"
+              : "Enter the flat amount to deduct"
+          }
+        />
+      )}
+
+      <TextField
+        label="Minimum order total"
+        type="number"
+        size="small"
+        value={form.minOrderTotal}
+        onChange={handleFieldChange("minOrderTotal")}
+        helperText="Discount is applied only if the cart total meets this amount."
+        inputProps={{ min: 0 }}
+      />
+
+      <TextField
+        label="Display label"
+        size="small"
+        value={form.label || ""}
+        onChange={handleFieldChange("label")}
+        helperText="Shown to shoppers on the checkout page."
+      />
+
+      <Stack direction="row" justifyContent="flex-end">
+        <Button
+          type="submit"
+          variant="contained"
+          disabled={saving}
+          startIcon={
+            saving ? <CircularProgress size={16} color="inherit" /> : null
+          }
+        >
+          {saving ? "Saving" : "Save changes"}
+        </Button>
+      </Stack>
+    </Stack>
+  );
+
+  if (variant === "plain") {
+    return (
+      <Box component="form" onSubmit={handleSubmit}>
+        <Typography
+          variant="h5"
+          sx={{
+            fontFamily: '"League Spartan", sans-serif',
+            fontWeight: 600,
+            mb: 1,
+          }}
+        >
+          Global Discount
+        </Typography>
+        <Typography variant="body2" color="text.secondary" sx={{ mb: 3 }}>
+          Configure flash sales or storewide incentives with optional
+          thresholds.
+        </Typography>
+        {formContent}
+      </Box>
+    );
+  }
 
   return (
     <Card component="form" onSubmit={handleSubmit}>
       <CardHeader
         title="Global Discount"
         subheader="Configure flash sales or storewide incentives with optional thresholds."
-        titleTypographyProps={{ sx: { fontFamily: '"League Spartan", sans-serif', fontWeight: 600 } }}
+        titleTypographyProps={{
+          sx: { fontFamily: '"League Spartan", sans-serif', fontWeight: 600 },
+        }}
       />
-      <CardContent>
-        <Stack spacing={3}>
-          <FormControlLabel
-            control={
-              <Switch
-                checked={form.isActive}
-                onChange={handleFieldChange("isActive")}
-                color="primary"
-                disabled={form.type === "NONE"}
-              />
-            }
-            label="Enable discount"
-          />
-
-          <TextField
-            select
-            label="Discount type"
-            value={form.type}
-            onChange={handleFieldChange("type")}
-            size="small"
-            fullWidth
-          >
-            {DISCOUNT_TYPES.map((option) => (
-              <MenuItem key={option.value} value={option.value}>
-                {option.label}
-              </MenuItem>
-            ))}
-          </TextField>
-
-          {showValueField && (
-            <TextField
-              label={
-                form.type === "PERCENTAGE"
-                  ? "Discount percentage (%)"
-                  : "Discount value"
-              }
-              type="number"
-              size="small"
-              value={form.value}
-              onChange={handleFieldChange("value")}
-              inputProps={{
-                min: 0,
-                max: form.type === "PERCENTAGE" ? 100 : undefined,
-              }}
-              helperText={
-                form.type === "PERCENTAGE"
-                  ? "Maximum 100%"
-                  : "Enter the flat amount to deduct"
-              }
-            />
-          )}
-
-          <TextField
-            label="Minimum order total"
-            type="number"
-            size="small"
-            value={form.minOrderTotal}
-            onChange={handleFieldChange("minOrderTotal")}
-            helperText="Discount is applied only if the cart total meets this amount."
-            inputProps={{ min: 0 }}
-          />
-
-          <TextField
-            label="Display label"
-            size="small"
-            value={form.label || ""}
-            onChange={handleFieldChange("label")}
-            helperText="Shown to shoppers on the checkout page."
-          />
-
-          <Stack direction="row" justifyContent="flex-end">
-            <Button
-              type="submit"
-              variant="contained"
-              disabled={saving}
-              startIcon={
-                saving ? <CircularProgress size={16} color="inherit" /> : null
-              }
-            >
-              {saving ? "Saving" : "Save changes"}
-            </Button>
-          </Stack>
-        </Stack>
-      </CardContent>
+      <CardContent>{formContent}</CardContent>
     </Card>
   );
 };
