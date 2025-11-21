@@ -186,14 +186,14 @@ const OrderDetailsModal: React.FC<OrderDetailsModalProps> = ({
                 variant="subtitle2"
                 sx={{
                   fontFamily: '"League Spartan", sans-serif',
-                  mb: 2,
+                  mb: 1.5,
                   fontWeight: 600,
                 }}
                 color="text.secondary"
               >
                 Order Items ({order.orderItems?.length || 0})
               </Typography>
-              <Stack spacing={2}>
+              <Stack spacing={1.5}>
                 {order.orderItems && order.orderItems.length > 0 ? (
                   order.orderItems.map((item) => {
                     const storeItem = item.product?.storeItem;
@@ -210,22 +210,23 @@ const OrderDetailsModal: React.FC<OrderDetailsModalProps> = ({
                         variant="outlined"
                         sx={{
                           "&:hover": {
-                            boxShadow: 2,
+                            boxShadow: 1,
                           },
                         }}
                       >
-                        <CardContent>
+                        <CardContent sx={{ py: 1.5, px: 2 }}>
                           <Box
                             sx={{
                               display: "flex",
-                              flexDirection: { xs: "column", sm: "row" },
-                              gap: 2,
+                              flexDirection: "row",
+                              gap: 1.5,
+                              alignItems: "flex-start",
                             }}
                           >
                             {/* Product Image */}
                             <Box
                               sx={{
-                                width: { xs: "100%", sm: "200px" },
+                                width: { xs: "80px", sm: "100px" },
                                 flexShrink: 0,
                               }}
                             >
@@ -234,7 +235,7 @@ const OrderDetailsModal: React.FC<OrderDetailsModalProps> = ({
                                   width: "100%",
                                   aspectRatio: "1",
                                   bgcolor: "grey.100",
-                                  borderRadius: 2,
+                                  borderRadius: 1.5,
                                   overflow: "hidden",
                                   display: "flex",
                                   alignItems: "center",
@@ -265,7 +266,7 @@ const OrderDetailsModal: React.FC<OrderDetailsModalProps> = ({
                                   )
                                 ) : (
                                   <ImageIcon
-                                    sx={{ fontSize: 48, color: "grey.400" }}
+                                    sx={{ fontSize: 32, color: "grey.400" }}
                                   />
                                 )}
                               </Box>
@@ -273,10 +274,10 @@ const OrderDetailsModal: React.FC<OrderDetailsModalProps> = ({
 
                             {/* Product Details */}
                             <Box sx={{ flex: 1, minWidth: 0 }}>
-                              <Stack spacing={1}>
+                              <Stack spacing={0.5}>
                                 <Box>
                                   <Typography
-                                    variant="h6"
+                                    variant="subtitle1"
                                     fontWeight={600}
                                     sx={{
                                       fontFamily:
@@ -289,38 +290,17 @@ const OrderDetailsModal: React.FC<OrderDetailsModalProps> = ({
                                     <Typography
                                       variant="body2"
                                       color="text.secondary"
-                                      sx={{ mt: 0.5 }}
+                                      sx={{ mt: 0.25 }}
                                     >
-                                      {productDescription.length > 150
+                                      {productDescription.length > 100
                                         ? `${productDescription.substring(
                                             0,
-                                            150
+                                            100
                                           )}...`
                                         : productDescription}
                                     </Typography>
                                   )}
                                 </Box>
-
-                                {/* Categories */}
-                                {productCategories.length > 0 && (
-                                  <Box
-                                    sx={{
-                                      display: "flex",
-                                      gap: 0.5,
-                                      flexWrap: "wrap",
-                                    }}
-                                  >
-                                    {productCategories.map((category, idx) => (
-                                      <Chip
-                                        key={idx}
-                                        label={category}
-                                        size="small"
-                                        variant="outlined"
-                                        sx={{ fontSize: "0.7rem" }}
-                                      />
-                                    ))}
-                                  </Box>
-                                )}
 
                                 {/* Quantity and Price Info */}
                                 <Box
@@ -328,41 +308,23 @@ const OrderDetailsModal: React.FC<OrderDetailsModalProps> = ({
                                     display: "flex",
                                     justifyContent: "space-between",
                                     alignItems: "center",
-                                    pt: 1,
-                                    borderTop: 1,
-                                    borderColor: "divider",
+                                    mt: 0.5,
                                   }}
                                 >
-                                  <Box>
-                                    <Typography
-                                      variant="body2"
-                                      color="text.secondary"
-                                    >
-                                      Quantity: <strong>{item.quantity}</strong>
-                                    </Typography>
-                                    <Typography
-                                      variant="body2"
-                                      color="text.secondary"
-                                    >
-                                      Unit Price: {currency(item.price)}
-                                    </Typography>
-                                  </Box>
                                   <Typography
-                                    variant="h6"
+                                    variant="body2"
+                                    color="text.secondary"
+                                  >
+                                    Qty: <strong>{item.quantity}</strong>
+                                  </Typography>
+                                  <Typography
+                                    variant="subtitle1"
                                     fontWeight={700}
                                     color="primary"
                                   >
                                     {currency(itemTotal)}
                                   </Typography>
                                 </Box>
-
-                                {/* Product ID */}
-                                <Typography
-                                  variant="caption"
-                                  color="text.secondary"
-                                >
-                                  Product ID: {item.productId}
-                                </Typography>
                               </Stack>
                             </Box>
                           </Box>
