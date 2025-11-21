@@ -115,6 +115,13 @@ const StoreItemDialog: React.FC<StoreItemDialogProps> = ({
   useEffect(() => {
     if (open) {
       if (mode === "edit" && item) {
+        const storedDiscountType = (item as any).discountType as DiscountType;
+        const discountEnabled = Boolean((item as any).discountActive);
+        const resolvedDiscountType = discountEnabled
+          ? storedDiscountType === "NONE"
+            ? ("PERCENTAGE" as DiscountType)
+            : storedDiscountType
+          : ("NONE" as DiscountType);
         setFormData({
           name: item.name || "",
           description: item.description || "",
@@ -127,12 +134,9 @@ const StoreItemDialog: React.FC<StoreItemDialogProps> = ({
           categories: item.categories || [],
           isFeatured: item.isFeatured || false,
           isPublished: item.isPublished || false,
-          discountType: (item as any).discountType || "NONE",
+          discountType: resolvedDiscountType,
           discountValue: (item as any).discountValue || 0,
-          discountActive: Boolean(
-            (item as any).discountActive &&
-              (item as any).discountType !== "NONE"
-          ),
+          discountActive: discountEnabled,
           discountStart: toInputValue((item as any).discountStart),
           discountEnd: toInputValue((item as any).discountEnd),
           preOrderEnabled: Boolean((item as any).preOrderEnabled),
@@ -283,7 +287,6 @@ const StoreItemDialog: React.FC<StoreItemDialogProps> = ({
     setFormData((prev) => ({
       ...prev,
       discountType: nextType,
-      discountActive: nextType === "NONE" ? false : prev.discountActive,
     }));
   };
 
@@ -296,10 +299,17 @@ const StoreItemDialog: React.FC<StoreItemDialogProps> = ({
     }));
   };
 
-  const handleDiscountSwitch = (event: React.ChangeEvent<HTMLInputElement>) => {
+  const handleDiscountToggle = (event: React.ChangeEvent<HTMLInputElement>) => {
+    const isEnabled = event.target.checked;
     setFormData((prev) => ({
       ...prev,
-      discountActive: event.target.checked,
+      discountActive: isEnabled,
+      discountType:
+        isEnabled && prev.discountType === "NONE"
+          ? ("PERCENTAGE" as DiscountType)
+          : isEnabled
+          ? prev.discountType
+          : ("NONE" as DiscountType),
     }));
   };
 
@@ -343,6 +353,17 @@ const StoreItemDialog: React.FC<StoreItemDialogProps> = ({
     try {
       // Prepare form data for multipart upload
       const submitData = new FormData();
+      const appendDateField = (
+        key: string,
+        value?: string,
+        formatter?: (input: string) => string
+      ) => {
+        if (value) {
+          submitData.append(key, formatter ? formatter(value) : value);
+        } else {
+          submitData.append(key, "");
+        }
+      };
       submitData.append("name", formData.name);
       submitData.append("description", formData.description);
       submitData.append("productUsage", formData.productUsage);
@@ -357,31 +378,16 @@ const StoreItemDialog: React.FC<StoreItemDialogProps> = ({
       submitData.append("discountType", formData.discountType);
       submitData.append("discountValue", formData.discountValue.toString());
       submitData.append("discountActive", formData.discountActive.toString());
-      if (formData.discountStart) {
-        submitData.append(
-          "discountStart",
-          toStartOfDayISO(formData.discountStart)
-        );
-      }
-      if (formData.discountEnd) {
-        submitData.append("discountEnd", toEndOfDayISO(formData.discountEnd));
-      }
+      appendDateField("discountStart", formData.discountStart, toStartOfDayISO);
+      appendDateField("discountEnd", formData.discountEnd, toEndOfDayISO);
       submitData.append("preOrderEnabled", formData.preOrderEnabled.toString());
-      if (formData.preOrderStart) {
-        submitData.append(
-          "preOrderStart",
-          toStartOfDayISO(formData.preOrderStart)
-        );
-      }
-      if (formData.preOrderEnd) {
-        submitData.append("preOrderEnd", toEndOfDayISO(formData.preOrderEnd));
-      }
-      if (formData.preOrderFulfillmentDate) {
-        submitData.append(
-          "preOrderFulfillmentDate",
-          toStartOfDayISO(formData.preOrderFulfillmentDate)
-        );
-      }
+      appendDateField("preOrderStart", formData.preOrderStart, toStartOfDayISO);
+      appendDateField("preOrderEnd", formData.preOrderEnd, toEndOfDayISO);
+      appendDateField(
+        "preOrderFulfillmentDate",
+        formData.preOrderFulfillmentDate,
+        toStartOfDayISO
+      );
       submitData.append(
         "preOrderDepositRequired",
         formData.preOrderDepositRequired.toString()
@@ -687,25 +693,15 @@ const StoreItemDialog: React.FC<StoreItemDialogProps> = ({
                     <FormControlLabel
                       control={
                         <Switch
-                          checked={formData.discountType !== "NONE"}
-                          onChange={(e) =>
-                            setFormData((prev) => ({
-                              ...prev,
-                              discountType: e.target.checked
-                                ? "PERCENTAGE"
-                                : "NONE",
-                              discountActive: e.target.checked
-                                ? prev.discountActive
-                                : false,
-                            }))
-                          }
+                          checked={formData.discountActive}
+                          onChange={handleDiscountToggle}
                         />
                       }
                       label="Enable discounts"
                     />
                   </Stack>
 
-                  <Collapse in={formData.discountType !== "NONE"} unmountOnExit>
+                  <Collapse in={formData.discountActive} unmountOnExit>
                     <Stack spacing={2} sx={{ mt: 1 }}>
                       <TextField
                         select
@@ -741,16 +737,6 @@ const StoreItemDialog: React.FC<StoreItemDialogProps> = ({
                                 : undefined,
                           }}
                           fullWidth
-                        />
-                        <FormControlLabel
-                          control={
-                            <Switch
-                              checked={formData.discountActive}
-                              onChange={handleDiscountSwitch}
-                              color="primary"
-                            />
-                          }
-                          label="Active"
                         />
                       </Stack>
 
