@@ -16,7 +16,6 @@ import {
   paymentAPI,
   CartCheckoutSummary,
   CartCheckoutPayload,
-  CartCheckoutSummaryItem,
 } from "../api/payment.api";
 import { getDeliveryAddresses, type DeliveryAddress } from "../api/user.api";
 import toast from "react-hot-toast";
@@ -61,30 +60,6 @@ const Checkout: React.FC = () => {
     null
   );
   const [isRefreshingSummary, setIsRefreshingSummary] = useState(false);
-
-  const computeDueNowForItem = useCallback(
-    (
-      item: CartCheckoutSummaryItem
-    ): { dueNow: number; balanceLater: number; perUnitDue: number } => {
-      if (!item?.isPreOrder) {
-        return {
-          dueNow: item.lineTotal,
-          balanceLater: 0,
-          perUnitDue: item.unitPrice,
-        };
-      }
-      const depositPerUnitRaw =
-        item.preOrderDepositAmount ?? item.unitPrice ?? 0;
-      const depositPerUnit = Math.max(
-        0,
-        Math.min(depositPerUnitRaw, item.unitPrice ?? depositPerUnitRaw)
-      );
-      const dueNow = depositPerUnit * item.quantity;
-      const balanceLater = Math.max(item.lineTotal - dueNow, 0);
-      return { dueNow, balanceLater, perUnitDue: depositPerUnit };
-    },
-    []
-  );
 
   const hasCartItems = items.length > 0;
   const isSuccessStatus = (status?: string | null) =>
@@ -143,36 +118,14 @@ const Checkout: React.FC = () => {
       totalQuantity: summaryBreakdown?.totalQuantity || items.length,
     };
   }, [summary, items.length]);
-  const preOrderTotals = useMemo(() => {
-    if (!summary?.orderItems?.length) {
-      return {
-        dueNowTotal: orderTotals.subtotal,
-        remainingBalanceTotal: 0,
-        hasPreOrders: false,
-      };
-    }
-    let dueNow = 0;
-    let balanceLater = 0;
-    summary.orderItems.forEach((orderItem) => {
-      const breakdown = computeDueNowForItem(orderItem);
-      dueNow += breakdown.dueNow;
-      balanceLater += breakdown.balanceLater;
-    });
-    return {
-      dueNowTotal: dueNow,
-      remainingBalanceTotal: balanceLater,
-      hasPreOrders: summary.orderItems.some(
-        (orderItem) => orderItem.isPreOrder
-      ),
-    };
-  }, [summary, orderTotals.subtotal, computeDueNowForItem]);
   const currencyCode = summary?.pricing?.currency || summary?.currency || "USD";
   const discountSummary = summary?.discounts;
   const globalDiscountInfo =
     summary?.globalDiscount || discountSummary?.globalDiscount;
-  const totalDueToday = preOrderTotals.dueNowTotal ?? orderTotals.subtotal;
-  const remainingBalanceTotal = preOrderTotals.remainingBalanceTotal;
-  const hasPreOrders = preOrderTotals.hasPreOrders;
+  const hasPreOrders =
+    summary?.orderItems?.some((orderItem) => orderItem.isPreOrder) ?? false;
+  const totalDueToday = orderTotals.subtotal;
+  const remainingBalanceTotal = 0;
 
   useEffect(() => {
     if (!isAuthenticated) {
@@ -598,9 +551,7 @@ const Checkout: React.FC = () => {
                         const showBaseLine =
                           item.baseLineTotal &&
                           item.baseLineTotal > item.lineTotal;
-                        const itemBreakdown = computeDueNowForItem(item);
-                        const itemDueNow = itemBreakdown.dueNow;
-                        const itemBalanceLater = itemBreakdown.balanceLater;
+                        const itemDueNow = item.lineTotal;
                         const isPreOrderItem = Boolean(item.isPreOrder);
 
                         return (
@@ -660,21 +611,10 @@ const Checkout: React.FC = () => {
                                   )}
                                 {isPreOrderItem && (
                                   <p className="text-[11px] text-amber-600 mt-0.5">
-                                    Due today{" "}
+                                    Charged today{" "}
                                     <strong className="text-amber-700">
                                       {formatCurrency(itemDueNow, currencyCode)}
                                     </strong>
-                                    {itemBalanceLater > 0 && (
-                                      <>
-                                        {" "}
-                                        · Remaining{" "}
-                                        {formatCurrency(
-                                          itemBalanceLater,
-                                          currencyCode
-                                        )}{" "}
-                                        at fulfillment
-                                      </>
-                                    )}
                                   </p>
                                 )}
                                 <div className="mt-2.5 flex flex-wrap items-center gap-2.5">
@@ -783,17 +723,6 @@ const Checkout: React.FC = () => {
                           Calculated at dispatch
                         </span>
                       </div>
-                      {hasPreOrders && remainingBalanceTotal > 0 && (
-                        <div className="flex justify-between text-gray-600">
-                          <span>Pending at fulfillment</span>
-                          <span>
-                            {formatCurrency(
-                              remainingBalanceTotal,
-                              currencyCode
-                            )}
-                          </span>
-                        </div>
-                      )}
                       <div className="border-t border-gray-200 pt-3 flex justify-between items-center">
                         <span className="text-base sm:text-lg font-semibold text-gray-900">
                           Total due today
@@ -812,10 +741,10 @@ const Checkout: React.FC = () => {
                           with applied discounts.
                         </p>
                       )}
-                      {hasPreOrders && remainingBalanceTotal > 0 && (
+                      {hasPreOrders && (
                         <p className="text-[11px] text-amber-600">
-                          Remaining balance will be charged automatically when
-                          your pre-order ships.
+                          Includes pre-order items — we’ll notify you before
+                          they ship.
                         </p>
                       )}
                     </div>
@@ -827,7 +756,7 @@ const Checkout: React.FC = () => {
 
           {summary && (
             <section className="order-2 lg:order-2 lg:col-start-2 lg:col-end-3">
-              {deliveryDetailsCard(summary, formatCurrency, preOrderTotals)}
+              {deliveryDetailsCard(summary, formatCurrency, hasPreOrders)}
             </section>
           )}
 
@@ -1095,22 +1024,11 @@ const Checkout: React.FC = () => {
 const deliveryDetailsCard = (
   summary: CartCheckoutSummary | null,
   formatCurrency: (amount: number, currencyCode: string) => string,
-  preOrderDetails?: {
-    dueNowTotal: number;
-    remainingBalanceTotal: number;
-    hasPreOrders: boolean;
-  }
+  hasPreOrders?: boolean
 ) => {
   if (!summary) {
     return null;
   }
-
-  const dueToday =
-    preOrderDetails?.dueNowTotal ??
-    summary.totalAmount ??
-    summary.summary.subtotal;
-  const remainingLater = preOrderDetails?.remainingBalanceTotal ?? 0;
-  const hasPreOrders = preOrderDetails?.hasPreOrders;
 
   return (
     <div className="bg-white rounded-3xl shadow-sm border border-gray-100 p-5 sm:p-6">
@@ -1142,15 +1060,16 @@ const deliveryDetailsCard = (
         <li>
           Due today:{" "}
           <span className="font-semibold text-gray-900">
-            {formatCurrency(dueToday, summary.currency)}
+            {formatCurrency(
+              summary.totalAmount ?? summary.summary.subtotal,
+              summary.currency
+            )}
           </span>
         </li>
-        {hasPreOrders && remainingLater > 0 && (
+        {hasPreOrders && (
           <li>
-            Scheduled at fulfillment:{" "}
-            <span className="font-semibold text-gray-900">
-              {formatCurrency(remainingLater, summary.currency)}
-            </span>
+            Includes pre-order items — we’ll notify you as soon as they are
+            ready to ship.
           </li>
         )}
       </ul>

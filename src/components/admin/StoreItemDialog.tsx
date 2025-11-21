@@ -48,10 +48,6 @@ type StoreItemFormState = {
   discountStart: string;
   discountEnd: string;
   preOrderEnabled: boolean;
-  preOrderStart: string;
-  preOrderEnd: string;
-  preOrderFulfillmentDate: string;
-  preOrderDepositAmount: number;
 };
 
 const createDefaultFormState = (): StoreItemFormState => ({
@@ -71,10 +67,6 @@ const createDefaultFormState = (): StoreItemFormState => ({
   discountStart: "",
   discountEnd: "",
   preOrderEnabled: false,
-  preOrderStart: "",
-  preOrderEnd: "",
-  preOrderFulfillmentDate: "",
-  preOrderDepositAmount: 0,
 });
 
 const cloneFormState = (state: StoreItemFormState): StoreItemFormState => ({
@@ -181,14 +173,6 @@ const StoreItemDialog: React.FC<StoreItemDialogProps> = ({
           discountStart: toInputValue((item as any).discountStart),
           discountEnd: toInputValue((item as any).discountEnd),
           preOrderEnabled: Boolean((item as any).preOrderEnabled),
-          preOrderStart: toInputValue((item as any).preOrderStart),
-          preOrderEnd: toInputValue((item as any).preOrderEnd),
-          preOrderFulfillmentDate: toInputValue(
-            (item as any).preOrderFulfillmentDate
-          ),
-          preOrderDepositAmount: Number(
-            (item as any).preOrderDepositAmount ?? 0
-          ),
         };
         setFormData(nextFormState);
         initialFormDataRef.current = cloneFormState(nextFormState);
@@ -345,16 +329,6 @@ const StoreItemDialog: React.FC<StoreItemDialogProps> = ({
       }));
     };
 
-  const handlePreOrderDateChange =
-    (field: "preOrderStart" | "preOrderEnd" | "preOrderFulfillmentDate") =>
-    (event: React.ChangeEvent<HTMLInputElement>) => {
-      const value = event.target.value;
-      setFormData((prev) => ({
-        ...prev,
-        [field]: value || "",
-      }));
-    };
-
   // Handle form submission
   const handleSubmit = async () => {
     // Validation
@@ -459,14 +433,6 @@ const StoreItemDialog: React.FC<StoreItemDialogProps> = ({
       appendDateField("discountStart", formData.discountStart, toStartOfDayISO);
       appendDateField("discountEnd", formData.discountEnd, toEndOfDayISO);
       appendField("preOrderEnabled", formData.preOrderEnabled);
-      appendDateField("preOrderStart", formData.preOrderStart, toStartOfDayISO);
-      appendDateField("preOrderEnd", formData.preOrderEnd, toEndOfDayISO);
-      appendDateField(
-        "preOrderFulfillmentDate",
-        formData.preOrderFulfillmentDate,
-        toStartOfDayISO
-      );
-      appendField("preOrderDepositAmount", formData.preOrderDepositAmount);
 
       // Add tags
       if (shouldIncludeField("categories")) {
@@ -871,62 +837,12 @@ const StoreItemDialog: React.FC<StoreItemDialogProps> = ({
 
                   <Collapse in={formData.preOrderEnabled} unmountOnExit>
                     <Stack spacing={2} sx={{ mt: 1 }}>
-                      <Stack
-                        direction={{ xs: "column", sm: "row" }}
-                        spacing={2}
-                      >
-                        <TextField
-                          label="Pre-order starts"
-                          type="date"
-                          size="small"
-                          value={toInputValue(formData.preOrderStart)}
-                          onChange={handlePreOrderDateChange("preOrderStart")}
-                          fullWidth
-                          InputLabelProps={{ shrink: true }}
-                        />
-                        <TextField
-                          label="Pre-order ends"
-                          type="date"
-                          size="small"
-                          value={toInputValue(formData.preOrderEnd)}
-                          onChange={handlePreOrderDateChange("preOrderEnd")}
-                          fullWidth
-                          InputLabelProps={{ shrink: true }}
-                        />
-                      </Stack>
-
-                      <TextField
-                        label="Estimated fulfillment date"
-                        type="date"
-                        size="small"
-                        value={toInputValue(formData.preOrderFulfillmentDate)}
-                        onChange={handlePreOrderDateChange(
-                          "preOrderFulfillmentDate"
-                        )}
-                        fullWidth
-                        InputLabelProps={{ shrink: true }}
-                        helperText="Let customers know when to expect shipping"
-                      />
-
-                      <TextField
-                        label="Deposit amount"
-                        type="number"
-                        size="small"
-                        inputProps={{ min: 0, step: 0.01 }}
-                        value={formData.preOrderDepositAmount}
-                        onChange={(e) =>
-                          setFormData((prev) => ({
-                            ...prev,
-                            preOrderDepositAmount: Number(e.target.value) || 0,
-                          }))
-                        }
-                        InputProps={{
-                          startAdornment: (
-                            <InputAdornment position="start">$</InputAdornment>
-                          ),
-                        }}
-                        helperText="Charged per unit during checkout"
-                      />
+                      <Typography variant="body2" color="text.secondary">
+                        When enabled, customers can place pre-orders whenever
+                        this product sells out. Those orders are flagged for
+                        your team so they can be fulfilled once inventory is
+                        replenished.
+                      </Typography>
                     </Stack>
                   </Collapse>
                 </Stack>

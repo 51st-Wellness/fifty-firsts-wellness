@@ -543,51 +543,8 @@ const ManagementMarketplace: React.FC = () => {
                             </Box>
                           )}
 
-                        {selected.preOrderEnabled && (
-                          <Box
-                            sx={{
-                              mb: 2,
-                              p: 2,
-                              borderRadius: 2,
-                              bgcolor: "primary.light",
-                              color: "primary.contrastText",
-                            }}
-                          >
-                            <Typography
-                              variant="subtitle2"
-                              sx={{ fontWeight: 600, mb: 0.5 }}
-                            >
-                              Pre-order details
-                            </Typography>
-                            <Typography variant="body2">
-                              Window:{" "}
-                              {formatDateRange(
-                                selected.preOrderStart,
-                                selected.preOrderEnd
-                              )}
-                            </Typography>
-                            <Typography variant="body2">
-                              Fulfillment:{" "}
-                              {formatDate(selected.preOrderFulfillmentDate) ||
-                                "TBD"}
-                            </Typography>
-                            <Typography variant="body2">
-                              Deposit due now:{" "}
-                              {formatCurrency(selected.preOrderDepositAmount) ||
-                                "$0.00"}
-                            </Typography>
-                            {typeof selected.reservedPreOrderQuantity ===
-                              "number" && (
-                              <Typography variant="body2">
-                                Reserved: {selected.reservedPreOrderQuantity}{" "}
-                                units
-                              </Typography>
-                            )}
-                          </Box>
-                        )}
-
                         {/* Status */}
-                        <Box sx={{ display: "flex", gap: 1 }}>
+                        <Box sx={{ display: "flex", gap: 1, flexWrap: "wrap" }}>
                           {selected.isFeatured && (
                             <Chip label="Featured" color="primary" />
                           )}
@@ -601,6 +558,13 @@ const ManagementMarketplace: React.FC = () => {
                             />
                           ) : (
                             <Chip label="Draft" color="default" />
+                          )}
+                          {selected.preOrderEnabled && (
+                            <Chip
+                              label="Pre-orders enabled"
+                              variant="outlined"
+                              color="primary"
+                            />
                           )}
                         </Box>
                       </Box>

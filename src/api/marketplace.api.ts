@@ -25,22 +25,6 @@ export const fetchStoreItemById = async (
   return data as ResponseDto<StoreItem>;
 };
 
-// Preorder a product (stub endpoint to be aligned with backend)
-export const preorderProduct = async (
-  productId: string
-): Promise<ResponseDto<{ productId: string; count: number }>> => {
-  const { data } = await http.post(`/product/store/${productId}/preorder`);
-  return data as ResponseDto<{ productId: string; count: number }>;
-};
-
-// Opt into back-in-stock notification
-export const notifyWhenAvailable = async (
-  productId: string
-): Promise<ResponseDto<{ productId: string }>> => {
-  const { data } = await http.post(`/product/store/${productId}/notify`);
-  return data as ResponseDto<{ productId: string }>;
-};
-
 // Create a store item (Admin) - supports FormData for file uploads
 export const createStoreItem = async (
   payload:

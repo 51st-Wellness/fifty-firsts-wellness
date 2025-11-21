@@ -9,28 +9,7 @@ import { useNavigate } from "react-router-dom";
 import Price from "./Price";
 import { getStoreItemPricing } from "../utils/discounts";
 import { useGlobalDiscount } from "../context/GlobalDiscountContext";
-import { preorderProduct } from "../api/marketplace.api";
 import toast from "react-hot-toast";
-
-const formatCurrency = (value: number, currency = "USD") =>
-  new Intl.NumberFormat("en-GB", {
-    style: "currency",
-    currency,
-    minimumFractionDigits: 2,
-  }).format(value ?? 0);
-
-const formatPreOrderDate = (value?: string | Date | null) => {
-  if (!value) return null;
-  const date = value instanceof Date ? value : new Date(value);
-  if (Number.isNaN(date.getTime())) {
-    return null;
-  }
-  return new Intl.DateTimeFormat("en-GB", {
-    month: "short",
-    day: "numeric",
-    year: "numeric",
-  }).format(date);
-};
 
 interface StoreItemCardProps {
   item: StoreItem;
@@ -60,37 +39,7 @@ const StoreItemCard: React.FC<StoreItemCardProps> = ({
   const [notifyOpen, setNotifyOpen] = useState(false);
 
   const preOrderEnabled = Boolean((item as any).preOrderEnabled);
-  const preOrderDepositAmount = Number(
-    (item as any).preOrderDepositAmount ?? 0
-  );
-  const preOrderFulfillmentDate = (item as any).preOrderFulfillmentDate;
-  const preOrderStart = (item as any).preOrderStart;
-  const preOrderEnd = (item as any).preOrderEnd;
-
-  const isPreOrderWindowActive = useMemo(() => {
-    if (!preOrderEnabled) return false;
-    const now = new Date();
-    const startDate = preOrderStart ? new Date(preOrderStart) : null;
-    const endDate = preOrderEnd ? new Date(preOrderEnd) : null;
-    if (startDate && now < startDate) return false;
-    if (endDate && now > endDate) return false;
-    return true;
-  }, [preOrderEnabled, preOrderStart, preOrderEnd]);
-
-  const preOrderDueNowPerUnit = useMemo(() => {
-    if (!preOrderEnabled) return 0;
-    return preOrderDepositAmount > 0 ? preOrderDepositAmount : displayPrice;
-  }, [preOrderEnabled, preOrderDepositAmount, displayPrice]);
-
-  const preOrderBalancePerUnit = Math.max(
-    displayPrice - preOrderDueNowPerUnit,
-    0
-  );
-
-  const formattedFulfillmentDate = useMemo(
-    () => formatPreOrderDate(preOrderFulfillmentDate),
-    [preOrderFulfillmentDate]
-  );
+  const canPreOrder = preOrderEnabled && (item.stock ?? 0) <= 0;
 
   const currentQuantity = getItemQuantity(item.productId);
   const inCart = isInCart(item.productId);
@@ -118,9 +67,23 @@ const StoreItemCard: React.FC<StoreItemCardProps> = ({
 
   const isComingSoon = (item as any)?.status === "coming_soon";
   const isOutOfStock = item.stock === 0;
-  const showAddToCart = !preOrderEnabled && !isComingSoon && !isOutOfStock;
-  const showLegacyPreOrderBlock =
-    !preOrderEnabled && (isComingSoon || isOutOfStock);
+  const showAddToCart = !canPreOrder && !isComingSoon && !isOutOfStock;
+  const showNotifyOnly = !canPreOrder && (isComingSoon || isOutOfStock);
+
+  const handlePreOrder = async () => {
+    if (!isAuthenticated || !canPreOrder) return;
+
+    try {
+      setItemLoading(true);
+      await addToCart(item.productId, 1);
+      toast.success("Pre-order item added to cart");
+    } catch (error) {
+      console.error("Failed to add pre-order item to cart:", error);
+      toast.error("Failed to add pre-order item to cart");
+    } finally {
+      setItemLoading(false);
+    }
+  };
 
   const handleCardClick = (e: React.MouseEvent) => {
     // Prevent opening dialog when clicking on cart buttons
@@ -150,7 +113,7 @@ const StoreItemCard: React.FC<StoreItemCardProps> = ({
               <ShoppingCart className="w-12 h-12 text-gray-400" />
             </div>
           )}
-          {preOrderEnabled && (
+          {canPreOrder && (
             <span className="absolute top-2 left-2 inline-flex items-center gap-1 rounded-full bg-white/90 px-3 py-1 text-[10px] font-semibold uppercase text-brand-green shadow-sm">
               <Package className="w-3 h-3" />
               Pre-order
@@ -176,30 +139,12 @@ const StoreItemCard: React.FC<StoreItemCardProps> = ({
             />
           </div>
 
-          {preOrderEnabled && (
+          {canPreOrder && (
             <div className="mt-1.5 rounded-xl bg-brand-green/5 border border-dashed border-brand-green/40 p-2 text-[11px] text-gray-600">
-              <div className="flex items-center justify-between text-[10px] uppercase tracking-wide text-gray-500">
-                <span>Pay today</span>
-                <span className="font-semibold text-gray-900">
-                  {formatCurrency(preOrderDueNowPerUnit)}
-                </span>
-              </div>
-              {preOrderBalancePerUnit > 0 && (
-                <div className="flex items-center justify-between text-[10px] text-gray-500 mt-0.5">
-                  <span>Balance on dispatch</span>
-                  <span>{formatCurrency(preOrderBalancePerUnit)}</span>
-                </div>
-              )}
-              {formattedFulfillmentDate && (
-                <p className="mt-1 text-[10px] text-gray-500">
-                  Est. ships {formattedFulfillmentDate}
-                </p>
-              )}
-              {!isPreOrderWindowActive && (
-                <p className="mt-1 text-[10px] text-amber-600 font-medium">
-                  Pre-order window closed — notifications only.
-                </p>
-              )}
+              <p className="text-[10px] text-gray-600">
+                Pre-order now — you’ll be charged today and notified once the
+                item is ready to ship.
+              </p>
             </div>
           )}
 
@@ -228,38 +173,30 @@ const StoreItemCard: React.FC<StoreItemCardProps> = ({
             className="mt-auto pt-0.5 md:pt-2 cart-controls flex flex-wrap items-center gap-2"
             onClick={(e) => e.stopPropagation()}
           >
-            {preOrderEnabled ? (
+            {canPreOrder ? (
               <div className="w-full space-y-2">
                 <span className="relative group block">
                   <button
                     type="button"
-                    onClick={async () => {
-                      if (!isAuthenticated || !isPreOrderWindowActive) return;
-                      try {
-                        await preorderProduct(item.productId);
-                        toast.success("Pre-order placed");
-                      } catch (e) {
-                        toast.error("Failed to place pre-order");
-                      }
-                    }}
-                    disabled={!isAuthenticated || !isPreOrderWindowActive}
+                    onClick={handlePreOrder}
+                    disabled={!isAuthenticated || !canPreOrder || itemLoading}
                     title={
                       !isAuthenticated
                         ? "Login required to pre-order"
-                        : !isPreOrderWindowActive
-                        ? "Pre-order window inactive"
                         : undefined
                     }
                     className="w-full inline-flex items-center justify-center gap-1 md:gap-2 bg-brand-green text-white px-2 md:px-4 py-1.5 md:py-2 rounded-full text-[10px] md:text-sm font-semibold hover:bg-brand-green-dark transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
                   >
-                    <Package className="w-3 h-3 md:w-4 md:h-4" />
+                    {itemLoading ? (
+                      <div className="animate-spin rounded-full h-3 w-3 md:h-4 md:w-4 border-2 border-white border-t-transparent"></div>
+                    ) : (
+                      <Package className="w-3 h-3 md:w-4 md:h-4" />
+                    )}
                     <span className="hidden md:inline">
-                      {isPreOrderWindowActive
-                        ? "Pre-order now"
-                        : "Pre-orders closed"}
+                      {itemLoading ? "Adding..." : "Pre-order now"}
                     </span>
                     <span className="md:hidden">
-                      {isPreOrderWindowActive ? "Pre-order" : "Closed"}
+                      {itemLoading ? "..." : "Pre-order"}
                     </span>
                   </button>
                   {!isAuthenticated && (
@@ -270,10 +207,7 @@ const StoreItemCard: React.FC<StoreItemCardProps> = ({
                 </span>
                 <div className="flex items-center justify-between">
                   <span className="text-[10px] text-gray-500">
-                    Deposit due today:{" "}
-                    <strong className="text-gray-900">
-                      {formatCurrency(preOrderDueNowPerUnit)}
-                    </strong>
+                    Want updates?
                   </span>
                   <span className="relative group">
                     <button
@@ -334,38 +268,8 @@ const StoreItemCard: React.FC<StoreItemCardProps> = ({
               </span>
             ) : null}
 
-            {showLegacyPreOrderBlock && (
+            {showNotifyOnly && (
               <div className="w-full flex items-center justify-between gap-3">
-                <span className="relative group flex-1">
-                  <button
-                    type="button"
-                    onClick={async () => {
-                      if (!isAuthenticated) return;
-                      try {
-                        await preorderProduct(item.productId);
-                        toast.success("Pre‑order placed");
-                      } catch (e) {
-                        toast.error("Failed to place pre‑order");
-                      }
-                    }}
-                    disabled={!isAuthenticated}
-                    title={
-                      !isAuthenticated
-                        ? "Login required to pre‑order"
-                        : undefined
-                    }
-                    className="w-full inline-flex items-center justify-center gap-1 md:gap-2 bg-brand-green text-white px-2 md:px-4 py-1.5 md:py-2 rounded-full text-[10px] md:text-sm font-semibold hover:bg-brand-green-dark transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
-                  >
-                    <Package className="w-3 h-3 md:w-4 md:h-4" />
-                    <span className="hidden md:inline">Pre‑Order</span>
-                    <span className="md:hidden">Pre‑Order</span>
-                  </button>
-                  {!isAuthenticated && (
-                    <div className="pointer-events-none absolute -top-9 left-1/2 -translate-x-1/2 whitespace-nowrap bg-gray-900 text-white text-[10px] px-2 py-1 rounded opacity-0 group-hover:opacity-100 transition-opacity">
-                      Login required
-                    </div>
-                  )}
-                </span>
                 <span className="relative group">
                   <button
                     type="button"

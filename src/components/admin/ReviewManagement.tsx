@@ -41,7 +41,7 @@ import {
 } from "../../api/review.api";
 import type { AdminReview } from "../../types/review.types";
 import ReviewDetailsModal from "./ReviewDetailsModal";
-
+import { ResponseStatus } from "../../types/response.types";
 // Keep local Review type for backward compatibility with existing code
 export interface Review {
   id: string;
@@ -235,7 +235,7 @@ const ReviewManagement: React.FC = () => {
         search: searchQuery || undefined,
       });
 
-      if (response.status === "success" && response.data) {
+      if (response.status === ResponseStatus.SUCCESS && response.data) {
         setReviews(response.data.reviews || []);
         setTotalReviews(response.data.pagination?.total || 0);
       }

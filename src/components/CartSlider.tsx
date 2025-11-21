@@ -84,9 +84,9 @@ const CartSlider: React.FC<CartSliderProps> = ({ isOpen, onClose }) => {
     const unitPrice = pricing?.currentPrice ?? storeItem?.price ?? 0;
     const lineTotal = unitPrice * quantity;
     return (
-      <div className="relative bg-white rounded-xl p-4 flex items-start gap-4">
+      <div className="relative bg-white rounded-xl p-4 sm:p-5 flex items-start gap-3 sm:gap-4">
         {/* Image left */}
-        <div className="w-20 h-20 bg-gray-100 rounded-lg flex-shrink-0 overflow-hidden">
+        <div className="w-16 h-16 sm:w-20 sm:h-20 bg-gray-100 rounded-lg flex-shrink-0 overflow-hidden">
           {storeItem.display?.url ? (
             <img
               src={storeItem.display.url}
@@ -95,34 +95,36 @@ const CartSlider: React.FC<CartSliderProps> = ({ isOpen, onClose }) => {
             />
           ) : (
             <div className="w-full h-full flex items-center justify-center text-gray-400">
-              <ShoppingCart className="w-8 h-8" />
+              <ShoppingCart className="w-6 h-6 sm:w-8 sm:h-8" />
             </div>
           )}
         </div>
 
-        {/* Top right of image: product name, category below */}
-        <div className="flex-1 min-w-0">
-          <h4 className="font-semibold text-gray-900 text-sm line-clamp-1">
+        {/* Middle section: product name, category, quantity controls */}
+        <div className="flex-1 min-w-0 pr-20 sm:pr-24">
+          <h4 className="font-semibold text-gray-900 text-sm sm:text-base line-clamp-2 leading-tight">
             {storeItem.name}
           </h4>
-          <p className="text-xs text-gray-500 mt-1">Category: {category}</p>
+          <p className="text-xs text-gray-500 mt-1 leading-snug">
+            Category: {category}
+          </p>
 
-          {/* Bottom right of image: quantity controls */}
+          {/* Quantity controls */}
           <div className="flex items-center gap-2 mt-3">
             <button
               onClick={() => handleQuantityChange(item.productId, quantity - 1)}
               disabled={isLoading}
-              className="w-8 h-8 rounded-full bg-brand-green hover:bg-brand-green-dark flex items-center justify-center disabled:opacity-50"
+              className="w-8 h-8 rounded-full bg-brand-green hover:bg-brand-green-dark flex items-center justify-center disabled:opacity-50 transition-colors"
             >
               <Minus className="w-4 h-4 text-white" />
             </button>
-            <span className="w-8 text-center text-sm font-medium">
+            <span className="w-8 text-center text-sm font-medium text-gray-900">
               {quantity}
             </span>
             <button
               onClick={() => handleQuantityChange(item.productId, quantity + 1)}
               disabled={isLoading}
-              className="w-8 h-8 rounded-full bg-brand-green hover:bg-brand-green-dark flex items-center justify-center disabled:opacity-50"
+              className="w-8 h-8 rounded-full bg-brand-green hover:bg-brand-green-dark flex items-center justify-center disabled:opacity-50 transition-colors"
             >
               <Plus className="w-4 h-4 text-white" />
             </button>
@@ -130,21 +132,23 @@ const CartSlider: React.FC<CartSliderProps> = ({ isOpen, onClose }) => {
         </div>
 
         {/* Top right of card: price */}
-        <div className="absolute top-4 right-4 text-right space-y-1">
-          <div className="text-sm font-semibold text-gray-900">
+        <div className="absolute top-4 right-4 text-right space-y-0.5 sm:space-y-1 min-w-[80px] sm:min-w-[100px]">
+          <div className="text-xs sm:text-sm font-semibold text-gray-900 leading-tight">
             {formatPrice(unitPrice)}
-            <span className="ml-1 text-xs text-gray-500">ea</span>
+            <span className="ml-1 text-[10px] sm:text-xs text-gray-500">
+              ea
+            </span>
           </div>
           {pricing?.hasDiscount && (
-            <div className="text-xs text-gray-500 line-through">
+            <div className="text-[10px] sm:text-xs text-gray-500 line-through leading-tight">
               {formatPrice(pricing.basePrice)}
             </div>
           )}
-          <div className="text-xs text-gray-500">
+          <div className="text-[10px] sm:text-xs text-gray-500 leading-tight">
             Subtotal: {formatPrice(lineTotal)}
           </div>
           {pricing?.hasDiscount && (
-            <span className="inline-flex items-center justify-end text-[10px] font-semibold uppercase tracking-wide text-brand-green">
+            <span className="inline-flex items-center justify-end text-[9px] sm:text-[10px] font-semibold uppercase tracking-wide text-brand-green leading-tight mt-0.5">
               {pricing.appliedSource === "GLOBAL"
                 ? `Global -${pricing.discountPercent}%`
                 : `-${pricing.discountPercent}%`}
@@ -157,9 +161,10 @@ const CartSlider: React.FC<CartSliderProps> = ({ isOpen, onClose }) => {
           <button
             onClick={() => removeFromCart(item.productId)}
             disabled={isLoading}
-            className="text-red-600 hover:text-red-700 p-2 rounded-full hover:bg-red-50 disabled:opacity-50"
+            className="text-red-600 hover:text-red-700 p-1.5 sm:p-2 rounded-full hover:bg-red-50 disabled:opacity-50 transition-colors"
+            aria-label="Remove item"
           >
-            <Trash2 className="w-4 h-4" />
+            <Trash2 className="w-3.5 h-3.5 sm:w-4 sm:h-4" />
           </button>
         </div>
       </div>

@@ -34,11 +34,6 @@ export type StoreItem = {
   averageRating?: number;
   reviewCount?: number;
   preOrderEnabled?: boolean;
-  preOrderStart?: string | Date | null;
-  preOrderEnd?: string | Date | null;
-  preOrderFulfillmentDate?: string | Date | null;
-  preOrderDepositAmount?: number;
-  reservedPreOrderQuantity?: number;
 };
 
 export type StoreItemListParams = {

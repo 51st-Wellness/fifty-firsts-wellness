@@ -26,6 +26,7 @@ import { cartAPI } from "../../api/cart.api";
 import { useNavigate } from "react-router-dom";
 import SubmitReviewModal from "../../components/SubmitReviewModal";
 import { checkUserReviewForOrderItem } from "../../api/review.api";
+import { ResponseStatus } from "@/types/response.types";
 
 const OrdersHistory: React.FC = () => {
   const [orders, setOrders] = useState<OrderSummary[]>([]);
@@ -107,7 +108,7 @@ const OrdersHistory: React.FC = () => {
     try {
       const response = await getMyOrders();
       if (
-        (response.status === "SUCCESS" || response.status === "success") &&
+        (response.status === ResponseStatus.SUCCESS) &&
         response.data?.orders
       ) {
         setOrders(response.data.orders);
@@ -130,7 +131,7 @@ const OrdersHistory: React.FC = () => {
       setLoadingDetailOrderId(orderId);
       const response = await getMyOrder(orderId);
       if (
-        (response.status === "SUCCESS" || response.status === "success") &&
+        (response.status === ResponseStatus.SUCCESS) &&
         response.data?.order
       ) {
         const order = response.data.order;
@@ -211,12 +212,11 @@ const OrdersHistory: React.FC = () => {
 
         if (
           !(
-            (addResponse.status === "SUCCESS" ||
-              addResponse.status === "success") &&
+            (addResponse.status === ResponseStatus.SUCCESS) &&
             addResponse.data
           )
         ) {
-          throw new Error(addResponse.message || "Unable to add item to cart");
+          throw new Error(addResponse?.message || "Unable to add item to cart");
         }
       }
 
@@ -244,7 +244,7 @@ const OrdersHistory: React.FC = () => {
       setVerifyingOrderId(orderId);
       const response = await verifyOrderPayment(orderId);
       if (
-        (response.status === "SUCCESS" || response.status === "success") &&
+        (response.status === ResponseStatus.SUCCESS) &&
         response.data
       ) {
         if (response.data.updated) {
@@ -294,9 +294,8 @@ const OrdersHistory: React.FC = () => {
       setCheckingReviews((prev) => new Set(prev).add(orderItemId));
       const response = await checkUserReviewForOrderItem(orderItemId);
       if (
-        (response.status === "SUCCESS" || response.status === "success") &&
-        response.data &&
-        response.data.hasReviewed
+        (response.status === ResponseStatus.SUCCESS) &&
+        response.data?.hasReviewed
       ) {
         setReviewedOrderItems((prev) => new Set(prev).add(orderItemId));
       }
