@@ -81,7 +81,35 @@ const StoreItemDialog: React.FC<StoreItemDialogProps> = ({
   const [ingredientInput, setIngredientInput] = useState("");
   const toIsoString = (value?: string | Date | null) =>
     value ? new Date(value).toISOString() : "";
-  const toInputValue = (value?: string) => (value ? value.slice(0, 16) : "");
+
+  // Extract date part (YYYY-MM-DD) from ISO string for date input
+  const toInputValue = (value?: string | Date | null) => {
+    if (!value) return "";
+    const date = value instanceof Date ? value : new Date(value);
+    if (isNaN(date.getTime())) return "";
+    const year = date.getFullYear();
+    const month = String(date.getMonth() + 1).padStart(2, "0");
+    const day = String(date.getDate()).padStart(2, "0");
+    return `${year}-${month}-${day}`;
+  };
+
+  // Convert date string to ISO with start of day (00:00:00)
+  const toStartOfDayISO = (dateString?: string) => {
+    if (!dateString) return "";
+    const date = new Date(dateString);
+    if (isNaN(date.getTime())) return "";
+    date.setHours(0, 0, 0, 0);
+    return date.toISOString();
+  };
+
+  // Convert date string to ISO with end of day (23:59:59)
+  const toEndOfDayISO = (dateString?: string) => {
+    if (!dateString) return "";
+    const date = new Date(dateString);
+    if (isNaN(date.getTime())) return "";
+    date.setHours(23, 59, 59, 999);
+    return date.toISOString();
+  };
 
   // Reset form when dialog opens/closes or item changes
   useEffect(() => {
@@ -105,12 +133,12 @@ const StoreItemDialog: React.FC<StoreItemDialogProps> = ({
             (item as any).discountActive &&
               (item as any).discountType !== "NONE"
           ),
-          discountStart: toIsoString((item as any).discountStart),
-          discountEnd: toIsoString((item as any).discountEnd),
+          discountStart: toInputValue((item as any).discountStart),
+          discountEnd: toInputValue((item as any).discountEnd),
           preOrderEnabled: Boolean((item as any).preOrderEnabled),
-          preOrderStart: toIsoString((item as any).preOrderStart),
-          preOrderEnd: toIsoString((item as any).preOrderEnd),
-          preOrderFulfillmentDate: toIsoString(
+          preOrderStart: toInputValue((item as any).preOrderStart),
+          preOrderEnd: toInputValue((item as any).preOrderEnd),
+          preOrderFulfillmentDate: toInputValue(
             (item as any).preOrderFulfillmentDate
           ),
           preOrderDepositRequired: Boolean(
@@ -281,7 +309,7 @@ const StoreItemDialog: React.FC<StoreItemDialogProps> = ({
       const value = event.target.value;
       setFormData((prev) => ({
         ...prev,
-        [field]: value ? new Date(value).toISOString() : "",
+        [field]: value || "",
       }));
     };
 
@@ -291,7 +319,7 @@ const StoreItemDialog: React.FC<StoreItemDialogProps> = ({
       const value = event.target.value;
       setFormData((prev) => ({
         ...prev,
-        [field]: value ? new Date(value).toISOString() : "",
+        [field]: value || "",
       }));
     };
 
@@ -330,22 +358,28 @@ const StoreItemDialog: React.FC<StoreItemDialogProps> = ({
       submitData.append("discountValue", formData.discountValue.toString());
       submitData.append("discountActive", formData.discountActive.toString());
       if (formData.discountStart) {
-        submitData.append("discountStart", formData.discountStart);
+        submitData.append(
+          "discountStart",
+          toStartOfDayISO(formData.discountStart)
+        );
       }
       if (formData.discountEnd) {
-        submitData.append("discountEnd", formData.discountEnd);
+        submitData.append("discountEnd", toEndOfDayISO(formData.discountEnd));
       }
       submitData.append("preOrderEnabled", formData.preOrderEnabled.toString());
       if (formData.preOrderStart) {
-        submitData.append("preOrderStart", formData.preOrderStart);
+        submitData.append(
+          "preOrderStart",
+          toStartOfDayISO(formData.preOrderStart)
+        );
       }
       if (formData.preOrderEnd) {
-        submitData.append("preOrderEnd", formData.preOrderEnd);
+        submitData.append("preOrderEnd", toEndOfDayISO(formData.preOrderEnd));
       }
       if (formData.preOrderFulfillmentDate) {
         submitData.append(
           "preOrderFulfillmentDate",
-          formData.preOrderFulfillmentDate
+          toStartOfDayISO(formData.preOrderFulfillmentDate)
         );
       }
       submitData.append(
@@ -508,7 +542,7 @@ const StoreItemDialog: React.FC<StoreItemDialogProps> = ({
               <Box>
                 <TextField
                   fullWidth
-                  label="Product Usage"
+                  label="Product Usage (optional)"
                   placeholder="How to use this product"
                   multiline
                   rows={4}
@@ -525,7 +559,7 @@ const StoreItemDialog: React.FC<StoreItemDialogProps> = ({
               <Box>
                 <TextField
                   fullWidth
-                  label="Product Benefits"
+                  label="Product Benefits (optional)"
                   placeholder="Benefits of using this product"
                   multiline
                   rows={4}
@@ -641,21 +675,50 @@ const StoreItemDialog: React.FC<StoreItemDialogProps> = ({
               <Box>
                 <Divider sx={{ my: 1 }} />
                 <Stack spacing={2}>
-                  <Typography variant="subtitle2">Discounts</Typography>
-                  <TextField
-                    select
-                    label="Discount type"
-                    size="small"
-                    value={formData.discountType}
-                    onChange={handleDiscountTypeChange}
+                  <Stack
+                    direction={{ xs: "column", sm: "row" }}
+                    justifyContent="space-between"
+                    alignItems={{ xs: "flex-start", sm: "center" }}
+                    spacing={1}
                   >
-                    <MenuItem value="NONE">None</MenuItem>
-                    <MenuItem value="PERCENTAGE">Percentage</MenuItem>
-                    <MenuItem value="FLAT">Flat amount</MenuItem>
-                  </TextField>
+                    <Typography variant="subtitle2">
+                      Discount settings
+                    </Typography>
+                    <FormControlLabel
+                      control={
+                        <Switch
+                          checked={formData.discountType !== "NONE"}
+                          onChange={(e) =>
+                            setFormData((prev) => ({
+                              ...prev,
+                              discountType: e.target.checked
+                                ? "PERCENTAGE"
+                                : "NONE",
+                              discountActive: e.target.checked
+                                ? prev.discountActive
+                                : false,
+                            }))
+                          }
+                        />
+                      }
+                      label="Enable discounts"
+                    />
+                  </Stack>
 
-                  {formData.discountType !== "NONE" && (
-                    <>
+                  <Collapse in={formData.discountType !== "NONE"} unmountOnExit>
+                    <Stack spacing={2} sx={{ mt: 1 }}>
+                      <TextField
+                        select
+                        label="Discount type"
+                        size="small"
+                        value={formData.discountType}
+                        onChange={handleDiscountTypeChange}
+                        fullWidth
+                      >
+                        <MenuItem value="PERCENTAGE">Percentage</MenuItem>
+                        <MenuItem value="FLAT">Flat amount</MenuItem>
+                      </TextField>
+
                       <Stack
                         direction={{ xs: "column", sm: "row" }}
                         spacing={2}
@@ -697,7 +760,7 @@ const StoreItemDialog: React.FC<StoreItemDialogProps> = ({
                       >
                         <TextField
                           label="Starts at"
-                          type="datetime-local"
+                          type="date"
                           size="small"
                           value={toInputValue(formData.discountStart)}
                           onChange={handleDiscountDateChange("discountStart")}
@@ -706,7 +769,7 @@ const StoreItemDialog: React.FC<StoreItemDialogProps> = ({
                         />
                         <TextField
                           label="Ends at"
-                          type="datetime-local"
+                          type="date"
                           size="small"
                           value={toInputValue(formData.discountEnd)}
                           onChange={handleDiscountDateChange("discountEnd")}
@@ -714,8 +777,8 @@ const StoreItemDialog: React.FC<StoreItemDialogProps> = ({
                           InputLabelProps={{ shrink: true }}
                         />
                       </Stack>
-                    </>
-                  )}
+                    </Stack>
+                  </Collapse>
                 </Stack>
               </Box>
 
@@ -755,7 +818,7 @@ const StoreItemDialog: React.FC<StoreItemDialogProps> = ({
                       >
                         <TextField
                           label="Pre-order starts"
-                          type="datetime-local"
+                          type="date"
                           size="small"
                           value={toInputValue(formData.preOrderStart)}
                           onChange={handlePreOrderDateChange("preOrderStart")}
@@ -764,7 +827,7 @@ const StoreItemDialog: React.FC<StoreItemDialogProps> = ({
                         />
                         <TextField
                           label="Pre-order ends"
-                          type="datetime-local"
+                          type="date"
                           size="small"
                           value={toInputValue(formData.preOrderEnd)}
                           onChange={handlePreOrderDateChange("preOrderEnd")}
@@ -775,7 +838,7 @@ const StoreItemDialog: React.FC<StoreItemDialogProps> = ({
 
                       <TextField
                         label="Estimated fulfillment date"
-                        type="datetime-local"
+                        type="date"
                         size="small"
                         value={toInputValue(formData.preOrderFulfillmentDate)}
                         onChange={handlePreOrderDateChange(
