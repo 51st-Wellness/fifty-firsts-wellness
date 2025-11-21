@@ -125,7 +125,6 @@ const Checkout: React.FC = () => {
   const hasPreOrders =
     summary?.orderItems?.some((orderItem) => orderItem.isPreOrder) ?? false;
   const totalDueToday = orderTotals.subtotal;
-  const remainingBalanceTotal = 0;
 
   useEffect(() => {
     if (!isAuthenticated) {
@@ -495,13 +494,8 @@ const Checkout: React.FC = () => {
               {hasPreOrders && (
                 <div className="mb-4 rounded-2xl border border-amber-200 bg-amber-50/80 p-3 text-xs text-amber-900">
                   <p className="font-semibold">
-                    Pre-orders detected — pay deposits today, remaining at
-                    dispatch.
-                  </p>
-                  <p className="mt-1 text-[11px] text-amber-800/90">
-                    Due now: {formatCurrency(totalDueToday, currencyCode)} ·
-                    Remaining later:{" "}
-                    {formatCurrency(remainingBalanceTotal, currencyCode)}
+                    Pre-order items included — we'll notify you once they're
+                    ready to ship.
                   </p>
                 </div>
               )}
@@ -688,7 +682,7 @@ const Checkout: React.FC = () => {
                         <span>Items ({orderTotals.itemCount})</span>
                         <span>
                           {formatCurrency(
-                            orderTotals.baseSubtotal ?? orderTotals.subtotal,
+                            orderTotals.baseSubtotal,
                             currencyCode
                           )}
                         </span>
@@ -720,7 +714,7 @@ const Checkout: React.FC = () => {
                       <div className="flex justify-between text-gray-600">
                         <span>Delivery</span>
                         <span className="text-xs sm:text-sm">
-                          Calculated at dispatch
+                          Calculated separately
                         </span>
                       </div>
                       <div className="border-t border-gray-200 pt-3 flex justify-between items-center">

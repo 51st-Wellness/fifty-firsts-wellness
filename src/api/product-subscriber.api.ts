@@ -132,7 +132,13 @@ export const deleteSubscriber = async (
 // Send bulk email to product subscribers (Admin only)
 export const sendBulkEmail = async (
   data: BulkEmailDto
-): Promise<ResponseDto<{ totalSent: number; productName: string }>> => {
+): Promise<
+  ResponseDto<{
+    totalSent: number;
+    totalSubscribers: number;
+    productName: string;
+  }>
+> => {
   const response = await httpClient.post(
     "/product/store/subscribers/bulk-email",
     data
