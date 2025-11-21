@@ -1,5 +1,12 @@
-import React, { useState, useEffect, useCallback, useRef } from "react";
+import React, { useState, useEffect, useRef, useCallback } from "react";
 import { Check, ChevronsUpDown } from "lucide-react";
+import {
+  Combobox,
+  ComboboxInput,
+  ComboboxButton,
+  ComboboxOptions,
+  ComboboxOption,
+} from "@headlessui/react";
 import { debounce } from "lodash";
 
 export interface SelectOption {
@@ -37,7 +44,6 @@ export const SearchableSelect: React.FC<SearchableSelectProps> = ({
 }) => {
   const [query, setQuery] = useState("");
   const [options, setOptions] = useState<SelectOption[]>(staticOptions);
-  const [isOpen, setIsOpen] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const onSearchRef = useRef(onSearch);
 
@@ -51,11 +57,16 @@ export const SearchableSelect: React.FC<SearchableSelectProps> = ({
   // Debounced search function - use ref to avoid recreating on every render
   const debouncedSearch = useRef(
     debounce(async (searchQuery: string) => {
-      if (!onSearchRef.current) return;
+      const searchFn = onSearchRef.current;
+      if (!searchFn || !searchQuery.trim()) {
+        setOptions([]);
+        setIsLoading(false);
+        return;
+      }
 
       setIsLoading(true);
       try {
-        const results = await onSearchRef.current(searchQuery);
+        const results = await searchFn(searchQuery);
         setOptions(results);
       } catch (error) {
         console.error("Search error:", error);
@@ -68,9 +79,12 @@ export const SearchableSelect: React.FC<SearchableSelectProps> = ({
 
   // Handle query changes
   useEffect(() => {
-    if (onSearch && query.trim()) {
+    const hasSearchFn = typeof onSearch === "function";
+
+    if (hasSearchFn && query.trim()) {
+      setIsLoading(true);
       debouncedSearch(query);
-    } else if (!onSearch) {
+    } else if (!hasSearchFn) {
       // Filter static options
       const filtered =
         query === ""
@@ -79,24 +93,26 @@ export const SearchableSelect: React.FC<SearchableSelectProps> = ({
               option.label.toLowerCase().includes(query.toLowerCase())
             );
       setOptions(filtered);
-    } else if (onSearch && !query.trim()) {
+    } else if (hasSearchFn && !query.trim()) {
       // Clear options when query is empty and using onSearch
       setOptions([]);
+      setIsLoading(false);
     }
-  }, [query, onSearch, staticOptions]);
+  }, [query, onSearch, staticOptions, debouncedSearch]);
 
   // Reset options when static options change
   useEffect(() => {
-    if (!onSearch && !query) {
+    if (typeof onSearch !== "function" && !query) {
       setOptions(staticOptions);
     }
   }, [staticOptions, onSearch, query]);
 
-  const handleSelect = (selectedValue: string) => {
-    onChange(selectedValue);
-    setIsOpen(false);
-    setQuery("");
-  };
+  const filteredOptions =
+    query === ""
+      ? options
+      : options.filter((option) =>
+          option.label.toLowerCase().includes(query.toLowerCase())
+        );
 
   return (
     <div className={`relative w-full ${className}`}>
@@ -113,38 +129,34 @@ export const SearchableSelect: React.FC<SearchableSelectProps> = ({
         </label>
       )}
 
-      <div className="relative">
-        {/* Input Field */}
-        <button
-          type="button"
-          onClick={() => !disabled && setIsOpen(!isOpen)}
-          disabled={disabled}
-          className={`w-full px-4 py-3 text-left bg-white border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-brand-green focus:border-transparent transition-colors ${
-            disabled ? "bg-gray-100 cursor-not-allowed" : "cursor-pointer"
-          }`}
-          style={{ fontFamily: '"League Spartan", sans-serif' }}
-        >
-          <span className="block truncate text-gray-700">
-            {selectedOption?.label || placeholder}
-          </span>
-          <span className="absolute inset-y-0 right-0 flex items-center pr-3 pointer-events-none">
-            <ChevronsUpDown className="w-4 h-4 text-gray-400" />
-          </span>
-        </button>
-
-        {/* Dropdown */}
-        {isOpen && (
-          <>
-            {/* Backdrop */}
-            <div
-              className="fixed inset-0 z-10"
-              onClick={() => setIsOpen(false)}
+      <Combobox
+        value={value}
+        onChange={(newValue) => {
+          const selectedValue = newValue || "";
+          onChange(selectedValue);
+        }}
+        onClose={() => setQuery("")}
+        disabled={disabled}
+      >
+        <div className="relative w-full">
+          <div className="flex items-center w-full">
+            <ComboboxInput
+              className={`w-full py-3 pr-10 text-sm leading-5 bg-white border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-brand-green focus:border-transparent transition-colors text-gray-700 ${
+                disabled ? "bg-gray-100 cursor-not-allowed" : ""
+              }`}
+              style={{ fontFamily: '"League Spartan", sans-serif' }}
+              displayValue={() => selectedOption?.label || ""}
+              onChange={(event) => setQuery(event.target.value)}
+              placeholder={placeholder}
             />
-
-            {/* Options */}
-            <div className="absolute z-20 w-full mt-1 bg-white border border-gray-300 rounded-lg shadow-lg max-h-60 overflow-hidden">
-              {/* Search Input */}
-              <div className="p-2 border-b border-gray-200">
+            <ComboboxButton className="absolute right-0 inset-y-0 flex items-center pr-3 pointer-events-none">
+              <ChevronsUpDown className="w-4 h-4 text-gray-400 shrink-0" />
+            </ComboboxButton>
+          </div>
+          <ComboboxOptions className="absolute z-50 bg-white shadow-lg mt-1 py-1 border border-gray-300 rounded-lg focus:outline-none w-full max-h-60 overflow-auto text-sm">
+            {/* Search Input for HeadlessUI */}
+            {onSearch && (
+              <div className="p-2 border-b border-gray-200 sticky top-0 bg-white">
                 <input
                   type="text"
                   className="w-full px-3 py-2 text-sm border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-brand-green focus:border-transparent"
@@ -155,50 +167,55 @@ export const SearchableSelect: React.FC<SearchableSelectProps> = ({
                   style={{ fontFamily: '"League Spartan", sans-serif' }}
                 />
               </div>
+            )}
 
-              {/* Options List */}
-              <div className="overflow-y-auto max-h-48">
-                {isLoading ? (
-                  <div className="px-4 py-3 text-center text-sm text-gray-500">
-                    Loading...
-                  </div>
-                ) : options.length === 0 ? (
-                  <div className="px-4 py-3 text-center text-sm text-gray-500">
-                    {query !== "" ? emptyMessage : "No options available"}
-                  </div>
-                ) : (
-                  options.map((option) => (
-                    <button
-                      key={option.value}
-                      type="button"
-                      onClick={() => handleSelect(option.value)}
-                      className={`w-full px-4 py-2 text-left hover:bg-brand-green/10 transition-colors ${
-                        value === option.value ? "bg-brand-green/20" : ""
-                      }`}
-                      style={{ fontFamily: '"League Spartan", sans-serif' }}
-                    >
-                      <div className="flex items-center justify-between">
+            {isLoading ? (
+              <div className="relative px-4 py-2 text-gray-500 cursor-default select-none">
+                Loading...
+              </div>
+            ) : filteredOptions.length === 0 ? (
+              <div className="relative px-4 py-2 text-gray-500 cursor-default select-none">
+                {query !== "" ? emptyMessage : "No options available"}
+              </div>
+            ) : (
+              filteredOptions.map((option) => (
+                <ComboboxOption
+                  key={option.value}
+                  value={option.value}
+                  className={({ focus }) =>
+                    `relative cursor-pointer select-none py-2 pl-10 pr-4 ${
+                      focus
+                        ? "bg-brand-green text-white"
+                        : "text-gray-700 hover:bg-brand-green/10"
+                    }`
+                  }
+                >
+                  {({ selected, focus }) => (
+                    <>
+                      <span
+                        className={`block truncate ${
+                          selected ? "font-medium" : "font-normal"
+                        }`}
+                      >
+                        {option.label}
+                      </span>
+                      {selected && (
                         <span
-                          className={`block truncate ${
-                            value === option.value
-                              ? "font-semibold text-brand-green"
-                              : "font-normal text-gray-700"
+                          className={`absolute inset-y-0 left-0 flex items-center pl-3 ${
+                            focus ? "text-white" : "text-brand-green"
                           }`}
                         >
-                          {option.label}
+                          <Check className="w-4 h-4" aria-hidden="true" />
                         </span>
-                        {value === option.value && (
-                          <Check className="w-4 h-4 text-brand-green" />
-                        )}
-                      </div>
-                    </button>
-                  ))
-                )}
-              </div>
-            </div>
-          </>
-        )}
-      </div>
+                      )}
+                    </>
+                  )}
+                </ComboboxOption>
+              ))
+            )}
+          </ComboboxOptions>
+        </div>
+      </Combobox>
     </div>
   );
 };

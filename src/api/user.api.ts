@@ -417,4 +417,62 @@ export const updateOrderStatus = async (
   return data;
 };
 
+// Admin: Get pre-orders
+export const getPreOrders = async (params?: {
+  page?: number;
+  limit?: number;
+  preOrderStatus?: string;
+  search?: string;
+}): Promise<
+  ResponseDto<{
+    orders: AdminOrderListItem[];
+    pagination: {
+      page: number;
+      limit: number;
+      total: number;
+      totalPages: number;
+    };
+  }>
+> => {
+  const queryParams = new URLSearchParams();
+  if (params?.page) queryParams.append("page", params.page.toString());
+  if (params?.limit) queryParams.append("limit", params.limit.toString());
+  if (params?.preOrderStatus)
+    queryParams.append("preOrderStatus", params.preOrderStatus);
+  if (params?.search) queryParams.append("search", params.search);
+
+  const { data } = await http.get<
+    ResponseDto<{
+      orders: AdminOrderListItem[];
+      pagination: {
+        page: number;
+        limit: number;
+        total: number;
+        totalPages: number;
+      };
+    }>
+  >(`/user/orders/admin/pre-orders?${queryParams.toString()}`);
+  return data;
+};
+
+// Admin: Send bulk email to pre-orders
+export const sendBulkEmailToPreOrders = async (data: {
+  productId: string;
+  subject: string;
+  message: string;
+  preOrderStatus?: string;
+}): Promise<
+  ResponseDto<{
+    totalSent: number;
+    totalPreOrders: number;
+    productName: string;
+  }>
+> => {
+  const response = await http.post(
+    "/user/orders/admin/pre-orders/bulk-email",
+    data
+  );
+  return response.data;
+};
+
 export type { User };
