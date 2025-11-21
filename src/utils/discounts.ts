@@ -1,4 +1,5 @@
 import type { StoreItem, DiscountType } from "../types/marketplace.types";
+import type { GlobalDiscountSetting } from "../api/settings.api";
 
 const clampCurrency = (value: number) =>
   Math.round((value + Number.EPSILON) * 100) / 100;
@@ -47,8 +48,56 @@ const applyDiscount = (
   };
 };
 
-export const getStoreItemPricing = (item: StoreItem) => {
+export type PricingSource = "GLOBAL" | "PRODUCT" | "NONE";
+
+export interface StoreItemPricing {
+  basePrice: number;
+  currentPrice: number;
+  discountAmount: number;
+  discountPercent: number;
+  hasDiscount: boolean;
+  appliedSource: PricingSource;
+  appliedLabel?: string;
+}
+
+export const getStoreItemPricing = (
+  item: StoreItem,
+  options?: { globalDiscount?: GlobalDiscountSetting | null }
+): StoreItemPricing => {
   const basePrice = item.price ?? 0;
+
+  const globalDiscount = options?.globalDiscount;
+  const canApplyGlobal =
+    !!globalDiscount &&
+    globalDiscount.isActive &&
+    globalDiscount.type !== "NONE" &&
+    !!globalDiscount.value;
+
+  if (canApplyGlobal) {
+    const { finalAmount, discountAmount } = applyDiscount(
+      basePrice,
+      globalDiscount.type,
+      globalDiscount.value
+    );
+
+    const percent =
+      globalDiscount.type === "PERCENTAGE"
+        ? Math.min(Math.max(globalDiscount.value, 0), 100)
+        : basePrice === 0
+        ? 0
+        : Math.round((discountAmount / basePrice) * 100);
+
+    return {
+      basePrice,
+      currentPrice: finalAmount,
+      discountAmount,
+      discountPercent: percent,
+      hasDiscount: discountAmount > 0,
+      appliedSource: "GLOBAL",
+      appliedLabel: globalDiscount.label,
+    };
+  }
+
   const discountActive = isProductDiscountActive(item);
   if (!discountActive || !item.discountType || !item.discountValue) {
     return {
@@ -57,6 +106,7 @@ export const getStoreItemPricing = (item: StoreItem) => {
       discountAmount: 0,
       discountPercent: 0,
       hasDiscount: false,
+      appliedSource: "NONE",
     };
   }
 
@@ -79,5 +129,6 @@ export const getStoreItemPricing = (item: StoreItem) => {
     discountAmount,
     discountPercent,
     hasDiscount: discountAmount > 0,
+    appliedSource: "PRODUCT",
   };
 };

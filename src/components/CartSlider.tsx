@@ -12,6 +12,8 @@ import { Button } from "./ui/button";
 import { useCart } from "../context/CartContext";
 import { Minus, Plus, Trash2, ShoppingCart, X } from "lucide-react";
 import { CartItemWithRelations } from "../api/cart.api";
+import { getStoreItemPricing } from "../utils/discounts";
+import { useGlobalDiscount } from "../context/GlobalDiscountContext";
 
 interface CartSliderProps {
   isOpen: boolean;
@@ -32,6 +34,7 @@ const CartSlider: React.FC<CartSliderProps> = ({ isOpen, onClose }) => {
 
   const theme = useTheme();
   const isMobile = useMediaQuery(theme.breakpoints.down("sm"));
+  const { globalDiscount } = useGlobalDiscount();
 
   // iOS needs these flags for smoother swipe behavior
   const iOS =
@@ -75,6 +78,11 @@ const CartSlider: React.FC<CartSliderProps> = ({ isOpen, onClose }) => {
 
     const category = storeItem.categories?.[0] || "Uncategorized";
 
+    const pricing = storeItem
+      ? getStoreItemPricing(storeItem, { globalDiscount })
+      : null;
+    const unitPrice = pricing?.currentPrice ?? storeItem?.price ?? 0;
+    const lineTotal = unitPrice * quantity;
     return (
       <div className="relative bg-white rounded-xl p-4 flex items-start gap-4">
         {/* Image left */}
@@ -122,10 +130,26 @@ const CartSlider: React.FC<CartSliderProps> = ({ isOpen, onClose }) => {
         </div>
 
         {/* Top right of card: price */}
-        <div className="absolute top-4 right-4">
+        <div className="absolute top-4 right-4 text-right space-y-1">
           <div className="text-sm font-semibold text-gray-900">
-            {formatPrice(storeItem.price)}
+            {formatPrice(unitPrice)}
+            <span className="ml-1 text-xs text-gray-500">ea</span>
           </div>
+          {pricing?.hasDiscount && (
+            <div className="text-xs text-gray-500 line-through">
+              {formatPrice(pricing.basePrice)}
+            </div>
+          )}
+          <div className="text-xs text-gray-500">
+            Subtotal: {formatPrice(lineTotal)}
+          </div>
+          {pricing?.hasDiscount && (
+            <span className="inline-flex items-center justify-end text-[10px] font-semibold uppercase tracking-wide text-brand-green">
+              {pricing.appliedSource === "GLOBAL"
+                ? `Global -${pricing.discountPercent}%`
+                : `-${pricing.discountPercent}%`}
+            </span>
+          )}
         </div>
 
         {/* Bottom right of card: delete icon */}

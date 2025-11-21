@@ -9,12 +9,21 @@ import type { StoreItem as StoreItemType } from "../types/marketplace.types";
 import type { Category } from "../types/category.types";
 import type { ReviewSummary } from "../types/review.types";
 import { getStoreItemPricing } from "../utils/discounts";
+import { ResponseStatus } from "@/types/response.types";
+import { useGlobalDiscount } from "../context/GlobalDiscountContext";
 
 // Using shared StoreItem type from types to match API response
 
 interface MarketPlaceProps {
   onSearch?: (query: string) => void;
 }
+
+const formatCurrency = (value: number, currency = "GBP") =>
+  new Intl.NumberFormat("en-GB", {
+    style: "currency",
+    currency,
+    minimumFractionDigits: 2,
+  }).format(value ?? 0);
 
 const MarketPlace: React.FC<MarketPlaceProps> = ({ onSearch }) => {
   const [query, setQuery] = useState<string>("");
@@ -33,6 +42,11 @@ const MarketPlace: React.FC<MarketPlaceProps> = ({ onSearch }) => {
   const [selectedRating, setSelectedRating] = useState<string>("all");
   const [priceDropdownOpen, setPriceDropdownOpen] = useState<boolean>(false);
   const [ratingDropdownOpen, setRatingDropdownOpen] = useState<boolean>(false);
+  const { globalDiscount } = useGlobalDiscount();
+  const globalDiscountActive =
+    globalDiscount?.isActive &&
+    globalDiscount.type !== "NONE" &&
+    (globalDiscount.value ?? 0) > 0;
 
   // Category states
   const [categories, setCategories] = useState<Category[]>([]);
@@ -165,8 +179,7 @@ const MarketPlace: React.FC<MarketPlaceProps> = ({ onSearch }) => {
             const productIds = newItems.map((item) => item.productId);
             const summariesRes = await getProductReviewSummaries(productIds);
             if (
-              (summariesRes.status === "SUCCESS" ||
-                summariesRes.status === "success") &&
+              summariesRes.status === ResponseStatus.SUCCESS &&
               summariesRes.data
             ) {
               setReviewSummaries((prev) => ({
@@ -222,7 +235,8 @@ const MarketPlace: React.FC<MarketPlaceProps> = ({ onSearch }) => {
   const filteredItems = useMemo(() => {
     const combined = [...demoItems, ...items];
     return combined.filter((it) => {
-      const currentPrice = getStoreItemPricing(it).currentPrice ?? 0;
+      const currentPrice =
+        getStoreItemPricing(it, { globalDiscount }).currentPrice ?? 0;
       const withinPrice = currentPrice >= minPrice && currentPrice <= maxPrice;
       const meetsRating = getItemRating(it) >= ratingThreshold;
       return withinPrice && meetsRating;
@@ -250,6 +264,21 @@ const MarketPlace: React.FC<MarketPlaceProps> = ({ onSearch }) => {
             your body, calm your mind, and support your everyday self-care
             rituals.
           </p>
+
+          {globalDiscountActive && (
+            <div className="mt-4 inline-flex flex-col gap-1 rounded-2xl border border-brand-green/40 bg-white px-4 py-3 text-sm text-brand-green shadow-sm">
+              <span className="font-semibold">
+                {globalDiscount?.label || "Storewide savings"}
+              </span>
+              <span className="text-[#475464] text-xs">
+                Save{" "}
+                {globalDiscount?.type === "PERCENTAGE"
+                  ? `${globalDiscount.value}%`
+                  : formatCurrency(globalDiscount?.value || 0)}{" "}
+                on every marketplace item while this offer lasts.
+              </span>
+            </div>
+          )}
 
           {/* Search Bar */}
           <div className="mt-6 max-w-xl">

@@ -14,6 +14,7 @@ import {
 import toast from "react-hot-toast";
 import { useAuth } from "./AuthContextProvider";
 import { getStoreItemPricing } from "../utils/discounts";
+import { useGlobalDiscount } from "./GlobalDiscountContext";
 
 // Cart state interface
 interface CartState {
@@ -135,6 +136,7 @@ interface CartProviderProps {
 export const CartProvider: React.FC<CartProviderProps> = ({ children }) => {
   const [state, dispatch] = useReducer(cartReducer, initialState);
   const { user, isAuthenticated } = useAuth();
+  const { globalDiscount } = useGlobalDiscount();
 
   // Computed values
   const totalItems = state.items.reduce(
@@ -144,7 +146,9 @@ export const CartProvider: React.FC<CartProviderProps> = ({ children }) => {
   const totalPrice = state.items.reduce((total, item) => {
     const storeItem = item.product.storeItem;
     if (!storeItem) return total;
-    const price = getStoreItemPricing(storeItem).currentPrice;
+    const price = getStoreItemPricing(storeItem, {
+      globalDiscount,
+    }).currentPrice;
     return total + price * item.quantity;
   }, 0);
 

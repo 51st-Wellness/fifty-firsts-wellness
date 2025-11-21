@@ -543,6 +543,53 @@ const ManagementMarketplace: React.FC = () => {
                             </Box>
                           )}
 
+                        {selected.preOrderEnabled && (
+                          <Box
+                            sx={{
+                              mb: 2,
+                              p: 2,
+                              borderRadius: 2,
+                              bgcolor: "primary.light",
+                              color: "primary.contrastText",
+                            }}
+                          >
+                            <Typography
+                              variant="subtitle2"
+                              sx={{ fontWeight: 600, mb: 0.5 }}
+                            >
+                              Pre-order details
+                            </Typography>
+                            <Typography variant="body2">
+                              Window:{" "}
+                              {formatDateRange(
+                                selected.preOrderStart,
+                                selected.preOrderEnd
+                              )}
+                            </Typography>
+                            <Typography variant="body2">
+                              Fulfillment:{" "}
+                              {formatDate(selected.preOrderFulfillmentDate) ||
+                                "TBD"}
+                            </Typography>
+                            <Typography variant="body2">
+                              {selected.preOrderDepositRequired
+                                ? `Deposit: ${
+                                    formatCurrency(
+                                      selected.preOrderDepositAmount
+                                    ) || "$0.00"
+                                  }`
+                                : "No deposit required"}
+                            </Typography>
+                            {typeof selected.reservedPreOrderQuantity ===
+                              "number" && (
+                              <Typography variant="body2">
+                                Reserved: {selected.reservedPreOrderQuantity}{" "}
+                                units
+                              </Typography>
+                            )}
+                          </Box>
+                        )}
+
                         {/* Status */}
                         <Box sx={{ display: "flex", gap: 1 }}>
                           {selected.isFeatured && (
@@ -662,4 +709,55 @@ function useDebounce<T>(value: T, delay: number): T {
   }, [value, delay]);
 
   return debouncedValue;
+}
+
+const currencyFormatter = new Intl.NumberFormat("en-US", {
+  style: "currency",
+  currency: "USD",
+});
+
+function formatCurrency(value?: number | null): string | null {
+  if (value === undefined || value === null) {
+    return null;
+  }
+  return currencyFormatter.format(value);
+}
+
+function formatDate(value?: string | Date | null): string | null {
+  if (!value) {
+    return null;
+  }
+
+  const parsed = new Date(value);
+  if (Number.isNaN(parsed.getTime())) {
+    return null;
+  }
+
+  return parsed.toLocaleDateString(undefined, {
+    month: "short",
+    day: "numeric",
+    year: "numeric",
+  });
+}
+
+function formatDateRange(
+  start?: string | Date | null,
+  end?: string | Date | null
+): string {
+  const formattedStart = formatDate(start);
+  const formattedEnd = formatDate(end);
+
+  if (formattedStart && formattedEnd) {
+    return `${formattedStart} – ${formattedEnd}`;
+  }
+
+  if (formattedStart) {
+    return `Starts ${formattedStart}`;
+  }
+
+  if (formattedEnd) {
+    return `Ends ${formattedEnd}`;
+  }
+
+  return "Window TBD";
 }

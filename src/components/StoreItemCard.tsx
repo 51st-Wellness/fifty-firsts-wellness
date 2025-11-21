@@ -8,6 +8,7 @@ import NotificationOptIn from "./NotificationOptIn";
 import { useNavigate } from "react-router-dom";
 import Price from "./Price";
 import { getStoreItemPricing } from "../utils/discounts";
+import { useGlobalDiscount } from "../context/GlobalDiscountContext";
 import { preorderProduct } from "../api/marketplace.api";
 import toast from "react-hot-toast";
 
@@ -45,7 +46,8 @@ const StoreItemCard: React.FC<StoreItemCardProps> = ({
 }) => {
   const imageUrl = item.display?.url || item.images?.[0] || ""; // pick cover image
   const title = item.name || "Product";
-  const pricing = getStoreItemPricing(item);
+  const { globalDiscount } = useGlobalDiscount();
+  const pricing = getStoreItemPricing(item, { globalDiscount });
   const displayPrice = pricing.currentPrice ?? item.price ?? 0;
   const strikeThroughPrice = pricing.hasDiscount
     ? pricing.basePrice

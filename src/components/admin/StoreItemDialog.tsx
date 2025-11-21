@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import {
   Dialog,
   DialogTitle,
@@ -31,6 +31,65 @@ import { createStoreItem, updateStoreItem } from "../../api/marketplace.api";
 import type { StoreItem, DiscountType } from "../../types/marketplace.types";
 import CategorySelector from "./CategorySelector";
 
+type StoreItemFormState = {
+  name: string;
+  description: string;
+  productUsage: string;
+  productBenefits: string;
+  productIngredients: string[];
+  price: number;
+  stock: number;
+  categories: string[];
+  isFeatured: boolean;
+  isPublished: boolean;
+  discountType: DiscountType;
+  discountValue: number;
+  discountActive: boolean;
+  discountStart: string;
+  discountEnd: string;
+  preOrderEnabled: boolean;
+  preOrderStart: string;
+  preOrderEnd: string;
+  preOrderFulfillmentDate: string;
+  preOrderDepositRequired: boolean;
+  preOrderDepositAmount: number;
+};
+
+const createDefaultFormState = (): StoreItemFormState => ({
+  name: "",
+  description: "",
+  productUsage: "",
+  productBenefits: "",
+  productIngredients: [],
+  price: 0,
+  stock: 0,
+  categories: [],
+  isFeatured: false,
+  isPublished: false,
+  discountType: "NONE",
+  discountValue: 0,
+  discountActive: false,
+  discountStart: "",
+  discountEnd: "",
+  preOrderEnabled: false,
+  preOrderStart: "",
+  preOrderEnd: "",
+  preOrderFulfillmentDate: "",
+  preOrderDepositRequired: false,
+  preOrderDepositAmount: 0,
+});
+
+const cloneFormState = (state: StoreItemFormState): StoreItemFormState => ({
+  ...state,
+  productIngredients: [...state.productIngredients],
+  categories: [...state.categories],
+});
+
+const areStringArraysEqual = (a: string[], b: string[]) => {
+  if (a.length !== b.length) return false;
+  return a.every((value, index) => value === b[index]);
+};
+
 interface StoreItemDialogProps {
   open: boolean;
   onClose: () => void;
@@ -48,29 +107,9 @@ const StoreItemDialog: React.FC<StoreItemDialogProps> = ({
   mode,
 }) => {
   // Form state
-  const [formData, setFormData] = useState({
-    name: "",
-    description: "",
-    productUsage: "",
-    productBenefits: "",
-    productIngredients: [] as string[],
-    price: 0,
-    stock: 0,
-    categories: [] as string[],
-    isFeatured: false,
-    isPublished: false,
-    discountType: "NONE" as DiscountType,
-    discountValue: 0,
-    discountActive: false,
-    discountStart: "",
-    discountEnd: "",
-    preOrderEnabled: false,
-    preOrderStart: "",
-    preOrderEnd: "",
-    preOrderFulfillmentDate: "",
-    preOrderDepositRequired: false,
-    preOrderDepositAmount: 0,
-  });
+  const [formData, setFormData] = useState<StoreItemFormState>(
+    createDefaultFormState
+  );
   const [displayFile, setDisplayFile] = useState<File | null>(null);
   const [imageFiles, setImageFiles] = useState<File[]>([]);
   const [displayPreview, setDisplayPreview] = useState<string>("");
@@ -79,9 +118,10 @@ const StoreItemDialog: React.FC<StoreItemDialogProps> = ({
   const [submitting, setSubmitting] = useState(false);
   const [tabIndex, setTabIndex] = useState(0);
   const [ingredientInput, setIngredientInput] = useState("");
-  const toIsoString = (value?: string | Date | null) =>
-    value ? new Date(value).toISOString() : "";
-
+  const initialFormDataRef = useRef<StoreItemFormState>(
+    createDefaultFormState()
+  );
+  const initialExistingImagesRef = useRef<string[]>([]);
   // Extract date part (YYYY-MM-DD) from ISO string for date input
   const toInputValue = (value?: string | Date | null) => {
     if (!value) return "";
@@ -122,20 +162,23 @@ const StoreItemDialog: React.FC<StoreItemDialogProps> = ({
             ? ("PERCENTAGE" as DiscountType)
             : storedDiscountType
           : ("NONE" as DiscountType);
-        setFormData({
+        const nextFormState: StoreItemFormState = {
           name: item.name || "",
           description: item.description || "",
           productUsage: (item as any).productUsage || "",
           productBenefits: (item as any).productBenefits || "",
-          productIngredients:
-            ((item as any).productIngredients as string[]) || [],
-          price: item.price || 0,
-          stock: item.stock || 0,
-          categories: item.categories || [],
-          isFeatured: item.isFeatured || false,
-          isPublished: item.isPublished || false,
+          productIngredients: Array.isArray((item as any).productIngredients)
+            ? ([...(item as any).productIngredients] as string[])
+            : [],
+          price: Number(item.price ?? 0),
+          stock: Number(item.stock ?? 0),
+          categories: Array.isArray(item.categories)
+            ? [...item.categories]
+            : [],
+          isFeatured: Boolean(item.isFeatured),
+          isPublished: Boolean(item.isPublished),
           discountType: resolvedDiscountType,
-          discountValue: (item as any).discountValue || 0,
+          discountValue: Number((item as any).discountValue ?? 0),
           discountActive: discountEnabled,
           discountStart: toInputValue((item as any).discountStart),
           discountEnd: toInputValue((item as any).discountEnd),
@@ -151,38 +194,22 @@ const StoreItemDialog: React.FC<StoreItemDialogProps> = ({
           preOrderDepositAmount: Number(
             (item as any).preOrderDepositAmount ?? 0
           ),
-        });
+        };
+        setFormData(nextFormState);
+        initialFormDataRef.current = cloneFormState(nextFormState);
         setDisplayPreview(item.display?.url || "");
         const existingImages = item.images || [];
         setImagePreviews(existingImages);
         setExistingImageUrls(existingImages);
+        initialExistingImagesRef.current = [...existingImages];
       } else {
-        setFormData({
-          name: "",
-          description: "",
-          productUsage: "",
-          productBenefits: "",
-          productIngredients: [],
-          price: 0,
-          stock: 0,
-          categories: [],
-          isFeatured: false,
-          isPublished: false,
-          discountType: "NONE",
-          discountValue: 0,
-          discountActive: false,
-          discountStart: "",
-          discountEnd: "",
-          preOrderEnabled: false,
-          preOrderStart: "",
-          preOrderEnd: "",
-          preOrderFulfillmentDate: "",
-          preOrderDepositRequired: false,
-          preOrderDepositAmount: 0,
-        });
+        const defaultState = createDefaultFormState();
+        setFormData(defaultState);
+        initialFormDataRef.current = cloneFormState(defaultState);
         setDisplayPreview("");
         setImagePreviews([]);
         setExistingImageUrls([]);
+        initialExistingImagesRef.current = [];
       }
       setDisplayFile(null);
       setImageFiles([]);
@@ -353,34 +380,90 @@ const StoreItemDialog: React.FC<StoreItemDialogProps> = ({
     try {
       // Prepare form data for multipart upload
       const submitData = new FormData();
+      const formKeys = Object.keys(formData) as (keyof StoreItemFormState)[];
+      const changedFieldSet =
+        mode === "edit"
+          ? new Set<keyof StoreItemFormState>(
+              formKeys.filter((key) => {
+                const initialValue = initialFormDataRef.current?.[key];
+                const currentValue = formData[key];
+                if (
+                  Array.isArray(initialValue) &&
+                  Array.isArray(currentValue)
+                ) {
+                  return !areStringArraysEqual(
+                    initialValue as string[],
+                    currentValue as string[]
+                  );
+                }
+                return initialValue !== currentValue;
+              })
+            )
+          : new Set<keyof StoreItemFormState>(formKeys);
+      const imagesChanged =
+        mode === "edit" &&
+        !areStringArraysEqual(
+          existingImageUrls,
+          initialExistingImagesRef.current
+        );
+      const shouldIncludeField = (field: keyof StoreItemFormState) =>
+        mode === "create" || changedFieldSet.has(field);
+      if (
+        mode === "edit" &&
+        changedFieldSet.size === 0 &&
+        !imagesChanged &&
+        !displayFile &&
+        imageFiles.length === 0
+      ) {
+        toast.error("No changes to update");
+        return;
+      }
       const appendDateField = (
-        key: string,
+        key: keyof StoreItemFormState,
         value?: string,
         formatter?: (input: string) => string
       ) => {
+        if (!shouldIncludeField(key)) {
+          return;
+        }
         if (value) {
-          submitData.append(key, formatter ? formatter(value) : value);
+          submitData.append(
+            key as string,
+            formatter ? formatter(value) : value
+          );
         } else {
-          submitData.append(key, "");
+          submitData.append(key as string, "");
         }
       };
-      submitData.append("name", formData.name);
-      submitData.append("description", formData.description);
-      submitData.append("productUsage", formData.productUsage);
-      submitData.append("productBenefits", formData.productBenefits);
-      formData.productIngredients.forEach((ingredient) => {
-        submitData.append("productIngredients", ingredient);
-      });
-      submitData.append("price", formData.price.toString());
-      submitData.append("stock", formData.stock.toString());
-      submitData.append("isFeatured", formData.isFeatured.toString());
-      submitData.append("isPublished", formData.isPublished.toString());
-      submitData.append("discountType", formData.discountType);
-      submitData.append("discountValue", formData.discountValue.toString());
-      submitData.append("discountActive", formData.discountActive.toString());
+      const appendField = (
+        key: keyof StoreItemFormState,
+        value: string | number | boolean
+      ) => {
+        if (!shouldIncludeField(key)) return;
+        submitData.append(key as string, value.toString());
+      };
+      const appendArrayField = (
+        key: keyof StoreItemFormState,
+        values: string[]
+      ) => {
+        if (!shouldIncludeField(key)) return;
+        values.forEach((val) => submitData.append(key as string, val));
+      };
+      appendField("name", formData.name);
+      appendField("description", formData.description);
+      appendField("productUsage", formData.productUsage);
+      appendField("productBenefits", formData.productBenefits);
+      appendArrayField("productIngredients", formData.productIngredients);
+      appendField("price", formData.price);
+      appendField("stock", formData.stock);
+      appendField("isFeatured", formData.isFeatured);
+      appendField("isPublished", formData.isPublished);
+      appendField("discountType", formData.discountType);
+      appendField("discountValue", formData.discountValue);
+      appendField("discountActive", formData.discountActive);
       appendDateField("discountStart", formData.discountStart, toStartOfDayISO);
       appendDateField("discountEnd", formData.discountEnd, toEndOfDayISO);
-      submitData.append("preOrderEnabled", formData.preOrderEnabled.toString());
+      appendField("preOrderEnabled", formData.preOrderEnabled);
       appendDateField("preOrderStart", formData.preOrderStart, toStartOfDayISO);
       appendDateField("preOrderEnd", formData.preOrderEnd, toEndOfDayISO);
       appendDateField(
@@ -388,19 +471,15 @@ const StoreItemDialog: React.FC<StoreItemDialogProps> = ({
         formData.preOrderFulfillmentDate,
         toStartOfDayISO
       );
-      submitData.append(
-        "preOrderDepositRequired",
-        formData.preOrderDepositRequired.toString()
-      );
-      submitData.append(
-        "preOrderDepositAmount",
-        formData.preOrderDepositAmount.toString()
-      );
+      appendField("preOrderDepositRequired", formData.preOrderDepositRequired);
+      appendField("preOrderDepositAmount", formData.preOrderDepositAmount);
 
       // Add tags
-      formData.categories.forEach((tag) => {
-        submitData.append("categories", tag);
-      });
+      if (shouldIncludeField("categories")) {
+        formData.categories.forEach((tag) => {
+          submitData.append("categories", tag);
+        });
+      }
 
       // Add display file if selected
       if (displayFile) {
