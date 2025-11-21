@@ -52,7 +52,7 @@ The Fifty First Wellness Team`,
   const [emailMessage, setEmailMessage] = useState(defaultMessage);
 
   const handleSearchProducts = useCallback(async (query: string) => {
-    if (!query.trim()) return [];
+    if (!query.trim() || query.length < 3) return [];
 
     try {
       const response = await searchStoreItems(query, 10);

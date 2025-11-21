@@ -6,13 +6,11 @@ import {
   IconButton,
   useMediaQuery,
   useTheme,
-  Badge,
 } from "@mui/material";
 import { Button } from "./ui/button";
 import { useCart } from "../context/CartContext";
 import { Minus, Plus, Trash2, ShoppingCart, X } from "lucide-react";
 import { CartItemWithRelations } from "../api/cart.api";
-import { getStoreItemPricing } from "../utils/discounts";
 import { useGlobalDiscount } from "../context/GlobalDiscountContext";
 
 interface CartSliderProps {
@@ -78,10 +76,8 @@ const CartSlider: React.FC<CartSliderProps> = ({ isOpen, onClose }) => {
 
     const category = storeItem.categories?.[0] || "Uncategorized";
 
-    const pricing = storeItem
-      ? getStoreItemPricing(storeItem, { globalDiscount })
-      : null;
-    const unitPrice = pricing?.currentPrice ?? storeItem?.price ?? 0;
+    // Use base price for individual items (discount will be shown on total)
+    const unitPrice = storeItem.price ?? 0;
     const lineTotal = unitPrice * quantity;
     return (
       <div className="relative bg-white rounded-xl p-4 sm:p-5 flex items-start gap-3 sm:gap-4">
@@ -139,21 +135,9 @@ const CartSlider: React.FC<CartSliderProps> = ({ isOpen, onClose }) => {
               ea
             </span>
           </div>
-          {pricing?.hasDiscount && (
-            <div className="text-[10px] sm:text-xs text-gray-500 line-through leading-tight">
-              {formatPrice(pricing.basePrice)}
-            </div>
-          )}
           <div className="text-[10px] sm:text-xs text-gray-500 leading-tight">
             Subtotal: {formatPrice(lineTotal)}
           </div>
-          {pricing?.hasDiscount && (
-            <span className="inline-flex items-center justify-end text-[9px] sm:text-[10px] font-semibold uppercase tracking-wide text-brand-green leading-tight mt-0.5">
-              {pricing.appliedSource === "GLOBAL"
-                ? `Global -${pricing.discountPercent}%`
-                : `-${pricing.discountPercent}%`}
-            </span>
-          )}
         </div>
 
         {/* Bottom right of card: delete icon */}
@@ -260,47 +244,112 @@ const CartSlider: React.FC<CartSliderProps> = ({ isOpen, onClose }) => {
         </Box>
 
         {/* Footer */}
-        {items.length > 0 && (
-          <Box
-            sx={{
-              borderTop: "1px solid",
-              borderColor: "divider",
-              px: 2,
-              py: 2,
-              bgcolor: "grey.50",
-            }}
-          >
-            {/* Total */}
-            <div className="flex justify-between items-center mb-4">
-              <span className="text-lg font-semibold text-gray-900">
-                Total:
-              </span>
-              <span className="text-xl font-bold text-brand-green">
-                {formatPrice(totalPrice)}
-              </span>
-            </div>
+        {items.length > 0 &&
+          (() => {
+            // Calculate base total (without any discounts)
+            const baseTotal = items.reduce((total, item) => {
+              const storeItem = item.product.storeItem;
+              if (!storeItem) return total;
+              return total + (storeItem.price ?? 0) * item.quantity;
+            }, 0);
 
-            {/* Action Buttons */}
-            <div className="flex items-center gap-2">
-              <Button
-                className="flex-1 bg-brand-green hover:bg-brand-green-dark text-white font-semibold rounded-full py-2 sm:py-3 text-sm"
-                disabled={isLoading}
-                onClick={handleCheckoutRedirect}
+            // Check if global discount should apply
+            const canApplyGlobal =
+              globalDiscount &&
+              globalDiscount.isActive &&
+              globalDiscount.type !== "NONE" &&
+              globalDiscount.value &&
+              (!globalDiscount.minOrderTotal ||
+                baseTotal >= globalDiscount.minOrderTotal);
+
+            // Use totalPrice from context (already has discount applied)
+            const discountedTotal = totalPrice;
+            const hasDiscount =
+              canApplyGlobal && Math.abs(baseTotal - discountedTotal) > 0.01;
+
+            // Calculate discount percent for display
+            let discountPercent = 0;
+            if (hasDiscount && globalDiscount) {
+              if (globalDiscount.type === "PERCENTAGE") {
+                discountPercent = Math.min(globalDiscount.value, 100);
+              } else {
+                discountPercent =
+                  baseTotal === 0
+                    ? 0
+                    : Math.round(
+                        ((baseTotal - discountedTotal) / baseTotal) * 100
+                      );
+              }
+            }
+
+            return (
+              <Box
+                sx={{
+                  borderTop: "1px solid",
+                  borderColor: "divider",
+                  px: 2,
+                  py: 2,
+                  bgcolor: "grey.50",
+                }}
               >
-                Checkout
-              </Button>
-              <Link to="/dashboard/cart" onClick={onClose} className="flex-1">
-                <Button
-                  variant="outline"
-                  className="w-full border-brand-green text-brand-green hover:bg-brand-green/5 font-semibold rounded-full py-2 sm:py-3 text-sm"
-                  disabled={isLoading}
-                >
-                  Go to Cart
-                </Button>
-              </Link>
-            </div>
-          </Box>
-        )}
+                {/* Total */}
+                <div className="flex justify-between items-center mb-2">
+                  <span className="text-lg font-semibold text-gray-900">
+                    Total:
+                  </span>
+                  <div className="text-right">
+                    {hasDiscount ? (
+                      <>
+                        <div className="text-sm text-gray-500 line-through">
+                          {formatPrice(baseTotal)}
+                        </div>
+                        <span className="text-xl font-bold text-brand-green">
+                          {formatPrice(discountedTotal)}
+                        </span>
+                      </>
+                    ) : (
+                      <span className="text-xl font-bold text-brand-green">
+                        {formatPrice(baseTotal)}
+                      </span>
+                    )}
+                  </div>
+                </div>
+
+                {/* Discount indicator */}
+                {hasDiscount && (
+                  <div className="flex justify-end mb-4">
+                    <span className="text-[10px] sm:text-xs font-semibold uppercase tracking-wide text-brand-green">
+                      {globalDiscount?.label || `GLOBAL -${discountPercent}%`}
+                    </span>
+                  </div>
+                )}
+
+                {/* Action Buttons */}
+                <div className="flex items-center gap-2">
+                  <Button
+                    className="flex-1 bg-brand-green hover:bg-brand-green-dark text-white font-semibold rounded-full py-2 sm:py-3 text-sm"
+                    disabled={isLoading}
+                    onClick={handleCheckoutRedirect}
+                  >
+                    Checkout
+                  </Button>
+                  <Link
+                    to="/dashboard/cart"
+                    onClick={onClose}
+                    className="flex-1"
+                  >
+                    <Button
+                      variant="outline"
+                      className="w-full border-brand-green text-brand-green hover:bg-brand-green/5 font-semibold rounded-full py-2 sm:py-3 text-sm"
+                      disabled={isLoading}
+                    >
+                      Go to Cart
+                    </Button>
+                  </Link>
+                </div>
+              </Box>
+            );
+          })()}
 
         {/* Loading Overlay */}
         {isLoading && (

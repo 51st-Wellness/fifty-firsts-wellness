@@ -201,7 +201,6 @@ const OrderDetailsModal: React.FC<OrderDetailsModalProps> = ({
                     const productImage =
                       storeItem?.display?.url || storeItem?.images?.[0] || null;
                     const productDescription = storeItem?.description;
-                    const productCategories = storeItem?.categories || [];
                     const itemTotal = item.quantity * item.price;
 
                     return (
