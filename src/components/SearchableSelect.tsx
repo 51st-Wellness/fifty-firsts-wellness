@@ -52,6 +52,7 @@ export const SearchableSelect: React.FC<SearchableSelectProps> = ({
   const debounceTimeoutRef = useRef<NodeJS.Timeout | null>(null);
   const currentSearchRef = useRef<string>("");
   const onSearchRef = useRef(onSearch);
+  const selectedLabelRef = useRef<string>("");
 
   // Keep onSearch ref updated
   useEffect(() => {
@@ -153,28 +154,127 @@ export const SearchableSelect: React.FC<SearchableSelectProps> = ({
   // Find the currently selected option
   const selectedOption = options.find((o) => o.value === value) || null;
 
+  // Keep selectedLabelRef in sync with the selected option
+  useEffect(() => {
+    if (selectedOption) {
+      selectedLabelRef.current = selectedOption.label;
+    } else if (!value) {
+      selectedLabelRef.current = "";
+    }
+  }, [selectedOption, value]);
+
+  // When value changes externally, ensure we have the option in the list
+  useEffect(() => {
+    if (value && !selectedOption && staticOptions.length > 0) {
+      // Try to find the option in static options
+      const found = staticOptions.find((opt) => opt.value === value);
+      if (found) {
+        setOptions((prev) => {
+          const exists = prev.some((opt) => opt.value === value);
+          if (!exists) {
+            return [found, ...prev];
+          }
+          return prev;
+        });
+      }
+    }
+  }, [value, selectedOption, staticOptions]);
+
+  const isSelectingRef = useRef(false);
+
   const handleInputChange = (event: React.ChangeEvent<HTMLInputElement>) => {
-    setQuery(event.target.value);
+    const newQuery = event.target.value;
+
+    // Don't update if we're in the middle of selecting (prevents clearing selection)
+    if (isSelectingRef.current) {
+      return;
+    }
+
+    // If the new query matches the selected label, don't clear the selection
+    // This handles the case where Headless UI sets the input to the selected label
+    if (newQuery === selectedLabelRef.current && value) {
+      setQuery("");
+      return;
+    }
+
+    setQuery(newQuery);
+    // If user is typing a new query and there's a selection, clear the selection
+    if (newQuery && newQuery !== selectedLabelRef.current && value) {
+      onChange("");
+      selectedLabelRef.current = "";
+    }
   };
 
   const handleSelection = (item: SelectOption | null) => {
-    if (item) {
-      onChange(item.value);
+    console.log("handleSelection called with:", item);
+    isSelectingRef.current = true; // Mark that we're selecting
+
+    if (item && item.value) {
+      console.log("Setting value to:", item.value);
+      const productId = String(item.value); // Ensure it's a string
+
+      if (!productId || productId.trim() === "") {
+        console.error("Invalid product ID:", item);
+        isSelectingRef.current = false;
+        return;
+      }
+
+      selectedLabelRef.current = item.label; // Store the label immediately
+      // Ensure the selected item is in the options array so it can be displayed
+      setOptions((prev) => {
+        const exists = prev.some((opt) => opt.value === item.value);
+        if (!exists) {
+          return [item, ...prev];
+        }
+        return prev;
+      });
+
+      // Call onChange with the product ID
+      console.log("Calling onChange with productId:", productId);
+      onChange(productId);
+
       setQuery(""); // Clear query immediately when item is selected
+
+      // Reset the flag after a brief delay
+      setTimeout(() => {
+        isSelectingRef.current = false;
+      }, 100);
     } else {
+      console.log("Clearing selection - item is null or has no value");
       onChange("");
       setQuery("");
+      selectedLabelRef.current = "";
+      isSelectingRef.current = false;
     }
   };
 
   // Function to display the selected value in the input
   const displayValue = (item: SelectOption | null): string => {
-    // When user is typing, show the query (this allows free-form typing)
-    if (query) {
+    // When user is actively typing, show the query
+    if (query && query.trim().length > 0) {
       return query;
     }
-    // When an item is selected and no query, show its label
-    return item?.label || "";
+
+    // If there's a selected item, show its label
+    // Use the item parameter first (from Headless UI), then fallback to selectedOption or ref
+    if (item) {
+      selectedLabelRef.current = item.label; // Keep ref in sync
+      return item.label;
+    }
+
+    // If we have a stored label and a value, use the stored label
+    if (selectedLabelRef.current && value) {
+      return selectedLabelRef.current;
+    }
+
+    // Try to find from current options
+    if (selectedOption) {
+      selectedLabelRef.current = selectedOption.label;
+      return selectedOption.label;
+    }
+
+    // Fallback: show empty string
+    return "";
   };
 
   const showMinCharMessage = onSearch && query.length > 0 && query.length < 3;

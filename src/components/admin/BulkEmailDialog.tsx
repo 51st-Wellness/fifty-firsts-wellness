@@ -1,4 +1,4 @@
-import React, { useState, useCallback } from "react";
+import React, { useState, useCallback, useEffect } from "react";
 import {
   Dialog,
   DialogTitle,
@@ -51,6 +51,16 @@ The Fifty First Wellness Team`,
   const [emailSubject, setEmailSubject] = useState(defaultSubject);
   const [emailMessage, setEmailMessage] = useState(defaultMessage);
 
+  // Debug: Track when selectedProductId changes
+  useEffect(() => {
+    console.log("selectedProductId changed to:", selectedProductId);
+  }, [selectedProductId]);
+
+  const handleProductChange = useCallback((value: string) => {
+    console.log("handleProductChange called with:", value);
+    setSelectedProductId(value);
+  }, []);
+
   const handleSearchProducts = useCallback(async (query: string) => {
     if (!query.trim() || query.length < 3) return [];
 
@@ -64,7 +74,11 @@ The Fifty First Wellness Team`,
   }, []);
 
   const handleSend = async () => {
-    if (!selectedProductId) {
+    console.log("handleSend called, selectedProductId:", selectedProductId);
+
+    if (!selectedProductId || selectedProductId.trim() === "") {
+      console.error("No product selected!");
+      // You might want to show a toast here
       return;
     }
 
@@ -114,7 +128,7 @@ The Fifty First Wellness Team`,
           {/* Product Select */}
           <SearchableSelect
             value={selectedProductId}
-            onChange={setSelectedProductId}
+            onChange={handleProductChange}
             onSearch={handleSearchProducts}
             label="Select Product"
             placeholder="Search for a product..."
