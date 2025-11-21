@@ -144,7 +144,6 @@ The Fifty First Wellness Team`,
             rows={10}
             disabled={sending}
             required
-            helperText="You can use placeholders: <First Name>, <Product Name>, <Product URL>"
           />
         </Box>
       </DialogContent>
