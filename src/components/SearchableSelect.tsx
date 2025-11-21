@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useCallback } from "react";
+import React, { useState, useEffect, useCallback, useRef } from "react";
 import { Check, ChevronsUpDown } from "lucide-react";
 import { debounce } from "lodash";
 
@@ -39,17 +39,23 @@ export const SearchableSelect: React.FC<SearchableSelectProps> = ({
   const [options, setOptions] = useState<SelectOption[]>(staticOptions);
   const [isOpen, setIsOpen] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
+  const onSearchRef = useRef(onSearch);
+
+  // Keep ref updated
+  useEffect(() => {
+    onSearchRef.current = onSearch;
+  }, [onSearch]);
 
   const selectedOption = options.find((option) => option.value === value);
 
-  // Debounced search function
-  const debouncedSearch = useCallback(
+  // Debounced search function - use ref to avoid recreating on every render
+  const debouncedSearch = useRef(
     debounce(async (searchQuery: string) => {
-      if (!onSearch) return;
+      if (!onSearchRef.current) return;
 
       setIsLoading(true);
       try {
-        const results = await onSearch(searchQuery);
+        const results = await onSearchRef.current(searchQuery);
         setOptions(results);
       } catch (error) {
         console.error("Search error:", error);
@@ -57,13 +63,12 @@ export const SearchableSelect: React.FC<SearchableSelectProps> = ({
       } finally {
         setIsLoading(false);
       }
-    }, 300),
-    [onSearch]
-  );
+    }, 300)
+  ).current;
 
   // Handle query changes
   useEffect(() => {
-    if (onSearch && query) {
+    if (onSearch && query.trim()) {
       debouncedSearch(query);
     } else if (!onSearch) {
       // Filter static options
@@ -74,15 +79,18 @@ export const SearchableSelect: React.FC<SearchableSelectProps> = ({
               option.label.toLowerCase().includes(query.toLowerCase())
             );
       setOptions(filtered);
+    } else if (onSearch && !query.trim()) {
+      // Clear options when query is empty and using onSearch
+      setOptions([]);
     }
-  }, [query, onSearch, debouncedSearch, staticOptions]);
+  }, [query, onSearch, staticOptions]);
 
   // Reset options when static options change
   useEffect(() => {
-    if (!onSearch) {
+    if (!onSearch && !query) {
       setOptions(staticOptions);
     }
-  }, [staticOptions, onSearch]);
+  }, [staticOptions, onSearch, query]);
 
   const handleSelect = (selectedValue: string) => {
     onChange(selectedValue);
