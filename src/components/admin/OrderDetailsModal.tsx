@@ -14,11 +14,14 @@ import {
   Menu,
   MenuItem,
   IconButton,
+  Card,
+  CardContent,
 } from "@mui/material";
 import {
   MoreVert as MoreVertIcon,
   LocalShipping as LocalShippingIcon,
   LocalShippingOutlined as LocalShippingOutlinedIcon,
+  Image as ImageIcon,
 } from "@mui/icons-material";
 import type { AdminOrderDetail, AdminOrderStatus } from "../../api/user.api";
 
@@ -71,6 +74,29 @@ const getPreviousStatus = (
   return null;
 };
 
+// Normalize status from backend (handles old payment statuses)
+const normalizeOrderStatus = (status: string): AdminOrderStatus => {
+  const statusMap: Record<string, AdminOrderStatus> = {
+    PAID: "PROCESSING",
+    PENDING: "PENDING",
+    CANCELLED: "PENDING",
+    FAILED: "PENDING",
+    REFUNDED: "PENDING",
+    PROCESSING: "PROCESSING",
+    PACKAGING: "PACKAGING",
+    IN_TRANSIT: "IN_TRANSIT",
+    FULFILLED: "FULFILLED",
+  };
+
+  return statusMap[status] || "PENDING";
+};
+
+// Get status config safely
+const getStatusConfig = (status: string) => {
+  const normalizedStatus = normalizeOrderStatus(status);
+  return statusConfig[normalizedStatus] || statusConfig.PENDING;
+};
+
 interface OrderDetailsModalProps {
   open: boolean;
   onClose: () => void;
@@ -89,8 +115,11 @@ const OrderDetailsModal: React.FC<OrderDetailsModalProps> = ({
   const [statusMenuAnchor, setStatusMenuAnchor] =
     React.useState<null | HTMLElement>(null);
 
-  const nextStatus = order ? getNextStatus(order.status) : null;
-  const previousStatus = order ? getPreviousStatus(order.status) : null;
+  const normalizedStatus = order ? normalizeOrderStatus(order.status) : null;
+  const nextStatus = normalizedStatus ? getNextStatus(normalizedStatus) : null;
+  const previousStatus = normalizedStatus
+    ? getPreviousStatus(normalizedStatus)
+    : null;
 
   const handleStatusMenuOpen = (event: React.MouseEvent<HTMLElement>) => {
     setStatusMenuAnchor(event.currentTarget);
@@ -118,7 +147,7 @@ const OrderDetailsModal: React.FC<OrderDetailsModalProps> = ({
   if (!order && !loading) return null;
 
   return (
-    <Dialog open={open} onClose={onClose} maxWidth="sm" fullWidth>
+    <Dialog open={open} onClose={onClose} maxWidth="md" fullWidth>
       <DialogTitle
         sx={{ fontFamily: '"League Spartan", sans-serif', fontWeight: 600 }}
       >
@@ -155,30 +184,192 @@ const OrderDetailsModal: React.FC<OrderDetailsModalProps> = ({
             <Box>
               <Typography
                 variant="subtitle2"
-                sx={{ fontFamily: '"League Spartan", sans-serif', mb: 1 }}
+                sx={{
+                  fontFamily: '"League Spartan", sans-serif',
+                  mb: 2,
+                  fontWeight: 600,
+                }}
                 color="text.secondary"
               >
-                Items
+                Order Items ({order.orderItems?.length || 0})
               </Typography>
-              <Stack spacing={1}>
+              <Stack spacing={2}>
                 {order.orderItems && order.orderItems.length > 0 ? (
-                  order.orderItems.map((item) => (
-                    <Box
-                      key={`${order.id}-${item.id}`}
-                      sx={{
-                        display: "flex",
-                        justifyContent: "space-between",
-                        fontSize: "0.95rem",
-                      }}
-                    >
-                      <Typography>
-                        {item.product?.storeItem?.name || "Unknown Product"}
-                      </Typography>
-                      <Typography fontWeight={600}>
-                        ×{item.quantity} @ {currency(item.price)}
-                      </Typography>
-                    </Box>
-                  ))
+                  order.orderItems.map((item) => {
+                    const storeItem = item.product?.storeItem;
+                    const productName = storeItem?.name || "Unknown Product";
+                    const productImage =
+                      storeItem?.display?.url || storeItem?.images?.[0] || null;
+                    const productDescription = storeItem?.description;
+                    const productCategories = storeItem?.categories || [];
+                    const itemTotal = item.quantity * item.price;
+
+                    return (
+                      <Card
+                        key={`${order.id}-${item.id}`}
+                        variant="outlined"
+                        sx={{
+                          "&:hover": {
+                            boxShadow: 2,
+                          },
+                        }}
+                      >
+                        <CardContent>
+                          <Box
+                            sx={{
+                              display: "flex",
+                              flexDirection: { xs: "column", sm: "row" },
+                              gap: 2,
+                            }}
+                          >
+                            {/* Product Image */}
+                            <Box
+                              sx={{
+                                width: { xs: "100%", sm: "200px" },
+                                flexShrink: 0,
+                              }}
+                            >
+                              <Box
+                                sx={{
+                                  width: "100%",
+                                  aspectRatio: "1",
+                                  bgcolor: "grey.100",
+                                  borderRadius: 2,
+                                  overflow: "hidden",
+                                  display: "flex",
+                                  alignItems: "center",
+                                  justifyContent: "center",
+                                }}
+                              >
+                                {productImage ? (
+                                  storeItem?.display?.type === "video" ? (
+                                    <video
+                                      src={productImage}
+                                      style={{
+                                        width: "100%",
+                                        height: "100%",
+                                        objectFit: "cover",
+                                      }}
+                                      controls={false}
+                                    />
+                                  ) : (
+                                    <img
+                                      src={productImage}
+                                      alt={productName}
+                                      style={{
+                                        width: "100%",
+                                        height: "100%",
+                                        objectFit: "cover",
+                                      }}
+                                    />
+                                  )
+                                ) : (
+                                  <ImageIcon
+                                    sx={{ fontSize: 48, color: "grey.400" }}
+                                  />
+                                )}
+                              </Box>
+                            </Box>
+
+                            {/* Product Details */}
+                            <Box sx={{ flex: 1, minWidth: 0 }}>
+                              <Stack spacing={1}>
+                                <Box>
+                                  <Typography
+                                    variant="h6"
+                                    fontWeight={600}
+                                    sx={{
+                                      fontFamily:
+                                        '"League Spartan", sans-serif',
+                                    }}
+                                  >
+                                    {productName}
+                                  </Typography>
+                                  {productDescription && (
+                                    <Typography
+                                      variant="body2"
+                                      color="text.secondary"
+                                      sx={{ mt: 0.5 }}
+                                    >
+                                      {productDescription.length > 150
+                                        ? `${productDescription.substring(
+                                            0,
+                                            150
+                                          )}...`
+                                        : productDescription}
+                                    </Typography>
+                                  )}
+                                </Box>
+
+                                {/* Categories */}
+                                {productCategories.length > 0 && (
+                                  <Box
+                                    sx={{
+                                      display: "flex",
+                                      gap: 0.5,
+                                      flexWrap: "wrap",
+                                    }}
+                                  >
+                                    {productCategories.map((category, idx) => (
+                                      <Chip
+                                        key={idx}
+                                        label={category}
+                                        size="small"
+                                        variant="outlined"
+                                        sx={{ fontSize: "0.7rem" }}
+                                      />
+                                    ))}
+                                  </Box>
+                                )}
+
+                                {/* Quantity and Price Info */}
+                                <Box
+                                  sx={{
+                                    display: "flex",
+                                    justifyContent: "space-between",
+                                    alignItems: "center",
+                                    pt: 1,
+                                    borderTop: 1,
+                                    borderColor: "divider",
+                                  }}
+                                >
+                                  <Box>
+                                    <Typography
+                                      variant="body2"
+                                      color="text.secondary"
+                                    >
+                                      Quantity: <strong>{item.quantity}</strong>
+                                    </Typography>
+                                    <Typography
+                                      variant="body2"
+                                      color="text.secondary"
+                                    >
+                                      Unit Price: {currency(item.price)}
+                                    </Typography>
+                                  </Box>
+                                  <Typography
+                                    variant="h6"
+                                    fontWeight={700}
+                                    color="primary"
+                                  >
+                                    {currency(itemTotal)}
+                                  </Typography>
+                                </Box>
+
+                                {/* Product ID */}
+                                <Typography
+                                  variant="caption"
+                                  color="text.secondary"
+                                >
+                                  Product ID: {item.productId}
+                                </Typography>
+                              </Stack>
+                            </Box>
+                          </Box>
+                        </CardContent>
+                      </Card>
+                    );
+                  })
                 ) : (
                   <Typography variant="body2" color="text.secondary">
                     No items found
@@ -271,8 +462,8 @@ const OrderDetailsModal: React.FC<OrderDetailsModalProps> = ({
               </Typography>
               <Stack direction="row" spacing={1} alignItems="center">
                 <Chip
-                  label={statusConfig[order.status].label}
-                  color={statusConfig[order.status].color}
+                  label={getStatusConfig(order.status).label}
+                  color={getStatusConfig(order.status).color}
                   size="small"
                   onClick={onStatusUpdate ? handleStatusMenuOpen : undefined}
                   sx={onStatusUpdate ? { cursor: "pointer" } : {}}
@@ -327,18 +518,55 @@ const OrderDetailsModal: React.FC<OrderDetailsModalProps> = ({
             <Divider />
 
             <Box>
-              <Typography
-                variant="subtitle2"
-                sx={{ fontFamily: '"League Spartan", sans-serif', mb: 0.5 }}
-                color="text.secondary"
+              <Box
+                sx={{
+                  display: "flex",
+                  justifyContent: "space-between",
+                  alignItems: "center",
+                  mb: 1,
+                }}
               >
-                Total Amount
-              </Typography>
-              <Typography fontWeight={700} fontSize="1.25rem">
-                {currency(order.totalAmount)}
-              </Typography>
+                <Typography
+                  variant="subtitle2"
+                  sx={{ fontFamily: '"League Spartan", sans-serif' }}
+                  color="text.secondary"
+                >
+                  Subtotal ({order.orderItems?.length || 0} items)
+                </Typography>
+                <Typography variant="body1" fontWeight={600}>
+                  {currency(
+                    order.orderItems?.reduce(
+                      (sum, item) => sum + item.quantity * item.price,
+                      0
+                    ) || 0
+                  )}
+                </Typography>
+              </Box>
+              <Divider sx={{ my: 1 }} />
+              <Box
+                sx={{
+                  display: "flex",
+                  justifyContent: "space-between",
+                  alignItems: "center",
+                }}
+              >
+                <Typography
+                  variant="h6"
+                  sx={{ fontFamily: '"League Spartan", sans-serif' }}
+                  fontWeight={600}
+                >
+                  Total Amount
+                </Typography>
+                <Typography fontWeight={700} fontSize="1.5rem" color="primary">
+                  {currency(order.totalAmount)}
+                </Typography>
+              </Box>
               {order.payment?.currency && (
-                <Typography variant="caption" color="text.secondary">
+                <Typography
+                  variant="caption"
+                  color="text.secondary"
+                  sx={{ mt: 0.5, display: "block" }}
+                >
                   Currency: {order.payment.currency}
                 </Typography>
               )}
