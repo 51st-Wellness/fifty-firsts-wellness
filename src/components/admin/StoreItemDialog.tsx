@@ -51,7 +51,6 @@ type StoreItemFormState = {
   preOrderStart: string;
   preOrderEnd: string;
   preOrderFulfillmentDate: string;
-  preOrderDepositRequired: boolean;
   preOrderDepositAmount: number;
 };
 
@@ -75,7 +74,6 @@ const createDefaultFormState = (): StoreItemFormState => ({
   preOrderStart: "",
   preOrderEnd: "",
   preOrderFulfillmentDate: "",
-  preOrderDepositRequired: false,
   preOrderDepositAmount: 0,
 });
 
@@ -187,9 +185,6 @@ const StoreItemDialog: React.FC<StoreItemDialogProps> = ({
           preOrderEnd: toInputValue((item as any).preOrderEnd),
           preOrderFulfillmentDate: toInputValue(
             (item as any).preOrderFulfillmentDate
-          ),
-          preOrderDepositRequired: Boolean(
-            (item as any).preOrderDepositRequired
           ),
           preOrderDepositAmount: Number(
             (item as any).preOrderDepositAmount ?? 0
@@ -471,7 +466,6 @@ const StoreItemDialog: React.FC<StoreItemDialogProps> = ({
         formData.preOrderFulfillmentDate,
         toStartOfDayISO
       );
-      appendField("preOrderDepositRequired", formData.preOrderDepositRequired);
       appendField("preOrderDepositAmount", formData.preOrderDepositAmount);
 
       // Add tags
@@ -914,51 +908,25 @@ const StoreItemDialog: React.FC<StoreItemDialogProps> = ({
                         helperText="Let customers know when to expect shipping"
                       />
 
-                      <FormControlLabel
-                        control={
-                          <Switch
-                            checked={formData.preOrderDepositRequired}
-                            onChange={(e) =>
-                              setFormData((prev) => ({
-                                ...prev,
-                                preOrderDepositRequired: e.target.checked,
-                              }))
-                            }
-                          />
+                      <TextField
+                        label="Deposit amount"
+                        type="number"
+                        size="small"
+                        inputProps={{ min: 0, step: 0.01 }}
+                        value={formData.preOrderDepositAmount}
+                        onChange={(e) =>
+                          setFormData((prev) => ({
+                            ...prev,
+                            preOrderDepositAmount: Number(e.target.value) || 0,
+                          }))
                         }
-                        label="Require deposit at checkout"
+                        InputProps={{
+                          startAdornment: (
+                            <InputAdornment position="start">$</InputAdornment>
+                          ),
+                        }}
+                        helperText="Charged per unit during checkout"
                       />
-
-                      {formData.preOrderDepositRequired && (
-                        <TextField
-                          label="Deposit amount"
-                          type="number"
-                          size="small"
-                          inputProps={{ min: 0, step: 0.01 }}
-                          value={formData.preOrderDepositAmount}
-                          onChange={(e) =>
-                            setFormData((prev) => ({
-                              ...prev,
-                              preOrderDepositAmount:
-                                Number(e.target.value) || 0,
-                            }))
-                          }
-                          InputProps={{
-                            startAdornment: (
-                              <InputAdornment position="start">
-                                $
-                              </InputAdornment>
-                            ),
-                          }}
-                          helperText="Charged per unit during checkout"
-                        />
-                      )}
-
-                      <Typography variant="caption" color="text.secondary">
-                        Customers will see clear pre-order messaging on the
-                        storefront. Deposits are captured now; remaining balance
-                        is due when the order ships.
-                      </Typography>
                     </Stack>
                   </Collapse>
                 </Stack>

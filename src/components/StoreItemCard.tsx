@@ -60,9 +60,6 @@ const StoreItemCard: React.FC<StoreItemCardProps> = ({
   const [notifyOpen, setNotifyOpen] = useState(false);
 
   const preOrderEnabled = Boolean((item as any).preOrderEnabled);
-  const preOrderDepositRequired = Boolean(
-    (item as any).preOrderDepositRequired
-  );
   const preOrderDepositAmount = Number(
     (item as any).preOrderDepositAmount ?? 0
   );
@@ -82,16 +79,8 @@ const StoreItemCard: React.FC<StoreItemCardProps> = ({
 
   const preOrderDueNowPerUnit = useMemo(() => {
     if (!preOrderEnabled) return 0;
-    if (preOrderDepositRequired) {
-      return preOrderDepositAmount > 0 ? preOrderDepositAmount : displayPrice;
-    }
-    return displayPrice;
-  }, [
-    preOrderEnabled,
-    preOrderDepositRequired,
-    preOrderDepositAmount,
-    displayPrice,
-  ]);
+    return preOrderDepositAmount > 0 ? preOrderDepositAmount : displayPrice;
+  }, [preOrderEnabled, preOrderDepositAmount, displayPrice]);
 
   const preOrderBalancePerUnit = Math.max(
     displayPrice - preOrderDueNowPerUnit,

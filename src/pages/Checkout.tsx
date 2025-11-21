@@ -73,16 +73,13 @@ const Checkout: React.FC = () => {
           perUnitDue: item.unitPrice,
         };
       }
-      const depositPerUnitRaw = item.preOrderDepositRequired
-        ? item.preOrderDepositAmount ?? item.unitPrice
-        : item.unitPrice;
+      const depositPerUnitRaw =
+        item.preOrderDepositAmount ?? item.unitPrice ?? 0;
       const depositPerUnit = Math.max(
         0,
-        Math.min(depositPerUnitRaw ?? item.unitPrice, item.unitPrice)
+        Math.min(depositPerUnitRaw, item.unitPrice ?? depositPerUnitRaw)
       );
-      const dueNow = item.preOrderDepositRequired
-        ? depositPerUnit * item.quantity
-        : item.lineTotal;
+      const dueNow = depositPerUnit * item.quantity;
       const balanceLater = Math.max(item.lineTotal - dueNow, 0);
       return { dueNow, balanceLater, perUnitDue: depositPerUnit };
     },

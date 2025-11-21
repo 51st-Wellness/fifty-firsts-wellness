@@ -25,7 +25,6 @@ export interface CartCheckoutSummaryItem {
   baseLineTotal?: number;
   isPreOrder?: boolean;
   preOrderFulfillmentDate?: string;
-  preOrderDepositRequired?: boolean;
   preOrderDepositAmount?: number;
   discount?: {
     isActive: boolean;

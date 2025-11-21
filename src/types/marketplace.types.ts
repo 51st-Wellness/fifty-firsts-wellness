@@ -37,7 +37,6 @@ export type StoreItem = {
   preOrderStart?: string | Date | null;
   preOrderEnd?: string | Date | null;
   preOrderFulfillmentDate?: string | Date | null;
-  preOrderDepositRequired?: boolean;
   preOrderDepositAmount?: number;
   reservedPreOrderQuantity?: number;
 };

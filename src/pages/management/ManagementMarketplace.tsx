@@ -572,13 +572,9 @@ const ManagementMarketplace: React.FC = () => {
                                 "TBD"}
                             </Typography>
                             <Typography variant="body2">
-                              {selected.preOrderDepositRequired
-                                ? `Deposit: ${
-                                    formatCurrency(
-                                      selected.preOrderDepositAmount
-                                    ) || "$0.00"
-                                  }`
-                                : "No deposit required"}
+                              Deposit due now:{" "}
+                              {formatCurrency(selected.preOrderDepositAmount) ||
+                                "$0.00"}
                             </Typography>
                             {typeof selected.reservedPreOrderQuantity ===
                               "number" && (
