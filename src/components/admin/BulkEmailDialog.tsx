@@ -34,8 +34,7 @@ export const BulkEmailDialog: React.FC<BulkEmailDialogProps> = ({
   onClose,
   onSend,
   defaultSubject = "Product update from Fifty Firsts Wellness",
-  defaultMessage = `Hi <First Name>,
-
+  defaultMessage = `
 Great news! The product you subscribed to, "<Product Name>", is now available for purchase.
 
 Don't miss out - grab yours today while stocks last!
