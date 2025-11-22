@@ -47,6 +47,8 @@ export const SearchableSelect: React.FC<SearchableSelectProps> = ({
   const [options, setOptions] = useState<SelectOption[]>(staticOptions);
   const [isLoading, setIsLoading] = useState(false);
   const [isOpen, setIsOpen] = useState(false);
+  const [persistedSelection, setPersistedSelection] =
+    useState<SelectOption | null>(null);
 
   // Custom debounce implementation
   const debounceTimeoutRef = useRef<NodeJS.Timeout | null>(null);
@@ -152,7 +154,10 @@ export const SearchableSelect: React.FC<SearchableSelectProps> = ({
   }, []);
 
   // Find the currently selected option
-  const selectedOption = options.find((o) => o.value === value) || null;
+  const selectedOption =
+    options.find((o) => o.value === value) ||
+    (persistedSelection?.value === value ? persistedSelection : null) ||
+    null;
 
   // Keep selectedLabelRef in sync with the selected option
   useEffect(() => {
@@ -180,6 +185,16 @@ export const SearchableSelect: React.FC<SearchableSelectProps> = ({
     }
   }, [value, selectedOption, staticOptions]);
 
+  // Update persisted selection if we find the selected item in options
+  useEffect(() => {
+    if (value && options.length > 0) {
+      const found = options.find((o) => o.value === value);
+      if (found) {
+        setPersistedSelection(found);
+      }
+    }
+  }, [value, options]);
+
   const isSelectingRef = useRef(false);
 
   const handleInputChange = (event: React.ChangeEvent<HTMLInputElement>) => {
@@ -202,6 +217,7 @@ export const SearchableSelect: React.FC<SearchableSelectProps> = ({
     if (newQuery && newQuery !== selectedLabelRef.current && value) {
       onChange("");
       selectedLabelRef.current = "";
+      setPersistedSelection(null);
     }
   };
 
@@ -220,6 +236,7 @@ export const SearchableSelect: React.FC<SearchableSelectProps> = ({
       }
 
       selectedLabelRef.current = item.label; // Store the label immediately
+      setPersistedSelection(item); // Persist selection
       // Ensure the selected item is in the options array so it can be displayed
       setOptions((prev) => {
         const exists = prev.some((opt) => opt.value === item.value);
@@ -244,6 +261,7 @@ export const SearchableSelect: React.FC<SearchableSelectProps> = ({
       onChange("");
       setQuery("");
       selectedLabelRef.current = "";
+      setPersistedSelection(null);
       isSelectingRef.current = false;
     }
   };

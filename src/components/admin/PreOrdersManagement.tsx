@@ -26,7 +26,6 @@ import {
   IconButton,
   CircularProgress,
   Divider,
-  Grid,
 } from "@mui/material";
 import {
   ShoppingBag as ShoppingBagIcon,
@@ -159,16 +158,16 @@ const PreOrdersManagement: React.FC = () => {
 
   const preOrderStats = useMemo(() => {
     const placed = preOrders.filter(
-      (o) => o.preOrderStatus === "PLACED"
+      (o) => (o as any).preOrderStatus === "PLACED"
     ).length;
     const confirmed = preOrders.filter(
-      (o) => o.preOrderStatus === "CONFIRMED"
+      (o) => (o as any).preOrderStatus === "CONFIRMED"
     ).length;
     const fulfilled = preOrders.filter(
-      (o) => o.preOrderStatus === "FULFILLED"
+      (o) => (o as any).preOrderStatus === "FULFILLED"
     ).length;
     const cancelled = preOrders.filter(
-      (o) => o.preOrderStatus === "CANCELLED"
+      (o) => (o as any).preOrderStatus === "CANCELLED"
     ).length;
     return { total: totalCount, placed, confirmed, fulfilled, cancelled };
   }, [preOrders, totalCount]);
@@ -391,8 +390,8 @@ const PreOrdersManagement: React.FC = () => {
                     </TableCell>
                     <TableCell>
                       <Chip
-                        label={order.preOrderStatus || "N/A"}
-                        color={getStatusColor(order.preOrderStatus)}
+                        label={(order as any).preOrderStatus || "N/A"}
+                        color={getStatusColor((order as any).preOrderStatus)}
                         size="small"
                       />
                     </TableCell>
@@ -405,7 +404,7 @@ const PreOrdersManagement: React.FC = () => {
                     </TableCell>
                     <TableCell>
                       <Typography variant="caption" color="text.secondary">
-                        {formatDate(order.expectedFulfillmentDate)}
+                        {formatDate((order as any).expectedFulfillmentDate)}
                       </Typography>
                     </TableCell>
                     <TableCell>
@@ -467,8 +466,8 @@ const PreOrdersManagement: React.FC = () => {
                 <Typography variant="h6" sx={{ mb: 2 }}>
                   Customer Information
                 </Typography>
-                <Grid container spacing={2}>
-                  <Grid item xs={6}>
+                <Box sx={{ display: "flex", flexWrap: "wrap", gap: 2 }}>
+                  <Box sx={{ flex: "1 1 45%", minWidth: 200 }}>
                     <Typography variant="caption" color="text.secondary">
                       Name
                     </Typography>
@@ -476,26 +475,26 @@ const PreOrdersManagement: React.FC = () => {
                       {orderDetail.customer.firstName}{" "}
                       {orderDetail.customer.lastName}
                     </Typography>
-                  </Grid>
-                  <Grid item xs={6}>
+                  </Box>
+                  <Box sx={{ flex: "1 1 45%", minWidth: 200 }}>
                     <Typography variant="caption" color="text.secondary">
                       Email
                     </Typography>
                     <Typography variant="body2">
                       {orderDetail.customer.email}
                     </Typography>
-                  </Grid>
+                  </Box>
                   {orderDetail.customer.phone && (
-                    <Grid item xs={6}>
+                    <Box sx={{ flex: "1 1 45%", minWidth: 200 }}>
                       <Typography variant="caption" color="text.secondary">
                         Phone
                       </Typography>
                       <Typography variant="body2">
                         {orderDetail.customer.phone}
                       </Typography>
-                    </Grid>
+                    </Box>
                   )}
-                </Grid>
+                </Box>
               </Box>
 
               <Divider />
@@ -505,58 +504,62 @@ const PreOrdersManagement: React.FC = () => {
                 <Typography variant="h6" sx={{ mb: 2 }}>
                   Order Information
                 </Typography>
-                <Grid container spacing={2}>
-                  <Grid item xs={6}>
+                <Box sx={{ display: "flex", flexWrap: "wrap", gap: 2 }}>
+                  <Box sx={{ flex: "1 1 45%", minWidth: 200 }}>
                     <Typography variant="caption" color="text.secondary">
                       Order ID
                     </Typography>
                     <Typography variant="body2">{orderDetail.id}</Typography>
-                  </Grid>
-                  <Grid item xs={6}>
+                  </Box>
+                  <Box sx={{ flex: "1 1 45%", minWidth: 200 }}>
                     <Typography variant="caption" color="text.secondary">
                       Status
                     </Typography>
                     <Chip label={orderDetail.status} size="small" />
-                  </Grid>
-                  <Grid item xs={6}>
+                  </Box>
+                  <Box sx={{ flex: "1 1 45%", minWidth: 200 }}>
                     <Typography variant="caption" color="text.secondary">
                       Pre-Order Status
                     </Typography>
                     <Chip
-                      label={orderDetail.preOrderStatus || "N/A"}
-                      color={getStatusColor(orderDetail.preOrderStatus)}
+                      label={(orderDetail as any).preOrderStatus || "N/A"}
+                      color={getStatusColor(
+                        (orderDetail as any).preOrderStatus
+                      )}
                       size="small"
                     />
-                  </Grid>
-                  <Grid item xs={6}>
+                  </Box>
+                  <Box sx={{ flex: "1 1 45%", minWidth: 200 }}>
                     <Typography variant="caption" color="text.secondary">
                       Total Amount
                     </Typography>
                     <Typography variant="body2" fontWeight={600}>
                       {formatCurrency(orderDetail.totalAmount)}
                     </Typography>
-                  </Grid>
-                  {orderDetail.expectedFulfillmentDate && (
-                    <Grid item xs={6}>
+                  </Box>
+                  {(orderDetail as any).expectedFulfillmentDate && (
+                    <Box sx={{ flex: "1 1 45%", minWidth: 200 }}>
                       <Typography variant="caption" color="text.secondary">
                         Expected Fulfillment
                       </Typography>
                       <Typography variant="body2">
-                        {formatDate(orderDetail.expectedFulfillmentDate)}
+                        {formatDate(
+                          (orderDetail as any).expectedFulfillmentDate
+                        )}
                       </Typography>
-                    </Grid>
+                    </Box>
                   )}
-                  {orderDetail.fulfillmentNotes && (
-                    <Grid item xs={12}>
+                  {(orderDetail as any).fulfillmentNotes && (
+                    <Box sx={{ flex: "1 1 100%" }}>
                       <Typography variant="caption" color="text.secondary">
                         Fulfillment Notes
                       </Typography>
                       <Typography variant="body2">
-                        {orderDetail.fulfillmentNotes}
+                        {(orderDetail as any).fulfillmentNotes}
                       </Typography>
-                    </Grid>
+                    </Box>
                   )}
-                </Grid>
+                </Box>
               </Box>
 
               <Divider />
@@ -569,7 +572,7 @@ const PreOrdersManagement: React.FC = () => {
                 {orderDetail.orderItems.map((item, index) => (
                   <Box key={index} sx={{ mb: 2 }}>
                     <Typography variant="body2" fontWeight={500}>
-                      {item.product.storeItem?.name || "Unknown Product"}
+                      {item.product?.storeItem?.name || "Unknown Product"}
                     </Typography>
                     <Typography variant="caption" color="text.secondary">
                       Quantity: {item.quantity} • Price:{" "}

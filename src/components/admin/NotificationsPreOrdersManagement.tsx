@@ -57,9 +57,6 @@ const NotificationsPreOrdersManagement: React.FC = () => {
 
   // Bulk email modal state
   const [bulkEmailOpen, setBulkEmailOpen] = useState(false);
-  const [selectedProductId, setSelectedProductId] = useState("");
-  const [emailSubject, setEmailSubject] = useState("");
-  const [emailMessage, setEmailMessage] = useState("");
   const [sendingEmail, setSendingEmail] = useState(false);
 
   // Default email template
@@ -132,34 +129,20 @@ The Fifty First Wellness Team`;
   };
 
   const handleOpenBulkEmail = () => {
-    setSelectedProductId("");
-    setEmailSubject(defaultEmailSubject);
-    setEmailMessage(defaultEmailTemplate);
     setBulkEmailOpen(true);
   };
 
-  const handleSendBulkEmail = async () => {
-    if (!selectedProductId) {
-      toast.error("Please select a product");
-      return;
-    }
-
-    if (!emailSubject.trim()) {
-      toast.error("Please enter an email subject");
-      return;
-    }
-
-    if (!emailMessage.trim()) {
-      toast.error("Please enter an email message");
-      return;
-    }
-
+  const handleSendBulkEmail = async (data: {
+    productId: string;
+    subject: string;
+    message: string;
+  }) => {
     try {
       setSendingEmail(true);
       const response = await sendBulkEmail({
-        productId: selectedProductId,
-        subject: emailSubject,
-        message: emailMessage,
+        productId: data.productId,
+        subject: data.subject,
+        message: data.message,
       });
 
       if (response.data) {
