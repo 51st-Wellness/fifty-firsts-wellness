@@ -4,12 +4,10 @@ import Footer from "../components/Footer";
 import StoreItemCard from "../components/StoreItemCard";
 import { fetchStoreItems } from "../api/marketplace.api";
 import { categoryAPI } from "../api/category.api";
-import { getProductReviewSummaries } from "../api/review.api";
 import type { StoreItem as StoreItemType } from "../types/marketplace.types";
 import type { Category } from "../types/category.types";
 import type { ReviewSummary } from "../types/review.types";
 import { getStoreItemPricing } from "../utils/discounts";
-import { ResponseStatus } from "@/types/response.types";
 import { useGlobalDiscount } from "../context/GlobalDiscountContext";
 
 // Using shared StoreItem type from types to match API response
@@ -33,9 +31,6 @@ const MarketPlace: React.FC<MarketPlaceProps> = ({ onSearch }) => {
   const [hasMore, setHasMore] = useState<boolean>(true);
   const [loading, setLoading] = useState<boolean>(false);
   const [error, setError] = useState<string | null>(null);
-  const [reviewSummaries, setReviewSummaries] = useState<
-    Record<string, ReviewSummary>
-  >({});
   const [selectedCategory, setSelectedCategory] = useState<string>("All");
   const [minPrice, setMinPrice] = useState<number>(10);
   const [maxPrice, setMaxPrice] = useState<number>(200);
@@ -172,26 +167,6 @@ const MarketPlace: React.FC<MarketPlaceProps> = ({ onSearch }) => {
         }
         setHasMore(Boolean(pagination?.hasMore));
         setError(null);
-
-        // Fetch review summaries for the loaded items
-        if (newItems && newItems.length > 0) {
-          try {
-            const productIds = newItems.map((item) => item.productId);
-            const summariesRes = await getProductReviewSummaries(productIds);
-            if (
-              summariesRes.status === ResponseStatus.SUCCESS &&
-              summariesRes.data
-            ) {
-              setReviewSummaries((prev) => ({
-                ...prev,
-                ...summariesRes.data,
-              }));
-            }
-          } catch (e) {
-            // Silently fail - reviews are not critical for listing
-            console.error("Failed to load review summaries:", e);
-          }
-        }
       } catch (e: any) {
         console.error("Error loading items:", e);
         const errorMessage =
@@ -463,13 +438,33 @@ const MarketPlace: React.FC<MarketPlaceProps> = ({ onSearch }) => {
                 </div>
               ) : (
                 <div className="grid grid-cols-2 md:grid-cols-2 lg:grid-cols-3 gap-4 md:gap-6">
-                  {filteredItems.map((item) => (
-                    <StoreItemCard
-                      reviewSummary={reviewSummaries[item.productId]}
-                      key={item.productId || item.name}
-                      item={item}
-                    />
-                  ))}
+                  {filteredItems.map((item) => {
+                    // Create ReviewSummary from store item data (already includes averageRating and reviewCount)
+                    const reviewSummary: ReviewSummary | undefined =
+                      item.averageRating !== undefined &&
+                      item.reviewCount !== undefined &&
+                      item.reviewCount > 0
+                        ? {
+                            averageRating: item.averageRating,
+                            reviewCount: item.reviewCount,
+                            ratingBreakdown: {
+                              5: 0,
+                              4: 0,
+                              3: 0,
+                              2: 0,
+                              1: 0,
+                            },
+                          }
+                        : undefined;
+
+                    return (
+                      <StoreItemCard
+                        reviewSummary={reviewSummary}
+                        key={item.productId || item.name}
+                        item={item}
+                      />
+                    );
+                  })}
                 </div>
               )}
 

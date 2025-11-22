@@ -139,6 +139,12 @@ const StoreItemCard: React.FC<StoreItemCardProps> = ({
             />
           </div>
 
+          {item.stock && item.stock > 0 && (
+            <div className="mt-1.5 text-[10px] md:text-xs text-gray-500">
+              {item.stock} {item.stock === 1 ? "item" : "items"} in stock
+            </div>
+          )}
+
           {canPreOrder && (
             <div className="mt-1.5 rounded-xl bg-brand-green/5 border border-dashed border-brand-green/40 p-2 text-[11px] text-gray-600">
               <p className="text-[10px] text-gray-600">
