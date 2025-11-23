@@ -417,6 +417,20 @@ export const updateOrderStatus = async (
   return data;
 };
 
+// Admin: Add/Update tracking reference for an order
+export const addTrackingReference = async (
+  orderId: string,
+  trackingReference: string
+): Promise<ResponseDto<{ message: string }>> => {
+  const { data } = await http.put<ResponseDto<{ message: string }>>(
+    `/tracking/admin/orders/${orderId}`,
+    {
+      trackingReference,
+    }
+  );
+  return data;
+};
+
 // Admin: Get pre-orders
 export const getPreOrders = async (params?: {
   page?: number;

@@ -22,8 +22,10 @@ import {
   LocalShipping as LocalShippingIcon,
   LocalShippingOutlined as LocalShippingOutlinedIcon,
   Image as ImageIcon,
+  QrCodeScanner as QrCodeScannerIcon,
 } from "@mui/icons-material";
 import type { AdminOrderDetail, AdminOrderStatus } from "../../api/user.api";
+import TrackingReferenceModal from "./TrackingReferenceModal";
 
 const currency = (value: number) =>
   new Intl.NumberFormat("en-GB", {
@@ -33,7 +35,7 @@ const currency = (value: number) =>
   }).format(value);
 
 const statusConfig: Record<
-  AdminOrderStatus,
+  AdminOrderStatus | string,
   {
     label: string;
     color: "default" | "warning" | "success" | "primary" | "info" | "error";
@@ -44,6 +46,15 @@ const statusConfig: Record<
   PACKAGING: { label: "Packaging", color: "info" },
   IN_TRANSIT: { label: "In-Transit", color: "info" },
   FULFILLED: { label: "Fulfilled", color: "success" },
+  // Tracking statuses
+  NOTFOUND: { label: "Not Found", color: "error" },
+  INFORECEIVED: { label: "Info Received", color: "info" },
+  TRANSIT: { label: "In Transit", color: "info" },
+  PICKUP: { label: "Ready for Pickup", color: "warning" },
+  UNDELIVERED: { label: "Undelivered", color: "error" },
+  DELIVERED: { label: "Delivered", color: "success" },
+  EXCEPTION: { label: "Exception", color: "error" },
+  EXPIRED: { label: "Expired", color: "error" },
 };
 
 const statusFlow: AdminOrderStatus[] = [
@@ -74,9 +85,9 @@ const getPreviousStatus = (
   return null;
 };
 
-// Normalize status from backend (handles old payment statuses)
-const normalizeOrderStatus = (status: string): AdminOrderStatus => {
-  const statusMap: Record<string, AdminOrderStatus> = {
+// Normalize status from backend (handles old payment statuses and tracking statuses)
+const normalizeOrderStatus = (status: string): AdminOrderStatus | string => {
+  const statusMap: Record<string, AdminOrderStatus | string> = {
     PAID: "PROCESSING",
     PENDING: "PENDING",
     CANCELLED: "PENDING",
@@ -86,9 +97,18 @@ const normalizeOrderStatus = (status: string): AdminOrderStatus => {
     PACKAGING: "PACKAGING",
     IN_TRANSIT: "IN_TRANSIT",
     FULFILLED: "FULFILLED",
+    // Tracking statuses (keep as-is)
+    NOTFOUND: "NOTFOUND",
+    INFORECEIVED: "INFORECEIVED",
+    TRANSIT: "TRANSIT",
+    PICKUP: "PICKUP",
+    UNDELIVERED: "UNDELIVERED",
+    DELIVERED: "DELIVERED",
+    EXCEPTION: "EXCEPTION",
+    EXPIRED: "EXPIRED",
   };
 
-  return statusMap[status] || "PENDING";
+  return statusMap[status] || status || "PENDING";
 };
 
 // Get status config safely
@@ -103,6 +123,7 @@ interface OrderDetailsModalProps {
   order: AdminOrderDetail | null;
   loading?: boolean;
   onStatusUpdate?: (status: AdminOrderStatus) => Promise<void>;
+  onTrackingUpdate?: () => Promise<void>;
 }
 
 const OrderDetailsModal: React.FC<OrderDetailsModalProps> = ({
@@ -111,9 +132,11 @@ const OrderDetailsModal: React.FC<OrderDetailsModalProps> = ({
   order,
   loading = false,
   onStatusUpdate,
+  onTrackingUpdate,
 }) => {
   const [statusMenuAnchor, setStatusMenuAnchor] =
     React.useState<null | HTMLElement>(null);
+  const [trackingModalOpen, setTrackingModalOpen] = React.useState(false);
 
   const normalizedStatus = order ? normalizeOrderStatus(order.status) : null;
   const nextStatus = normalizedStatus ? getNextStatus(normalizedStatus) : null;
@@ -445,6 +468,21 @@ const OrderDetailsModal: React.FC<OrderDetailsModalProps> = ({
                       anchorOrigin={{ vertical: "bottom", horizontal: "right" }}
                       transformOrigin={{ vertical: "top", horizontal: "right" }}
                     >
+                      {normalizedStatus &&
+                        (normalizedStatus === "PROCESSING" ||
+                          normalizedStatus === "PACKAGING") && (
+                          <MenuItem
+                            onClick={() => {
+                              setTrackingModalOpen(true);
+                              handleStatusMenuClose();
+                            }}
+                          >
+                            <QrCodeScannerIcon sx={{ fontSize: 20, mr: 1 }} />
+                            {(order as any).trackingReference
+                              ? "Update Tracking Reference"
+                              : "Input Tracking Reference"}
+                          </MenuItem>
+                        )}
                       {nextStatus && (
                         <MenuItem
                           onClick={() => handleStatusUpdate(nextStatus)}
@@ -474,6 +512,30 @@ const OrderDetailsModal: React.FC<OrderDetailsModalProps> = ({
                   </>
                 )}
               </Stack>
+              {(order as any).trackingReference && (
+                <Box sx={{ mt: 1.5 }}>
+                  <Typography
+                    variant="caption"
+                    color="text.secondary"
+                    sx={{ display: "block", mb: 0.5 }}
+                  >
+                    Tracking Reference
+                  </Typography>
+                  <Typography variant="body2" fontWeight={500}>
+                    {(order as any).trackingReference}
+                  </Typography>
+                  {(order as any).trackingStatus && (
+                    <Chip
+                      label={(order as any).trackingStatus}
+                      size="small"
+                      color={
+                        getStatusConfig((order as any).trackingStatus).color
+                      }
+                      sx={{ mt: 0.5 }}
+                    />
+                  )}
+                </Box>
+              )}
             </Box>
 
             <Divider />
@@ -562,8 +624,40 @@ const OrderDetailsModal: React.FC<OrderDetailsModalProps> = ({
         ) : null}
       </DialogContent>
       <DialogActions>
+        {order &&
+          normalizedStatus &&
+          (normalizedStatus === "PROCESSING" ||
+            normalizedStatus === "PACKAGING") && (
+            <Button
+              startIcon={<QrCodeScannerIcon />}
+              onClick={() => setTrackingModalOpen(true)}
+              variant="outlined"
+              sx={{
+                borderRadius: 999,
+                textTransform: "none",
+                fontWeight: 600,
+                fontFamily: '"League Spartan", sans-serif',
+              }}
+            >
+              {(order as any).trackingReference
+                ? "Update Tracking"
+                : "Add Tracking"}
+            </Button>
+          )}
         <Button onClick={onClose}>Close</Button>
       </DialogActions>
+
+      <TrackingReferenceModal
+        open={trackingModalOpen}
+        onClose={() => setTrackingModalOpen(false)}
+        orderId={order?.id || ""}
+        existingTrackingReference={(order as any)?.trackingReference || null}
+        onSuccess={async () => {
+          if (onTrackingUpdate) {
+            await onTrackingUpdate();
+          }
+        }}
+      />
     </Dialog>
   );
 };

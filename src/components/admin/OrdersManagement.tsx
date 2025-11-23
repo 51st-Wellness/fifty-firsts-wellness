@@ -28,9 +28,11 @@ import {
   LocalShipping as LocalShippingIcon,
   Inventory as InventoryIcon,
   LocalShippingOutlined as LocalShippingOutlinedIcon,
+  QrCodeScanner as QrCodeScannerIcon,
 } from "@mui/icons-material";
 import toast from "react-hot-toast";
 import OrderDetailsModal from "./OrderDetailsModal";
+import TrackingReferenceModal from "./TrackingReferenceModal";
 import {
   getAdminOrders,
   updateOrderStatus,
@@ -49,7 +51,7 @@ const currency = (value: number) =>
   }).format(value);
 
 const statusConfig: Record<
-  AdminOrderStatus,
+  AdminOrderStatus | string,
   {
     label: string;
     color: "default" | "warning" | "success" | "primary" | "info" | "error";
@@ -60,6 +62,15 @@ const statusConfig: Record<
   PACKAGING: { label: "Packaging", color: "info" },
   IN_TRANSIT: { label: "In-Transit", color: "info" },
   FULFILLED: { label: "Fulfilled", color: "success" },
+  // Tracking statuses
+  NOTFOUND: { label: "Not Found", color: "error" },
+  INFORECEIVED: { label: "Info Received", color: "info" },
+  TRANSIT: { label: "In Transit", color: "info" },
+  PICKUP: { label: "Ready for Pickup", color: "warning" },
+  UNDELIVERED: { label: "Undelivered", color: "error" },
+  DELIVERED: { label: "Delivered", color: "success" },
+  EXCEPTION: { label: "Exception", color: "error" },
+  EXPIRED: { label: "Expired", color: "error" },
 };
 
 const statusFlow: AdminOrderStatus[] = [
@@ -90,10 +101,10 @@ const getPreviousStatus = (
   return null;
 };
 
-// Normalize status from backend (handles old payment statuses)
-const normalizeOrderStatus = (status: string): AdminOrderStatus => {
+// Normalize status from backend (handles old payment statuses and tracking statuses)
+const normalizeOrderStatus = (status: string): AdminOrderStatus | string => {
   // Map old payment statuses to new order statuses
-  const statusMap: Record<string, AdminOrderStatus> = {
+  const statusMap: Record<string, AdminOrderStatus | string> = {
     PAID: "PROCESSING", // Paid orders should be in processing
     PENDING: "PENDING",
     CANCELLED: "PENDING", // Cancelled orders can't be changed, but show as pending for now
@@ -104,9 +115,18 @@ const normalizeOrderStatus = (status: string): AdminOrderStatus => {
     PACKAGING: "PACKAGING",
     IN_TRANSIT: "IN_TRANSIT",
     FULFILLED: "FULFILLED",
+    // Tracking statuses (keep as-is)
+    NOTFOUND: "NOTFOUND",
+    INFORECEIVED: "INFORECEIVED",
+    TRANSIT: "TRANSIT",
+    PICKUP: "PICKUP",
+    UNDELIVERED: "UNDELIVERED",
+    DELIVERED: "DELIVERED",
+    EXCEPTION: "EXCEPTION",
+    EXPIRED: "EXPIRED",
   };
 
-  return statusMap[status] || "PENDING";
+  return statusMap[status] || status || "PENDING";
 };
 
 // Get status config safely
@@ -133,6 +153,11 @@ const OrdersManagement: React.FC = () => {
   const [detailsOpen, setDetailsOpen] = useState(false);
   const [orderDetail, setOrderDetail] = useState<AdminOrderDetail | null>(null);
   const [loadingDetail, setLoadingDetail] = useState(false);
+  const [trackingModalOpen, setTrackingModalOpen] = useState(false);
+  const [trackingOrderId, setTrackingOrderId] = useState<string | null>(null);
+  const [trackingReference, setTrackingReference] = useState<string | null>(
+    null
+  );
 
   const loadOrders = useCallback(async () => {
     setLoading(true);
@@ -232,6 +257,24 @@ const OrdersManagement: React.FC = () => {
     }
   };
 
+  const handleOpenTrackingModal = (order: AdminOrderListItem) => {
+    setTrackingOrderId(order.id);
+    // Access trackingReference from the order (may not be in type definition)
+    const orderWithTracking = order as AdminOrderListItem & {
+      trackingReference?: string | null;
+    };
+    setTrackingReference(orderWithTracking.trackingReference || null);
+    setTrackingModalOpen(true);
+    handleMenuClose();
+  };
+
+  const handleTrackingSuccess = async () => {
+    await loadOrders();
+    if (trackingOrderId && detailsOpen && orderDetail?.id === trackingOrderId) {
+      await loadOrderDetail(trackingOrderId);
+    }
+  };
+
   const handleChangePage = (event: unknown, newPage: number) => {
     setPage(newPage);
   };
@@ -243,12 +286,19 @@ const OrdersManagement: React.FC = () => {
     setPage(0);
   };
 
-  const nextStatus = activeOrder
-    ? getNextStatus(normalizeOrderStatus(activeOrder.status))
+  const normalizedActiveStatus = activeOrder
+    ? normalizeOrderStatus(activeOrder.status)
     : null;
-  const previousStatus = activeOrder
-    ? getPreviousStatus(normalizeOrderStatus(activeOrder.status))
-    : null;
+  const nextStatus =
+    normalizedActiveStatus &&
+    statusFlow.includes(normalizedActiveStatus as AdminOrderStatus)
+      ? getNextStatus(normalizedActiveStatus as AdminOrderStatus)
+      : null;
+  const previousStatus =
+    normalizedActiveStatus &&
+    statusFlow.includes(normalizedActiveStatus as AdminOrderStatus)
+      ? getPreviousStatus(normalizedActiveStatus as AdminOrderStatus)
+      : null;
 
   return (
     <div className="space-y-6">
@@ -313,6 +363,11 @@ const OrdersManagement: React.FC = () => {
                 <MenuItem value="PACKAGING">Packaging</MenuItem>
                 <MenuItem value="IN_TRANSIT">In-Transit</MenuItem>
                 <MenuItem value="FULFILLED">Fulfilled</MenuItem>
+                <MenuItem value="INFORECEIVED">Info Received</MenuItem>
+                <MenuItem value="TRANSIT">In Transit</MenuItem>
+                <MenuItem value="DELIVERED">Delivered</MenuItem>
+                <MenuItem value="UNDELIVERED">Undelivered</MenuItem>
+                <MenuItem value="EXCEPTION">Exception</MenuItem>
               </Select>
             </FormControl>
           </Box>
@@ -471,6 +526,16 @@ const OrdersManagement: React.FC = () => {
         anchorOrigin={{ vertical: "bottom", horizontal: "right" }}
         transformOrigin={{ vertical: "top", horizontal: "right" }}
       >
+        {activeOrder &&
+          (normalizeOrderStatus(activeOrder.status) === "PROCESSING" ||
+            normalizeOrderStatus(activeOrder.status) === "PACKAGING") && (
+            <MenuItem onClick={() => handleOpenTrackingModal(activeOrder)}>
+              <QrCodeScannerIcon sx={{ fontSize: 20, mr: 1 }} />
+              {(activeOrder as any).trackingReference
+                ? "Update Tracking Reference"
+                : "Input Tracking Reference"}
+            </MenuItem>
+          )}
         {nextStatus && (
           <MenuItem onClick={() => handleStatusUpdate(nextStatus)}>
             <LocalShippingIcon sx={{ fontSize: 20, mr: 1 }} />
@@ -483,7 +548,7 @@ const OrdersManagement: React.FC = () => {
             Move back to {statusConfig[previousStatus].label}
           </MenuItem>
         )}
-        {!nextStatus && !previousStatus && (
+        {!nextStatus && !previousStatus && !activeOrder && (
           <MenuItem disabled>
             <Typography variant="body2" color="text.secondary">
               No status transitions available
@@ -491,6 +556,18 @@ const OrdersManagement: React.FC = () => {
           </MenuItem>
         )}
       </Menu>
+
+      <TrackingReferenceModal
+        open={trackingModalOpen}
+        onClose={() => {
+          setTrackingModalOpen(false);
+          setTrackingOrderId(null);
+          setTrackingReference(null);
+        }}
+        orderId={trackingOrderId || ""}
+        existingTrackingReference={trackingReference}
+        onSuccess={handleTrackingSuccess}
+      />
 
       <OrderDetailsModal
         open={detailsOpen}
@@ -503,6 +580,11 @@ const OrdersManagement: React.FC = () => {
         onStatusUpdate={async (newStatus) => {
           if (orderDetail) {
             await handleStatusUpdate(newStatus);
+          }
+        }}
+        onTrackingUpdate={async () => {
+          if (orderDetail) {
+            await loadOrderDetail(orderDetail.id);
           }
         }}
       />
