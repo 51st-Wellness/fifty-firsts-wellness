@@ -244,6 +244,84 @@ const Checkout: React.FC = () => {
     loadSummary();
   }, [loadSummary]);
 
+  // Initialize Royal Mail AddressNow for address autocomplete
+  useEffect(() => {
+    const shouldShowAddressFields = useCustomAddress || addresses.length === 0;
+    if (!shouldShowAddressFields) return;
+
+    const initAddressNow = () => {
+      const AN = (window as any).addressNow || (window as any).AddressNow;
+      const addressLine1 = document.getElementById("checkout-addressLine1");
+
+      console.log("AddressNow:", AN);
+      console.log("AddressLine1:", addressLine1);
+      // Ensure both the library and the DOM elements are ready
+      if (AN && addressLine1) {
+        try {
+          // Use the listen 'load' pattern for robust configuration
+          if (AN.listen) {
+            AN.listen("load", (control: any) => {
+              console.log("AddressNow loaded, control:", control);
+              control.listen("options", (options: any) => {
+                console.log("AddressNow options:", options);
+                // Correct field mapping array structure
+                options.fields = [
+                  { element: "address-search", field: "Line1", mode: "search" }, // Dedicated search input
+                  { element: "checkout-addressLine1", field: "Line1" },
+                  { element: "checkout-postTown", field: "City" },
+                  { element: "checkout-postcode", field: "Postcode" },
+                ];
+
+                // Disable the default UI bar if possible
+                options.bar = options.bar || {};
+                options.bar.visible = false;
+
+                // Configure search behavior
+                options.search = options.search || {};
+                options.search.maxSuggestions = 7;
+              });
+
+              // Sync with React state when an address is populated
+              control.listen("populate", (address: any) => {
+                console.log("AddressNow populated:", address);
+                setFormData((prev) => ({
+                  ...prev,
+                  addressLine1:
+                    address.Line1 || address.AddressLine1 || prev.addressLine1,
+                  postTown: address.City || address.Town || prev.postTown,
+                  postcode: address.Postcode || prev.postcode,
+                }));
+              });
+            });
+
+            // Trigger the load sequence
+            AN.load();
+          }
+        } catch (error) {
+          console.error("Failed to initialize AddressNow:", error);
+        }
+      }
+    };
+
+    // Aggressive retry mechanism to wait for DOM and Script
+    let attempts = 0;
+    const checkInterval = setInterval(() => {
+      attempts++;
+      const AN = (window as any).addressNow || (window as any).AddressNow;
+      const element = document.getElementById("address-search"); // Wait for search input
+
+      if (AN && element) {
+        initAddressNow();
+        clearInterval(checkInterval);
+      } else if (attempts > 50) {
+        // Stop after ~5 seconds
+        clearInterval(checkInterval);
+      }
+    }, 100);
+
+    return () => clearInterval(checkInterval);
+  }, [useCustomAddress, addresses.length]);
+
   const handleChange =
     (field: keyof CartCheckoutPayload) =>
     (event: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
@@ -856,6 +934,19 @@ const Checkout: React.FC = () => {
 
                 {(useCustomAddress || addresses.length === 0) && (
                   <div className="space-y-3.5 pt-4 border-t border-gray-200">
+                    {/* AddressNow Search Input - Independent */}
+                    <div className="mb-4 p-4 bg-blue-50 rounded-xl border border-blue-100">
+                      <label className="block text-xs sm:text-sm font-medium text-blue-900 mb-1">
+                        Find your address (Start typing here)
+                      </label>
+                      <input
+                        type="text"
+                        id="address-search"
+                        className="w-full rounded-xl border border-blue-200 px-3.5 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 transition-all"
+                        placeholder="Start typing your address..."
+                      />
+                    </div>
+
                     <div className="grid gap-3.5 sm:gap-4 sm:grid-cols-2">
                       <div>
                         <label className="block text-xs sm:text-sm font-medium text-gray-700 mb-1">
@@ -894,6 +985,8 @@ const Checkout: React.FC = () => {
                       </label>
                       <input
                         type="text"
+                        id="checkout-addressLine1"
+                        name="addressLine1"
                         value={formData.addressLine1}
                         onChange={handleChange("addressLine1")}
                         className="w-full rounded-xl border border-gray-200 px-3.5 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-brand-green focus:border-brand-green transition-all"
@@ -909,6 +1002,8 @@ const Checkout: React.FC = () => {
                         </label>
                         <input
                           type="text"
+                          id="checkout-postTown"
+                          name="postTown"
                           value={formData.postTown}
                           onChange={handleChange("postTown")}
                           className="w-full rounded-xl border border-gray-200 px-3.5 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-brand-green focus:border-brand-green transition-all"
@@ -917,12 +1012,13 @@ const Checkout: React.FC = () => {
                         />
                       </div>
                       <div>
-                        {/* // TODO: Integrate Royal Mail / AddressNow API search here for auto-suggest. */}
                         <label className="block text-xs sm:text-sm font-medium text-gray-700 mb-1">
                           Postcode *
                         </label>
                         <input
                           type="text"
+                          id="checkout-postcode"
+                          name="postcode"
                           value={formData.postcode}
                           onChange={handleChange("postcode")}
                           className="w-full rounded-xl border border-gray-200 px-3.5 py-2.5 text-sm uppercase focus:outline-none focus:ring-2 focus:ring-brand-green focus:border-brand-green transition-all"
