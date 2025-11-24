@@ -66,7 +66,7 @@ const StoreItemCard: React.FC<StoreItemCardProps> = ({
   };
 
   const isComingSoon = (item as any)?.status === "coming_soon";
-  const isOutOfStock = item.stock === 0;
+  const isOutOfStock = (item.stock ?? 0) === 0;
   const showAddToCart = !canPreOrder && !isComingSoon && !isOutOfStock;
   const showNotifyOnly = !canPreOrder && (isComingSoon || isOutOfStock);
 
@@ -117,6 +117,12 @@ const StoreItemCard: React.FC<StoreItemCardProps> = ({
             <span className="absolute top-2 left-2 inline-flex items-center gap-1 rounded-full bg-white/90 px-3 py-1 text-[10px] font-semibold uppercase text-brand-green shadow-sm">
               <Package className="w-3 h-3" />
               Pre-order
+            </span>
+          )}
+          {!canPreOrder && isOutOfStock && (
+            <span className="absolute top-2 left-2 inline-flex items-center gap-1 rounded-full bg-gray-900/80 px-3 py-1 text-[10px] font-semibold uppercase text-white shadow-sm">
+              <ShoppingCart className="w-3 h-3 text-white" />
+              Out of Cart
             </span>
           )}
         </div>

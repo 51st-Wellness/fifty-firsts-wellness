@@ -51,56 +51,6 @@ const MarketPlace: React.FC<MarketPlaceProps> = ({ onSearch }) => {
   // Debounced search
   const [debouncedQuery, setDebouncedQuery] = useState<string>("");
 
-  // Demo items to showcase discount/preorder/notify states
-  const demoItems = useMemo<StoreItemType[]>(
-    () => [
-      {
-        productId: "demo-preorder-1" as any,
-        name: "Mindful Tea Set",
-        price: 34.99,
-        oldPrice: 49.99,
-        display: {
-          url: "https://images.unsplash.com/photo-1517686469429-8bdb88b9f907?w=800&q=80",
-        } as any,
-        images: [
-          "https://images.unsplash.com/photo-1517686469429-8bdb88b9f907?w=800&q=80",
-          "https://images.unsplash.com/photo-1505577058444-a3dab90d4253?w=800&q=80",
-        ],
-        stock: 50,
-        // custom field consumed in card
-        // @ts-ignore
-        status: "coming_soon",
-      },
-      {
-        productId: "demo-notify-1" as any,
-        name: "Aromatherapy Candle",
-        price: 14.99,
-        oldPrice: 24.99,
-        display: {
-          url: "https://images.unsplash.com/photo-1519681393784-d120267933ba?w=800&q=80",
-        } as any,
-        images: [
-          "https://images.unsplash.com/photo-1519681393784-d120267933ba?w=800&q=80",
-        ],
-        stock: 0,
-      },
-      {
-        productId: "demo-discount-1" as any,
-        name: "Yoga Mat Pro",
-        price: 29.99,
-        oldPrice: 59.99,
-        display: {
-          url: "https://images.unsplash.com/photo-1552196563-55cd4e45efb3?w=800&q=80",
-        } as any,
-        images: [
-          "https://images.unsplash.com/photo-1552196563-55cd4e45efb3?w=800&q=80",
-        ],
-        stock: 0,
-      },
-    ],
-    []
-  );
-
   useEffect(() => {
     const timer = setTimeout(() => {
       setDebouncedQuery(query);
@@ -208,15 +158,14 @@ const MarketPlace: React.FC<MarketPlaceProps> = ({ onSearch }) => {
   const getItemRating = (item: StoreItemType) => 4; // placeholder until backend provides rating
 
   const filteredItems = useMemo(() => {
-    const combined = [...demoItems, ...items];
-    return combined.filter((it) => {
+    return items.filter((it) => {
       const currentPrice =
         getStoreItemPricing(it, { globalDiscount }).currentPrice ?? 0;
       const withinPrice = currentPrice >= minPrice && currentPrice <= maxPrice;
       const meetsRating = getItemRating(it) >= ratingThreshold;
       return withinPrice && meetsRating;
     });
-  }, [demoItems, items, minPrice, maxPrice, ratingThreshold]);
+  }, [items, minPrice, maxPrice, ratingThreshold]);
 
   return (
     <main className="relative min-h-screen pb-0 bg-[#F7F8FA]">
