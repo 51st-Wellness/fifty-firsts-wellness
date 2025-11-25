@@ -1,10 +1,5 @@
 import React, { useState, useEffect } from "react";
-import {
-  Package,
-  Loader,
-  X,
-  Bell,
-} from "lucide-react";
+import { Package, Loader, X, Bell } from "lucide-react";
 import { toast } from "react-hot-toast";
 import {
   getMyOrders,
@@ -13,9 +8,154 @@ import {
   type OrderDetail,
 } from "../../api/user.api";
 import { useNavigate } from "react-router-dom";
-import SubmitReviewModal from "../../components/SubmitReviewModal";
-import { checkUserReviewForOrderItem } from "../../api/review.api";
 import { ResponseStatus } from "@/types/response.types";
+
+const formatCurrency = (amount: number, currency: string = "GBP") => {
+  return new Intl.NumberFormat("en-GB", {
+    style: "currency",
+    currency: currency === "USD" ? "GBP" : currency || "GBP",
+  }).format(amount);
+};
+
+const formatDate = (date: string | Date) => {
+  return new Date(date).toLocaleDateString("en-US", {
+    year: "numeric",
+    month: "long",
+    day: "numeric",
+    hour: "2-digit",
+    minute: "2-digit",
+  });
+};
+
+const getStatusLabel = (status: string) => {
+  const upperStatus = status.toUpperCase();
+  if (upperStatus.includes("DELIVERED")) {
+    return "Delivered";
+  }
+  if (upperStatus === "PAID") {
+    return "Paid";
+  }
+  if (upperStatus === "PENDING") {
+    return "Pending";
+  }
+  if (upperStatus === "FAILED") {
+    return "Failed";
+  }
+  if (upperStatus === "CANCELLED") {
+    return "Cancelled";
+  }
+  if (upperStatus === "REFUNDED") {
+    return "Refunded";
+  }
+  if (upperStatus === "PRE_ORDER" || upperStatus.includes("PREORDER")) {
+    return "Pre-order";
+  }
+  if (upperStatus.includes("CANCELLED") || upperStatus.includes("FAILED")) {
+    if (upperStatus.includes("PAYMENT")) {
+      return "Cancelled - Payment Unsuccessful";
+    }
+    return "Cancelled";
+  }
+  if (
+    upperStatus.includes("PENDING") ||
+    upperStatus.includes("PROGRESS") ||
+    upperStatus.includes("ONGOING")
+  ) {
+    return "Delivery in progress";
+  }
+  return status.charAt(0).toUpperCase() + status.slice(1).toLowerCase();
+};
+
+const getStatusColor = (status: string) => {
+  const upperStatus = status.toUpperCase();
+  if (upperStatus.includes("DELIVERED") || upperStatus === "PAID") {
+    return "bg-green-100 text-green-700 border-green-200";
+  }
+  if (upperStatus.includes("CANCELLED") || upperStatus.includes("FAILED")) {
+    return "bg-red-100 text-red-700 border-red-200";
+  }
+  if (
+    upperStatus.includes("PENDING") ||
+    upperStatus.includes("PROGRESS") ||
+    upperStatus.includes("ONGOING")
+  ) {
+    return "bg-orange-100 text-orange-700 border-orange-200";
+  }
+  return "bg-gray-100 text-gray-700 border-gray-200";
+};
+
+type OrderWithDetails = OrderSummary & {
+  firstProductName?: string;
+  firstProductImage?: string;
+  wantsNotification?: boolean;
+  isPreOrder?: boolean;
+};
+
+const generateDemoPreOrders = (): OrderWithDetails[] => {
+  const now = Date.now();
+  return [
+    {
+      id: "PREORDER-DEMO-001",
+      userId: "demo-user",
+      status: "PRE_ORDER",
+      totalAmount: 45,
+      paymentId: null,
+      deliveryAddressId: null,
+      createdAt: new Date(now - 2 * 24 * 60 * 60 * 1000).toISOString(),
+      updatedAt: new Date(now - 2 * 24 * 60 * 60 * 1000).toISOString(),
+      itemCount: 1,
+      totalQuantity: 1,
+      paymentStatus: null,
+      paymentProvider: null,
+      paymentCurrency: "GBP",
+      firstProductName: "Glow Restore Elixir",
+      firstProductImage:
+        "https://images.unsplash.com/photo-1521572267360-ee0c2909d518?auto=format&fit=crop&w=400&q=60",
+      wantsNotification: true,
+      isPreOrder: true,
+    },
+    {
+      id: "PREORDER-DEMO-002",
+      userId: "demo-user",
+      status: "PRE_ORDER",
+      totalAmount: 62,
+      paymentId: null,
+      deliveryAddressId: null,
+      createdAt: new Date(now - 5 * 24 * 60 * 60 * 1000).toISOString(),
+      updatedAt: new Date(now - 5 * 24 * 60 * 60 * 1000).toISOString(),
+      itemCount: 2,
+      totalQuantity: 3,
+      paymentStatus: null,
+      paymentProvider: null,
+      paymentCurrency: "GBP",
+      firstProductName: "Calm Nights Bundle",
+      firstProductImage:
+        "https://images.unsplash.com/photo-1505252585461-04db1eb84625?auto=format&fit=crop&w=400&q=60",
+      wantsNotification: false,
+      isPreOrder: true,
+    },
+    {
+      id: "PREORDER-DEMO-003",
+      userId: "demo-user",
+      status: "PRE_ORDER",
+      totalAmount: 38,
+      paymentId: null,
+      deliveryAddressId: null,
+      createdAt: new Date(now - 10 * 24 * 60 * 60 * 1000).toISOString(),
+      updatedAt: new Date(now - 10 * 24 * 60 * 60 * 1000).toISOString(),
+      itemCount: 1,
+      totalQuantity: 1,
+      paymentStatus: null,
+      paymentProvider: null,
+      paymentCurrency: "GBP",
+      firstProductName: "Herbal Focus Drops",
+      firstProductImage:
+        "https://images.unsplash.com/photo-1447175008436-054170c2e979?auto=format&fit=crop&w=400&q=60",
+      wantsNotification: true,
+      isPreOrder: true,
+    },
+  ];
+};
 
 const OrdersHistory: React.FC = () => {
   const [orders, setOrders] = useState<OrderWithDetails[]>([]);
@@ -33,6 +173,51 @@ const OrdersHistory: React.FC = () => {
     void loadOrders();
   }, []);
 
+  const loadOrderImages = async (orderList: OrderWithDetails[]) => {
+    if (!orderList.length) return;
+    const loadingSet = new Set<string>();
+    orderList.forEach((order) => loadingSet.add(order.id));
+    setLoadingImages(new Set(loadingSet));
+
+    await Promise.all(
+      orderList.map(async (order) => {
+        try {
+          const response = await getMyOrder(order.id);
+          if (
+            response.status === ResponseStatus.SUCCESS &&
+            response.data?.order
+          ) {
+            const detail = response.data.order;
+            const firstItem = detail.orderItems?.[0];
+            const firstProductImage =
+              firstItem?.product?.storeItem?.display?.url ||
+              firstItem?.product?.storeItem?.images?.[0] ||
+              "";
+            const firstProductName =
+              firstItem?.product?.storeItem?.name || "Order item";
+
+            setOrders((prev) =>
+            prev.map((existing) =>
+                existing.id === order.id
+                  ? {
+                      ...existing,
+                      firstProductImage,
+                      firstProductName,
+                    }
+                  : existing
+              )
+            );
+          }
+        } catch (error) {
+          console.error("Failed to load order preview", error);
+        } finally {
+          loadingSet.delete(order.id);
+          setLoadingImages(new Set(loadingSet));
+        }
+      })
+    );
+  };
+
   const loadOrders = async () => {
     setLoadingOrders(true);
     try {
@@ -41,11 +226,11 @@ const OrdersHistory: React.FC = () => {
         (response.status === ResponseStatus.SUCCESS) &&
         response.data?.orders
       ) {
-        const ordersWithDetails: OrderWithDetails[] = response.data.orders;
-        setOrders(ordersWithDetails);
-        
-        // Fetch order details for each order to get product images
-        void loadOrderImages(ordersWithDetails);
+        const baseOrders: OrderWithDetails[] = response.data.orders.map((order) => ({
+          ...order,
+        }));
+        setOrders(baseOrders);
+        void loadOrderImages(baseOrders);
       }
     } catch (error: any) {
       toast.error(error?.response?.data?.message || "Failed to load orders");
@@ -54,217 +239,43 @@ const OrdersHistory: React.FC = () => {
     }
   };
 
-  const fetchOrderDetail = async (
-    orderId: string
-  ): Promise<OrderDetail | null> => {
-    if (orderDetails[orderId]) {
-      return orderDetails[orderId];
+  const handleViewOrder = async (
+    order: OrderWithDetails,
+    isMobile: boolean
+  ) => {
+    if (order.isPreOrder) {
+      toast.success("Pre-order updates will be shared once the item ships.");
+      return;
     }
 
+    if (!isMobile) {
+      navigate(`/dashboard/orders/${order.id}`);
+      return;
+    }
+
+    setIsModalOpen(true);
+    setLoadingOrderDetails(true);
+    setSelectedOrder(null);
+
     try {
-      setLoadingDetailOrderId(orderId);
-      const response = await getMyOrder(orderId);
+      const response = await getMyOrder(order.id);
       if (
-        (response.status === ResponseStatus.SUCCESS) &&
+        response.status === ResponseStatus.SUCCESS &&
         response.data?.order
       ) {
-        const order = response.data.order;
-        setOrderDetails((prev) => ({
-          ...prev,
-          [orderId]: order,
-        }));
-        return order;
-      }
-      toast.error(response.message || "Failed to load order details.");
-      return null;
-    } catch (error: any) {
-      toast.error(
-        error?.response?.data?.message || "Failed to load order details."
-      );
-      return null;
-    } finally {
-      setLoadingDetailOrderId(null);
-    }
-  };
-
-  const ensureOrderDetail = async (
-    orderId: string
-  ): Promise<OrderDetail | null> => {
-    return orderDetails[orderId] ?? (await fetchOrderDetail(orderId));
-  };
-
-  const getStatusColor = (status: string) => {
-    const upperStatus = status.toUpperCase();
-    if (upperStatus.includes("DELIVERED")) {
-      return "bg-green-100 text-green-700 border-green-200";
-    }
-    if (upperStatus.includes("CANCELLED") || upperStatus.includes("FAILED")) {
-      return "bg-red-100 text-red-700 border-red-200";
-    }
-    if (upperStatus.includes("PENDING") || upperStatus.includes("PROGRESS") || upperStatus.includes("ONGOING")) {
-      return "bg-orange-100 text-orange-700 border-orange-200";
-    }
-    if (upperStatus === "PAID") {
-      return "bg-green-100 text-green-700 border-green-200";
-    }
-    return "bg-gray-100 text-gray-700 border-gray-200";
-  };
-
-  const formatDate = (date: string | Date) => {
-    return new Date(date).toLocaleDateString("en-US", {
-      year: "numeric",
-      month: "long",
-      day: "numeric",
-      hour: "2-digit",
-      minute: "2-digit",
-    });
-  };
-
-  const formatCurrency = (amount: number, currency: string = "GBP") => {
-    return new Intl.NumberFormat("en-GB", {
-      style: "currency",
-      currency: currency === "USD" ? "GBP" : currency || "GBP",
-    }).format(amount);
-  };
-
-  const handleReorder = async (order: OrderSummary) => {
-    const detail = await ensureOrderDetail(order.id);
-    if (!detail || !detail.orderItems.length) {
-      toast.error("Unable to reorder at this time.");
-      return;
-    }
-
-    try {
-      setReorderingOrderId(order.id);
-      for (const item of detail.orderItems) {
-        if (!item.productId) {
-          continue;
-        }
-
-        const addResponse = await cartAPI.addToCart({
-          productId: item.productId,
-          quantity: Math.max(1, item.quantity ?? 1),
-        });
-
-        if (
-          !(
-            (addResponse.status === ResponseStatus.SUCCESS) &&
-            addResponse.data
-          )
-        ) {
-          throw new Error(addResponse?.message || "Unable to add item to cart");
-        }
-      }
-
-      await refreshCart();
-      toast.success(
-        "Order items added to your cart. Review and checkout when ready."
-      );
-      openCart();
-    } catch (error) {
-      console.error("Order again failed:", error);
-      toast.error(
-        "We couldn't add those items to your cart. Please try again."
-      );
-    } finally {
-      setReorderingOrderId(null);
-    }
-  };
-
-  const handleContactSupport = (orderId: string) => {
-    navigate(`/contact?order=${orderId}`);
-  };
-
-  const handleVerifyPayment = async (orderId: string) => {
-    try {
-      setVerifyingOrderId(orderId);
-      const response = await verifyOrderPayment(orderId);
-      if (
-        (response.status === ResponseStatus.SUCCESS) &&
-        response.data
-      ) {
-        if (response.data.updated) {
-          toast.success(
-            response.data.message || "Payment status verified and updated"
-          );
-          // Reload orders to get updated status
-          await loadOrders();
-          // If order is expanded, reload its details
-          if (expandedOrderId === orderId) {
-            await fetchOrderDetail(orderId);
-          }
-        } else {
-          toast.success(
-            response.data.message || "Payment status verified (no changes)"
-          );
-        }
+        setSelectedOrder(response.data.order);
       } else {
-        toast.error(response.message || "Failed to verify payment");
+        toast.error(response.message || "Failed to load order details");
+        setIsModalOpen(false);
       }
     } catch (error: any) {
-      toast.error(error?.response?.data?.message || "Failed to verify payment");
-    } finally {
-      setVerifyingOrderId(null);
-    }
-  };
-
-  const handleToggleOrder = (orderId: string) => {
-    setExpandedOrderId((current) => {
-      const next = current === orderId ? null : orderId;
-      if (next === orderId && !orderDetails[orderId]) {
-        void fetchOrderDetail(orderId);
-      }
-      return next;
-    });
-  };
-
-  const checkOrderItemReview = async (orderItemId: string) => {
-    if (
-      checkingReviews.has(orderItemId) ||
-      reviewedOrderItems.has(orderItemId)
-    ) {
-      return;
-    }
-
-    try {
-      setCheckingReviews((prev) => new Set(prev).add(orderItemId));
-      const response = await checkUserReviewForOrderItem(orderItemId);
-      if (
-        (response.status === ResponseStatus.SUCCESS) &&
-        response.data?.hasReviewed
-      ) {
-        setReviewedOrderItems((prev) => new Set(prev).add(orderItemId));
-      }
-    } catch (error) {
-      // Silently fail - don't block UI
-      console.error("Failed to check review status:", error);
-    } finally {
-      setCheckingReviews((prev) => {
-        const next = new Set(prev);
-        next.delete(orderItemId);
-        return next;
-      });
-    }
-  };
-
-  const handleReviewClick = (item: OrderDetail["orderItems"][0]) => {
-    if (!item.productId || !item.id) return;
-    setSelectedOrderItem({
-      orderItemId: item.id,
-      productId: item.productId,
-      productName: item.product?.storeItem?.name || "Product",
-    });
-    setReviewModalOpen(true);
-  };
-
-  const handleReviewSubmit = () => {
-    if (selectedOrderItem) {
-      setReviewedOrderItems((prev) =>
-        new Set(prev).add(selectedOrderItem.orderItemId)
+      toast.error(
+        error?.response?.data?.message || "Failed to load order details"
       );
+      setIsModalOpen(false);
+    } finally {
+      setLoadingOrderDetails(false);
     }
-    setReviewModalOpen(false);
-    setSelectedOrderItem(null);
   };
 
   const filteredOrders = (() => {
@@ -337,7 +348,7 @@ const OrdersHistory: React.FC = () => {
                 className="bg-white rounded-lg overflow-hidden cursor-pointer"
                 onClick={() => {
                   const isMobile = window.innerWidth < 768;
-                  handleViewOrder(order.id, isMobile);
+                  void handleViewOrder(order, isMobile);
                 }}
               >
                 <div className="p-4">
@@ -380,7 +391,7 @@ const OrdersHistory: React.FC = () => {
                         </div>
 
                         {/* See Details / Bell Icon - Top Right */}
-                        {activeFilter === "Pre Orders" && (order as PreOrderDemo).wantsNotification ? (
+                        {order.isPreOrder && order.wantsNotification ? (
                           <div className="flex-shrink-0">
                             <Bell className="w-5 h-5 text-brand-green" />
                           </div>
@@ -390,7 +401,7 @@ const OrdersHistory: React.FC = () => {
                             onClick={(e) => {
                               e.stopPropagation();
                               const isMobile = window.innerWidth < 768;
-                              handleViewOrder(order.id, isMobile);
+                              void handleViewOrder(order, isMobile);
                             }}
                             className="hidden md:block text-brand-green hover:text-brand-green-dark text-sm flex-shrink-0 underline"
                             style={{ fontFamily: '"League Spartan", sans-serif' }}
@@ -430,7 +441,13 @@ const OrdersHistory: React.FC = () => {
       {/* Mobile Modal for Order Details */}
       {isModalOpen && (
         <div className="fixed inset-0 z-50 md:hidden">
-          <div className="fixed inset-0 bg-black/50" onClick={() => setIsModalOpen(false)} />
+          <div
+            className="fixed inset-0 bg-black/50"
+            onClick={() => {
+              setIsModalOpen(false);
+              setSelectedOrder(null);
+            }}
+          />
           <div className="fixed bottom-0 left-0 right-0 bg-white rounded-t-2xl max-h-[90vh] overflow-y-auto">
             <div className="sticky top-0 bg-white border-b border-gray-200 px-4 py-3 flex items-center justify-between">
               <h3
@@ -440,7 +457,10 @@ const OrdersHistory: React.FC = () => {
                 Order Details
               </h3>
               <button
-                onClick={() => setIsModalOpen(false)}
+                onClick={() => {
+                  setIsModalOpen(false);
+                  setSelectedOrder(null);
+                }}
                 className="p-2 hover:bg-gray-100 rounded-full transition-colors"
               >
                 <X className="w-5 h-5 text-gray-600" />
@@ -468,72 +488,6 @@ const OrdersHistory: React.FC = () => {
 
 // Order Details Content Component (reusable)
 const OrderDetailsContent: React.FC<{ order: OrderDetail }> = ({ order }) => {
-  const formatCurrency = (amount: number, currency: string = "GBP") => {
-    return new Intl.NumberFormat("en-GB", {
-      style: "currency",
-      currency: currency === "USD" ? "GBP" : currency || "GBP",
-    }).format(amount);
-  };
-
-  const formatDate = (date: string | Date) => {
-    return new Date(date).toLocaleDateString("en-US", {
-      year: "numeric",
-      month: "long",
-      day: "numeric",
-      hour: "2-digit",
-      minute: "2-digit",
-    });
-  };
-
-  const getStatusLabel = (status: string) => {
-    const upperStatus = status.toUpperCase();
-    if (upperStatus.includes("DELIVERED")) {
-      return "Delivered";
-    }
-    if (upperStatus === "PAID") {
-      return "Paid";
-    }
-    if (upperStatus === "PENDING") {
-      return "Pending";
-    }
-    if (upperStatus === "FAILED") {
-      return "Failed";
-    }
-    if (upperStatus === "CANCELLED") {
-      return "Cancelled";
-    }
-    if (upperStatus === "REFUNDED") {
-      return "Refunded";
-    }
-    if (upperStatus === "PRE_ORDER" || upperStatus.includes("PREORDER")) {
-      return "Pre-order";
-    }
-    if (upperStatus.includes("CANCELLED") || upperStatus.includes("FAILED")) {
-      if (upperStatus.includes("PAYMENT")) {
-        return "Cancelled - Payment Unsuccessful";
-      }
-      return "Cancelled";
-    }
-    if (upperStatus.includes("PENDING") || upperStatus.includes("PROGRESS") || upperStatus.includes("ONGOING")) {
-      return "Delivery in progress";
-    }
-    return status.charAt(0).toUpperCase() + status.slice(1).toLowerCase();
-  };
-
-  const getStatusColor = (status: string) => {
-    const upperStatus = status.toUpperCase();
-    if (upperStatus.includes("DELIVERED") || upperStatus === "PAID") {
-      return "bg-green-100 text-green-700 border-green-200";
-    }
-    if (upperStatus.includes("CANCELLED") || upperStatus.includes("FAILED")) {
-      return "bg-red-100 text-red-700 border-red-200";
-    }
-    if (upperStatus.includes("PENDING") || upperStatus.includes("PROGRESS") || upperStatus.includes("ONGOING")) {
-      return "bg-orange-100 text-orange-700 border-orange-200";
-    }
-    return "bg-gray-100 text-gray-700 border-gray-200";
-  };
-
   const itemsTotal = order.orderItems.reduce(
     (sum, item) => sum + item.price * item.quantity,
     0

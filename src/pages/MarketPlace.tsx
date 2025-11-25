@@ -181,7 +181,7 @@ const MarketPlace: React.FC<MarketPlaceProps> = ({ onSearch }) => {
             className="text-3xl sm:text-4xl lg:text-5xl font-semibold mb-3"
             style={{ fontFamily: '"League Spartan", sans-serif' }}
           >
-            Marketplace
+            Shop
           </h1>
           <p className="text-sm sm:text-base text-[#475464] leading-relaxed max-w-3xl">
             Explore thoughtfully curated wellness products designed to nourish

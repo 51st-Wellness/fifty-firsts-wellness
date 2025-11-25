@@ -181,7 +181,7 @@ const Navbar: React.FC = () => {
                 to="/marketplace"
                 className="text-gray-700 hover:text-brand-green font-medium transition-colors px-3 py-2 rounded-lg font-primary"
               >
-                Marketplace
+                Shop
               </Link>
             </li>
 
@@ -363,7 +363,7 @@ const Navbar: React.FC = () => {
                     onClick={() => setMenuOpen(false)}
                     className="block px-6 py-3 text-gray-700  hover:text-brand-green font-medium transition-colors"
                   >
-                    Marketplace
+                    Shop
                   </Link>
                   </li>
 
