@@ -267,9 +267,9 @@ const Checkout: React.FC = () => {
                 // Correct field mapping array structure
                 options.fields = [
                   { element: "address-search", field: "Line1", mode: "search" }, // Dedicated search input
-                  { element: "checkout-addressLine1", field: "Line1" },
+                  { element: "checkout-addressLine1", field: "FormattedLine1" }, // Use FormattedLine1 for complete address
                   { element: "checkout-postTown", field: "City" },
-                  { element: "checkout-postcode", field: "Postcode" },
+                  { element: "checkout-postcode", field: "PostalCode" }, // Use PostalCode as per AddressNow API
                 ];
 
                 // Disable the default UI bar if possible
@@ -286,10 +286,18 @@ const Checkout: React.FC = () => {
                 console.log("AddressNow populated:", address);
                 setFormData((prev) => ({
                   ...prev,
+                  // Use FormattedLine1 for complete address, fallback to Line1 with Company if needed
                   addressLine1:
-                    address.Line1 || address.AddressLine1 || prev.addressLine1,
+                    address.FormattedLine1 ||
+                    (address.Company
+                      ? `${address.Company}, ${address.Line1}`
+                      : address.Line1) ||
+                    address.AddressLine1 ||
+                    prev.addressLine1,
                   postTown: address.City || address.Town || prev.postTown,
-                  postcode: address.Postcode || prev.postcode,
+                  // Use PostalCode (not Postcode) as per AddressNow API
+                  postcode:
+                    address.PostalCode || address.Postcode || prev.postcode,
                 }));
               });
             });
