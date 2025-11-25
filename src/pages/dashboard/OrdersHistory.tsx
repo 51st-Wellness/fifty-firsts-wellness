@@ -9,7 +9,6 @@ import { toast } from "react-hot-toast";
 import {
   getMyOrders,
   getMyOrder,
-  verifyOrderPayment,
   type OrderSummary,
   type OrderDetail,
 } from "../../api/user.api";
@@ -43,44 +42,6 @@ const OrdersHistory: React.FC = () => {
   useEffect(() => {
     void loadOrders();
   }, []);
-
-  // Check review status for order items when order details are loaded
-  useEffect(() => {
-    if (!expandedOrderId) return;
-
-    const detail = orderDetails[expandedOrderId];
-    if (!detail || !detail.orderItems) return;
-
-    // Also populate reviewedOrderItems from backend hasReviewed first
-    detail.orderItems.forEach((item) => {
-      if (item.hasReviewed === true) {
-        setReviewedOrderItems((prev) => {
-          if (prev.has(item.id)) return prev;
-          return new Set(prev).add(item.id);
-        });
-      }
-    });
-
-    // Check reviews for items that can be reviewed and don't have backend value
-    const itemsToCheck = detail.orderItems.filter((item) => {
-      const canReview =
-        item.productId &&
-        item.product?.type === "STORE" &&
-        detail.status === "PAID";
-      const alreadyChecked =
-        reviewedOrderItems.has(item.id) || checkingReviews.has(item.id);
-      // Use backend hasReviewed if available, otherwise check
-      const hasBackendValue = item.hasReviewed !== undefined;
-
-      return canReview && !alreadyChecked && !hasBackendValue;
-    });
-
-    // Check reviews for items that need checking
-    itemsToCheck.forEach((item) => {
-      void checkOrderItemReview(item.id);
-    });
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [expandedOrderId, orderDetails]);
 
   const loadOrders = async () => {
     setLoadingOrders(true);
