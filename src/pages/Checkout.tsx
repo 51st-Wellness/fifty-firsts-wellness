@@ -8,6 +8,7 @@ import {
   Phone,
   Plus,
   Minus,
+  Package,
 } from "lucide-react";
 import { useAuth } from "../context/AuthContextProvider";
 import { useCart } from "../context/CartContext";
@@ -18,6 +19,7 @@ import {
 } from "../api/payment.api";
 import { getDeliveryAddresses, type DeliveryAddress } from "../api/user.api";
 import toast from "react-hot-toast";
+import { ResponseStatus } from "@/types/response.types";
 
 const Checkout: React.FC = () => {
   const navigate = useNavigate();
@@ -60,6 +62,8 @@ const Checkout: React.FC = () => {
   const [isRefreshingSummary, setIsRefreshingSummary] = useState(false);
 
   const hasCartItems = items.length > 0;
+  const isSuccessStatus = (status?: string | null) =>
+    typeof status === "string" && status.toUpperCase() === "SUCCESS";
 
   // Format helper for currency display
   const formatCurrency = (amount: number, currencyCode: string) =>
@@ -118,6 +122,9 @@ const Checkout: React.FC = () => {
   const discountSummary = summary?.discounts;
   const globalDiscountInfo =
     summary?.globalDiscount || discountSummary?.globalDiscount;
+  const hasPreOrders =
+    summary?.orderItems?.some((orderItem) => orderItem.isPreOrder) ?? false;
+  const totalDueToday = orderTotals.subtotal;
 
   useEffect(() => {
     if (!isAuthenticated) {
@@ -139,10 +146,7 @@ const Checkout: React.FC = () => {
         setError(null);
         const response = await paymentAPI.getCartCheckoutSummary();
 
-        if (
-          (response.status === "SUCCESS" || response.status === "success") &&
-          response.data
-        ) {
+        if (isSuccessStatus(response.status) && response.data) {
           const summaryData = response.data;
           setSummary(summaryData);
 
@@ -204,8 +208,7 @@ const Checkout: React.FC = () => {
             try {
               const addressesResponse = await getDeliveryAddresses();
               if (
-                (addressesResponse.status === "SUCCESS" ||
-                  addressesResponse.status === "success") &&
+                isSuccessStatus(addressesResponse.status) &&
                 addressesResponse.data?.addresses
               ) {
                 applyAddresses(addressesResponse.data.addresses);
@@ -240,6 +243,92 @@ const Checkout: React.FC = () => {
   useEffect(() => {
     loadSummary();
   }, [loadSummary]);
+
+  // Initialize Royal Mail AddressNow for address autocomplete
+  useEffect(() => {
+    const shouldShowAddressFields = useCustomAddress || addresses.length === 0;
+    if (!shouldShowAddressFields) return;
+
+    const initAddressNow = () => {
+      const AN = (window as any).addressNow || (window as any).AddressNow;
+      const addressLine1 = document.getElementById("checkout-addressLine1");
+
+      console.log("AddressNow:", AN);
+      console.log("AddressLine1:", addressLine1);
+      // Ensure both the library and the DOM elements are ready
+      if (AN && addressLine1) {
+        try {
+          // Use the listen 'load' pattern for robust configuration
+          if (AN.listen) {
+            AN.listen("load", (control: any) => {
+              console.log("AddressNow loaded, control:", control);
+              control.listen("options", (options: any) => {
+                console.log("AddressNow options:", options);
+                // Correct field mapping array structure
+                options.fields = [
+                  { element: "address-search", field: "Line1", mode: "search" }, // Dedicated search input
+                  { element: "checkout-addressLine1", field: "FormattedLine1" }, // Use FormattedLine1 for complete address
+                  { element: "checkout-postTown", field: "City" },
+                  { element: "checkout-postcode", field: "PostalCode" }, // Use PostalCode as per AddressNow API
+                ];
+
+                // Disable the default UI bar if possible
+                options.bar = options.bar || {};
+                options.bar.visible = false;
+
+                // Configure search behavior
+                options.search = options.search || {};
+                options.search.maxSuggestions = 7;
+              });
+
+              // Sync with React state when an address is populated
+              control.listen("populate", (address: any) => {
+                console.log("AddressNow populated:", address);
+                setFormData((prev) => ({
+                  ...prev,
+                  // Use FormattedLine1 for complete address, fallback to Line1 with Company if needed
+                  addressLine1:
+                    address.FormattedLine1 ||
+                    (address.Company
+                      ? `${address.Company}, ${address.Line1}`
+                      : address.Line1) ||
+                    address.AddressLine1 ||
+                    prev.addressLine1,
+                  postTown: address.City || address.Town || prev.postTown,
+                  // Use PostalCode (not Postcode) as per AddressNow API
+                  postcode:
+                    address.PostalCode || address.Postcode || prev.postcode,
+                }));
+              });
+            });
+
+            // Trigger the load sequence
+            AN.load();
+          }
+        } catch (error) {
+          console.error("Failed to initialize AddressNow:", error);
+        }
+      }
+    };
+
+    // Aggressive retry mechanism to wait for DOM and Script
+    let attempts = 0;
+    const checkInterval = setInterval(() => {
+      attempts++;
+      const AN = (window as any).addressNow || (window as any).AddressNow;
+      const element = document.getElementById("address-search"); // Wait for search input
+
+      if (AN && element) {
+        initAddressNow();
+        clearInterval(checkInterval);
+      } else if (attempts > 50) {
+        // Stop after ~5 seconds
+        clearInterval(checkInterval);
+      }
+    }, 100);
+
+    return () => clearInterval(checkInterval);
+  }, [useCustomAddress, addresses.length]);
 
   const handleChange =
     (field: keyof CartCheckoutPayload) =>
@@ -356,10 +445,7 @@ const Checkout: React.FC = () => {
 
       const response = await paymentAPI.checkoutCart(payload);
 
-      if (
-        (response.status === "SUCCESS" || response.status === "success") &&
-        response.data
-      ) {
+      if (response.status === ResponseStatus.SUCCESS && response.data) {
         toast.success("Redirecting you to securely complete payment");
         if (response.data.approvalUrl) {
           window.location.href = response.data.approvalUrl;
@@ -491,6 +577,15 @@ const Checkout: React.FC = () => {
                 </h2>
               </div>
 
+              {hasPreOrders && (
+                <div className="mb-4 rounded-2xl border border-amber-200 bg-amber-50/80 p-3 text-xs text-amber-900">
+                  <p className="font-semibold">
+                    Pre-order items included — we'll notify you once they're
+                    ready to ship.
+                  </p>
+                </div>
+              )}
+
               {isInitialLoading ? (
                 <div className="flex items-center justify-center py-10">
                   <Loader2 className="w-7 h-7 text-brand-green animate-spin" />
@@ -536,6 +631,8 @@ const Checkout: React.FC = () => {
                         const showBaseLine =
                           item.baseLineTotal &&
                           item.baseLineTotal > item.lineTotal;
+                        const itemDueNow = item.lineTotal;
+                        const isPreOrderItem = Boolean(item.isPreOrder);
 
                         return (
                           <div
@@ -554,6 +651,12 @@ const Checkout: React.FC = () => {
                                 <p className="text-sm sm:text-base font-semibold text-gray-900">
                                   {item.name}
                                 </p>
+                                {isPreOrderItem && (
+                                  <span className="inline-flex items-center gap-1 rounded-full bg-amber-100 text-amber-800 text-[10px] font-semibold px-2 py-0.5 mt-0.5">
+                                    <Package className="w-3 h-3" />
+                                    Pre-order
+                                  </span>
+                                )}
                                 <p className="mt-1 text-xs text-gray-500">
                                   Unit price:{" "}
                                   <span className="font-medium text-gray-900">
@@ -586,6 +689,14 @@ const Checkout: React.FC = () => {
                                       )
                                     </p>
                                   )}
+                                {isPreOrderItem && (
+                                  <p className="text-[11px] text-amber-600 mt-0.5">
+                                    Charged today{" "}
+                                    <strong className="text-amber-700">
+                                      {formatCurrency(itemDueNow, currencyCode)}
+                                    </strong>
+                                  </p>
+                                )}
                                 <div className="mt-2.5 flex flex-wrap items-center gap-2.5">
                                   <div className="inline-flex items-center rounded-full border border-gray-200">
                                     <button
@@ -657,7 +768,7 @@ const Checkout: React.FC = () => {
                         <span>Items ({orderTotals.itemCount})</span>
                         <span>
                           {formatCurrency(
-                            orderTotals.baseSubtotal ?? orderTotals.subtotal,
+                            orderTotals.baseSubtotal,
                             currencyCode
                           )}
                         </span>
@@ -689,15 +800,15 @@ const Checkout: React.FC = () => {
                       <div className="flex justify-between text-gray-600">
                         <span>Delivery</span>
                         <span className="text-xs sm:text-sm">
-                          Calculated at dispatch
+                          Calculated separately
                         </span>
                       </div>
                       <div className="border-t border-gray-200 pt-3 flex justify-between items-center">
                         <span className="text-base sm:text-lg font-semibold text-gray-900">
-                          Total due
+                          Total due today
                         </span>
                         <span className="text-xl sm:text-2xl font-bold text-brand-green">
-                          {formatCurrency(orderTotals.subtotal, currencyCode)}
+                          {formatCurrency(totalDueToday, currencyCode)}
                         </span>
                       </div>
                       {orderTotals.totalDiscount > 0 && (
@@ -710,6 +821,12 @@ const Checkout: React.FC = () => {
                           with applied discounts.
                         </p>
                       )}
+                      {hasPreOrders && (
+                        <p className="text-[11px] text-amber-600">
+                          Includes pre-order items — we’ll notify you before
+                          they ship.
+                        </p>
+                      )}
                     </div>
                   </div>
                 </div>
@@ -719,7 +836,7 @@ const Checkout: React.FC = () => {
 
           {summary && (
             <section className="order-2 lg:order-2 lg:col-start-2 lg:col-end-3">
-              {deliveryDetailsCard(summary, formatCurrency)}
+              {deliveryDetailsCard(summary, formatCurrency, hasPreOrders)}
             </section>
           )}
 
@@ -825,6 +942,19 @@ const Checkout: React.FC = () => {
 
                 {(useCustomAddress || addresses.length === 0) && (
                   <div className="space-y-3.5 pt-4 border-t border-gray-200">
+                    {/* AddressNow Search Input - Independent */}
+                    <div className="mb-4 p-4 bg-blue-50 rounded-xl border border-blue-100">
+                      <label className="block text-xs sm:text-sm font-medium text-blue-900 mb-1">
+                        Find your address (Start typing here)
+                      </label>
+                      <input
+                        type="text"
+                        id="address-search"
+                        className="w-full rounded-xl border border-blue-200 px-3.5 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 transition-all"
+                        placeholder="Start typing your address..."
+                      />
+                    </div>
+
                     <div className="grid gap-3.5 sm:gap-4 sm:grid-cols-2">
                       <div>
                         <label className="block text-xs sm:text-sm font-medium text-gray-700 mb-1">
@@ -863,6 +993,8 @@ const Checkout: React.FC = () => {
                       </label>
                       <input
                         type="text"
+                        id="checkout-addressLine1"
+                        name="addressLine1"
                         value={formData.addressLine1}
                         onChange={handleChange("addressLine1")}
                         className="w-full rounded-xl border border-gray-200 px-3.5 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-brand-green focus:border-brand-green transition-all"
@@ -878,6 +1010,8 @@ const Checkout: React.FC = () => {
                         </label>
                         <input
                           type="text"
+                          id="checkout-postTown"
+                          name="postTown"
                           value={formData.postTown}
                           onChange={handleChange("postTown")}
                           className="w-full rounded-xl border border-gray-200 px-3.5 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-brand-green focus:border-brand-green transition-all"
@@ -886,12 +1020,13 @@ const Checkout: React.FC = () => {
                         />
                       </div>
                       <div>
-                        {/* // TODO: Integrate Royal Mail / AddressNow API search here for auto-suggest. */}
                         <label className="block text-xs sm:text-sm font-medium text-gray-700 mb-1">
                           Postcode *
                         </label>
                         <input
                           type="text"
+                          id="checkout-postcode"
+                          name="postcode"
                           value={formData.postcode}
                           onChange={handleChange("postcode")}
                           className="w-full rounded-xl border border-gray-200 px-3.5 py-2.5 text-sm uppercase focus:outline-none focus:ring-2 focus:ring-brand-green focus:border-brand-green transition-all"
@@ -986,7 +1121,8 @@ const Checkout: React.FC = () => {
 // Render delivery defaults in a subtle card to reassure the user
 const deliveryDetailsCard = (
   summary: CartCheckoutSummary | null,
-  formatCurrency: (amount: number, currencyCode: string) => string
+  formatCurrency: (amount: number, currencyCode: string) => string,
+  hasPreOrders?: boolean
 ) => {
   if (!summary) {
     return null;
@@ -1019,6 +1155,21 @@ const deliveryDetailsCard = (
             {formatCurrency(summary.totalAmount, summary.currency)}
           </span>
         </li>
+        <li>
+          Due today:{" "}
+          <span className="font-semibold text-gray-900">
+            {formatCurrency(
+              summary.totalAmount ?? summary.summary.subtotal,
+              summary.currency
+            )}
+          </span>
+        </li>
+        {hasPreOrders && (
+          <li>
+            Includes pre-order items — we’ll notify you as soon as they are
+            ready to ship.
+          </li>
+        )}
       </ul>
       <p className="mt-3 text-[11px] sm:text-xs text-gray-500">
         Delivery fees are calculated separately based on your location and the

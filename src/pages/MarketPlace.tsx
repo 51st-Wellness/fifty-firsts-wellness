@@ -4,17 +4,24 @@ import Footer from "../components/Footer";
 import StoreItemCard from "../components/StoreItemCard";
 import { fetchStoreItems } from "../api/marketplace.api";
 import { categoryAPI } from "../api/category.api";
-import { getProductReviewSummaries } from "../api/review.api";
 import type { StoreItem as StoreItemType } from "../types/marketplace.types";
 import type { Category } from "../types/category.types";
 import type { ReviewSummary } from "../types/review.types";
 import { getStoreItemPricing } from "../utils/discounts";
+import { useGlobalDiscount } from "../context/GlobalDiscountContext";
 
 // Using shared StoreItem type from types to match API response
 
 interface MarketPlaceProps {
   onSearch?: (query: string) => void;
 }
+
+const formatCurrency = (value: number, currency = "GBP") =>
+  new Intl.NumberFormat("en-GB", {
+    style: "currency",
+    currency,
+    minimumFractionDigits: 2,
+  }).format(value ?? 0);
 
 const MarketPlace: React.FC<MarketPlaceProps> = ({ onSearch }) => {
   const [query, setQuery] = useState<string>("");
@@ -24,15 +31,17 @@ const MarketPlace: React.FC<MarketPlaceProps> = ({ onSearch }) => {
   const [hasMore, setHasMore] = useState<boolean>(true);
   const [loading, setLoading] = useState<boolean>(false);
   const [error, setError] = useState<string | null>(null);
-  const [reviewSummaries, setReviewSummaries] = useState<
-    Record<string, ReviewSummary>
-  >({});
   const [selectedCategory, setSelectedCategory] = useState<string>("All");
   const [minPrice, setMinPrice] = useState<number>(10);
   const [maxPrice, setMaxPrice] = useState<number>(200);
   const [selectedRating, setSelectedRating] = useState<string>("all");
   const [priceDropdownOpen, setPriceDropdownOpen] = useState<boolean>(false);
   const [ratingDropdownOpen, setRatingDropdownOpen] = useState<boolean>(false);
+  const { globalDiscount } = useGlobalDiscount();
+  const globalDiscountActive =
+    globalDiscount?.isActive &&
+    globalDiscount.type !== "NONE" &&
+    (globalDiscount.value ?? 0) > 0;
 
   // Category states
   const [categories, setCategories] = useState<Category[]>([]);
@@ -41,56 +50,6 @@ const MarketPlace: React.FC<MarketPlaceProps> = ({ onSearch }) => {
 
   // Debounced search
   const [debouncedQuery, setDebouncedQuery] = useState<string>("");
-
-  // Demo items to showcase discount/preorder/notify states
-  const demoItems = useMemo<StoreItemType[]>(
-    () => [
-      {
-        productId: "demo-preorder-1" as any,
-        name: "Mindful Tea Set",
-        price: 34.99,
-        oldPrice: 49.99,
-        display: {
-          url: "https://images.unsplash.com/photo-1517686469429-8bdb88b9f907?w=800&q=80",
-        } as any,
-        images: [
-          "https://images.unsplash.com/photo-1517686469429-8bdb88b9f907?w=800&q=80",
-          "https://images.unsplash.com/photo-1505577058444-a3dab90d4253?w=800&q=80",
-        ],
-        stock: 50,
-        // custom field consumed in card
-        // @ts-ignore
-        status: "coming_soon",
-      },
-      {
-        productId: "demo-notify-1" as any,
-        name: "Aromatherapy Candle",
-        price: 14.99,
-        oldPrice: 24.99,
-        display: {
-          url: "https://images.unsplash.com/photo-1519681393784-d120267933ba?w=800&q=80",
-        } as any,
-        images: [
-          "https://images.unsplash.com/photo-1519681393784-d120267933ba?w=800&q=80",
-        ],
-        stock: 0,
-      },
-      {
-        productId: "demo-discount-1" as any,
-        name: "Yoga Mat Pro",
-        price: 29.99,
-        oldPrice: 59.99,
-        display: {
-          url: "https://images.unsplash.com/photo-1552196563-55cd4e45efb3?w=800&q=80",
-        } as any,
-        images: [
-          "https://images.unsplash.com/photo-1552196563-55cd4e45efb3?w=800&q=80",
-        ],
-        stock: 0,
-      },
-    ],
-    []
-  );
 
   useEffect(() => {
     const timer = setTimeout(() => {
@@ -158,27 +117,6 @@ const MarketPlace: React.FC<MarketPlaceProps> = ({ onSearch }) => {
         }
         setHasMore(Boolean(pagination?.hasMore));
         setError(null);
-
-        // Fetch review summaries for the loaded items
-        if (newItems && newItems.length > 0) {
-          try {
-            const productIds = newItems.map((item) => item.productId);
-            const summariesRes = await getProductReviewSummaries(productIds);
-            if (
-              (summariesRes.status === "SUCCESS" ||
-                summariesRes.status === "success") &&
-              summariesRes.data
-            ) {
-              setReviewSummaries((prev) => ({
-                ...prev,
-                ...summariesRes.data,
-              }));
-            }
-          } catch (e) {
-            // Silently fail - reviews are not critical for listing
-            console.error("Failed to load review summaries:", e);
-          }
-        }
       } catch (e: any) {
         console.error("Error loading items:", e);
         const errorMessage =
@@ -220,14 +158,14 @@ const MarketPlace: React.FC<MarketPlaceProps> = ({ onSearch }) => {
   const getItemRating = (item: StoreItemType) => 4; // placeholder until backend provides rating
 
   const filteredItems = useMemo(() => {
-    const combined = [...demoItems, ...items];
-    return combined.filter((it) => {
-      const currentPrice = getStoreItemPricing(it).currentPrice ?? 0;
+    return items.filter((it) => {
+      const currentPrice =
+        getStoreItemPricing(it, { globalDiscount }).currentPrice ?? 0;
       const withinPrice = currentPrice >= minPrice && currentPrice <= maxPrice;
       const meetsRating = getItemRating(it) >= ratingThreshold;
       return withinPrice && meetsRating;
     });
-  }, [demoItems, items, minPrice, maxPrice, ratingThreshold]);
+  }, [items, minPrice, maxPrice, ratingThreshold]);
 
   return (
     <main className="relative min-h-screen pb-0 bg-[#F7F8FA]">
@@ -250,6 +188,21 @@ const MarketPlace: React.FC<MarketPlaceProps> = ({ onSearch }) => {
             your body, calm your mind, and support your everyday self-care
             rituals.
           </p>
+
+          {globalDiscountActive && (
+            <div className="mt-4 inline-flex flex-col gap-1 rounded-2xl border border-brand-green/40 bg-white px-4 py-3 text-sm text-brand-green shadow-sm">
+              <span className="font-semibold">
+                {globalDiscount?.label || "Storewide savings"}
+              </span>
+              <span className="text-[#475464] text-xs">
+                Save{" "}
+                {globalDiscount?.type === "PERCENTAGE"
+                  ? `${globalDiscount.value}%`
+                  : formatCurrency(globalDiscount?.value || 0)}{" "}
+                on every marketplace item while this offer lasts.
+              </span>
+            </div>
+          )}
 
           {/* Search Bar */}
           <div className="mt-6 max-w-xl">
@@ -434,13 +387,33 @@ const MarketPlace: React.FC<MarketPlaceProps> = ({ onSearch }) => {
                 </div>
               ) : (
                 <div className="grid grid-cols-2 md:grid-cols-2 lg:grid-cols-3 gap-4 md:gap-6">
-                  {filteredItems.map((item) => (
-                    <StoreItemCard
-                      reviewSummary={reviewSummaries[item.productId]}
-                      key={item.productId || item.name}
-                      item={item}
-                    />
-                  ))}
+                  {filteredItems.map((item) => {
+                    // Create ReviewSummary from store item data (already includes averageRating and reviewCount)
+                    const reviewSummary: ReviewSummary | undefined =
+                      item.averageRating !== undefined &&
+                      item.reviewCount !== undefined &&
+                      item.reviewCount > 0
+                        ? {
+                            averageRating: item.averageRating,
+                            reviewCount: item.reviewCount,
+                            ratingBreakdown: {
+                              5: 0,
+                              4: 0,
+                              3: 0,
+                              2: 0,
+                              1: 0,
+                            },
+                          }
+                        : undefined;
+
+                    return (
+                      <StoreItemCard
+                        reviewSummary={reviewSummary}
+                        key={item.productId || item.name}
+                        item={item}
+                      />
+                    );
+                  })}
                 </div>
               )}
 

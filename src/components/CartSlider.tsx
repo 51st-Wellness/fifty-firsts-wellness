@@ -6,12 +6,12 @@ import {
   IconButton,
   useMediaQuery,
   useTheme,
-  Badge,
 } from "@mui/material";
 import { Button } from "./ui/button";
 import { useCart } from "../context/CartContext";
 import { Minus, Plus, Trash2, ShoppingCart, X } from "lucide-react";
 import { CartItemWithRelations } from "../api/cart.api";
+import { useGlobalDiscount } from "../context/GlobalDiscountContext";
 
 interface CartSliderProps {
   isOpen: boolean;
@@ -32,6 +32,7 @@ const CartSlider: React.FC<CartSliderProps> = ({ isOpen, onClose }) => {
 
   const theme = useTheme();
   const isMobile = useMediaQuery(theme.breakpoints.down("sm"));
+  const { globalDiscount } = useGlobalDiscount();
 
   // iOS needs these flags for smoother swipe behavior
   const iOS =
@@ -75,10 +76,13 @@ const CartSlider: React.FC<CartSliderProps> = ({ isOpen, onClose }) => {
 
     const category = storeItem.categories?.[0] || "Uncategorized";
 
+    // Use base price for individual items (discount will be shown on total)
+    const unitPrice = storeItem.price ?? 0;
+    const lineTotal = unitPrice * quantity;
     return (
-      <div className="relative bg-white rounded-xl p-4 flex items-start gap-4">
+      <div className="relative bg-white rounded-xl p-4 sm:p-5 flex items-start gap-3 sm:gap-4">
         {/* Image left */}
-        <div className="w-20 h-20 bg-gray-100 rounded-lg flex-shrink-0 overflow-hidden">
+        <div className="w-16 h-16 sm:w-20 sm:h-20 bg-gray-100 rounded-lg flex-shrink-0 overflow-hidden">
           {storeItem.display?.url ? (
             <img
               src={storeItem.display.url}
@@ -87,34 +91,36 @@ const CartSlider: React.FC<CartSliderProps> = ({ isOpen, onClose }) => {
             />
           ) : (
             <div className="w-full h-full flex items-center justify-center text-gray-400">
-              <ShoppingCart className="w-8 h-8" />
+              <ShoppingCart className="w-6 h-6 sm:w-8 sm:h-8" />
             </div>
           )}
         </div>
 
-        {/* Top right of image: product name, category below */}
-        <div className="flex-1 min-w-0">
-          <h4 className="font-semibold text-gray-900 text-sm line-clamp-1">
+        {/* Middle section: product name, category, quantity controls */}
+        <div className="flex-1 min-w-0 pr-20 sm:pr-24">
+          <h4 className="font-semibold text-gray-900 text-sm sm:text-base line-clamp-2 leading-tight">
             {storeItem.name}
           </h4>
-          <p className="text-xs text-gray-500 mt-1">Category: {category}</p>
+          <p className="text-xs text-gray-500 mt-1 leading-snug">
+            Category: {category}
+          </p>
 
-          {/* Bottom right of image: quantity controls */}
+          {/* Quantity controls */}
           <div className="flex items-center gap-2 mt-3">
             <button
               onClick={() => handleQuantityChange(item.productId, quantity - 1)}
               disabled={isLoading}
-              className="w-8 h-8 rounded-full bg-brand-green hover:bg-brand-green-dark flex items-center justify-center disabled:opacity-50"
+              className="w-8 h-8 rounded-full bg-brand-green hover:bg-brand-green-dark flex items-center justify-center disabled:opacity-50 transition-colors"
             >
               <Minus className="w-4 h-4 text-white" />
             </button>
-            <span className="w-8 text-center text-sm font-medium">
+            <span className="w-8 text-center text-sm font-medium text-gray-900">
               {quantity}
             </span>
             <button
               onClick={() => handleQuantityChange(item.productId, quantity + 1)}
               disabled={isLoading}
-              className="w-8 h-8 rounded-full bg-brand-green hover:bg-brand-green-dark flex items-center justify-center disabled:opacity-50"
+              className="w-8 h-8 rounded-full bg-brand-green hover:bg-brand-green-dark flex items-center justify-center disabled:opacity-50 transition-colors"
             >
               <Plus className="w-4 h-4 text-white" />
             </button>
@@ -122,9 +128,15 @@ const CartSlider: React.FC<CartSliderProps> = ({ isOpen, onClose }) => {
         </div>
 
         {/* Top right of card: price */}
-        <div className="absolute top-4 right-4">
-          <div className="text-sm font-semibold text-gray-900">
-            {formatPrice(storeItem.price)}
+        <div className="absolute top-4 right-4 text-right space-y-0.5 sm:space-y-1 min-w-[80px] sm:min-w-[100px]">
+          <div className="text-xs sm:text-sm font-semibold text-gray-900 leading-tight">
+            {formatPrice(unitPrice)}
+            <span className="ml-1 text-[10px] sm:text-xs text-gray-500">
+              ea
+            </span>
+          </div>
+          <div className="text-[10px] sm:text-xs text-gray-500 leading-tight">
+            Subtotal: {formatPrice(lineTotal)}
           </div>
         </div>
 
@@ -133,9 +145,10 @@ const CartSlider: React.FC<CartSliderProps> = ({ isOpen, onClose }) => {
           <button
             onClick={() => removeFromCart(item.productId)}
             disabled={isLoading}
-            className="text-red-600 hover:text-red-700 p-2 rounded-full hover:bg-red-50 disabled:opacity-50"
+            className="text-red-600 hover:text-red-700 p-1.5 sm:p-2 rounded-full hover:bg-red-50 disabled:opacity-50 transition-colors"
+            aria-label="Remove item"
           >
-            <Trash2 className="w-4 h-4" />
+            <Trash2 className="w-3.5 h-3.5 sm:w-4 sm:h-4" />
           </button>
         </div>
       </div>
@@ -231,47 +244,112 @@ const CartSlider: React.FC<CartSliderProps> = ({ isOpen, onClose }) => {
         </Box>
 
         {/* Footer */}
-        {items.length > 0 && (
-          <Box
-            sx={{
-              borderTop: "1px solid",
-              borderColor: "divider",
-              px: 2,
-              py: 2,
-              bgcolor: "grey.50",
-            }}
-          >
-            {/* Total */}
-            <div className="flex justify-between items-center mb-4">
-              <span className="text-lg font-semibold text-gray-900">
-                Total:
-              </span>
-              <span className="text-xl font-bold text-brand-green">
-                {formatPrice(totalPrice)}
-              </span>
-            </div>
+        {items.length > 0 &&
+          (() => {
+            // Calculate base total (without any discounts)
+            const baseTotal = items.reduce((total, item) => {
+              const storeItem = item.product.storeItem;
+              if (!storeItem) return total;
+              return total + (storeItem.price ?? 0) * item.quantity;
+            }, 0);
 
-            {/* Action Buttons */}
-            <div className="flex items-center gap-2">
-              <Button
-                className="flex-1 bg-brand-green hover:bg-brand-green-dark text-white font-semibold rounded-full py-2 sm:py-3 text-sm"
-                disabled={isLoading}
-                onClick={handleCheckoutRedirect}
+            // Check if global discount should apply
+            const canApplyGlobal =
+              globalDiscount &&
+              globalDiscount.isActive &&
+              globalDiscount.type !== "NONE" &&
+              globalDiscount.value &&
+              (!globalDiscount.minOrderTotal ||
+                baseTotal >= globalDiscount.minOrderTotal);
+
+            // Use totalPrice from context (already has discount applied)
+            const discountedTotal = totalPrice;
+            const hasDiscount =
+              canApplyGlobal && Math.abs(baseTotal - discountedTotal) > 0.01;
+
+            // Calculate discount percent for display
+            let discountPercent = 0;
+            if (hasDiscount && globalDiscount) {
+              if (globalDiscount.type === "PERCENTAGE") {
+                discountPercent = Math.min(globalDiscount.value, 100);
+              } else {
+                discountPercent =
+                  baseTotal === 0
+                    ? 0
+                    : Math.round(
+                        ((baseTotal - discountedTotal) / baseTotal) * 100
+                      );
+              }
+            }
+
+            return (
+              <Box
+                sx={{
+                  borderTop: "1px solid",
+                  borderColor: "divider",
+                  px: 2,
+                  py: 2,
+                  bgcolor: "grey.50",
+                }}
               >
-                Checkout
-              </Button>
-              <Link to="/dashboard/cart" onClick={onClose} className="flex-1">
-                <Button
-                  variant="outline"
-                  className="w-full border-brand-green text-brand-green hover:bg-brand-green/5 font-semibold rounded-full py-2 sm:py-3 text-sm"
-                  disabled={isLoading}
-                >
-                  Go to Cart
-                </Button>
-              </Link>
-            </div>
-          </Box>
-        )}
+                {/* Total */}
+                <div className="flex justify-between items-center mb-2">
+                  <span className="text-lg font-semibold text-gray-900">
+                    Total:
+                  </span>
+                  <div className="text-right">
+                    {hasDiscount ? (
+                      <>
+                        <div className="text-sm text-gray-500 line-through">
+                          {formatPrice(baseTotal)}
+                        </div>
+                        <span className="text-xl font-bold text-brand-green">
+                          {formatPrice(discountedTotal)}
+                        </span>
+                      </>
+                    ) : (
+                      <span className="text-xl font-bold text-brand-green">
+                        {formatPrice(baseTotal)}
+                      </span>
+                    )}
+                  </div>
+                </div>
+
+                {/* Discount indicator */}
+                {hasDiscount && (
+                  <div className="flex justify-end mb-4">
+                    <span className="text-[10px] sm:text-xs font-semibold uppercase tracking-wide text-brand-green">
+                      {globalDiscount?.label || `GLOBAL -${discountPercent}%`}
+                    </span>
+                  </div>
+                )}
+
+                {/* Action Buttons */}
+                <div className="flex items-center gap-2">
+                  <Button
+                    className="flex-1 bg-brand-green hover:bg-brand-green-dark text-white font-semibold rounded-full py-2 sm:py-3 text-sm"
+                    disabled={isLoading}
+                    onClick={handleCheckoutRedirect}
+                  >
+                    Checkout
+                  </Button>
+                  <Link
+                    to="/dashboard/cart"
+                    onClick={onClose}
+                    className="flex-1"
+                  >
+                    <Button
+                      variant="outline"
+                      className="w-full border-brand-green text-brand-green hover:bg-brand-green/5 font-semibold rounded-full py-2 sm:py-3 text-sm"
+                      disabled={isLoading}
+                    >
+                      Go to Cart
+                    </Button>
+                  </Link>
+                </div>
+              </Box>
+            );
+          })()}
 
         {/* Loading Overlay */}
         {isLoading && (

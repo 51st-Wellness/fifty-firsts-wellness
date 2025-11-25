@@ -5,6 +5,7 @@ import { fetchStoreItems } from "../api/marketplace.api";
 import type { StoreItem } from "../types/marketplace.types";
 import { useCart } from "../context/CartContext";
 import { useAuth } from "../context/AuthContextProvider";
+import { ResponseStatus } from "../types/response.types";
 
 interface FeaturedProductsProps {
   limit?: number;
@@ -34,7 +35,7 @@ const FeaturedProducts: React.FC<FeaturedProductsProps> = ({
           isPublished: true,
         });
 
-        if (response?.status?.toLowerCase() === "success" && response?.data) {
+        if (response?.status === ResponseStatus.SUCCESS && response?.data) {
           setFeaturedItems(response.data.items || []);
         } else {
           setError(response?.message || "Failed to load featured products");

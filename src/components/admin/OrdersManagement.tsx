@@ -1,4 +1,4 @@
-import React, { useMemo, useState } from "react";
+import React, { useMemo, useState, useEffect, useCallback } from "react";
 import {
   Box,
   Card,
@@ -20,37 +20,28 @@ import {
   IconButton,
   Menu,
   Button,
+  CircularProgress,
 } from "@mui/material";
 import {
   Search as SearchIcon,
   MoreVert as MoreVertIcon,
   LocalShipping as LocalShippingIcon,
-  CheckCircle as CheckCircleIcon,
-  Cancel as CancelIcon,
-  PendingActions as PendingActionsIcon,
-  Visibility as VisibilityIcon,
+  Inventory as InventoryIcon,
+  LocalShippingOutlined as LocalShippingOutlinedIcon,
+  QrCodeScanner as QrCodeScannerIcon,
 } from "@mui/icons-material";
 import toast from "react-hot-toast";
 import OrderDetailsModal from "./OrderDetailsModal";
-
-export type OrderStatus = "PENDING" | "PROCESSING" | "FULFILLED" | "CANCELLED";
-
-export interface Order {
-  id: string;
-  customerName: string;
-  customerEmail: string;
-  total: number;
-  status: OrderStatus;
-  placedAt: string;
-  fulfillmentEta?: string;
-  items: Array<{
-    productId: string;
-    name: string;
-    quantity: number;
-  }>;
-  paymentMethod: "card" | "wallet" | "transfer";
-  shippingMethod: "standard" | "express";
-}
+import TrackingReferenceModal from "./TrackingReferenceModal";
+import {
+  getAdminOrders,
+  updateOrderStatus,
+  getAdminOrder,
+  type AdminOrderStatus,
+  type AdminOrderListItem,
+  type AdminOrderDetail,
+} from "../../api/user.api";
+import { ResponseStatus } from "../../types/response.types";
 
 const currency = (value: number) =>
   new Intl.NumberFormat("en-GB", {
@@ -59,162 +50,255 @@ const currency = (value: number) =>
     maximumFractionDigits: 2,
   }).format(value);
 
-const generateDemoOrders = (): Order[] => {
-  const now = new Date();
-  return [
-    {
-      id: "ORD-93421",
-      customerName: "Maria Jacobs",
-      customerEmail: "maria.jacobs@example.com",
-      total: 79.99,
-      status: "PROCESSING",
-      placedAt: new Date(now.getTime() - 2 * 24 * 60 * 60 * 1000).toISOString(),
-      fulfillmentEta: new Date(now.getTime() + 3 * 24 * 60 * 60 * 1000).toISOString(),
-      items: [
-        { productId: "prod-1", name: "Mindful Tea Set", quantity: 1 },
-        { productId: "prod-5", name: "Wellness Journal", quantity: 1 },
-      ],
-      paymentMethod: "card",
-      shippingMethod: "express",
-    },
-    {
-      id: "ORD-93420",
-      customerName: "John Smith",
-      customerEmail: "john.smith@example.com",
-      total: 29.99,
-      status: "FULFILLED",
-      placedAt: new Date(now.getTime() - 5 * 24 * 60 * 60 * 1000).toISOString(),
-      fulfillmentEta: new Date(now.getTime() - 2 * 24 * 60 * 60 * 1000).toISOString(),
-      items: [{ productId: "prod-2", name: "Aromatherapy Candle", quantity: 2 }],
-      paymentMethod: "wallet",
-      shippingMethod: "standard",
-    },
-    {
-      id: "ORD-93390",
-      customerName: "Sarah Williams",
-      customerEmail: "sarah.williams@example.com",
-      total: 59.99,
-      status: "PENDING",
-      placedAt: new Date(now.getTime() - 6 * 60 * 60 * 1000).toISOString(),
-      fulfillmentEta: new Date(now.getTime() + 4 * 24 * 60 * 60 * 1000).toISOString(),
-      items: [{ productId: "prod-3", name: "Yoga Mat Pro", quantity: 1 }],
-      paymentMethod: "transfer",
-      shippingMethod: "express",
-    },
-    {
-      id: "ORD-93375",
-      customerName: "David Brown",
-      customerEmail: "david.brown@example.com",
-      total: 45.49,
-      status: "CANCELLED",
-      placedAt: new Date(now.getTime() - 10 * 24 * 60 * 60 * 1000).toISOString(),
-      fulfillmentEta: undefined,
-      items: [{ productId: "prod-6", name: "Calming Essential Oil Duo", quantity: 1 }],
-      paymentMethod: "card",
-      shippingMethod: "standard",
-    },
-    {
-      id: "ORD-93360",
-      customerName: "Emily Chen",
-      customerEmail: "emily.chen@example.com",
-      total: 110.0,
-      status: "FULFILLED",
-      placedAt: new Date(now.getTime() - 12 * 24 * 60 * 60 * 1000).toISOString(),
-      fulfillmentEta: new Date(now.getTime() - 9 * 24 * 60 * 60 * 1000).toISOString(),
-      items: [
-        { productId: "prod-7", name: "Wellness Retreat Kit", quantity: 1 },
-        { productId: "prod-2", name: "Aromatherapy Candle", quantity: 1 },
-      ],
-      paymentMethod: "card",
-      shippingMethod: "standard",
-    },
-  ];
-};
-
 const statusConfig: Record<
-  OrderStatus,
-  { label: string; color: "default" | "warning" | "success" | "primary" | "error" }
+  AdminOrderStatus | string,
+  {
+    label: string;
+    color: "default" | "warning" | "success" | "primary" | "info" | "error";
+  }
 > = {
   PENDING: { label: "Pending", color: "warning" },
   PROCESSING: { label: "Processing", color: "primary" },
+  PACKAGING: { label: "Packaging", color: "info" },
+  IN_TRANSIT: { label: "In-Transit", color: "info" },
   FULFILLED: { label: "Fulfilled", color: "success" },
-  CANCELLED: { label: "Cancelled", color: "error" },
+  // Tracking statuses
+  NOTFOUND: { label: "Not Found", color: "error" },
+  INFORECEIVED: { label: "Info Received", color: "info" },
+  TRANSIT: { label: "In Transit", color: "info" },
+  PICKUP: { label: "Ready for Pickup", color: "warning" },
+  UNDELIVERED: { label: "Undelivered", color: "error" },
+  DELIVERED: { label: "Delivered", color: "success" },
+  EXCEPTION: { label: "Exception", color: "error" },
+  EXPIRED: { label: "Expired", color: "error" },
+};
+
+const statusFlow: AdminOrderStatus[] = [
+  "PENDING",
+  "PROCESSING",
+  "PACKAGING",
+  "IN_TRANSIT",
+  "FULFILLED",
+];
+
+const getNextStatus = (
+  currentStatus: AdminOrderStatus
+): AdminOrderStatus | null => {
+  const currentIndex = statusFlow.indexOf(currentStatus);
+  if (currentIndex < statusFlow.length - 1) {
+    return statusFlow[currentIndex + 1];
+  }
+  return null;
+};
+
+const getPreviousStatus = (
+  currentStatus: AdminOrderStatus
+): AdminOrderStatus | null => {
+  const currentIndex = statusFlow.indexOf(currentStatus);
+  if (currentIndex > 0) {
+    return statusFlow[currentIndex - 1];
+  }
+  return null;
+};
+
+// Normalize status from backend (handles old payment statuses and tracking statuses)
+const normalizeOrderStatus = (status: string): AdminOrderStatus | string => {
+  // Map old payment statuses to new order statuses
+  const statusMap: Record<string, AdminOrderStatus | string> = {
+    PAID: "PROCESSING", // Paid orders should be in processing
+    PENDING: "PENDING",
+    CANCELLED: "PENDING", // Cancelled orders can't be changed, but show as pending for now
+    FAILED: "PENDING",
+    REFUNDED: "PENDING",
+    // New order statuses
+    PROCESSING: "PROCESSING",
+    PACKAGING: "PACKAGING",
+    IN_TRANSIT: "IN_TRANSIT",
+    FULFILLED: "FULFILLED",
+    // Tracking statuses (keep as-is)
+    NOTFOUND: "NOTFOUND",
+    INFORECEIVED: "INFORECEIVED",
+    TRANSIT: "TRANSIT",
+    PICKUP: "PICKUP",
+    UNDELIVERED: "UNDELIVERED",
+    DELIVERED: "DELIVERED",
+    EXCEPTION: "EXCEPTION",
+    EXPIRED: "EXPIRED",
+  };
+
+  return statusMap[status] || status || "PENDING";
+};
+
+// Get status config safely
+const getStatusConfig = (status: string) => {
+  const normalizedStatus = normalizeOrderStatus(status);
+  return statusConfig[normalizedStatus] || statusConfig.PENDING;
 };
 
 const OrdersManagement: React.FC = () => {
-  const [orders, setOrders] = useState<Order[]>(generateDemoOrders());
-  const [statusFilter, setStatusFilter] = useState<OrderStatus | "">("");
+  const [orders, setOrders] = useState<AdminOrderListItem[]>([]);
+  const [loading, setLoading] = useState(false);
+  const [statusFilter, setStatusFilter] = useState<AdminOrderStatus | "">("");
   const [searchQuery, setSearchQuery] = useState("");
   const [page, setPage] = useState(0);
   const [rowsPerPage, setRowsPerPage] = useState(10);
+  const [pagination, setPagination] = useState({
+    total: 0,
+    totalPages: 0,
+  });
   const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
-  const [activeOrder, setActiveOrder] = useState<Order | null>(null);
+  const [activeOrder, setActiveOrder] = useState<AdminOrderListItem | null>(
+    null
+  );
   const [detailsOpen, setDetailsOpen] = useState(false);
+  const [orderDetail, setOrderDetail] = useState<AdminOrderDetail | null>(null);
+  const [loadingDetail, setLoadingDetail] = useState(false);
+  const [trackingModalOpen, setTrackingModalOpen] = useState(false);
+  const [trackingOrderId, setTrackingOrderId] = useState<string | null>(null);
+  const [trackingReference, setTrackingReference] = useState<string | null>(
+    null
+  );
 
-  const filteredOrders = useMemo(() => {
-    return orders.filter((order) => {
-      const matchesStatus = !statusFilter || order.status === statusFilter;
-      const matchesSearch =
-        !searchQuery ||
-        order.customerName.toLowerCase().includes(searchQuery.toLowerCase()) ||
-        order.customerEmail.toLowerCase().includes(searchQuery.toLowerCase()) ||
-        order.id.toLowerCase().includes(searchQuery.toLowerCase()) ||
-        order.items.some((item) =>
-          item.name.toLowerCase().includes(searchQuery.toLowerCase())
-        );
-      return matchesStatus && matchesSearch;
-    });
-  }, [orders, statusFilter, searchQuery]);
+  const loadOrders = useCallback(async () => {
+    setLoading(true);
+    try {
+      const response = await getAdminOrders({
+        page: page + 1,
+        limit: rowsPerPage,
+        status: statusFilter || undefined,
+        search: searchQuery || undefined,
+      });
+      if (response.status === ResponseStatus.SUCCESS && response.data) {
+        // Ensure items array exists for each order
+        const ordersWithItems = response.data.orders.map((order) => ({
+          ...order,
+          items: order.items || [],
+        }));
+        setOrders(ordersWithItems);
+        setPagination({
+          total: response.data.pagination.total,
+          totalPages: response.data.pagination.totalPages,
+        });
+      }
+    } catch (error) {
+      console.error("Failed to load orders:", error);
+      toast.error("Failed to load orders");
+    } finally {
+      setLoading(false);
+    }
+  }, [page, rowsPerPage, statusFilter, searchQuery]);
 
-  const paginatedOrders = useMemo(() => {
-    const startIndex = page * rowsPerPage;
-    return filteredOrders.slice(startIndex, startIndex + rowsPerPage);
-  }, [filteredOrders, page, rowsPerPage]);
+  useEffect(() => {
+    loadOrders();
+  }, [loadOrders]);
 
-  const handleChangePage = (event: unknown, newPage: number) => {
-    setPage(newPage);
+  const loadOrderDetail = useCallback(async (orderId: string) => {
+    setLoadingDetail(true);
+    try {
+      const response = await getAdminOrder(orderId);
+      if (response.status === ResponseStatus.SUCCESS && response.data) {
+        setOrderDetail(response.data.order);
+        setDetailsOpen(true);
+      }
+    } catch (error) {
+      console.error("Failed to load order detail:", error);
+      toast.error("Failed to load order details");
+    } finally {
+      setLoadingDetail(false);
+    }
+  }, []);
+
+  const handleRowClick = (order: AdminOrderListItem) => {
+    loadOrderDetail(order.id);
   };
 
-  const handleChangeRowsPerPage = (event: React.ChangeEvent<HTMLInputElement>) => {
-    setRowsPerPage(parseInt(event.target.value, 10));
-    setPage(0);
+  const handleStatusClick = (
+    event: React.MouseEvent<HTMLDivElement>,
+    order: AdminOrderListItem
+  ) => {
+    event.stopPropagation();
+    setActiveOrder(order);
+    setAnchorEl(event.currentTarget);
   };
 
-  const handleMenuOpen = (event: React.MouseEvent<HTMLButtonElement>, order: Order) => {
+  const handleMenuOpen = (
+    event: React.MouseEvent<HTMLButtonElement>,
+    order: AdminOrderListItem
+  ) => {
+    event.stopPropagation();
     setAnchorEl(event.currentTarget);
     setActiveOrder(order);
   };
-
 
   const handleMenuClose = () => {
     setAnchorEl(null);
     setActiveOrder(null);
   };
 
-  const updateStatus = (orderId: string, status: OrderStatus) => {
-    setOrders((prev) =>
-      prev.map((order) => (order.id === orderId ? { ...order, status } : order))
-    );
-    toast.success(`Order status updated to ${status.toLowerCase()}`);
+  const handleStatusUpdate = async (newStatus: AdminOrderStatus) => {
+    if (!activeOrder) return;
+
+    try {
+      const response = await updateOrderStatus(activeOrder.id, newStatus);
+      if (response.status === ResponseStatus.SUCCESS && response.data) {
+        toast.success(
+          `Order status updated to ${statusConfig[newStatus].label}`
+        );
+        await loadOrders();
+        if (detailsOpen && orderDetail?.id === activeOrder.id) {
+          setOrderDetail(response.data.order);
+        }
+      }
+    } catch (error) {
+      console.error("Failed to update order status:", error);
+      toast.error("Failed to update order status");
+    } finally {
+      handleMenuClose();
+    }
   };
 
-  const handleFulfill = () => {
-    if (!activeOrder) return;
-    updateStatus(activeOrder.id, "FULFILLED");
+  const handleOpenTrackingModal = (order: AdminOrderListItem) => {
+    setTrackingOrderId(order.id);
+    // Access trackingReference from the order (may not be in type definition)
+    const orderWithTracking = order as AdminOrderListItem & {
+      trackingReference?: string | null;
+    };
+    setTrackingReference(orderWithTracking.trackingReference || null);
+    setTrackingModalOpen(true);
     handleMenuClose();
   };
 
-  const handleCancel = () => {
-    if (!activeOrder) return;
-    updateStatus(activeOrder.id, "CANCELLED");
-    handleMenuClose();
+  const handleTrackingSuccess = async () => {
+    await loadOrders();
+    if (trackingOrderId && detailsOpen && orderDetail?.id === trackingOrderId) {
+      await loadOrderDetail(trackingOrderId);
+    }
   };
 
-  const handleProcess = () => {
-    if (!activeOrder) return;
-    updateStatus(activeOrder.id, "PROCESSING");
-    handleMenuClose();
+  const handleChangePage = (event: unknown, newPage: number) => {
+    setPage(newPage);
   };
+
+  const handleChangeRowsPerPage = (
+    event: React.ChangeEvent<HTMLInputElement>
+  ) => {
+    setRowsPerPage(parseInt(event.target.value, 10));
+    setPage(0);
+  };
+
+  const normalizedActiveStatus = activeOrder
+    ? normalizeOrderStatus(activeOrder.status)
+    : null;
+  const nextStatus =
+    normalizedActiveStatus &&
+    statusFlow.includes(normalizedActiveStatus as AdminOrderStatus)
+      ? getNextStatus(normalizedActiveStatus as AdminOrderStatus)
+      : null;
+  const previousStatus =
+    normalizedActiveStatus &&
+    statusFlow.includes(normalizedActiveStatus as AdminOrderStatus)
+      ? getPreviousStatus(normalizedActiveStatus as AdminOrderStatus)
+      : null;
 
   return (
     <div className="space-y-6">
@@ -233,9 +317,7 @@ const OrdersManagement: React.FC = () => {
         <Button
           variant="outlined"
           startIcon={<LocalShippingIcon />}
-          onClick={() =>
-            toast("Placeholder action. Connect your orders API to enable syncing.")
-          }
+          onClick={loadOrders}
           sx={{
             borderRadius: 999,
             textTransform: "none",
@@ -243,7 +325,7 @@ const OrdersManagement: React.FC = () => {
             fontFamily: '"League Spartan", sans-serif',
           }}
         >
-          Sync Orders
+          Refresh Orders
         </Button>
       </div>
 
@@ -254,9 +336,14 @@ const OrdersManagement: React.FC = () => {
               size="small"
               placeholder="Search by customer, order ID, or product..."
               value={searchQuery}
-              onChange={(e) => setSearchQuery(e.target.value)}
+              onChange={(e) => {
+                setSearchQuery(e.target.value);
+                setPage(0);
+              }}
               InputProps={{
-                startAdornment: <SearchIcon sx={{ mr: 1, color: "text.secondary" }} />,
+                startAdornment: (
+                  <SearchIcon sx={{ mr: 1, color: "text.secondary" }} />
+                ),
               }}
               sx={{ flex: 1, minWidth: 220 }}
             />
@@ -265,13 +352,22 @@ const OrdersManagement: React.FC = () => {
               <Select
                 value={statusFilter}
                 label="Status"
-                onChange={(e) => setStatusFilter(e.target.value as OrderStatus | "")}
+                onChange={(e) => {
+                  setStatusFilter(e.target.value as AdminOrderStatus | "");
+                  setPage(0);
+                }}
               >
                 <MenuItem value="">All</MenuItem>
                 <MenuItem value="PENDING">Pending</MenuItem>
                 <MenuItem value="PROCESSING">Processing</MenuItem>
+                <MenuItem value="PACKAGING">Packaging</MenuItem>
+                <MenuItem value="IN_TRANSIT">In-Transit</MenuItem>
                 <MenuItem value="FULFILLED">Fulfilled</MenuItem>
-                <MenuItem value="CANCELLED">Cancelled</MenuItem>
+                <MenuItem value="INFORECEIVED">Info Received</MenuItem>
+                <MenuItem value="TRANSIT">In Transit</MenuItem>
+                <MenuItem value="DELIVERED">Delivered</MenuItem>
+                <MenuItem value="UNDELIVERED">Undelivered</MenuItem>
+                <MenuItem value="EXCEPTION">Exception</MenuItem>
               </Select>
             </FormControl>
           </Box>
@@ -293,7 +389,16 @@ const OrdersManagement: React.FC = () => {
               </TableRow>
             </TableHead>
             <TableBody>
-              {paginatedOrders.length === 0 ? (
+              {loading ? (
+                <TableRow>
+                  <TableCell colSpan={7} align="center" sx={{ py: 4 }}>
+                    <CircularProgress size={24} />
+                    <Typography variant="body2" sx={{ mt: 1 }}>
+                      Loading orders...
+                    </Typography>
+                  </TableCell>
+                </TableRow>
+              ) : orders.length === 0 ? (
                 <TableRow>
                   <TableCell colSpan={7} align="center" sx={{ py: 4 }}>
                     <Typography variant="body1" color="text.secondary">
@@ -302,92 +407,110 @@ const OrdersManagement: React.FC = () => {
                   </TableCell>
                 </TableRow>
               ) : (
-                paginatedOrders.map((order) => (
-                  <TableRow key={order.id} hover>
-                    <TableCell>
-                      <Typography variant="body2" fontWeight={600}>
-                        {order.id}
-                      </Typography>
-                      <Typography variant="caption" color="text.secondary">
-                        {order.paymentMethod === "card"
-                          ? "Card"
-                          : order.paymentMethod === "wallet"
-                          ? "Wallet"
-                          : "Transfer"}{" "}
-                        • {order.shippingMethod === "express" ? "Express" : "Standard"}
-                      </Typography>
-                    </TableCell>
-                    <TableCell>
-                      <Typography variant="body2" fontWeight={500}>
-                        {order.customerName}
-                      </Typography>
-                      <Typography variant="caption" color="text.secondary">
-                        {order.customerEmail}
-                      </Typography>
-                    </TableCell>
-                    <TableCell>
-                      <Typography
-                        variant="body2"
-                        sx={{ maxWidth: 220, whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}
-                      >
-                        {order.items.map((item) => `${item.name} ×${item.quantity}`).join(", ")}
-                      </Typography>
-                    </TableCell>
-                    <TableCell>
-                      <Typography variant="body2" fontWeight={600}>
-                        {currency(order.total)}
-                      </Typography>
-                      {order.fulfillmentEta && (
-                        <Typography variant="caption" color="text.secondary">
-                          ETA:{" "}
-                          {new Date(order.fulfillmentEta).toLocaleDateString("en-GB", {
-                            day: "numeric",
-                            month: "short",
-                          })}
+                orders.map((order) => {
+                  const customerName =
+                    order.customer?.firstName && order.customer?.lastName
+                      ? `${order.customer.firstName} ${order.customer.lastName}`
+                      : order.customer?.email || "Unknown Customer";
+                  const paymentMethod = order.paymentProvider || "Unknown";
+                  const shippingMethod = "Standard"; // This would come from delivery address metadata if available
+                  const normalizedStatus = normalizeOrderStatus(
+                    order.status || "PENDING"
+                  );
+                  const statusInfo = getStatusConfig(order.status || "PENDING");
+
+                  return (
+                    <TableRow
+                      key={order.id}
+                      hover
+                      sx={{ cursor: "pointer" }}
+                      onClick={() => handleRowClick(order)}
+                    >
+                      <TableCell>
+                        <Typography variant="body2" fontWeight={600}>
+                          {order.id}
                         </Typography>
-                      )}
-                    </TableCell>
-                    <TableCell>
-                      <Chip
-                        label={statusConfig[order.status].label}
-                        color={statusConfig[order.status].color}
-                        size="small"
-                      />
-                    </TableCell>
-                    <TableCell>
-                      <Typography variant="caption" color="text.secondary">
-                        {new Date(order.placedAt).toLocaleDateString("en-GB", {
-                          day: "numeric",
-                          month: "short",
-                          year: "numeric",
-                        })}
-                      </Typography>
-                    </TableCell>
-                    <TableCell align="right">
-                      <Box sx={{ display: "flex", gap: 0.5, justifyContent: "flex-end" }}>
-                        <IconButton
-                          size="small"
-                          onClick={() => {
-                            setActiveOrder(order);
-                            setDetailsOpen(true);
+                        <Typography variant="caption" color="text.secondary">
+                          {paymentMethod} • {shippingMethod}
+                        </Typography>
+                      </TableCell>
+                      <TableCell>
+                        <Typography variant="body2" fontWeight={500}>
+                          {customerName}
+                        </Typography>
+                        <Typography variant="caption" color="text.secondary">
+                          {order.customer.email}
+                        </Typography>
+                      </TableCell>
+                      <TableCell>
+                        <Typography
+                          variant="body2"
+                          sx={{
+                            maxWidth: 220,
+                            whiteSpace: "nowrap",
+                            overflow: "hidden",
+                            textOverflow: "ellipsis",
                           }}
                         >
-                          <VisibilityIcon fontSize="small" />
-                        </IconButton>
-                        <IconButton size="small" onClick={(e) => handleMenuOpen(e, order)}>
+                          {order.items && order.items.length > 0
+                            ? order.items
+                                .map(
+                                  (item) =>
+                                    `${item.name || "Unknown Product"} ×${
+                                      item.quantity || 0
+                                    }`
+                                )
+                                .join(", ")
+                            : "No items"}
+                        </Typography>
+                      </TableCell>
+                      <TableCell>
+                        <Typography variant="body2" fontWeight={600}>
+                          {currency(order.totalAmount)}
+                        </Typography>
+                      </TableCell>
+                      <TableCell>
+                        <Chip
+                          label={statusInfo.label}
+                          color={statusInfo.color}
+                          size="small"
+                          onClick={(e) => handleStatusClick(e, order)}
+                          sx={{ cursor: "pointer" }}
+                        />
+                      </TableCell>
+                      <TableCell>
+                        <Typography variant="caption" color="text.secondary">
+                          {new Date(order.createdAt).toLocaleDateString(
+                            "en-GB",
+                            {
+                              day: "numeric",
+                              month: "short",
+                              year: "numeric",
+                            }
+                          )}
+                        </Typography>
+                      </TableCell>
+                      <TableCell
+                        align="right"
+                        onClick={(e) => e.stopPropagation()}
+                      >
+                        <IconButton
+                          size="small"
+                          onClick={(e) => handleMenuOpen(e, order)}
+                        >
                           <MoreVertIcon />
                         </IconButton>
-                      </Box>
-                    </TableCell>
-                  </TableRow>
-                ))
+                      </TableCell>
+                    </TableRow>
+                  );
+                })
               )}
             </TableBody>
           </Table>
         </TableContainer>
         <TablePagination
           component="div"
-          count={filteredOrders.length}
+          count={pagination.total}
           page={page}
           onPageChange={handleChangePage}
           rowsPerPage={rowsPerPage}
@@ -403,37 +526,70 @@ const OrdersManagement: React.FC = () => {
         anchorOrigin={{ vertical: "bottom", horizontal: "right" }}
         transformOrigin={{ vertical: "top", horizontal: "right" }}
       >
-        {activeOrder?.status !== "FULFILLED" && (
-          <MenuItem onClick={handleFulfill}>
-            <CheckCircleIcon sx={{ fontSize: 20, mr: 1 }} />
-            Mark as fulfilled
+        {activeOrder &&
+          (normalizeOrderStatus(activeOrder.status) === "PROCESSING" ||
+            normalizeOrderStatus(activeOrder.status) === "PACKAGING") && (
+            <MenuItem onClick={() => handleOpenTrackingModal(activeOrder)}>
+              <QrCodeScannerIcon sx={{ fontSize: 20, mr: 1 }} />
+              {(activeOrder as any).trackingReference
+                ? "Update Tracking Reference"
+                : "Input Tracking Reference"}
+            </MenuItem>
+          )}
+        {nextStatus && (
+          <MenuItem onClick={() => handleStatusUpdate(nextStatus)}>
+            <LocalShippingIcon sx={{ fontSize: 20, mr: 1 }} />
+            Move to {statusConfig[nextStatus].label}
           </MenuItem>
         )}
-        {activeOrder?.status === "PENDING" && (
-          <MenuItem onClick={handleProcess}>
-            <PendingActionsIcon sx={{ fontSize: 20, mr: 1 }} />
-            Move to processing
+        {previousStatus && (
+          <MenuItem onClick={() => handleStatusUpdate(previousStatus)}>
+            <LocalShippingOutlinedIcon sx={{ fontSize: 20, mr: 1 }} />
+            Move back to {statusConfig[previousStatus].label}
           </MenuItem>
         )}
-        {activeOrder?.status !== "CANCELLED" && (
-          <MenuItem onClick={handleCancel}>
-            <CancelIcon sx={{ fontSize: 20, mr: 1 }} />
-            Cancel order
+        {!nextStatus && !previousStatus && !activeOrder && (
+          <MenuItem disabled>
+            <Typography variant="body2" color="text.secondary">
+              No status transitions available
+            </Typography>
           </MenuItem>
         )}
       </Menu>
+
+      <TrackingReferenceModal
+        open={trackingModalOpen}
+        onClose={() => {
+          setTrackingModalOpen(false);
+          setTrackingOrderId(null);
+          setTrackingReference(null);
+        }}
+        orderId={trackingOrderId || ""}
+        existingTrackingReference={trackingReference}
+        onSuccess={handleTrackingSuccess}
+      />
 
       <OrderDetailsModal
         open={detailsOpen}
         onClose={() => {
           setDetailsOpen(false);
-          setActiveOrder(null);
+          setOrderDetail(null);
         }}
-        order={activeOrder}
+        order={orderDetail}
+        loading={loadingDetail}
+        onStatusUpdate={async (newStatus) => {
+          if (orderDetail) {
+            await handleStatusUpdate(newStatus);
+          }
+        }}
+        onTrackingUpdate={async () => {
+          if (orderDetail) {
+            await loadOrderDetail(orderDetail.id);
+          }
+        }}
       />
     </div>
   );
 };
 
 export default OrdersManagement;
-

@@ -13,19 +13,9 @@ import {
   type OrderDetail,
 } from "../../api/user.api";
 import { useNavigate } from "react-router-dom";
-
-interface OrderWithDetails extends OrderSummary {
-  firstProductName?: string;
-  firstProductImage?: string;
-  wantsNotification?: boolean; // For pre-orders: indicates if user wants to be notified when in stock
-}
-
-interface PreOrderDemo extends OrderSummary {
-  firstProductName?: string;
-  firstProductImage?: string;
-  wantsNotification?: boolean;
-  isPreOrder?: boolean;
-}
+import SubmitReviewModal from "../../components/SubmitReviewModal";
+import { checkUserReviewForOrderItem } from "../../api/review.api";
+import { ResponseStatus } from "@/types/response.types";
 
 const OrdersHistory: React.FC = () => {
   const [orders, setOrders] = useState<OrderWithDetails[]>([]);
@@ -48,7 +38,7 @@ const OrdersHistory: React.FC = () => {
     try {
       const response = await getMyOrders();
       if (
-        (response.status === "SUCCESS" || response.status === "success") &&
+        (response.status === ResponseStatus.SUCCESS) &&
         response.data?.orders
       ) {
         const ordersWithDetails: OrderWithDetails[] = response.data.orders;
@@ -64,47 +54,43 @@ const OrdersHistory: React.FC = () => {
     }
   };
 
-  const loadOrderImages = async (ordersList: OrderWithDetails[]) => {
-    // Load images for all orders in parallel
-    const imagePromises = ordersList.map(async (order) => {
-      if (loadingImages.has(order.id)) return;
-      
-      setLoadingImages((prev) => new Set(prev).add(order.id));
-      
-      try {
-        const response = await getMyOrder(order.id);
-        if (
-          (response.status === "SUCCESS" || response.status === "success") &&
-          response.data?.order?.orderItems &&
-          response.data.order.orderItems.length > 0
-        ) {
-          const firstItem = response.data.order.orderItems[0];
-          const productName = firstItem.product?.storeItem?.name || "Product";
-          const productImage =
-            firstItem.product?.storeItem?.display?.url ||
-            firstItem.product?.storeItem?.images?.[0] ||
-            "";
+  const fetchOrderDetail = async (
+    orderId: string
+  ): Promise<OrderDetail | null> => {
+    if (orderDetails[orderId]) {
+      return orderDetails[orderId];
+    }
 
-          setOrders((prev) =>
-            prev.map((o) =>
-              o.id === order.id
-                ? { ...o, firstProductName: productName, firstProductImage: productImage }
-                : o
-            )
-          );
-        }
-      } catch (error) {
-        console.error(`Failed to load image for order ${order.id}:`, error);
-      } finally {
-        setLoadingImages((prev) => {
-          const next = new Set(prev);
-          next.delete(order.id);
-          return next;
-        });
+    try {
+      setLoadingDetailOrderId(orderId);
+      const response = await getMyOrder(orderId);
+      if (
+        (response.status === ResponseStatus.SUCCESS) &&
+        response.data?.order
+      ) {
+        const order = response.data.order;
+        setOrderDetails((prev) => ({
+          ...prev,
+          [orderId]: order,
+        }));
+        return order;
       }
-    });
+      toast.error(response.message || "Failed to load order details.");
+      return null;
+    } catch (error: any) {
+      toast.error(
+        error?.response?.data?.message || "Failed to load order details."
+      );
+      return null;
+    } finally {
+      setLoadingDetailOrderId(null);
+    }
+  };
 
-    await Promise.all(imagePromises);
+  const ensureOrderDetail = async (
+    orderId: string
+  ): Promise<OrderDetail | null> => {
+    return orderDetails[orderId] ?? (await fetchOrderDetail(orderId));
   };
 
   const getStatusColor = (status: string) => {
@@ -141,128 +127,144 @@ const OrdersHistory: React.FC = () => {
     }).format(amount);
   };
 
-  const getStatusLabel = (status: string) => {
-    const upperStatus = status.toUpperCase();
-    if (upperStatus.includes("DELIVERED")) {
-      return "Delivered";
+  const handleReorder = async (order: OrderSummary) => {
+    const detail = await ensureOrderDetail(order.id);
+    if (!detail || !detail.orderItems.length) {
+      toast.error("Unable to reorder at this time.");
+      return;
     }
-    if (upperStatus === "PAID") {
-      return "Paid";
-    }
-    if (upperStatus === "PENDING") {
-      return "Pending";
-    }
-    if (upperStatus === "FAILED") {
-      return "Failed";
-    }
-    if (upperStatus === "CANCELLED") {
-      return "Cancelled";
-    }
-    if (upperStatus === "REFUNDED") {
-      return "Refunded";
-    }
-    if (upperStatus === "PRE_ORDER" || upperStatus.includes("PREORDER")) {
-      return "Pre-order";
-    }
-    if (upperStatus.includes("CANCELLED") || upperStatus.includes("FAILED")) {
-      if (upperStatus.includes("PAYMENT")) {
-        return "Cancelled - Payment Unsuccessful";
-      }
-      return "Cancelled";
-    }
-    if (upperStatus.includes("PENDING") || upperStatus.includes("PROGRESS") || upperStatus.includes("ONGOING")) {
-      return "Delivery in progress";
-    }
-    // Capitalize first letter only
-    return status.charAt(0).toUpperCase() + status.slice(1).toLowerCase();
-  };
 
-  const handleViewOrder = async (orderId: string, isMobile: boolean = false) => {
-    if (isMobile) {
-      // Show modal on mobile
-      setLoadingOrderDetails(true);
-      setIsModalOpen(true);
-      try {
-        const response = await getMyOrder(orderId);
-        if (
-          (response.status === "SUCCESS" || response.status === "success") &&
-          response.data?.order
-        ) {
-          setSelectedOrder(response.data.order);
-        } else {
-          toast.error(response.message || "Failed to load order details");
-          setIsModalOpen(false);
+    try {
+      setReorderingOrderId(order.id);
+      for (const item of detail.orderItems) {
+        if (!item.productId) {
+          continue;
         }
-      } catch (error: any) {
-        toast.error(
-          error?.response?.data?.message || "Failed to load order details"
-        );
-        setIsModalOpen(false);
-      } finally {
-        setLoadingOrderDetails(false);
+
+        const addResponse = await cartAPI.addToCart({
+          productId: item.productId,
+          quantity: Math.max(1, item.quantity ?? 1),
+        });
+
+        if (
+          !(
+            (addResponse.status === ResponseStatus.SUCCESS) &&
+            addResponse.data
+          )
+        ) {
+          throw new Error(addResponse?.message || "Unable to add item to cart");
+        }
       }
-    } else {
-      // Navigate on desktop
-      navigate(`/dashboard/orders/${orderId}`);
+
+      await refreshCart();
+      toast.success(
+        "Order items added to your cart. Review and checkout when ready."
+      );
+      openCart();
+    } catch (error) {
+      console.error("Order again failed:", error);
+      toast.error(
+        "We couldn't add those items to your cart. Please try again."
+      );
+    } finally {
+      setReorderingOrderId(null);
     }
   };
 
-  // Generate demo pre-orders data
-  const generateDemoPreOrders = (): PreOrderDemo[] => {
-    const demoPreOrders: PreOrderDemo[] = [
-      {
-        id: "pre-order-1",
-        userId: "user-1",
-        status: "PRE_ORDER",
-        totalAmount: 49.99,
-        paymentId: null,
-        deliveryAddressId: null,
-        createdAt: new Date(Date.now() - 7 * 24 * 60 * 60 * 1000).toISOString(),
-        updatedAt: new Date().toISOString(),
-        itemCount: 1,
-        totalQuantity: 1,
-        firstProductName: "Wellness Bundle",
-        firstProductImage: "/assets/marketplace/mandi-face-masks.jpg",
-        wantsNotification: true,
-        isPreOrder: true,
-        paymentCurrency: "GBP",
-      },
-      {
-        id: "pre-order-2",
-        userId: "user-1",
-        status: "PRE_ORDER",
-        totalAmount: 79.99,
-        paymentId: null,
-        deliveryAddressId: null,
-        createdAt: new Date(Date.now() - 3 * 24 * 60 * 60 * 1000).toISOString(),
-        updatedAt: new Date().toISOString(),
-        itemCount: 2,
-        totalQuantity: 2,
-        firstProductName: "Premium Supplements",
-        firstProductImage: "/assets/marketplace/afrilet-multivitamin.jpg",
-        wantsNotification: false,
-        isPreOrder: true,
-        paymentCurrency: "GBP",
-      },
-      {
-        id: "pre-order-3",
-        userId: "user-1",
-        status: "PRE_ORDER",
-        totalAmount: 29.99,
-        paymentId: null,
-        deliveryAddressId: null,
-        createdAt: new Date(Date.now() - 1 * 24 * 60 * 60 * 1000).toISOString(),
-        updatedAt: new Date().toISOString(),
-        itemCount: 1,
-        totalQuantity: 1,
-        firstProductName: "Skincare Set",
-        firstProductImage: "/assets/marketplace/chara-lip-balm.jpg",
-        wantsNotification: true,
-        isPreOrder: true,
-        paymentCurrency: "GBP",
-      },
-    ];
-    return demoPreOrders;
+  const handleContactSupport = (orderId: string) => {
+    navigate(`/contact?order=${orderId}`);
+  };
+
+  const handleVerifyPayment = async (orderId: string) => {
+    try {
+      setVerifyingOrderId(orderId);
+      const response = await verifyOrderPayment(orderId);
+      if (
+        (response.status === ResponseStatus.SUCCESS) &&
+        response.data
+      ) {
+        if (response.data.updated) {
+          toast.success(
+            response.data.message || "Payment status verified and updated"
+          );
+          // Reload orders to get updated status
+          await loadOrders();
+          // If order is expanded, reload its details
+          if (expandedOrderId === orderId) {
+            await fetchOrderDetail(orderId);
+          }
+        } else {
+          toast.success(
+            response.data.message || "Payment status verified (no changes)"
+          );
+        }
+      } else {
+        toast.error(response.message || "Failed to verify payment");
+      }
+    } catch (error: any) {
+      toast.error(error?.response?.data?.message || "Failed to verify payment");
+    } finally {
+      setVerifyingOrderId(null);
+    }
+  };
+
+  const handleToggleOrder = (orderId: string) => {
+    setExpandedOrderId((current) => {
+      const next = current === orderId ? null : orderId;
+      if (next === orderId && !orderDetails[orderId]) {
+        void fetchOrderDetail(orderId);
+      }
+      return next;
+    });
+  };
+
+  const checkOrderItemReview = async (orderItemId: string) => {
+    if (
+      checkingReviews.has(orderItemId) ||
+      reviewedOrderItems.has(orderItemId)
+    ) {
+      return;
+    }
+
+    try {
+      setCheckingReviews((prev) => new Set(prev).add(orderItemId));
+      const response = await checkUserReviewForOrderItem(orderItemId);
+      if (
+        (response.status === ResponseStatus.SUCCESS) &&
+        response.data?.hasReviewed
+      ) {
+        setReviewedOrderItems((prev) => new Set(prev).add(orderItemId));
+      }
+    } catch (error) {
+      // Silently fail - don't block UI
+      console.error("Failed to check review status:", error);
+    } finally {
+      setCheckingReviews((prev) => {
+        const next = new Set(prev);
+        next.delete(orderItemId);
+        return next;
+      });
+    }
+  };
+
+  const handleReviewClick = (item: OrderDetail["orderItems"][0]) => {
+    if (!item.productId || !item.id) return;
+    setSelectedOrderItem({
+      orderItemId: item.id,
+      productId: item.productId,
+      productName: item.product?.storeItem?.name || "Product",
+    });
+    setReviewModalOpen(true);
+  };
+
+  const handleReviewSubmit = () => {
+    if (selectedOrderItem) {
+      setReviewedOrderItems((prev) =>
+        new Set(prev).add(selectedOrderItem.orderItemId)
+      );
+    }
+    setReviewModalOpen(false);
+    setSelectedOrderItem(null);
   };
 
   const filteredOrders = (() => {

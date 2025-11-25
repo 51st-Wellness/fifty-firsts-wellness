@@ -33,6 +33,7 @@ export type StoreItem = {
   discountEnd?: string | Date | null;
   averageRating?: number;
   reviewCount?: number;
+  preOrderEnabled?: boolean;
 };
 
 export type StoreItemListParams = {

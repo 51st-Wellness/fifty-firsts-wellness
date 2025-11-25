@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useMemo, useState } from "react";
 import { ShoppingCart, Heart, Bell, Package, Star } from "lucide-react";
 import type { StoreItem } from "../types/marketplace.types";
 import type { ReviewSummary } from "../types/review.types";
@@ -8,7 +8,7 @@ import NotificationOptIn from "./NotificationOptIn";
 import { useNavigate } from "react-router-dom";
 import Price from "./Price";
 import { getStoreItemPricing } from "../utils/discounts";
-import { preorderProduct } from "../api/marketplace.api";
+import { useGlobalDiscount } from "../context/GlobalDiscountContext";
 import toast from "react-hot-toast";
 
 interface StoreItemCardProps {
@@ -25,7 +25,8 @@ const StoreItemCard: React.FC<StoreItemCardProps> = ({
 }) => {
   const imageUrl = item.display?.url || item.images?.[0] || ""; // pick cover image
   const title = item.name || "Product";
-  const pricing = getStoreItemPricing(item);
+  const { globalDiscount } = useGlobalDiscount();
+  const pricing = getStoreItemPricing(item, { globalDiscount });
   const displayPrice = pricing.currentPrice ?? item.price ?? 0;
   const strikeThroughPrice = pricing.hasDiscount
     ? pricing.basePrice
@@ -36,6 +37,9 @@ const StoreItemCard: React.FC<StoreItemCardProps> = ({
   const [itemLoading, setItemLoading] = useState(false);
   const navigate = useNavigate();
   const [notifyOpen, setNotifyOpen] = useState(false);
+
+  const preOrderEnabled = Boolean((item as any).preOrderEnabled);
+  const canPreOrder = preOrderEnabled && (item.stock ?? 0) <= 0;
 
   const currentQuantity = getItemQuantity(item.productId);
   const inCart = isInCart(item.productId);
@@ -62,7 +66,24 @@ const StoreItemCard: React.FC<StoreItemCardProps> = ({
   };
 
   const isComingSoon = (item as any)?.status === "coming_soon";
-  const isOutOfStock = item.stock === 0;
+  const isOutOfStock = (item.stock ?? 0) === 0;
+  const showAddToCart = !canPreOrder && !isComingSoon && !isOutOfStock;
+  const showNotifyOnly = !canPreOrder && (isComingSoon || isOutOfStock);
+
+  const handlePreOrder = async () => {
+    if (!isAuthenticated || !canPreOrder) return;
+
+    try {
+      setItemLoading(true);
+      await addToCart(item.productId, 1);
+      toast.success("Pre-order item added to cart");
+    } catch (error) {
+      console.error("Failed to add pre-order item to cart:", error);
+      toast.error("Failed to add pre-order item to cart");
+    } finally {
+      setItemLoading(false);
+    }
+  };
 
   const handleCardClick = (e: React.MouseEvent) => {
     // Prevent opening dialog when clicking on cart buttons
@@ -92,6 +113,18 @@ const StoreItemCard: React.FC<StoreItemCardProps> = ({
               <ShoppingCart className="w-12 h-12 text-gray-400" />
             </div>
           )}
+          {canPreOrder && (
+            <span className="absolute top-2 left-2 inline-flex items-center gap-1 rounded-full bg-white/90 px-3 py-1 text-[10px] font-semibold uppercase text-brand-green shadow-sm">
+              <Package className="w-3 h-3" />
+              Pre-order
+            </span>
+          )}
+          {!canPreOrder && isOutOfStock && (
+            <span className="absolute top-2 left-2 inline-flex items-center gap-1 rounded-full bg-gray-900/80 px-3 py-1 text-[10px] font-semibold uppercase text-white shadow-sm">
+              <ShoppingCart className="w-3 h-3 text-white" />
+              Out of Cart
+            </span>
+          )}
         </div>
 
         <div className="p-2 md:p-4 flex flex-col flex-1">
@@ -111,6 +144,21 @@ const StoreItemCard: React.FC<StoreItemCardProps> = ({
               badgeClassName="text-[10px] md:text-xs px-1.5 py-0.5"
             />
           </div>
+
+          {item.stock && item.stock > 0 && (
+            <div className="mt-1.5 text-[10px] md:text-xs text-gray-500">
+              {item.stock} {item.stock === 1 ? "item" : "items"} in stock
+            </div>
+          )}
+
+          {canPreOrder && (
+            <div className="mt-1.5 rounded-xl bg-brand-green/5 border border-dashed border-brand-green/40 p-2 text-[11px] text-gray-600">
+              <p className="text-[10px] text-gray-600">
+                Pre-order now — you’ll be charged today and notified once the
+                item is ready to ship.
+              </p>
+            </div>
+          )}
 
           {reviewSummary && reviewSummary.reviewCount > 0 && (
             <div className="mt-2 md:mt-3 flex flex-col md:flex-row md:items-center gap-1 md:gap-2 text-xs md:text-base text-gray-600 min-h-[28px] md:min-h-[20px]">
@@ -137,7 +185,69 @@ const StoreItemCard: React.FC<StoreItemCardProps> = ({
             className="mt-auto pt-0.5 md:pt-2 cart-controls flex flex-wrap items-center gap-2"
             onClick={(e) => e.stopPropagation()}
           >
-            {!isComingSoon && !isOutOfStock && (
+            {canPreOrder ? (
+              <div className="w-full space-y-2">
+                <span className="relative group block">
+                  <button
+                    type="button"
+                    onClick={handlePreOrder}
+                    disabled={!isAuthenticated || !canPreOrder || itemLoading}
+                    title={
+                      !isAuthenticated
+                        ? "Login required to pre-order"
+                        : undefined
+                    }
+                    className="w-full inline-flex items-center justify-center gap-1 md:gap-2 bg-brand-green text-white px-2 md:px-4 py-1.5 md:py-2 rounded-full text-[10px] md:text-sm font-semibold hover:bg-brand-green-dark transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                  >
+                    {itemLoading ? (
+                      <div className="animate-spin rounded-full h-3 w-3 md:h-4 md:w-4 border-2 border-white border-t-transparent"></div>
+                    ) : (
+                      <Package className="w-3 h-3 md:w-4 md:h-4" />
+                    )}
+                    <span className="hidden md:inline">
+                      {itemLoading ? "Adding..." : "Pre-order now"}
+                    </span>
+                    <span className="md:hidden">
+                      {itemLoading ? "..." : "Pre-order"}
+                    </span>
+                  </button>
+                  {!isAuthenticated && (
+                    <div className="pointer-events-none absolute -top-9 left-1/2 -translate-x-1/2 whitespace-nowrap bg-gray-900 text-white text-[10px] px-2 py-1 rounded opacity-0 group-hover:opacity-100 transition-opacity">
+                      Login required
+                    </div>
+                  )}
+                </span>
+                <div className="flex items-center justify-between">
+                  <span className="text-[10px] text-gray-500">
+                    Want updates?
+                  </span>
+                  <span className="relative group">
+                    <button
+                      type="button"
+                      onClick={() => {
+                        if (!isAuthenticated) return;
+                        setNotifyOpen(true);
+                      }}
+                      disabled={!isAuthenticated}
+                      title={
+                        !isAuthenticated
+                          ? "Login required to be notified"
+                          : undefined
+                      }
+                      className="inline-flex items-center justify-center bg-white border border-brand-green text-brand-green w-8 h-8 md:w-10 md:h-10 rounded-full hover:bg-brand-green hover:text-white transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                      aria-label="Notify me when available"
+                    >
+                      <Bell className="w-3.5 h-3.5 md:w-4 md:h-4" />
+                    </button>
+                    {!isAuthenticated && (
+                      <div className="pointer-events-none absolute -top-9 left-1/2 -translate-x-1/2 whitespace-nowrap bg-gray-900 text-white text-[10px] px-2 py-1 rounded opacity-0 group-hover:opacity-100 transition-opacity">
+                        Login required
+                      </div>
+                    )}
+                  </span>
+                </div>
+              </div>
+            ) : showAddToCart ? (
               <span className="relative group w-full">
                 <button
                   type="button"
@@ -168,40 +278,10 @@ const StoreItemCard: React.FC<StoreItemCardProps> = ({
                   </div>
                 )}
               </span>
-            )}
+            ) : null}
 
-            {(isComingSoon || isOutOfStock) && (
+            {showNotifyOnly && (
               <div className="w-full flex items-center justify-between gap-3">
-                <span className="relative group flex-1">
-                  <button
-                    type="button"
-                    onClick={async () => {
-                      if (!isAuthenticated) return;
-                      try {
-                        await preorderProduct(item.productId);
-                        toast.success("Pre‑order placed");
-                      } catch (e) {
-                        toast.error("Failed to place pre‑order");
-                      }
-                    }}
-                    disabled={!isAuthenticated}
-                    title={
-                      !isAuthenticated
-                        ? "Login required to pre‑order"
-                        : undefined
-                    }
-                    className="w-full inline-flex items-center justify-center gap-1 md:gap-2 bg-brand-green text-white px-2 md:px-4 py-1.5 md:py-2 rounded-full text-[10px] md:text-sm font-semibold hover:bg-brand-green-dark transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
-                  >
-                    <Package className="w-3 h-3 md:w-4 md:h-4" />
-                    <span className="hidden md:inline">Pre‑Order</span>
-                    <span className="md:hidden">Pre‑Order</span>
-                  </button>
-                  {!isAuthenticated && (
-                    <div className="pointer-events-none absolute -top-9 left-1/2 -translate-x-1/2 whitespace-nowrap bg-gray-900 text-white text-[10px] px-2 py-1 rounded opacity-0 group-hover:opacity-100 transition-opacity">
-                      Login required
-                    </div>
-                  )}
-                </span>
                 <span className="relative group">
                   <button
                     type="button"

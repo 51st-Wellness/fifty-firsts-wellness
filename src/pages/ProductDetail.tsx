@@ -18,6 +18,7 @@ import { fetchStoreItems } from "../api/marketplace.api";
 import SubmitReviewModal from "../components/SubmitReviewModal";
 import AllReviewsModal from "../components/AllReviewsModal";
 import { getStoreItemPricing } from "../utils/discounts";
+import { useGlobalDiscount } from "../context/GlobalDiscountContext";
 import toast from "react-hot-toast";
 import { getProductReviews, getProductReviewSummary } from "../api/review.api";
 import type { ProductReview, ReviewSummary } from "../types/review.types";
@@ -38,6 +39,7 @@ const ProductDetail: React.FC = () => {
   const [loadingReviews, setLoadingReviews] = useState(false);
   const { addToCart } = useCart();
   const { isAuthenticated } = useAuth();
+  const { globalDiscount } = useGlobalDiscount();
   const navigate = useNavigate();
   const location = useLocation();
 
@@ -176,7 +178,7 @@ const ProductDetail: React.FC = () => {
         typeof ingredient === "string" && ingredient.trim().length > 0
     ) || [];
   const hasIngredients = productIngredients.length > 0;
-  const pricing = getStoreItemPricing(item);
+  const pricing = getStoreItemPricing(item, { globalDiscount });
   const displayPrice = pricing.currentPrice ?? item.price ?? 0;
   const strikePrice = pricing.hasDiscount ? pricing.basePrice : item.oldPrice;
 

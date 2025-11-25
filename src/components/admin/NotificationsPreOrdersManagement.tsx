@@ -1,4 +1,4 @@
-import React, { useState, useMemo } from "react";
+import React, { useState, useMemo, useEffect, useCallback } from "react";
 import {
   Box,
   Typography,
@@ -20,193 +20,82 @@ import {
   TableHead,
   TableRow,
   TablePagination,
-  Menu,
+  Button,
   IconButton,
+  CircularProgress,
 } from "@mui/material";
 import {
   Notifications as NotificationsIcon,
-  ShoppingBag as ShoppingBagIcon,
   Search as SearchIcon,
-  CalendarToday as CalendarIcon,
-  MoreVert as MoreVertIcon,
+  Email as EmailIcon,
+  Delete as DeleteIcon,
 } from "@mui/icons-material";
+import toast from "react-hot-toast";
+import {
+  getAllSubscribers,
+  deleteSubscriber,
+  sendBulkEmail,
+  searchStoreItems,
+  type ProductSubscriber,
+} from "../../api/product-subscriber.api";
+import { BulkEmailDialog } from "./BulkEmailDialog";
+import PreOrdersManagement from "./PreOrdersManagement";
 
-export interface NotificationRequest {
-  id: string;
-  productId: string;
-  productName: string;
-  productImage?: string;
-  userId: string;
-  userEmail: string;
-  userName: string;
-  requestedAt: string;
-  status: "PENDING" | "NOTIFIED";
-}
-
-export interface PreOrder {
-  id: string;
-  productId: string;
-  productName: string;
-  productImage?: string;
-  userId: string;
-  userEmail: string;
-  userName: string;
-  quantity: number;
-  preOrderedAt: string;
-  estimatedFulfillmentDate?: string;
-  status: "PENDING" | "FULFILLED";
-}
-
-// Demo data - can be easily cleared
-const generateDemoNotifications = (): NotificationRequest[] => {
-  const now = new Date();
-  return [
-    {
-      id: "notif-1",
-      productId: "prod-2",
-      productName: "Aromatherapy Candle",
-      productImage: undefined,
-      userId: "user-1",
-      userEmail: "maria.jacobs@example.com",
-      userName: "Maria Jacobs",
-      requestedAt: new Date(now.getTime() - 3 * 24 * 60 * 60 * 1000).toISOString(),
-      status: "PENDING",
-    },
-    {
-      id: "notif-2",
-      productId: "prod-4",
-      productName: "Yoga Mat Premium",
-      productImage: undefined,
-      userId: "user-2",
-      userEmail: "john.smith@example.com",
-      userName: "John Smith",
-      requestedAt: new Date(now.getTime() - 5 * 24 * 60 * 60 * 1000).toISOString(),
-      status: "PENDING",
-    },
-    {
-      id: "notif-3",
-      productId: "prod-2",
-      productName: "Aromatherapy Candle",
-      productImage: undefined,
-      userId: "user-3",
-      userEmail: "sarah.williams@example.com",
-      userName: "Sarah Williams",
-      requestedAt: new Date(now.getTime() - 7 * 24 * 60 * 60 * 1000).toISOString(),
-      status: "NOTIFIED",
-    },
-    {
-      id: "notif-4",
-      productId: "prod-5",
-      productName: "Meditation Cushion Set",
-      productImage: undefined,
-      userId: "user-4",
-      userEmail: "david.brown@example.com",
-      userName: "David Brown",
-      requestedAt: new Date(now.getTime() - 2 * 24 * 60 * 60 * 1000).toISOString(),
-      status: "PENDING",
-    },
-    {
-      id: "notif-5",
-      productId: "prod-4",
-      productName: "Yoga Mat Premium",
-      productImage: undefined,
-      userId: "user-5",
-      userEmail: "emily.chen@example.com",
-      userName: "Emily Chen",
-      requestedAt: new Date(now.getTime() - 1 * 24 * 60 * 60 * 1000).toISOString(),
-      status: "PENDING",
-    },
-  ];
-};
-
-const generateDemoPreOrders = (): PreOrder[] => {
-  const now = new Date();
-  const futureDate1 = new Date(now.getTime() + 14 * 24 * 60 * 60 * 1000); // 2 weeks
-  const futureDate2 = new Date(now.getTime() + 21 * 24 * 60 * 60 * 1000); // 3 weeks
-  const futureDate3 = new Date(now.getTime() + 7 * 24 * 60 * 60 * 1000); // 1 week
-  const pastDate = new Date(now.getTime() - 2 * 24 * 60 * 60 * 1000); // 2 days ago
-
-  return [
-    {
-      id: "pre-1",
-      productId: "prod-6",
-      productName: "Wellness Subscription Box",
-      productImage: undefined,
-      userId: "user-6",
-      userEmail: "michael.jones@example.com",
-      userName: "Michael Jones",
-      quantity: 1,
-      preOrderedAt: new Date(now.getTime() - 10 * 24 * 60 * 60 * 1000).toISOString(),
-      estimatedFulfillmentDate: futureDate1.toISOString(),
-      status: "PENDING",
-    },
-    {
-      id: "pre-2",
-      productId: "prod-7",
-      productName: "Herbal Tea Collection",
-      productImage: undefined,
-      userId: "user-7",
-      userEmail: "lisa.anderson@example.com",
-      userName: "Lisa Anderson",
-      quantity: 2,
-      preOrderedAt: new Date(now.getTime() - 8 * 24 * 60 * 60 * 1000).toISOString(),
-      estimatedFulfillmentDate: futureDate2.toISOString(),
-      status: "PENDING",
-    },
-    {
-      id: "pre-3",
-      productId: "prod-6",
-      productName: "Wellness Subscription Box",
-      productImage: undefined,
-      userId: "user-8",
-      userEmail: "robert.taylor@example.com",
-      userName: "Robert Taylor",
-      quantity: 1,
-      preOrderedAt: new Date(now.getTime() - 15 * 24 * 60 * 60 * 1000).toISOString(),
-      estimatedFulfillmentDate: pastDate.toISOString(),
-      status: "FULFILLED",
-    },
-    {
-      id: "pre-4",
-      productId: "prod-8",
-      productName: "Essential Oil Diffuser",
-      productImage: undefined,
-      userId: "user-1",
-      userEmail: "maria.jacobs@example.com",
-      userName: "Maria Jacobs",
-      quantity: 1,
-      preOrderedAt: new Date(now.getTime() - 5 * 24 * 60 * 60 * 1000).toISOString(),
-      estimatedFulfillmentDate: futureDate3.toISOString(),
-      status: "PENDING",
-    },
-    {
-      id: "pre-5",
-      productId: "prod-7",
-      productName: "Herbal Tea Collection",
-      productImage: undefined,
-      userId: "user-2",
-      userEmail: "john.smith@example.com",
-      userName: "John Smith",
-      quantity: 1,
-      preOrderedAt: new Date(now.getTime() - 12 * 24 * 60 * 60 * 1000).toISOString(),
-      estimatedFulfillmentDate: futureDate2.toISOString(),
-      status: "PENDING",
-    },
-  ];
-};
+const defaultEmailSubject = "Product update from Fifty Firsts Wellness";
 
 const NotificationsPreOrdersManagement: React.FC = () => {
-  const [notifications, setNotifications] = useState<NotificationRequest[]>(
-    generateDemoNotifications()
-  );
-  const [preOrders, setPreOrders] = useState<PreOrder[]>(generateDemoPreOrders());
+  const [subscribers, setSubscribers] = useState<ProductSubscriber[]>([]);
+  const [loading, setLoading] = useState(false);
   const [activeTab, setActiveTab] = useState(0);
-  const [statusFilter, setStatusFilter] = useState<"PENDING" | "NOTIFIED" | "FULFILLED" | "">("");
+  const [statusFilter, setStatusFilter] = useState<"PENDING" | "NOTIFIED" | "">(
+    ""
+  );
   const [searchQuery, setSearchQuery] = useState("");
   const [page, setPage] = useState(0);
   const [rowsPerPage, setRowsPerPage] = useState(10);
-  const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
-  const [selectedPreOrder, setSelectedPreOrder] = useState<PreOrder | null>(null);
+  const [totalCount, setTotalCount] = useState(0);
+
+  // Bulk email modal state
+  const [bulkEmailOpen, setBulkEmailOpen] = useState(false);
+  const [sendingEmail, setSendingEmail] = useState(false);
+
+  // Default email template
+  const defaultEmailTemplate = `Hi <First Name>,
+
+Great news! The product you subscribed to, "<Product Name>", is now available for purchase.
+
+Don't miss out - grab yours today while stocks last!
+
+Visit our marketplace to complete your order: <Product URL>
+
+Thank you for your patience,
+The Fifty First Wellness Team`;
+
+  // Load subscribers
+  const loadSubscribers = useCallback(async () => {
+    try {
+      setLoading(true);
+      const response = await getAllSubscribers({
+        page: page + 1,
+        limit: rowsPerPage,
+        status: statusFilter || undefined,
+      });
+
+      if (response.data) {
+        setSubscribers(response.data.items);
+        setTotalCount(response.data.pagination.total);
+      }
+    } catch (error) {
+      console.error("Failed to load subscribers:", error);
+      toast.error("Failed to load subscribers");
+    } finally {
+      setLoading(false);
+    }
+  }, [page, rowsPerPage, statusFilter]);
+
+  useEffect(() => {
+    loadSubscribers();
+  }, [loadSubscribers]);
 
   const handleTabChange = (event: React.SyntheticEvent, newValue: number) => {
     setActiveTab(newValue);
@@ -219,85 +108,97 @@ const NotificationsPreOrdersManagement: React.FC = () => {
     setPage(newPage);
   };
 
-  const handleChangeRowsPerPage = (event: React.ChangeEvent<HTMLInputElement>) => {
+  const handleChangeRowsPerPage = (
+    event: React.ChangeEvent<HTMLInputElement>
+  ) => {
     setRowsPerPage(parseInt(event.target.value, 10));
     setPage(0);
   };
 
-  const handleMenuOpen = (event: React.MouseEvent<HTMLElement>, preOrder: PreOrder) => {
-    setAnchorEl(event.currentTarget);
-    setSelectedPreOrder(preOrder);
+  const handleDeleteSubscriber = async (id: string) => {
+    if (!confirm("Are you sure you want to delete this subscription?")) return;
+
+    try {
+      await deleteSubscriber(id);
+      toast.success("Subscriber deleted successfully");
+      loadSubscribers();
+    } catch (error) {
+      console.error("Failed to delete subscriber:", error);
+      toast.error("Failed to delete subscriber");
+    }
   };
 
-  const handleMenuClose = () => {
-    setAnchorEl(null);
-    setSelectedPreOrder(null);
+  const handleOpenBulkEmail = () => {
+    setBulkEmailOpen(true);
   };
 
+  const handleSendBulkEmail = async (data: {
+    productId: string;
+    subject: string;
+    message: string;
+  }) => {
+    try {
+      setSendingEmail(true);
+      const response = await sendBulkEmail({
+        productId: data.productId,
+        subject: data.subject,
+        message: data.message,
+      });
 
-  // Filter notifications
-  const filteredNotifications = useMemo(() => {
-    return notifications.filter((notif) => {
-      const matchesStatus =
-        !statusFilter ||
-        (statusFilter === "PENDING" && notif.status === "PENDING") ||
-        (statusFilter === "NOTIFIED" && notif.status === "NOTIFIED");
-      const matchesSearch =
-        !searchQuery ||
-        notif.productName?.toLowerCase().includes(searchQuery.toLowerCase()) ||
-        notif.userName?.toLowerCase().includes(searchQuery.toLowerCase()) ||
-        notif.userEmail?.toLowerCase().includes(searchQuery.toLowerCase());
-      return matchesStatus && matchesSearch;
+      if (response.data) {
+        toast.success(
+          `Email sent to ${response.data.totalSent} subscriber(s) for "${response.data.productName}"`
+        );
+        setBulkEmailOpen(false);
+        loadSubscribers();
+      }
+    } catch (error: any) {
+      console.error("Failed to send bulk email:", error);
+      toast.error(
+        error?.response?.data?.message || "Failed to send bulk email"
+      );
+    } finally {
+      setSendingEmail(false);
+    }
+  };
+
+  // Search products for select dropdown
+  const handleSearchProducts = useCallback(async (query: string) => {
+    if (!query.trim()) return [];
+
+    try {
+      const response = await searchStoreItems(query, 10);
+      return response.data || [];
+    } catch (error) {
+      console.error("Failed to search products:", error);
+      return [];
+    }
+  }, []);
+
+  // Filter subscribers based on search query (client-side)
+  const filteredSubscribers = useMemo(() => {
+    if (!searchQuery.trim()) return subscribers;
+
+    return subscribers.filter((subscriber) => {
+      const searchLower = searchQuery.toLowerCase();
+      return (
+        subscriber.product?.name?.toLowerCase().includes(searchLower) ||
+        subscriber.user?.email?.toLowerCase().includes(searchLower) ||
+        subscriber.user?.firstName?.toLowerCase().includes(searchLower) ||
+        subscriber.user?.lastName?.toLowerCase().includes(searchLower)
+      );
     });
-  }, [notifications, statusFilter, searchQuery]);
-
-  // Filter pre-orders
-  const filteredPreOrders = useMemo(() => {
-    return preOrders.filter((preOrder) => {
-      const matchesStatus =
-        !statusFilter ||
-        (statusFilter === "PENDING" && preOrder.status === "PENDING") ||
-        (statusFilter === "FULFILLED" && preOrder.status === "FULFILLED");
-      const matchesSearch =
-        !searchQuery ||
-        preOrder.productName?.toLowerCase().includes(searchQuery.toLowerCase()) ||
-        preOrder.userName?.toLowerCase().includes(searchQuery.toLowerCase()) ||
-        preOrder.userEmail?.toLowerCase().includes(searchQuery.toLowerCase());
-      return matchesSearch && matchesStatus;
-    });
-  }, [preOrders, statusFilter, searchQuery]);
-
-  // Paginated notifications
-  const paginatedNotifications = useMemo(() => {
-    const startIndex = page * rowsPerPage;
-    return filteredNotifications.slice(startIndex, startIndex + rowsPerPage);
-  }, [filteredNotifications, page, rowsPerPage]);
-
-  // Paginated pre-orders
-  const paginatedPreOrders = useMemo(() => {
-    const startIndex = page * rowsPerPage;
-    return filteredPreOrders.slice(startIndex, startIndex + rowsPerPage);
-  }, [filteredPreOrders, page, rowsPerPage]);
+  }, [subscribers, searchQuery]);
 
   // Summary stats
   const notificationStats = useMemo(() => {
-    const pending = notifications.filter((n) => n.status === "PENDING").length;
-    const notified = notifications.filter((n) => n.status === "NOTIFIED").length;
-    return { total: notifications.length, pending, notified };
-  }, [notifications]);
+    const pending = subscribers.filter((s) => s.status === "PENDING").length;
+    const notified = subscribers.filter((s) => s.status === "NOTIFIED").length;
+    return { total: totalCount, pending, notified };
+  }, [subscribers, totalCount]);
 
-  const preOrderStats = useMemo(() => {
-    const pending = preOrders.filter((p) => p.status === "PENDING").length;
-    const fulfilled = preOrders.filter((p) => p.status === "FULFILLED").length;
-    const totalQuantity = preOrders.reduce((sum, p) => sum + p.quantity, 0);
-    return { total: preOrders.length, pending, fulfilled, totalQuantity };
-  }, [preOrders]);
-
-  const getStatusColor = (
-    status: NotificationRequest["status"] | PreOrder["status"]
-  ) => {
+  const getStatusColor = (status: "PENDING" | "NOTIFIED") => {
     switch (status) {
-      case "FULFILLED":
       case "NOTIFIED":
         return "success";
       case "PENDING":
@@ -315,10 +216,6 @@ const NotificationsPreOrdersManagement: React.FC = () => {
     });
   };
 
-  const isDatePast = (dateString: string) => {
-    return new Date(dateString) < new Date();
-  };
-
   return (
     <div className="space-y-6">
       {/* Header */}
@@ -330,394 +227,263 @@ const NotificationsPreOrdersManagement: React.FC = () => {
           Notifications & Pre-Orders
         </h2>
         <p className="text-sm text-gray-600 mt-1">
-          View and manage user notification requests and pre-orders
+          Manage product notifications and pre-orders
         </p>
-      </div>
-
-      {/* Summary Stats */}
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-        <Card>
-          <CardContent>
-            <Box sx={{ display: "flex", alignItems: "center", gap: 2 }}>
-              <Box
-                sx={{
-                  bgcolor: "#00969b",
-                  borderRadius: 2,
-                  p: 2,
-                  display: "flex",
-                  alignItems: "center",
-                  justifyContent: "center",
-                }}
-              >
-                <NotificationsIcon sx={{ color: "white", fontSize: 28 }} />
-              </Box>
-              <Box sx={{ flex: 1 }}>
-                <Typography
-                  variant="h6"
-                  fontWeight={600}
-                  sx={{ fontFamily: '"League Spartan", sans-serif' }}
-                >
-                  Notification Requests
-                </Typography>
-                <Typography variant="body2" color="text.secondary">
-                  Total: {notificationStats.total} • Pending:{" "}
-                  <span className="font-semibold text-yellow-600">
-                    {notificationStats.pending}
-                  </span>{" "}
-                  • Notified: {notificationStats.notified}
-                </Typography>
-              </Box>
-            </Box>
-          </CardContent>
-        </Card>
-
-        <Card>
-          <CardContent>
-            <Box sx={{ display: "flex", alignItems: "center", gap: 2 }}>
-              <Box
-                sx={{
-                  bgcolor: "#00969b",
-                  borderRadius: 2,
-                  p: 2,
-                  display: "flex",
-                  alignItems: "center",
-                  justifyContent: "center",
-                }}
-              >
-                <ShoppingBagIcon sx={{ color: "white", fontSize: 28 }} />
-              </Box>
-              <Box sx={{ flex: 1 }}>
-                <Typography
-                  variant="h6"
-                  fontWeight={600}
-                  sx={{ fontFamily: '"League Spartan", sans-serif' }}
-                >
-                  Pre-Orders
-                </Typography>
-                <Typography variant="body2" color="text.secondary">
-                  Total: {preOrderStats.total} • Pending:{" "}
-                  <span className="font-semibold text-yellow-600">
-                    {preOrderStats.pending}
-                  </span>{" "}
-                  • Fulfilled: {preOrderStats.fulfilled} • Qty:{" "}
-                  {preOrderStats.totalQuantity}
-                </Typography>
-              </Box>
-            </Box>
-          </CardContent>
-        </Card>
       </div>
 
       {/* Tabs */}
       <Card>
         <Tabs
           value={activeTab}
-          onChange={handleTabChange}
+          onChange={(e, newValue) => setActiveTab(newValue)}
           sx={{
-            borderBottom: 1,
-            borderColor: "divider",
             "& .MuiTab-root": {
               textTransform: "none",
               fontWeight: 600,
-              minHeight: 64,
-              px: 3,
               fontFamily: '"League Spartan", sans-serif',
             },
           }}
         >
           <Tab
             icon={<NotificationsIcon />}
+            label="Product Notifications"
             iconPosition="start"
-            label={`Notifications (${notificationStats.total})`}
           />
-          <Tab
-            icon={<ShoppingBagIcon />}
-            iconPosition="start"
-            label={`Pre-Orders (${preOrderStats.total})`}
-          />
+          <Tab icon={<EmailIcon />} label="Pre-Orders" iconPosition="start" />
         </Tabs>
-
-        {/* Filters */}
-        <CardContent>
-          <Box sx={{ display: "flex", gap: 2, flexWrap: "wrap" }}>
-            <TextField
-              size="small"
-              placeholder="Search by product or user..."
-              value={searchQuery}
-              onChange={(e) => setSearchQuery(e.target.value)}
-              InputProps={{
-                startAdornment: (
-                  <SearchIcon sx={{ mr: 1, color: "text.secondary" }} />
-                ),
-              }}
-              sx={{ flex: 1, minWidth: 200 }}
-            />
-            <FormControl size="small" sx={{ minWidth: 150 }}>
-              <InputLabel>Status</InputLabel>
-              <Select
-                value={statusFilter}
-                label="Status"
-                onChange={(e) =>
-                  setStatusFilter(
-                    e.target.value as
-                      | "PENDING"
-                      | "NOTIFIED"
-                      | "FULFILLED"
-                      | ""
-                  )
-                }
-              >
-                <MenuItem value="">All</MenuItem>
-                <MenuItem value="PENDING">Pending</MenuItem>
-                {activeTab === 0 ? (
-                  <MenuItem value="NOTIFIED">Notified</MenuItem>
-                ) : (
-                  <MenuItem value="FULFILLED">Fulfilled</MenuItem>
-                )}
-              </Select>
-            </FormControl>
-          </Box>
-        </CardContent>
       </Card>
 
-      {/* Notifications Tab Content */}
+      {/* Tab Content */}
       {activeTab === 0 && (
-        <Card>
-          <TableContainer>
-            <Table>
-              <TableHead>
-                <TableRow>
-                  <TableCell>User</TableCell>
-                  <TableCell>Product</TableCell>
-                  <TableCell>Status</TableCell>
-                  <TableCell>Requested Date</TableCell>
-                </TableRow>
-              </TableHead>
-              <TableBody>
-                {paginatedNotifications.length === 0 ? (
+        <div className="space-y-6">
+          {/* Header */}
+          <div className="flex items-center justify-between">
+            <div>
+              <h3
+                className="text-xl font-semibold text-gray-900"
+                style={{ fontFamily: '"League Spartan", sans-serif' }}
+              >
+                Product Notifications
+              </h3>
+              <p className="text-sm text-gray-600 mt-1">
+                Manage user notification subscriptions for products
+              </p>
+            </div>
+            <Button
+              variant="contained"
+              startIcon={<EmailIcon />}
+              onClick={handleOpenBulkEmail}
+              sx={{
+                bgcolor: "#00969b",
+                "&:hover": { bgcolor: "#007a7f" },
+                fontFamily: '"League Spartan", sans-serif',
+                textTransform: "none",
+                fontWeight: 600,
+              }}
+            >
+              Send Bulk Email
+            </Button>
+          </div>
+
+          {/* Summary Stats */}
+          <Card>
+            <CardContent>
+              <Box sx={{ display: "flex", alignItems: "center", gap: 2 }}>
+                <Box
+                  sx={{
+                    bgcolor: "#00969b",
+                    borderRadius: 2,
+                    p: 2,
+                    display: "flex",
+                    alignItems: "center",
+                    justifyContent: "center",
+                  }}
+                >
+                  <NotificationsIcon sx={{ color: "white", fontSize: 28 }} />
+                </Box>
+                <Box sx={{ flex: 1 }}>
+                  <Typography
+                    variant="h6"
+                    fontWeight={600}
+                    sx={{ fontFamily: '"League Spartan", sans-serif' }}
+                  >
+                    Notification Subscribers
+                  </Typography>
+                  <Typography variant="body2" color="text.secondary">
+                    Total: {notificationStats.total} • Pending:{" "}
+                    <span className="font-semibold text-yellow-600">
+                      {notificationStats.pending}
+                    </span>{" "}
+                    • Notified: {notificationStats.notified}
+                  </Typography>
+                </Box>
+              </Box>
+            </CardContent>
+          </Card>
+
+          {/* Filters */}
+          <Card>
+            <CardContent>
+              <Box sx={{ display: "flex", gap: 2, flexWrap: "wrap" }}>
+                <TextField
+                  size="small"
+                  placeholder="Search by product or user..."
+                  value={searchQuery}
+                  onChange={(e) => setSearchQuery(e.target.value)}
+                  InputProps={{
+                    startAdornment: (
+                      <SearchIcon sx={{ mr: 1, color: "text.secondary" }} />
+                    ),
+                  }}
+                  sx={{ flex: 1, minWidth: 200 }}
+                />
+                <FormControl size="small" sx={{ minWidth: 150 }}>
+                  <InputLabel>Status</InputLabel>
+                  <Select
+                    value={statusFilter}
+                    label="Status"
+                    onChange={(e) =>
+                      setStatusFilter(
+                        e.target.value as "PENDING" | "NOTIFIED" | ""
+                      )
+                    }
+                  >
+                    <MenuItem value="">All</MenuItem>
+                    <MenuItem value="PENDING">Pending</MenuItem>
+                    <MenuItem value="NOTIFIED">Notified</MenuItem>
+                  </Select>
+                </FormControl>
+              </Box>
+            </CardContent>
+          </Card>
+
+          {/* Subscribers Table */}
+          <Card>
+            <TableContainer>
+              <Table>
+                <TableHead>
                   <TableRow>
-                    <TableCell colSpan={4} align="center" sx={{ py: 4 }}>
-                      <Typography variant="body1" color="text.secondary">
-                        No notification requests found
-                      </Typography>
-                    </TableCell>
+                    <TableCell>User</TableCell>
+                    <TableCell>Product</TableCell>
+                    <TableCell>Status</TableCell>
+                    <TableCell>Subscribed Date</TableCell>
+                    <TableCell align="right">Actions</TableCell>
                   </TableRow>
-                ) : (
-                  paginatedNotifications.map((notif) => (
-                    <TableRow key={notif.id} hover>
-                      <TableCell>
-                        <Box sx={{ display: "flex", alignItems: "center", gap: 1.5 }}>
-                          <Avatar
-                            sx={{
-                              bgcolor: "#00969b",
-                              width: 32,
-                              height: 32,
-                              fontSize: "0.875rem",
-                            }}
-                          >
-                            {notif.userName?.[0]?.toUpperCase() ||
-                              notif.userEmail?.[0]?.toUpperCase() ||
-                              "U"}
-                          </Avatar>
-                          <Box>
-                            <Typography variant="body2" fontWeight={500}>
-                              {notif.userName || "Anonymous User"}
-                            </Typography>
-                            <Typography variant="caption" color="text.secondary">
-                              {notif.userEmail}
-                            </Typography>
-                          </Box>
-                        </Box>
+                </TableHead>
+                <TableBody>
+                  {loading ? (
+                    <TableRow>
+                      <TableCell colSpan={5} align="center" sx={{ py: 4 }}>
+                        <CircularProgress size={32} />
                       </TableCell>
-                      <TableCell>
-                        <Typography variant="body2">{notif.productName}</Typography>
-                      </TableCell>
-                      <TableCell>
-                        <Chip
-                          label={notif.status}
-                          color={getStatusColor(notif.status)}
-                          size="small"
-                        />
-                      </TableCell>
-                      <TableCell>
-                        <Typography variant="caption" color="text.secondary">
-                          {formatDate(notif.requestedAt)}
+                    </TableRow>
+                  ) : filteredSubscribers.length === 0 ? (
+                    <TableRow>
+                      <TableCell colSpan={5} align="center" sx={{ py: 4 }}>
+                        <Typography variant="body1" color="text.secondary">
+                          No subscribers found
                         </Typography>
                       </TableCell>
                     </TableRow>
-                  ))
-                )}
-              </TableBody>
-            </Table>
-          </TableContainer>
-          <TablePagination
-            component="div"
-            count={filteredNotifications.length}
-            page={page}
-            onPageChange={handleChangePage}
-            rowsPerPage={rowsPerPage}
-            onRowsPerPageChange={handleChangeRowsPerPage}
-            rowsPerPageOptions={[5, 10, 25, 50]}
-          />
-        </Card>
-      )}
-
-      {/* Pre-Orders Tab Content */}
-      {activeTab === 1 && (
-        <Card>
-          <TableContainer>
-            <Table>
-              <TableHead>
-                <TableRow>
-                  <TableCell>User</TableCell>
-                  <TableCell>Product</TableCell>
-                  <TableCell>Quantity</TableCell>
-                  <TableCell>Est. Fulfillment</TableCell>
-                  <TableCell>Status</TableCell>
-                  <TableCell>Pre-Ordered Date</TableCell>
-                  <TableCell align="right">Actions</TableCell>
-                </TableRow>
-              </TableHead>
-              <TableBody>
-                {paginatedPreOrders.length === 0 ? (
-                  <TableRow>
-                    <TableCell colSpan={7} align="center" sx={{ py: 4 }}>
-                      <Typography variant="body1" color="text.secondary">
-                        No pre-orders found
-                      </Typography>
-                    </TableCell>
-                  </TableRow>
-                ) : (
-                  paginatedPreOrders.map((preOrder) => (
-                    <TableRow key={preOrder.id} hover>
-                      <TableCell>
-                        <Box sx={{ display: "flex", alignItems: "center", gap: 1.5 }}>
-                          <Avatar
+                  ) : (
+                    filteredSubscribers.map((subscriber) => (
+                      <TableRow key={subscriber.id} hover>
+                        <TableCell>
+                          <Box
                             sx={{
-                              bgcolor: "#00969b",
-                              width: 32,
-                              height: 32,
-                              fontSize: "0.875rem",
+                              display: "flex",
+                              alignItems: "center",
+                              gap: 1.5,
                             }}
                           >
-                            {preOrder.userName?.[0]?.toUpperCase() ||
-                              preOrder.userEmail?.[0]?.toUpperCase() ||
-                              "U"}
-                          </Avatar>
-                          <Box>
-                            <Typography variant="body2" fontWeight={500}>
-                              {preOrder.userName || "Anonymous User"}
-                            </Typography>
-                            <Typography variant="caption" color="text.secondary">
-                              {preOrder.userEmail}
-                            </Typography>
-                          </Box>
-                        </Box>
-                      </TableCell>
-                      <TableCell>
-                        <Typography variant="body2">{preOrder.productName}</Typography>
-                      </TableCell>
-                      <TableCell>
-                        <Typography variant="body2" fontWeight={500}>
-                          {preOrder.quantity}
-                        </Typography>
-                      </TableCell>
-                      <TableCell>
-                        {preOrder.estimatedFulfillmentDate ? (
-                          <Box sx={{ display: "flex", alignItems: "center", gap: 0.5 }}>
-                            <CalendarIcon
-                              sx={{ fontSize: 16, color: "text.secondary" }}
-                            />
-                            <Typography
-                              variant="body2"
-                              color={
-                                isDatePast(preOrder.estimatedFulfillmentDate) &&
-                                preOrder.status === "PENDING"
-                                  ? "error"
-                                  : "text.secondary"
-                              }
+                            <Avatar
+                              sx={{
+                                bgcolor: "#00969b",
+                                width: 32,
+                                height: 32,
+                                fontSize: "0.875rem",
+                              }}
                             >
-                              {formatDate(preOrder.estimatedFulfillmentDate)}
-                              {isDatePast(preOrder.estimatedFulfillmentDate) &&
-                                preOrder.status === "PENDING" && (
-                                  <Chip
-                                    label="Overdue"
-                                    color="error"
-                                    size="small"
-                                    sx={{ ml: 1 }}
-                                  />
-                                )}
-                            </Typography>
+                              {subscriber.user?.firstName?.[0]?.toUpperCase() ||
+                                subscriber.user?.email?.[0]?.toUpperCase() ||
+                                "U"}
+                            </Avatar>
+                            <Box>
+                              <Typography variant="body2" fontWeight={500}>
+                                {subscriber.user?.firstName}{" "}
+                                {subscriber.user?.lastName}
+                              </Typography>
+                              <Typography
+                                variant="caption"
+                                color="text.secondary"
+                              >
+                                {subscriber.user?.email}
+                              </Typography>
+                            </Box>
                           </Box>
-                        ) : (
-                          <Typography variant="body2" color="text.secondary">
-                            N/A
+                        </TableCell>
+                        <TableCell>
+                          <Typography variant="body2">
+                            {subscriber.product?.name || "Unknown Product"}
                           </Typography>
-                        )}
-                      </TableCell>
-                      <TableCell>
-                        <Chip
-                          label={preOrder.status}
-                          color={getStatusColor(preOrder.status)}
-                          size="small"
-                        />
-                      </TableCell>
-                      <TableCell>
-                        <Typography variant="caption" color="text.secondary">
-                          {formatDate(preOrder.preOrderedAt)}
-                        </Typography>
-                      </TableCell>
-                      <TableCell align="right">
-                        {preOrder.status === "PENDING" && (
+                        </TableCell>
+                        <TableCell>
+                          <Chip
+                            label={subscriber.status}
+                            color={getStatusColor(subscriber.status)}
+                            size="small"
+                          />
+                        </TableCell>
+                        <TableCell>
+                          <Typography variant="caption" color="text.secondary">
+                            {formatDate(subscriber.createdAt)}
+                          </Typography>
+                        </TableCell>
+                        <TableCell align="right">
                           <IconButton
                             size="small"
-                            onClick={(e) => handleMenuOpen(e, preOrder)}
+                            color="error"
+                            onClick={() =>
+                              handleDeleteSubscriber(subscriber.id)
+                            }
+                            title="Delete subscriber"
                           >
-                            <MoreVertIcon />
+                            <DeleteIcon fontSize="small" />
                           </IconButton>
-                        )}
-                      </TableCell>
-                    </TableRow>
-                  ))
-                )}
-              </TableBody>
-            </Table>
-          </TableContainer>
-          <TablePagination
-            component="div"
-            count={filteredPreOrders.length}
-            page={page}
-            onPageChange={handleChangePage}
-            rowsPerPage={rowsPerPage}
-            onRowsPerPageChange={handleChangeRowsPerPage}
-            rowsPerPageOptions={[5, 10, 25, 50]}
+                        </TableCell>
+                      </TableRow>
+                    ))
+                  )}
+                </TableBody>
+              </Table>
+            </TableContainer>
+            <TablePagination
+              component="div"
+              count={totalCount}
+              page={page}
+              onPageChange={handleChangePage}
+              rowsPerPage={rowsPerPage}
+              onRowsPerPageChange={handleChangeRowsPerPage}
+              rowsPerPageOptions={[5, 10, 25, 50]}
+            />
+          </Card>
+
+          {/* Bulk Email Dialog */}
+          <BulkEmailDialog
+            open={bulkEmailOpen}
+            onClose={() => setBulkEmailOpen(false)}
+            onSend={handleSendBulkEmail}
+            defaultSubject={defaultEmailSubject}
+            defaultMessage={defaultEmailTemplate}
+            title="Send Bulk Email to Subscribers"
+            sending={sendingEmail}
           />
-        </Card>
+        </div>
       )}
 
-      {/* Actions Menu for Pre-Orders */}
-      {activeTab === 1 && (
-        <Menu
-          anchorEl={anchorEl}
-          open={Boolean(anchorEl)}
-          onClose={handleMenuClose}
-          anchorOrigin={{
-            vertical: "bottom",
-            horizontal: "right",
-          }}
-          transformOrigin={{
-            vertical: "top",
-            horizontal: "right",
-          }}
-        >
-          <MenuItem onClick={handleMenuClose}>
-            <Typography variant="body2">Mark as Fulfilled</Typography>
-          </MenuItem>
-        </Menu>
-      )}
+      {activeTab === 1 && <PreOrdersManagement />}
     </div>
   );
 };
 
 export default NotificationsPreOrdersManagement;
-

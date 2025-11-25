@@ -6,7 +6,6 @@ import {
   Storage as StorageIcon,
 } from "@mui/icons-material";
 import CategoryManagement from "../../components/admin/CategoryManagement";
-import GlobalDiscountSettings from "../../components/admin/GlobalDiscountSettings";
 
 // General management page for managing categories and other general settings
 const ManagementGeneral: React.FC = () => {
@@ -20,7 +19,10 @@ const ManagementGeneral: React.FC = () => {
     <div className="p-4 md:p-6 bg-gray-50 min-h-screen font-primary">
       {/* Header */}
       <div className="mb-6">
-        <h1 className="text-3xl font-semibold text-gray-900 mb-2" style={{ fontFamily: '"League Spartan", sans-serif' }}>
+        <h1
+          className="text-3xl font-semibold text-gray-900 mb-2"
+          style={{ fontFamily: '"League Spartan", sans-serif' }}
+        >
           General Management
         </h1>
         <p className="text-base text-gray-600 font-primary">
@@ -66,8 +68,21 @@ const ManagementGeneral: React.FC = () => {
       )}
 
       {tabValue === 1 && (
-        <div className="bg-white rounded-xl border border-gray-200 shadow-sm p-4">
-          <GlobalDiscountSettings />
+        <div className="bg-white rounded-xl border border-gray-200 shadow-sm p-6 space-y-3">
+          <h2
+            className="text-2xl font-semibold text-gray-900"
+            style={{ fontFamily: '"League Spartan", sans-serif' }}
+          >
+            Marketplace Settings
+          </h2>
+          <p className="text-gray-600">
+            Global discount controls now live inside the Marketplace tab. Use
+            the Global Discount button to manage storewide promotions.
+          </p>
+          <p className="text-sm text-gray-500">
+            Additional configuration options for general settings will appear
+            here soon.
+          </p>
         </div>
       )}
 
@@ -75,7 +90,10 @@ const ManagementGeneral: React.FC = () => {
         <div className="bg-white rounded-xl border border-gray-200 shadow-sm">
           <div className="text-center py-12 px-6">
             <StorageIcon sx={{ fontSize: 64, color: "#6b7280", mb: 3 }} />
-            <h3 className="text-xl font-semibold text-gray-900 mb-2" style={{ fontFamily: '"League Spartan", sans-serif' }}>
+            <h3
+              className="text-xl font-semibold text-gray-900 mb-2"
+              style={{ fontFamily: '"League Spartan", sans-serif' }}
+            >
               Storage Management
             </h3>
             <p className="text-base text-gray-600 font-primary mb-4">

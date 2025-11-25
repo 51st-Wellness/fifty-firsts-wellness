@@ -1,5 +1,5 @@
 import http from "./http";
-import type { ResponseDto } from "../types/response.types";
+import { ResponseStatus, type ResponseDto } from "../types/response.types";
 
 export interface SubscriptionPlan {
   id: string;
@@ -110,7 +110,7 @@ export const getUserActiveSubscription = async (): Promise<{
     );
 
     return {
-      success: data.status === "SUCCESS" || data.status === "success",
+      success: data.status === ResponseStatus.SUCCESS,
       data: data.data || null,
       message: data.message,
     };
@@ -139,7 +139,7 @@ export const createSubscriptionCheckout = async (
     );
 
     return {
-      success: data.status === "SUCCESS" || data.status === "success",
+      success: data.status === ResponseStatus.SUCCESS,
       data: data.data,
       message: data.message,
     };
@@ -173,7 +173,7 @@ export const getUserSubscriptions = async (): Promise<{
     );
 
     return {
-      success: data.status === "SUCCESS" || data.status === "success",
+      success: data.status === ResponseStatus.SUCCESS,
       data: data.data || [],
       message: data.message,
     };
@@ -210,7 +210,7 @@ export const getAdminSubscriptions = async (params: {
     );
 
     return {
-      success: data.status === "SUCCESS" || data.status === "success",
+      success: data.status === ResponseStatus.SUCCESS,
       data: data.data,
       message: data.message,
     };

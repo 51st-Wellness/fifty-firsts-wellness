@@ -23,6 +23,7 @@ export interface CartCheckoutSummaryItem {
   baseUnitPrice?: number;
   lineTotal: number;
   baseLineTotal?: number;
+  isPreOrder?: boolean;
   discount?: {
     isActive: boolean;
     type: DiscountType;

@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import {
   Dialog,
   DialogTitle,
@@ -18,15 +18,67 @@ import {
   InputAdornment,
   Stack,
   MenuItem,
+  IconButton,
+  Collapse,
 } from "@mui/material";
 import {
   CloudUpload as UploadIcon,
   Image as ImageIcon,
+  Close as CloseIcon,
 } from "@mui/icons-material";
 import toast from "react-hot-toast";
 import { createStoreItem, updateStoreItem } from "../../api/marketplace.api";
 import type { StoreItem, DiscountType } from "../../types/marketplace.types";
 import CategorySelector from "./CategorySelector";
+
+type StoreItemFormState = {
+  name: string;
+  description: string;
+  productUsage: string;
+  productBenefits: string;
+  productIngredients: string[];
+  price: number;
+  stock: number;
+  categories: string[];
+  isFeatured: boolean;
+  isPublished: boolean;
+  discountType: DiscountType;
+  discountValue: number;
+  discountActive: boolean;
+  discountStart: string;
+  discountEnd: string;
+  preOrderEnabled: boolean;
+};
+
+const createDefaultFormState = (): StoreItemFormState => ({
+  name: "",
+  description: "",
+  productUsage: "",
+  productBenefits: "",
+  productIngredients: [],
+  price: 0,
+  stock: 0,
+  categories: [],
+  isFeatured: false,
+  isPublished: false,
+  discountType: "NONE",
+  discountValue: 0,
+  discountActive: false,
+  discountStart: "",
+  discountEnd: "",
+  preOrderEnabled: false,
+});
+
+const cloneFormState = (state: StoreItemFormState): StoreItemFormState => ({
+  ...state,
+  productIngredients: [...state.productIngredients],
+  categories: [...state.categories],
+});
+
+const areStringArraysEqual = (a: string[], b: string[]) => {
+  if (a.length !== b.length) return false;
+  return a.every((value, index) => value === b[index]);
+};
 
 interface StoreItemDialogProps {
   open: boolean;
@@ -45,80 +97,98 @@ const StoreItemDialog: React.FC<StoreItemDialogProps> = ({
   mode,
 }) => {
   // Form state
-  const [formData, setFormData] = useState({
-    name: "",
-    description: "",
-    productUsage: "",
-    productBenefits: "",
-    productIngredients: [] as string[],
-    price: 0,
-    stock: 0,
-    categories: [] as string[],
-    isFeatured: false,
-    isPublished: false,
-    discountType: "NONE" as DiscountType,
-    discountValue: 0,
-    discountActive: false,
-    discountStart: "",
-    discountEnd: "",
-  });
+  const [formData, setFormData] = useState<StoreItemFormState>(
+    createDefaultFormState
+  );
   const [displayFile, setDisplayFile] = useState<File | null>(null);
   const [imageFiles, setImageFiles] = useState<File[]>([]);
   const [displayPreview, setDisplayPreview] = useState<string>("");
   const [imagePreviews, setImagePreviews] = useState<string[]>([]);
+  const [existingImageUrls, setExistingImageUrls] = useState<string[]>([]);
   const [submitting, setSubmitting] = useState(false);
   const [tabIndex, setTabIndex] = useState(0);
   const [ingredientInput, setIngredientInput] = useState("");
-  const toIsoString = (value?: string | Date | null) =>
-    value ? new Date(value).toISOString() : "";
-  const toInputValue = (value?: string) => (value ? value.slice(0, 16) : "");
+  const initialFormDataRef = useRef<StoreItemFormState>(
+    createDefaultFormState()
+  );
+  const initialExistingImagesRef = useRef<string[]>([]);
+  // Extract date part (YYYY-MM-DD) from ISO string for date input
+  const toInputValue = (value?: string | Date | null) => {
+    if (!value) return "";
+    const date = value instanceof Date ? value : new Date(value);
+    if (isNaN(date.getTime())) return "";
+    const year = date.getFullYear();
+    const month = String(date.getMonth() + 1).padStart(2, "0");
+    const day = String(date.getDate()).padStart(2, "0");
+    return `${year}-${month}-${day}`;
+  };
+
+  // Convert date string to ISO with start of day (00:00:00)
+  const toStartOfDayISO = (dateString?: string) => {
+    if (!dateString) return "";
+    const date = new Date(dateString);
+    if (isNaN(date.getTime())) return "";
+    date.setHours(0, 0, 0, 0);
+    return date.toISOString();
+  };
+
+  // Convert date string to ISO with end of day (23:59:59)
+  const toEndOfDayISO = (dateString?: string) => {
+    if (!dateString) return "";
+    const date = new Date(dateString);
+    if (isNaN(date.getTime())) return "";
+    date.setHours(23, 59, 59, 999);
+    return date.toISOString();
+  };
 
   // Reset form when dialog opens/closes or item changes
   useEffect(() => {
     if (open) {
       if (mode === "edit" && item) {
-        setFormData({
+        const storedDiscountType = (item as any).discountType as DiscountType;
+        const discountEnabled = Boolean((item as any).discountActive);
+        const resolvedDiscountType = discountEnabled
+          ? storedDiscountType === "NONE"
+            ? ("PERCENTAGE" as DiscountType)
+            : storedDiscountType
+          : ("NONE" as DiscountType);
+        const nextFormState: StoreItemFormState = {
           name: item.name || "",
           description: item.description || "",
           productUsage: (item as any).productUsage || "",
           productBenefits: (item as any).productBenefits || "",
-          productIngredients: ((item as any).productIngredients as string[]) || [],
-          price: item.price || 0,
-          stock: item.stock || 0,
-          categories: item.categories || [],
-          isFeatured: item.isFeatured || false,
-          isPublished: item.isPublished || false,
-          discountType: (item as any).discountType || "NONE",
-          discountValue: (item as any).discountValue || 0,
-          discountActive: Boolean(
-            (item as any).discountActive &&
-              (item as any).discountType !== "NONE"
-          ),
-          discountStart: toIsoString((item as any).discountStart),
-          discountEnd: toIsoString((item as any).discountEnd),
-        });
+          productIngredients: Array.isArray((item as any).productIngredients)
+            ? ([...(item as any).productIngredients] as string[])
+            : [],
+          price: Number(item.price ?? 0),
+          stock: Number(item.stock ?? 0),
+          categories: Array.isArray(item.categories)
+            ? [...item.categories]
+            : [],
+          isFeatured: Boolean(item.isFeatured),
+          isPublished: Boolean(item.isPublished),
+          discountType: resolvedDiscountType,
+          discountValue: Number((item as any).discountValue ?? 0),
+          discountActive: discountEnabled,
+          discountStart: toInputValue((item as any).discountStart),
+          discountEnd: toInputValue((item as any).discountEnd),
+          preOrderEnabled: Boolean((item as any).preOrderEnabled),
+        };
+        setFormData(nextFormState);
+        initialFormDataRef.current = cloneFormState(nextFormState);
         setDisplayPreview(item.display?.url || "");
-        setImagePreviews(item.images || []);
+        const existingImages = item.images || [];
+        setImagePreviews(existingImages);
+        setExistingImageUrls(existingImages);
+        initialExistingImagesRef.current = [...existingImages];
       } else {
-        setFormData({
-          name: "",
-          description: "",
-          productUsage: "",
-          productBenefits: "",
-          productIngredients: [],
-          price: 0,
-          stock: 0,
-          categories: [],
-          isFeatured: false,
-          isPublished: false,
-          discountType: "NONE",
-          discountValue: 0,
-          discountActive: false,
-          discountStart: "",
-          discountEnd: "",
-        });
+        const defaultState = createDefaultFormState();
+        setFormData(defaultState);
+        initialFormDataRef.current = cloneFormState(defaultState);
         setDisplayPreview("");
         setImagePreviews([]);
+        setExistingImageUrls([]);
+        initialExistingImagesRef.current = [];
       }
       setDisplayFile(null);
       setImageFiles([]);
@@ -143,11 +213,49 @@ const StoreItemDialog: React.FC<StoreItemDialogProps> = ({
     event: React.ChangeEvent<HTMLInputElement>
   ) => {
     const files = Array.from(event.target.files || []);
-    setImageFiles(files);
+    const currentTotal = imagePreviews.length;
+    const remainingSlots = Math.max(0, 5 - currentTotal);
 
-    // Create previews
-    const previews = files.map((file) => URL.createObjectURL(file));
-    setImagePreviews(previews);
+    if (files.length > remainingSlots) {
+      toast.error(
+        `You can only add up to ${remainingSlots} more image(s). Maximum 5 images allowed.`
+      );
+      return;
+    }
+
+    const newFiles = files.slice(0, remainingSlots);
+    setImageFiles((prev) => [...prev, ...newFiles]);
+
+    // Create previews for new files
+    const newPreviews = newFiles.map((file) => URL.createObjectURL(file));
+    setImagePreviews((prev) => [...prev, ...newPreviews]);
+  };
+
+  // Handle removing an additional image
+  const handleRemoveImage = (index: number) => {
+    const previewToRemove = imagePreviews[index];
+    const isExistingImage = index < existingImageUrls.length;
+
+    // Remove from previews
+    setImagePreviews((prev) => prev.filter((_, idx) => idx !== index));
+
+    if (isExistingImage) {
+      // Remove from existing URLs (mark for deletion on backend)
+      setExistingImageUrls((prev) => {
+        const newUrls = [...prev];
+        newUrls.splice(index, 1);
+        return newUrls;
+      });
+    } else {
+      // Remove from new files and revoke blob URL
+      const fileIndex = index - existingImageUrls.length;
+      setImageFiles((prev) => {
+        const newFiles = [...prev];
+        newFiles.splice(fileIndex, 1);
+        return newFiles;
+      });
+      URL.revokeObjectURL(previewToRemove);
+    }
   };
 
   // Handle category selection
@@ -172,7 +280,9 @@ const StoreItemDialog: React.FC<StoreItemDialogProps> = ({
   const handleRemoveIngredient = (index: number) => {
     setFormData((prev) => ({
       ...prev,
-      productIngredients: prev.productIngredients.filter((_, idx) => idx !== index),
+      productIngredients: prev.productIngredients.filter(
+        (_, idx) => idx !== index
+      ),
     }));
   };
 
@@ -183,7 +293,6 @@ const StoreItemDialog: React.FC<StoreItemDialogProps> = ({
     setFormData((prev) => ({
       ...prev,
       discountType: nextType,
-      discountActive: nextType === "NONE" ? false : prev.discountActive,
     }));
   };
 
@@ -196,10 +305,17 @@ const StoreItemDialog: React.FC<StoreItemDialogProps> = ({
     }));
   };
 
-  const handleDiscountSwitch = (event: React.ChangeEvent<HTMLInputElement>) => {
+  const handleDiscountToggle = (event: React.ChangeEvent<HTMLInputElement>) => {
+    const isEnabled = event.target.checked;
     setFormData((prev) => ({
       ...prev,
-      discountActive: event.target.checked,
+      discountActive: isEnabled,
+      discountType:
+        isEnabled && prev.discountType === "NONE"
+          ? ("PERCENTAGE" as DiscountType)
+          : isEnabled
+          ? prev.discountType
+          : ("NONE" as DiscountType),
     }));
   };
 
@@ -209,9 +325,9 @@ const StoreItemDialog: React.FC<StoreItemDialogProps> = ({
       const value = event.target.value;
       setFormData((prev) => ({
         ...prev,
-        [field]: value ? new Date(value).toISOString() : "",
-    }));
-  };
+        [field]: value || "",
+      }));
+    };
 
   // Handle form submission
   const handleSubmit = async () => {
@@ -233,31 +349,97 @@ const StoreItemDialog: React.FC<StoreItemDialogProps> = ({
     try {
       // Prepare form data for multipart upload
       const submitData = new FormData();
-      submitData.append("name", formData.name);
-      submitData.append("description", formData.description);
-      submitData.append("productUsage", formData.productUsage);
-      submitData.append("productBenefits", formData.productBenefits);
-      formData.productIngredients.forEach((ingredient) => {
-        submitData.append("productIngredients", ingredient);
-      });
-      submitData.append("price", formData.price.toString());
-      submitData.append("stock", formData.stock.toString());
-      submitData.append("isFeatured", formData.isFeatured.toString());
-      submitData.append("isPublished", formData.isPublished.toString());
-      submitData.append("discountType", formData.discountType);
-      submitData.append("discountValue", formData.discountValue.toString());
-      submitData.append("discountActive", formData.discountActive.toString());
-      if (formData.discountStart) {
-        submitData.append("discountStart", formData.discountStart);
+      const formKeys = Object.keys(formData) as (keyof StoreItemFormState)[];
+      const changedFieldSet =
+        mode === "edit"
+          ? new Set<keyof StoreItemFormState>(
+              formKeys.filter((key) => {
+                const initialValue = initialFormDataRef.current?.[key];
+                const currentValue = formData[key];
+                if (
+                  Array.isArray(initialValue) &&
+                  Array.isArray(currentValue)
+                ) {
+                  return !areStringArraysEqual(
+                    initialValue as string[],
+                    currentValue as string[]
+                  );
+                }
+                return initialValue !== currentValue;
+              })
+            )
+          : new Set<keyof StoreItemFormState>(formKeys);
+      const imagesChanged =
+        mode === "edit" &&
+        !areStringArraysEqual(
+          existingImageUrls,
+          initialExistingImagesRef.current
+        );
+      const shouldIncludeField = (field: keyof StoreItemFormState) =>
+        mode === "create" || changedFieldSet.has(field);
+      if (
+        mode === "edit" &&
+        changedFieldSet.size === 0 &&
+        !imagesChanged &&
+        !displayFile &&
+        imageFiles.length === 0
+      ) {
+        toast.error("No changes to update");
+        return;
       }
-      if (formData.discountEnd) {
-        submitData.append("discountEnd", formData.discountEnd);
-      }
+      const appendDateField = (
+        key: keyof StoreItemFormState,
+        value?: string,
+        formatter?: (input: string) => string
+      ) => {
+        if (!shouldIncludeField(key)) {
+          return;
+        }
+        if (value) {
+          submitData.append(
+            key as string,
+            formatter ? formatter(value) : value
+          );
+        } else {
+          submitData.append(key as string, "");
+        }
+      };
+      const appendField = (
+        key: keyof StoreItemFormState,
+        value: string | number | boolean
+      ) => {
+        if (!shouldIncludeField(key)) return;
+        submitData.append(key as string, value.toString());
+      };
+      const appendArrayField = (
+        key: keyof StoreItemFormState,
+        values: string[]
+      ) => {
+        if (!shouldIncludeField(key)) return;
+        values.forEach((val) => submitData.append(key as string, val));
+      };
+      appendField("name", formData.name);
+      appendField("description", formData.description);
+      appendField("productUsage", formData.productUsage);
+      appendField("productBenefits", formData.productBenefits);
+      appendArrayField("productIngredients", formData.productIngredients);
+      appendField("price", formData.price);
+      appendField("stock", formData.stock);
+      appendField("isFeatured", formData.isFeatured);
+      appendField("isPublished", formData.isPublished);
+      appendField("discountType", formData.discountType);
+      appendField("discountValue", formData.discountValue);
+      appendField("discountActive", formData.discountActive);
+      appendDateField("discountStart", formData.discountStart, toStartOfDayISO);
+      appendDateField("discountEnd", formData.discountEnd, toEndOfDayISO);
+      appendField("preOrderEnabled", formData.preOrderEnabled);
 
       // Add tags
-      formData.categories.forEach((tag) => {
-        submitData.append("categories", tag);
-      });
+      if (shouldIncludeField("categories")) {
+        formData.categories.forEach((tag) => {
+          submitData.append("categories", tag);
+        });
+      }
 
       // Add display file if selected
       if (displayFile) {
@@ -268,6 +450,14 @@ const StoreItemDialog: React.FC<StoreItemDialogProps> = ({
       imageFiles.forEach((file) => {
         submitData.append("images", file);
       });
+
+      // For edit mode, always send existing image URLs to keep (even if empty)
+      // This tells the backend which existing images to preserve
+      if (mode === "edit") {
+        existingImageUrls.forEach((url) => {
+          submitData.append("existingImages", url);
+        });
+      }
 
       if (mode === "create") {
         await createStoreItem(submitData as any);
@@ -397,7 +587,7 @@ const StoreItemDialog: React.FC<StoreItemDialogProps> = ({
               <Box>
                 <TextField
                   fullWidth
-                  label="Product Usage"
+                  label="Product Usage (optional)"
                   placeholder="How to use this product"
                   multiline
                   rows={4}
@@ -414,7 +604,7 @@ const StoreItemDialog: React.FC<StoreItemDialogProps> = ({
               <Box>
                 <TextField
                   fullWidth
-                  label="Product Benefits"
+                  label="Product Benefits (optional)"
                   placeholder="Benefits of using this product"
                   multiline
                   rows={4}
@@ -474,7 +664,8 @@ const StoreItemDialog: React.FC<StoreItemDialogProps> = ({
                   </Box>
                 ) : (
                   <Typography variant="body2" color="text.secondary">
-                    No ingredients added. Leave empty if this product doesn’t need ingredient details.
+                    No ingredients added. Leave empty if this product doesn’t
+                    need ingredient details.
                   </Typography>
                 )}
               </Box>
@@ -529,21 +720,40 @@ const StoreItemDialog: React.FC<StoreItemDialogProps> = ({
               <Box>
                 <Divider sx={{ my: 1 }} />
                 <Stack spacing={2}>
-                  <Typography variant="subtitle2">Discounts</Typography>
-                  <TextField
-                    select
-                    label="Discount type"
-                    size="small"
-                    value={formData.discountType}
-                    onChange={handleDiscountTypeChange}
+                  <Stack
+                    direction={{ xs: "column", sm: "row" }}
+                    justifyContent="space-between"
+                    alignItems={{ xs: "flex-start", sm: "center" }}
+                    spacing={1}
                   >
-                    <MenuItem value="NONE">None</MenuItem>
-                    <MenuItem value="PERCENTAGE">Percentage</MenuItem>
-                    <MenuItem value="FLAT">Flat amount</MenuItem>
-                  </TextField>
+                    <Typography variant="subtitle2">
+                      Discount settings
+                    </Typography>
+                    <FormControlLabel
+                      control={
+                        <Switch
+                          checked={formData.discountActive}
+                          onChange={handleDiscountToggle}
+                        />
+                      }
+                      label="Enable discounts"
+                    />
+                  </Stack>
 
-                  {formData.discountType !== "NONE" && (
-                    <>
+                  <Collapse in={formData.discountActive} unmountOnExit>
+                    <Stack spacing={2} sx={{ mt: 1 }}>
+                      <TextField
+                        select
+                        label="Discount type"
+                        size="small"
+                        value={formData.discountType}
+                        onChange={handleDiscountTypeChange}
+                        fullWidth
+                      >
+                        <MenuItem value="PERCENTAGE">Percentage</MenuItem>
+                        <MenuItem value="FLAT">Flat amount</MenuItem>
+                      </TextField>
+
                       <Stack
                         direction={{ xs: "column", sm: "row" }}
                         spacing={2}
@@ -567,16 +777,6 @@ const StoreItemDialog: React.FC<StoreItemDialogProps> = ({
                           }}
                           fullWidth
                         />
-                        <FormControlLabel
-                          control={
-                            <Switch
-                              checked={formData.discountActive}
-                              onChange={handleDiscountSwitch}
-                              color="primary"
-                            />
-                          }
-                          label="Active"
-                        />
                       </Stack>
 
                       <Stack
@@ -585,7 +785,7 @@ const StoreItemDialog: React.FC<StoreItemDialogProps> = ({
                       >
                         <TextField
                           label="Starts at"
-                          type="datetime-local"
+                          type="date"
                           size="small"
                           value={toInputValue(formData.discountStart)}
                           onChange={handleDiscountDateChange("discountStart")}
@@ -594,7 +794,7 @@ const StoreItemDialog: React.FC<StoreItemDialogProps> = ({
                         />
                         <TextField
                           label="Ends at"
-                          type="datetime-local"
+                          type="date"
                           size="small"
                           value={toInputValue(formData.discountEnd)}
                           onChange={handleDiscountDateChange("discountEnd")}
@@ -602,8 +802,49 @@ const StoreItemDialog: React.FC<StoreItemDialogProps> = ({
                           InputLabelProps={{ shrink: true }}
                         />
                       </Stack>
-                    </>
-                  )}
+                    </Stack>
+                  </Collapse>
+                </Stack>
+              </Box>
+
+              <Box>
+                <Divider sx={{ my: 1 }} />
+                <Stack spacing={2}>
+                  <Stack
+                    direction={{ xs: "column", sm: "row" }}
+                    justifyContent="space-between"
+                    alignItems={{ xs: "flex-start", sm: "center" }}
+                    spacing={1}
+                  >
+                    <Typography variant="subtitle2">
+                      Pre-order settings
+                    </Typography>
+                    <FormControlLabel
+                      control={
+                        <Switch
+                          checked={formData.preOrderEnabled}
+                          onChange={(e) =>
+                            setFormData((prev) => ({
+                              ...prev,
+                              preOrderEnabled: e.target.checked,
+                            }))
+                          }
+                        />
+                      }
+                      label="Enable pre-orders"
+                    />
+                  </Stack>
+
+                  <Collapse in={formData.preOrderEnabled} unmountOnExit>
+                    <Stack spacing={2} sx={{ mt: 1 }}>
+                      <Typography variant="body2" color="text.secondary">
+                        When enabled, customers can place pre-orders whenever
+                        this product sells out. Those orders are flagged for
+                        your team so they can be fulfilled once inventory is
+                        replenished.
+                      </Typography>
+                    </Stack>
+                  </Collapse>
                 </Stack>
               </Box>
             </Stack>
@@ -693,17 +934,43 @@ const StoreItemDialog: React.FC<StoreItemDialogProps> = ({
                     sx={{ mt: 1, display: "flex", flexWrap: "wrap", gap: 1 }}
                   >
                     {imagePreviews.map((preview, idx) => (
-                      <img
+                      <Box
                         key={idx}
-                        src={preview}
-                        alt={`Preview ${idx + 1}`}
-                        style={{
-                          width: 80,
-                          height: 80,
-                          objectFit: "cover",
-                          borderRadius: 6,
+                        sx={{
+                          position: "relative",
+                          display: "inline-block",
                         }}
-                      />
+                      >
+                        <img
+                          src={preview}
+                          alt={`Preview ${idx + 1}`}
+                          style={{
+                            width: 80,
+                            height: 80,
+                            objectFit: "cover",
+                            borderRadius: 6,
+                          }}
+                        />
+                        <IconButton
+                          size="small"
+                          onClick={() => handleRemoveImage(idx)}
+                          sx={{
+                            position: "absolute",
+                            top: -6,
+                            right: -6,
+                            bgcolor: "error.main",
+                            color: "white",
+                            width: 24,
+                            height: 24,
+                            boxShadow: "0 2px 4px rgba(0,0,0,0.2)",
+                            "&:hover": {
+                              bgcolor: "error.dark",
+                            },
+                          }}
+                        >
+                          <CloseIcon sx={{ fontSize: 16 }} />
+                        </IconButton>
+                      </Box>
                     ))}
                   </Box>
                 )}

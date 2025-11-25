@@ -146,8 +146,11 @@ export const toggleUserStatus = async (
   id: string,
   isActive: boolean
 ): Promise<ResponseDto<{ user: User }>> => {
-  const { data } = await http.put(`/user/${id}/status`, { isActive });
-  return data as ResponseDto<{ user: User }>;
+  const { data } = await http.put<ResponseDto<{ user: User }>>(
+    `/user/${id}/status`,
+    { isActive }
+  );
+  return data;
 };
 
 // Admin only: Change user role
@@ -155,7 +158,10 @@ export const changeUserRole = async (
   id: string,
   role: "USER" | "ADMIN" | "MODERATOR"
 ): Promise<ResponseDto<{ user: User }>> => {
-  const { data } = await http.put(`/user/role/${id}`, { role });
+  const { data } = await http.put<ResponseDto<{ user: User }>>(
+    `/user/role/${id}`,
+    { role }
+  );
   return data as ResponseDto<{ user: User }>;
 };
 
@@ -165,8 +171,10 @@ export const changeUserRole = async (
 export const getDeliveryAddresses = async (): Promise<
   ResponseDto<{ addresses: DeliveryAddress[] }>
 > => {
-  const { data } = await http.get("/user/me/delivery-addresses");
-  return data as ResponseDto<{ addresses: DeliveryAddress[] }>;
+  const { data } = await http.get<
+    ResponseDto<{ addresses: DeliveryAddress[] }>
+  >(`/user/me/delivery-addresses`);
+  return data;
 };
 
 // Get a single delivery address
@@ -286,16 +294,20 @@ export type OrderDetail = OrderSummary & {
 export const getMyOrders = async (): Promise<
   ResponseDto<{ orders: OrderSummary[] }>
 > => {
-  const { data } = await http.get("/user/orders/me");
-  return data as ResponseDto<{ orders: OrderSummary[] }>;
+  const { data } = await http.get<ResponseDto<{ orders: OrderSummary[] }>>(
+    `/user/orders/me`
+  );
+  return data;
 };
 
 // Get a single order by ID for current user
 export const getMyOrder = async (
   id: string
 ): Promise<ResponseDto<{ order: OrderDetail }>> => {
-  const { data } = await http.get(`/user/orders/me/${id}`);
-  return data as ResponseDto<{ order: OrderDetail }>;
+  const { data } = await http.get<ResponseDto<{ order: OrderDetail }>>(
+    `/user/orders/me/${id}`
+  );
+  return data;
 };
 
 // Verify payment status for an order
@@ -304,12 +316,177 @@ export const verifyOrderPayment = async (
 ): Promise<
   ResponseDto<{ updated: boolean; status: string; message: string }>
 > => {
-  const { data } = await http.post(`/user/orders/me/${orderId}/verify-payment`);
-  return data as ResponseDto<{
-    updated: boolean;
-    status: string;
-    message: string;
-  }>;
+  const { data } = await http.post<
+    ResponseDto<{
+      updated: boolean;
+      status: string;
+      message: string;
+    }>
+  >(`/user/orders/me/${orderId}/verify-payment`);
+  return data;
+};
+
+// Admin order types
+export type AdminOrderStatus =
+  | "PENDING"
+  | "PROCESSING"
+  | "PACKAGING"
+  | "IN_TRANSIT"
+  | "FULFILLED";
+
+export type AdminOrderCustomer = {
+  id: string;
+  firstName: string | null;
+  lastName: string | null;
+  email: string;
+  phone?: string | null;
+};
+
+export type AdminOrderListItem = OrderSummary & {
+  customer: AdminOrderCustomer;
+  paymentAmount?: number | null;
+  items: {
+    productId: string;
+    name: string | null;
+    quantity: number;
+  }[];
+};
+
+export type AdminOrderDetail = OrderDetail & {
+  customer: AdminOrderCustomer;
+};
+
+// Admin: Get all orders
+export const getAdminOrders = async (params?: {
+  page?: number;
+  limit?: number;
+  status?: AdminOrderStatus;
+  search?: string;
+}): Promise<
+  ResponseDto<{
+    orders: AdminOrderListItem[];
+    pagination: {
+      page: number;
+      limit: number;
+      total: number;
+      totalPages: number;
+    };
+  }>
+> => {
+  const queryParams = new URLSearchParams();
+  if (params?.page) queryParams.append("page", params.page.toString());
+  if (params?.limit) queryParams.append("limit", params.limit.toString());
+  if (params?.status) queryParams.append("status", params.status);
+  if (params?.search) queryParams.append("search", params.search);
+
+  const { data } = await http.get<
+    ResponseDto<{
+      orders: AdminOrderListItem[];
+      pagination: {
+        page: number;
+        limit: number;
+        total: number;
+        totalPages: number;
+      };
+    }>
+  >(`/user/orders/admin?${queryParams.toString()}`);
+  return data;
+};
+
+// Admin: Get single order
+export const getAdminOrder = async (
+  orderId: string
+): Promise<ResponseDto<{ order: AdminOrderDetail }>> => {
+  const { data } = await http.get<ResponseDto<{ order: AdminOrderDetail }>>(
+    `/user/orders/admin/${orderId}`
+  );
+  return data;
+};
+
+// Admin: Update order status
+export const updateOrderStatus = async (
+  orderId: string,
+  status: AdminOrderStatus
+): Promise<ResponseDto<{ order: AdminOrderDetail }>> => {
+  const { data } = await http.put<ResponseDto<{ order: AdminOrderDetail }>>(
+    `/user/orders/admin/${orderId}/status`,
+    {
+      status,
+    }
+  );
+  return data;
+};
+
+// Admin: Add/Update tracking reference for an order
+export const addTrackingReference = async (
+  orderId: string,
+  trackingReference: string
+): Promise<ResponseDto<{ message: string }>> => {
+  const { data } = await http.put<ResponseDto<{ message: string }>>(
+    `/tracking/admin/orders/${orderId}`,
+    {
+      trackingReference,
+    }
+  );
+  return data;
+};
+
+// Admin: Get pre-orders
+export const getPreOrders = async (params?: {
+  page?: number;
+  limit?: number;
+  preOrderStatus?: string;
+  search?: string;
+}): Promise<
+  ResponseDto<{
+    orders: AdminOrderListItem[];
+    pagination: {
+      page: number;
+      limit: number;
+      total: number;
+      totalPages: number;
+    };
+  }>
+> => {
+  const queryParams = new URLSearchParams();
+  if (params?.page) queryParams.append("page", params.page.toString());
+  if (params?.limit) queryParams.append("limit", params.limit.toString());
+  if (params?.preOrderStatus)
+    queryParams.append("preOrderStatus", params.preOrderStatus);
+  if (params?.search) queryParams.append("search", params.search);
+
+  const { data } = await http.get<
+    ResponseDto<{
+      orders: AdminOrderListItem[];
+      pagination: {
+        page: number;
+        limit: number;
+        total: number;
+        totalPages: number;
+      };
+    }>
+  >(`/user/orders/admin/pre-orders?${queryParams.toString()}`);
+  return data;
+};
+
+// Admin: Send bulk email to pre-orders
+export const sendBulkEmailToPreOrders = async (data: {
+  productId: string;
+  subject: string;
+  message: string;
+  preOrderStatus?: string;
+}): Promise<
+  ResponseDto<{
+    totalSent: number;
+    totalPreOrders: number;
+    productName: string;
+  }>
+> => {
+  const response = await http.post(
+    "/user/orders/admin/pre-orders/bulk-email",
+    data
+  );
+  return response.data;
 };
 
 export type { User };
