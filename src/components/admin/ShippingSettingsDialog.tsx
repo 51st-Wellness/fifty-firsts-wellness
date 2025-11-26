@@ -308,11 +308,18 @@ const ShippingSettingsDialog: React.FC<ShippingSettingsDialogProps> = ({
 
       <DialogContent dividers>
         <Stack spacing={3}>
-          <Alert severity="info" variant="outlined">
-            Configure Royal Mail Click & Drop shipping services and rates.
-            Service codes are account-specific and must match your Click & Drop
-            account configuration.
-          </Alert>
+                  <Alert severity="info" variant="outlined">
+                    Royal Mail Click & Drop shipping configuration. The default service code is 'OLP2' for Royal Mail 2nd Class.
+                    <br />
+                    <br />
+                    If you need to update the service code:
+                    <br />
+                    1. Log into your Click & Drop account
+                    <br />
+                    2. Go to Settings → Services
+                    <br />
+                    3. Copy the exact service code for Royal Mail 2nd Class
+                  </Alert>
 
           {/* Default Service */}
           <Card variant="outlined">
@@ -408,16 +415,17 @@ const ShippingSettingsDialog: React.FC<ShippingSettingsDialogProps> = ({
                           }
                         />
 
-                        <TextField
-                          label="Service Code"
-                          size="small"
-                          fullWidth
-                          value={service.serviceCode}
-                          onChange={(e) =>
-                            updateService(key, { serviceCode: e.target.value })
-                          }
-                          helperText="Account-specific Royal Mail service code (e.g., CRL1, CRL2)"
-                        />
+                                <TextField
+                                  label="Service Code"
+                                  size="small"
+                                  fullWidth
+                                  value={service.serviceCode}
+                                  onChange={(e) =>
+                                    updateService(key, { serviceCode: e.target.value })
+                                  }
+                                  helperText="Account-specific Royal Mail service code from your Click & Drop dashboard"
+                                  error={!service.serviceCode}
+                                />
 
                         <TextField
                           label="Description"
