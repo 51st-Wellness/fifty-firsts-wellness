@@ -335,6 +335,16 @@ export const verifyOrderPayment = async (
   return data;
 };
 
+// Test: Submit order to Click & Drop
+export const submitOrderToClickDrop = async (
+  orderId: string
+): Promise<ResponseDto<{ message: string }>> => {
+  const { data } = await http.post<ResponseDto<{ message: string }>>(
+    `/user/orders/me/${orderId}/submit-to-clickdrop`
+  );
+  return data;
+};
+
 // Admin order types
 export type AdminOrderStatus =
   | "PENDING"

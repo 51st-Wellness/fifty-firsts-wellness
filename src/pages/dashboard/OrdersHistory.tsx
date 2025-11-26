@@ -18,6 +18,7 @@ import {
   getMyOrders,
   getMyOrder,
   verifyOrderPayment,
+  submitOrderToClickDrop,
   type OrderSummary,
   type OrderDetail,
 } from "../../api/user.api";
@@ -43,6 +44,9 @@ const OrdersHistory: React.FC = () => {
     null
   );
   const [verifyingOrderId, setVerifyingOrderId] = useState<string | null>(null);
+  const [submittingToClickDropId, setSubmittingToClickDropId] = useState<
+    string | null
+  >(null);
   const [reviewModalOpen, setReviewModalOpen] = useState(false);
   const [selectedOrderItem, setSelectedOrderItem] = useState<{
     orderItemId: string;
@@ -107,10 +111,7 @@ const OrdersHistory: React.FC = () => {
     setLoadingOrders(true);
     try {
       const response = await getMyOrders();
-      if (
-        (response.status === ResponseStatus.SUCCESS) &&
-        response.data?.orders
-      ) {
+      if (response.status === ResponseStatus.SUCCESS && response.data?.orders) {
         setOrders(response.data.orders);
       }
     } catch (error: any) {
@@ -130,10 +131,7 @@ const OrdersHistory: React.FC = () => {
     try {
       setLoadingDetailOrderId(orderId);
       const response = await getMyOrder(orderId);
-      if (
-        (response.status === ResponseStatus.SUCCESS) &&
-        response.data?.order
-      ) {
+      if (response.status === ResponseStatus.SUCCESS && response.data?.order) {
         const order = response.data.order;
         setOrderDetails((prev) => ({
           ...prev,
@@ -211,10 +209,7 @@ const OrdersHistory: React.FC = () => {
         });
 
         if (
-          !(
-            (addResponse.status === ResponseStatus.SUCCESS) &&
-            addResponse.data
-          )
+          !(addResponse.status === ResponseStatus.SUCCESS && addResponse.data)
         ) {
           throw new Error(addResponse?.message || "Unable to add item to cart");
         }
@@ -243,10 +238,7 @@ const OrdersHistory: React.FC = () => {
     try {
       setVerifyingOrderId(orderId);
       const response = await verifyOrderPayment(orderId);
-      if (
-        (response.status === ResponseStatus.SUCCESS) &&
-        response.data
-      ) {
+      if (response.status === ResponseStatus.SUCCESS && response.data) {
         if (response.data.updated) {
           toast.success(
             response.data.message || "Payment status verified and updated"
@@ -272,6 +264,36 @@ const OrdersHistory: React.FC = () => {
     }
   };
 
+  const handleSubmitToClickDrop = async (orderId: string) => {
+    try {
+      setSubmittingToClickDropId(orderId);
+      const response = await submitOrderToClickDrop(orderId);
+      if (response.status === ResponseStatus.SUCCESS) {
+        toast.success(
+          response.data?.message ||
+            "Order submitted to Click & Drop successfully"
+        );
+        // Reload orders to get updated status
+        await loadOrders();
+        // If order is expanded, reload its details
+        if (expandedOrderId === orderId) {
+          await fetchOrderDetail(orderId);
+        }
+      } else {
+        toast.error(
+          response.message || "Failed to submit order to Click & Drop"
+        );
+      }
+    } catch (error: any) {
+      toast.error(
+        error?.response?.data?.message ||
+          "Failed to submit order to Click & Drop"
+      );
+    } finally {
+      setSubmittingToClickDropId(null);
+    }
+  };
+
   const handleToggleOrder = (orderId: string) => {
     setExpandedOrderId((current) => {
       const next = current === orderId ? null : orderId;
@@ -294,7 +316,7 @@ const OrdersHistory: React.FC = () => {
       setCheckingReviews((prev) => new Set(prev).add(orderItemId));
       const response = await checkUserReviewForOrderItem(orderItemId);
       if (
-        (response.status === ResponseStatus.SUCCESS) &&
+        response.status === ResponseStatus.SUCCESS &&
         response.data?.hasReviewed
       ) {
         setReviewedOrderItems((prev) => new Set(prev).add(orderItemId));
@@ -697,6 +719,31 @@ const OrdersHistory: React.FC = () => {
                         </span>
                       </div>
                     </div>
+
+                    {/* Test button for Click & Drop submission */}
+                    {detail && (
+                      <div className="p-4 border-t border-gray-200 bg-yellow-50">
+                        <button
+                          type="button"
+                          onClick={() => handleSubmitToClickDrop(order.id)}
+                          disabled={
+                            submittingToClickDropId === order.id ||
+                            isDetailLoading
+                          }
+                          className="inline-flex items-center justify-center gap-2 rounded-full bg-yellow-600 text-white px-4 py-2 text-sm font-semibold hover:bg-yellow-700 transition-colors disabled:opacity-60 disabled:cursor-not-allowed"
+                        >
+                          {submittingToClickDropId === order.id ? (
+                            <Loader className="w-4 h-4 animate-spin" />
+                          ) : (
+                            <Package className="w-4 h-4" />
+                          )}
+                          <span>Test: Submit to Click & Drop</span>
+                        </button>
+                        <p className="text-xs text-yellow-700 mt-2">
+                          TEST ONLY - This button will be removed in production
+                        </p>
+                      </div>
+                    )}
 
                     {order.status.toUpperCase() === "PENDING" && (
                       <div className="p-4 border-t border-gray-200 bg-white">
