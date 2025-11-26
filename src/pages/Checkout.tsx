@@ -9,6 +9,7 @@ import {
   Plus,
   Minus,
   Package,
+  Truck,
 } from "lucide-react";
 import { useAuth } from "../context/AuthContextProvider";
 import { useCart } from "../context/CartContext";
@@ -60,6 +61,9 @@ const Checkout: React.FC = () => {
     null
   );
   const [isRefreshingSummary, setIsRefreshingSummary] = useState(false);
+  const [selectedShippingKey, setSelectedShippingKey] = useState<string | null>(
+    null
+  );
 
   const hasCartItems = items.length > 0;
   const isSuccessStatus = (status?: string | null) =>
@@ -72,6 +76,37 @@ const Checkout: React.FC = () => {
       currency: currencyCode || "USD",
     }).format(amount);
 
+  // Get selected or default shipping service
+  const selectedShipping = useMemo(() => {
+    if (!summary?.shipping?.availableServices) return null;
+
+    if (selectedShippingKey) {
+      return summary.shipping.availableServices.find(
+        (s) => s.key === selectedShippingKey
+      );
+    }
+
+    // Auto-select default service
+    const defaultService = summary.shipping.availableServices.find(
+      (s) => s.isDefault
+    );
+    return defaultService || summary.shipping.availableServices[0];
+  }, [summary, selectedShippingKey]);
+
+  // Auto-select default shipping on load
+  useEffect(() => {
+    if (summary?.shipping?.availableServices && !selectedShippingKey) {
+      const defaultService = summary.shipping.availableServices.find(
+        (s) => s.isDefault
+      );
+      if (defaultService) {
+        setSelectedShippingKey(defaultService.key);
+      } else if (summary.shipping.availableServices.length > 0) {
+        setSelectedShippingKey(summary.shipping.availableServices[0].key);
+      }
+    }
+  }, [summary, selectedShippingKey]);
+
   const orderTotals = useMemo(() => {
     const fallbackCurrency = summary?.currency || "USD";
     if (!summary) {
@@ -81,6 +116,8 @@ const Checkout: React.FC = () => {
         productDiscountTotal: 0,
         globalDiscountTotal: 0,
         totalDiscount: 0,
+        shippingCost: 0,
+        grandTotal: 0,
         currency: fallbackCurrency,
         itemCount: 0,
         totalQuantity: 0,
@@ -107,17 +144,23 @@ const Checkout: React.FC = () => {
     const subtotal =
       summary.pricing?.grandTotal || summaryBreakdown?.subtotal || 0;
 
+    // Add shipping cost
+    const shippingCost = selectedShipping?.price || 0;
+    const grandTotal = subtotal + shippingCost;
+
     return {
       subtotal,
       baseSubtotal,
       productDiscountTotal,
       globalDiscountTotal,
       totalDiscount,
+      shippingCost,
+      grandTotal,
       currency: summary.pricing?.currency || fallbackCurrency,
       itemCount: summaryBreakdown?.itemCount || items.length,
       totalQuantity: summaryBreakdown?.totalQuantity || items.length,
     };
-  }, [summary, items.length]);
+  }, [summary, items.length, selectedShipping]);
   const currencyCode = summary?.pricing?.currency || summary?.currency || "USD";
   const discountSummary = summary?.discounts;
   const globalDiscountInfo =
@@ -441,6 +484,11 @@ const Checkout: React.FC = () => {
         payload = {
           deliveryAddressId: selectedAddressId,
         };
+      }
+
+      // Add selected shipping service
+      if (selectedShippingKey) {
+        payload.shippingServiceKey = selectedShippingKey;
       }
 
       const response = await paymentAPI.checkoutCart(payload);
@@ -797,18 +845,92 @@ const Checkout: React.FC = () => {
                           </span>
                         </div>
                       )}
-                      <div className="flex justify-between text-gray-600">
-                        <span>Delivery</span>
-                        <span className="text-xs sm:text-sm">
-                          Calculated separately
+
+                      {/* Shipping Options */}
+                      {summary?.shipping?.availableServices &&
+                        summary.shipping.availableServices.length > 0 && (
+                          <div className="border-t border-gray-200 pt-4 space-y-3">
+                            <h4 className="text-sm font-semibold text-gray-900">
+                              Shipping Method
+                            </h4>
+                            <div className="space-y-2">
+                              {summary?.shipping?.availableServices.map(
+                                (service) => (
+                                  <label
+                                    key={service.key}
+                                    className={`flex items-start gap-3 p-3 rounded-xl border-2 cursor-pointer transition-all ${
+                                      selectedShippingKey === service.key
+                                        ? "border-brand-green bg-brand-green/5"
+                                        : "border-gray-200 hover:border-gray-300"
+                                    }`}
+                                  >
+                                    <input
+                                      type="radio"
+                                      name="shippingService"
+                                      value={service.key}
+                                      checked={
+                                        selectedShippingKey === service.key
+                                      }
+                                      onChange={(e) =>
+                                        setSelectedShippingKey(e.target.value)
+                                      }
+                                      className="mt-0.5 h-4 w-4 text-brand-green focus:ring-brand-green"
+                                    />
+                                    <div className="flex-1 min-w-0">
+                                      <div className="flex items-start justify-between gap-2">
+                                        <div className="flex-1">
+                                          <p className="text-sm font-medium text-gray-900">
+                                            {service.label}
+                                            {service.isDefault && (
+                                              <span className="ml-2 inline-flex items-center px-2 py-0.5 rounded-full text-[10px] font-semibold bg-brand-green/10 text-brand-green">
+                                                Recommended
+                                              </span>
+                                            )}
+                                          </p>
+                                          {service.description && (
+                                            <p className="text-xs text-gray-500 mt-0.5">
+                                              {service.description}
+                                            </p>
+                                          )}
+                                          {service.estimatedDays && (
+                                            <p className="text-xs text-gray-500 mt-0.5">
+                                              Estimated: {service.estimatedDays}
+                                            </p>
+                                          )}
+                                        </div>
+                                        <span className="text-sm font-semibold text-gray-900 whitespace-nowrap">
+                                          {formatCurrency(
+                                            service.price,
+                                            currencyCode
+                                          )}
+                                        </span>
+                                      </div>
+                                    </div>
+                                  </label>
+                                )
+                              )}
+                            </div>
+                          </div>
+                        )}
+
+                      <div className="flex justify-between text-gray-700 pt-2">
+                        <span>Shipping</span>
+                        <span className="font-medium">
+                          {selectedShipping
+                            ? formatCurrency(
+                                selectedShipping.price,
+                                currencyCode
+                              )
+                            : formatCurrency(0, currencyCode)}
                         </span>
                       </div>
+
                       <div className="border-t border-gray-200 pt-3 flex justify-between items-center">
                         <span className="text-base sm:text-lg font-semibold text-gray-900">
                           Total due today
                         </span>
                         <span className="text-xl sm:text-2xl font-bold text-brand-green">
-                          {formatCurrency(totalDueToday, currencyCode)}
+                          {formatCurrency(orderTotals.grandTotal, currencyCode)}
                         </span>
                       </div>
                       {orderTotals.totalDiscount > 0 && (
@@ -1171,10 +1293,18 @@ const deliveryDetailsCard = (
           </li>
         )}
       </ul>
-      <p className="mt-3 text-[11px] sm:text-xs text-gray-500">
-        Delivery fees are calculated separately based on your location and the
-        weight of the items.
-      </p>
+      {summary.shipping && (
+        <div className="mt-3 pt-3 border-t border-gray-100">
+          <p className="text-[11px] sm:text-xs text-gray-600 mb-1">
+            <span className="font-semibold">Parcel weight:</span>{" "}
+            {(summary.shipping.weight / 1000).toFixed(2)} kg
+          </p>
+          <p className="text-[11px] sm:text-xs text-gray-600">
+            <span className="font-semibold">Package type:</span>{" "}
+            {summary.shipping.packageFormat}
+          </p>
+        </div>
+      )}
     </div>
   );
 };

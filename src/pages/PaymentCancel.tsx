@@ -175,10 +175,10 @@ const PaymentCancel: React.FC = () => {
                     </SelectTrigger>
                     <SelectContent>
                       <SelectItem value="payment-declined">
-                        Payment was declined
+                      Payment was declined
                       </SelectItem>
                       <SelectItem value="technical-error">
-                        Technical error occurred
+                      Technical error occurred
                       </SelectItem>
                       <SelectItem value="page-crashed">
                         Page crashed or froze

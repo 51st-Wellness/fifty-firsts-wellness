@@ -25,7 +25,6 @@ import {
   QrCodeScanner as QrCodeScannerIcon,
 } from "@mui/icons-material";
 import type { AdminOrderDetail, AdminOrderStatus } from "../../api/user.api";
-import TrackingReferenceModal from "./TrackingReferenceModal";
 
 const currency = (value: number) =>
   new Intl.NumberFormat("en-GB", {
@@ -136,7 +135,6 @@ const OrderDetailsModal: React.FC<OrderDetailsModalProps> = ({
 }) => {
   const [statusMenuAnchor, setStatusMenuAnchor] =
     React.useState<null | HTMLElement>(null);
-  const [trackingModalOpen, setTrackingModalOpen] = React.useState(false);
 
   const normalizedStatus = order ? normalizeOrderStatus(order.status) : null;
   const nextStatus = normalizedStatus ? getNextStatus(normalizedStatus) : null;
@@ -468,21 +466,6 @@ const OrderDetailsModal: React.FC<OrderDetailsModalProps> = ({
                       anchorOrigin={{ vertical: "bottom", horizontal: "right" }}
                       transformOrigin={{ vertical: "top", horizontal: "right" }}
                     >
-                      {normalizedStatus &&
-                        (normalizedStatus === "PROCESSING" ||
-                          normalizedStatus === "PACKAGING") && (
-                          <MenuItem
-                            onClick={() => {
-                              setTrackingModalOpen(true);
-                              handleStatusMenuClose();
-                            }}
-                          >
-                            <QrCodeScannerIcon sx={{ fontSize: 20, mr: 1 }} />
-                            {(order as any).trackingReference
-                              ? "Update Tracking Reference"
-                              : "Input Tracking Reference"}
-                          </MenuItem>
-                        )}
                       {nextStatus && (
                         <MenuItem
                           onClick={() => handleStatusUpdate(nextStatus)}
@@ -512,29 +495,141 @@ const OrderDetailsModal: React.FC<OrderDetailsModalProps> = ({
                   </>
                 )}
               </Stack>
-              {(order as any).trackingReference && (
-                <Box sx={{ mt: 1.5 }}>
-                  <Typography
-                    variant="caption"
-                    color="text.secondary"
-                    sx={{ display: "block", mb: 0.5 }}
-                  >
-                    Tracking Reference
-                  </Typography>
-                  <Typography variant="body2" fontWeight={500}>
-                    {(order as any).trackingReference}
-                  </Typography>
-                  {(order as any).trackingStatus && (
-                    <Chip
-                      label={(order as any).trackingStatus}
-                      size="small"
-                      color={
-                        getStatusConfig((order as any).trackingStatus).color
-                      }
-                      sx={{ mt: 0.5 }}
-                    />
-                  )}
-                </Box>
+              {/* Click & Drop Shipping Information */}
+              {(order.clickDropOrderIdentifier ||
+                order.trackingReference ||
+                order.shippingCost) && (
+                <Card sx={{ mt: 2, bgcolor: "grey.50" }}>
+                  <CardContent sx={{ p: 2, "&:last-child": { pb: 2 } }}>
+                    <Stack direction="row" spacing={1} alignItems="center" mb={1}>
+                      <LocalShippingIcon fontSize="small" color="primary" />
+                      <Typography variant="subtitle2" fontWeight={600}>
+                        Shipping Details
+                      </Typography>
+                    </Stack>
+
+                    <Stack spacing={1}>
+                      {order.clickDropOrderIdentifier && (
+                        <Box>
+                          <Typography
+                            variant="caption"
+                            color="text.secondary"
+                            sx={{ display: "block" }}
+                          >
+                            Click & Drop Order ID
+                          </Typography>
+                          <Typography variant="body2" fontWeight={500}>
+                            #{order.clickDropOrderIdentifier}
+                          </Typography>
+                        </Box>
+                      )}
+
+                      {order.trackingReference && (
+                        <Box>
+                          <Typography
+                            variant="caption"
+                            color="text.secondary"
+                            sx={{ display: "block" }}
+                          >
+                            Tracking Number
+                          </Typography>
+                          <Typography variant="body2" fontWeight={500}>
+                            {order.trackingReference}
+                          </Typography>
+                          {order.trackingStatus && (
+                            <Chip
+                              label={order.trackingStatus}
+                              size="small"
+                              color={
+                                getStatusConfig(order.trackingStatus).color
+                              }
+                              sx={{ mt: 0.5 }}
+                            />
+                          )}
+                        </Box>
+                      )}
+
+                      {order.shippingCost !== null &&
+                        order.shippingCost !== undefined && (
+                          <Box>
+                            <Typography
+                              variant="caption"
+                              color="text.secondary"
+                              sx={{ display: "block" }}
+                            >
+                              Shipping Cost
+                            </Typography>
+                            <Typography variant="body2" fontWeight={500}>
+                              {currency(order.shippingCost)}
+                            </Typography>
+                          </Box>
+                        )}
+
+                      {order.serviceCode && (
+                        <Box>
+                          <Typography
+                            variant="caption"
+                            color="text.secondary"
+                            sx={{ display: "block" }}
+                          >
+                            Service
+                          </Typography>
+                          <Typography variant="body2" fontWeight={500}>
+                            {order.serviceCode}
+                          </Typography>
+                        </Box>
+                      )}
+
+                      {order.parcelWeight && (
+                        <Box>
+                          <Typography
+                            variant="caption"
+                            color="text.secondary"
+                            sx={{ display: "block" }}
+                          >
+                            Weight
+                          </Typography>
+                          <Typography variant="body2" fontWeight={500}>
+                            {(order.parcelWeight / 1000).toFixed(2)} kg
+                          </Typography>
+                        </Box>
+                      )}
+
+                      {order.labelBase64 && (
+                        <Button
+                          size="small"
+                          variant="outlined"
+                          startIcon={<QrCodeScannerIcon />}
+                          onClick={() => {
+                            // Download PDF label
+                            const link = document.createElement("a");
+                            link.href = `data:application/pdf;base64,${order.labelBase64}`;
+                            link.download = `shipping-label-${order.id}.pdf`;
+                            document.body.appendChild(link);
+                            link.click();
+                            document.body.removeChild(link);
+                          }}
+                          sx={{ mt: 1, alignSelf: "flex-start" }}
+                        >
+                          Download Shipping Label
+                        </Button>
+                      )}
+
+                      {order.trackingReference && (
+                        <Button
+                          size="small"
+                          variant="text"
+                          href={`https://www.royalmail.com/track-your-item#/tracking-results/${order.trackingReference}`}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          sx={{ alignSelf: "flex-start" }}
+                        >
+                          Track on Royal Mail
+                        </Button>
+                      )}
+                    </Stack>
+                  </CardContent>
+                </Card>
               )}
             </Box>
 
@@ -565,6 +660,31 @@ const OrderDetailsModal: React.FC<OrderDetailsModalProps> = ({
                   )}
                 </Typography>
               </Box>
+
+              {order.shippingCost !== null &&
+                order.shippingCost !== undefined &&
+                order.shippingCost > 0 && (
+                  <Box
+                    sx={{
+                      display: "flex",
+                      justifyContent: "space-between",
+                      alignItems: "center",
+                      mb: 1,
+                    }}
+                  >
+                    <Typography
+                      variant="subtitle2"
+                      sx={{ fontFamily: '"League Spartan", sans-serif' }}
+                      color="text.secondary"
+                    >
+                      Shipping
+                    </Typography>
+                    <Typography variant="body1" fontWeight={600}>
+                      {currency(order.shippingCost)}
+                    </Typography>
+                  </Box>
+                )}
+
               <Divider sx={{ my: 1 }} />
               <Box
                 sx={{
@@ -624,40 +744,8 @@ const OrderDetailsModal: React.FC<OrderDetailsModalProps> = ({
         ) : null}
       </DialogContent>
       <DialogActions>
-        {order &&
-          normalizedStatus &&
-          (normalizedStatus === "PROCESSING" ||
-            normalizedStatus === "PACKAGING") && (
-            <Button
-              startIcon={<QrCodeScannerIcon />}
-              onClick={() => setTrackingModalOpen(true)}
-              variant="outlined"
-              sx={{
-                borderRadius: 999,
-                textTransform: "none",
-                fontWeight: 600,
-                fontFamily: '"League Spartan", sans-serif',
-              }}
-            >
-              {(order as any).trackingReference
-                ? "Update Tracking"
-                : "Add Tracking"}
-            </Button>
-          )}
         <Button onClick={onClose}>Close</Button>
       </DialogActions>
-
-      <TrackingReferenceModal
-        open={trackingModalOpen}
-        onClose={() => setTrackingModalOpen(false)}
-        orderId={order?.id || ""}
-        existingTrackingReference={(order as any)?.trackingReference || null}
-        onSuccess={async () => {
-          if (onTrackingUpdate) {
-            await onTrackingUpdate();
-          }
-        }}
-      />
     </Dialog>
   );
 };

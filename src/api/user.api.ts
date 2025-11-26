@@ -255,6 +255,15 @@ export type OrderSummary = {
   paymentStatus?: string | null;
   paymentProvider?: string | null;
   paymentCurrency?: string | null;
+  // Click & Drop fields
+  clickDropOrderIdentifier?: number | null;
+  trackingReference?: string | null;
+  trackingStatus?: string | null;
+  packageFormatIdentifier?: string | null;
+  serviceCode?: string | null;
+  shippingCost?: number | null;
+  parcelWeight?: number | null;
+  labelBase64?: string | null;
 };
 
 export type OrderDetail = OrderSummary & {
@@ -412,20 +421,6 @@ export const updateOrderStatus = async (
     `/user/orders/admin/${orderId}/status`,
     {
       status,
-    }
-  );
-  return data;
-};
-
-// Admin: Add/Update tracking reference for an order
-export const addTrackingReference = async (
-  orderId: string,
-  trackingReference: string
-): Promise<ResponseDto<{ message: string }>> => {
-  const { data } = await http.put<ResponseDto<{ message: string }>>(
-    `/tracking/admin/orders/${orderId}`,
-    {
-      trackingReference,
     }
   );
   return data;

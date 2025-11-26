@@ -13,6 +13,7 @@ export interface CartCheckoutPayload {
   postcode?: string;
   deliveryInstructions?: string;
   saveAddress?: boolean; // Whether to save the custom address
+  shippingServiceKey?: string; // Selected shipping service (e.g., 'ROYAL_MAIL_48')
 }
 
 export interface CartCheckoutSummaryItem {
@@ -40,6 +41,21 @@ export interface CartCheckoutDeliveryDefaults {
   addressLine1?: string;
   postTown?: string;
   postcode?: string;
+}
+
+export interface ShippingService {
+  key: string;
+  label: string;
+  description?: string;
+  price: number;
+  estimatedDays?: string;
+  isDefault?: boolean;
+}
+
+export interface ShippingInfo {
+  weight: number; // Total weight in grams
+  packageFormat: string; // 'smallParcel', 'mediumParcel', etc.
+  availableServices: ShippingService[];
 }
 
 export interface CartCheckoutSummary {
@@ -99,6 +115,7 @@ export interface CartCheckoutSummary {
     deliveryInstructions?: string | null;
     isDefault: boolean;
   }>;
+  shipping?: ShippingInfo; // Available shipping options and info
 }
 
 export interface CartCheckoutResult {
