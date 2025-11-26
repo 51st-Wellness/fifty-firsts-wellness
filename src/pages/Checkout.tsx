@@ -576,7 +576,7 @@ const Checkout: React.FC = () => {
           </p>
         </div>
 
-        {globalDiscountInfo && (
+        {globalDiscountInfo?.isActive && (
           <div
             className={`mb-6 rounded-3xl border p-4 sm:p-5 ${
               globalDiscountInfo.applied
@@ -833,18 +833,19 @@ const Checkout: React.FC = () => {
                           </span>
                         </div>
                       )}
-                      {orderTotals.globalDiscountTotal > 0 && (
-                        <div className="flex justify-between text-rose-600">
-                          <span>Global discount</span>
-                          <span>
-                            -{" "}
-                            {formatCurrency(
-                              orderTotals.globalDiscountTotal,
-                              currencyCode
-                            )}
-                          </span>
-                        </div>
-                      )}
+                      {orderTotals.globalDiscountTotal > 0 &&
+                        globalDiscountInfo?.applied && (
+                          <div className="flex justify-between text-rose-600">
+                            <span>Global discount</span>
+                            <span>
+                              -{" "}
+                              {formatCurrency(
+                                orderTotals.globalDiscountTotal,
+                                currencyCode
+                              )}
+                            </span>
+                          </div>
+                        )}
 
                       {/* Shipping Options */}
                       {summary?.shipping?.availableServices &&
@@ -958,7 +959,12 @@ const Checkout: React.FC = () => {
 
           {summary && (
             <section className="order-2 lg:order-2 lg:col-start-2 lg:col-end-3">
-              {deliveryDetailsCard(summary, formatCurrency, hasPreOrders)}
+              {deliveryDetailsCard(
+                summary,
+                formatCurrency,
+                hasPreOrders,
+                orderTotals.grandTotal
+              )}
             </section>
           )}
 
@@ -1244,7 +1250,8 @@ const Checkout: React.FC = () => {
 const deliveryDetailsCard = (
   summary: CartCheckoutSummary | null,
   formatCurrency: (amount: number, currencyCode: string) => string,
-  hasPreOrders?: boolean
+  hasPreOrders?: boolean,
+  grandTotal?: number
 ) => {
   if (!summary) {
     return null;
@@ -1281,14 +1288,14 @@ const deliveryDetailsCard = (
           Due today:{" "}
           <span className="font-semibold text-gray-900">
             {formatCurrency(
-              summary.totalAmount ?? summary.summary.subtotal,
+              grandTotal ?? summary.totalAmount ?? summary.summary.subtotal,
               summary.currency
             )}
           </span>
         </li>
         {hasPreOrders && (
           <li>
-            Includes pre-order items — we’ll notify you as soon as they are
+            Includes pre-order items — we'll notify you as soon as they are
             ready to ship.
           </li>
         )}

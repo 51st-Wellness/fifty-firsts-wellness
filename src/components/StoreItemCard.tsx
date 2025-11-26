@@ -122,7 +122,7 @@ const StoreItemCard: React.FC<StoreItemCardProps> = ({
           {!canPreOrder && isOutOfStock && (
             <span className="absolute top-2 left-2 inline-flex items-center gap-1 rounded-full bg-gray-900/80 px-3 py-1 text-[10px] font-semibold uppercase text-white shadow-sm">
               <ShoppingCart className="w-3 h-3 text-white" />
-              Out of Cart
+              Out of Stock
             </span>
           )}
         </div>
@@ -145,18 +145,9 @@ const StoreItemCard: React.FC<StoreItemCardProps> = ({
             />
           </div>
 
-          {item.stock && item.stock > 0 && (
+          {item.stock !== undefined && item.stock > 0 && (
             <div className="mt-1.5 text-[10px] md:text-xs text-gray-500">
               {item.stock} {item.stock === 1 ? "item" : "items"} in stock
-            </div>
-          )}
-
-          {canPreOrder && (
-            <div className="mt-1.5 rounded-xl bg-brand-green/5 border border-dashed border-brand-green/40 p-2 text-[11px] text-gray-600">
-              <p className="text-[10px] text-gray-600">
-                Pre-order now — you’ll be charged today and notified once the
-                item is ready to ship.
-              </p>
             </div>
           )}
 
@@ -281,7 +272,16 @@ const StoreItemCard: React.FC<StoreItemCardProps> = ({
             ) : null}
 
             {showNotifyOnly && (
-              <div className="w-full flex items-center justify-between gap-3">
+              <div className="w-full flex items-center justify-between gap-2">
+                <button
+                  type="button"
+                  disabled
+                  className="flex-1 inline-flex items-center justify-center gap-1 md:gap-2 bg-gray-400 text-white px-2 md:px-4 py-1.5 md:py-2 rounded-full text-[10px] md:text-sm font-semibold cursor-not-allowed"
+                >
+                  <ShoppingCart className="w-3 h-3 md:w-4 md:h-4" />
+                  <span className="hidden md:inline">Out of Stock</span>
+                  <span className="md:hidden">Out of Stock</span>
+                </button>
                 <span className="relative group">
                   <button
                     type="button"

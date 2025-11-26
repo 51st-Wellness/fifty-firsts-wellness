@@ -48,6 +48,11 @@ type StoreItemFormState = {
   discountStart: string;
   discountEnd: string;
   preOrderEnabled: boolean;
+  // Shipping information for Click & Drop
+  weight: number; // in grams
+  length: number; // in mm
+  width: number; // in mm
+  height: number; // in mm
 };
 
 const createDefaultFormState = (): StoreItemFormState => ({
@@ -67,6 +72,10 @@ const createDefaultFormState = (): StoreItemFormState => ({
   discountStart: "",
   discountEnd: "",
   preOrderEnabled: false,
+  weight: 0,
+  length: 0,
+  width: 0,
+  height: 0,
 });
 
 const cloneFormState = (state: StoreItemFormState): StoreItemFormState => ({
@@ -173,6 +182,10 @@ const StoreItemDialog: React.FC<StoreItemDialogProps> = ({
           discountStart: toInputValue((item as any).discountStart),
           discountEnd: toInputValue((item as any).discountEnd),
           preOrderEnabled: Boolean((item as any).preOrderEnabled),
+          weight: Number((item as any).weight ?? 0),
+          length: Number((item as any).length ?? 0),
+          width: Number((item as any).width ?? 0),
+          height: Number((item as any).height ?? 0),
         };
         setFormData(nextFormState);
         initialFormDataRef.current = cloneFormState(nextFormState);
@@ -433,6 +446,10 @@ const StoreItemDialog: React.FC<StoreItemDialogProps> = ({
       appendDateField("discountStart", formData.discountStart, toStartOfDayISO);
       appendDateField("discountEnd", formData.discountEnd, toEndOfDayISO);
       appendField("preOrderEnabled", formData.preOrderEnabled);
+      appendField("weight", formData.weight);
+      appendField("length", formData.length);
+      appendField("width", formData.width);
+      appendField("height", formData.height);
 
       // Add tags
       if (shouldIncludeField("categories")) {
@@ -804,6 +821,112 @@ const StoreItemDialog: React.FC<StoreItemDialogProps> = ({
                       </Stack>
                     </Stack>
                   </Collapse>
+                </Stack>
+              </Box>
+
+              {/* Shipping Information */}
+              <Box>
+                <Divider sx={{ my: 1 }} />
+                <Typography variant="subtitle2" sx={{ mb: 2 }}>
+                  Shipping Information (for Click & Drop)
+                </Typography>
+                <Typography
+                  variant="body2"
+                  color="text.secondary"
+                  sx={{ mb: 2 }}
+                >
+                  Enter product dimensions and weight for accurate shipping cost
+                  calculation
+                </Typography>
+
+                <Stack spacing={2}>
+                  <TextField
+                    label="Weight (grams)"
+                    type="number"
+                    size="small"
+                    fullWidth
+                    value={formData.weight}
+                    onChange={(e) =>
+                      setFormData((prev) => ({
+                        ...prev,
+                        weight: Number(e.target.value) || 0,
+                      }))
+                    }
+                    InputProps={{
+                      endAdornment: (
+                        <InputAdornment position="end">g</InputAdornment>
+                      ),
+                    }}
+                    inputProps={{ min: 0, step: 1 }}
+                    helperText="Product weight for shipping calculation"
+                  />
+
+                  <Typography variant="caption" color="text.secondary">
+                    Dimensions (millimeters)
+                  </Typography>
+
+                  <Box
+                    sx={{
+                      display: "grid",
+                      gridTemplateColumns: "repeat(3, 1fr)",
+                      gap: 2,
+                    }}
+                  >
+                    <TextField
+                      label="Length"
+                      type="number"
+                      size="small"
+                      value={formData.length}
+                      onChange={(e) =>
+                        setFormData((prev) => ({
+                          ...prev,
+                          length: Number(e.target.value) || 0,
+                        }))
+                      }
+                      InputProps={{
+                        endAdornment: (
+                          <InputAdornment position="end">mm</InputAdornment>
+                        ),
+                      }}
+                      inputProps={{ min: 0, step: 1 }}
+                    />
+                    <TextField
+                      label="Width"
+                      type="number"
+                      size="small"
+                      value={formData.width}
+                      onChange={(e) =>
+                        setFormData((prev) => ({
+                          ...prev,
+                          width: Number(e.target.value) || 0,
+                        }))
+                      }
+                      InputProps={{
+                        endAdornment: (
+                          <InputAdornment position="end">mm</InputAdornment>
+                        ),
+                      }}
+                      inputProps={{ min: 0, step: 1 }}
+                    />
+                    <TextField
+                      label="Height"
+                      type="number"
+                      size="small"
+                      value={formData.height}
+                      onChange={(e) =>
+                        setFormData((prev) => ({
+                          ...prev,
+                          height: Number(e.target.value) || 0,
+                        }))
+                      }
+                      InputProps={{
+                        endAdornment: (
+                          <InputAdornment position="end">mm</InputAdornment>
+                        ),
+                      }}
+                      inputProps={{ min: 0, step: 1 }}
+                    />
+                  </Box>
                 </Stack>
               </Box>
 
