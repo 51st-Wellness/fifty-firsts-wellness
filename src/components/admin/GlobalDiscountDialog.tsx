@@ -24,6 +24,7 @@ import type {
   DiscountType,
   StoreItem,
 } from "../../types/marketplace.types";
+import NumberInput from "../ui/NumberInput";
 
 interface GlobalDiscountDialogProps {
   open: boolean;
@@ -240,33 +241,24 @@ const GlobalDiscountDialog: React.FC<GlobalDiscountDialogProps> = ({
 
           {form.discountType !== "NONE" && (
             <>
-              <TextField
+              <NumberInput
                 label={
                   form.discountType === "PERCENTAGE"
                     ? "Discount (%)"
                     : "Discount amount (£)"
                 }
-                type="text"
                 size="small"
-                value={form.discountValue || ""}
-                onChange={(e) => {
-                  const val = e.target.value;
-                  if (val === "" || /^\d*\.?\d*$/.test(val)) {
-                    const numVal = val === "" ? 0 : Number(val);
-                    // Enforce max for percentage
-                    if (form.discountType === "PERCENTAGE" && numVal > 100) {
-                      return;
-                    }
-                    setForm((prev) => ({
-                      ...prev,
-                      discountValue: numVal,
-                    }));
-                  }
-                }}
+                value={form.discountValue}
+                onChange={(val) =>
+                  setForm((prev) => ({
+                    ...prev,
+                    discountValue: val,
+                  }))
+                }
+                allowDecimals={true}
+                max={form.discountType === "PERCENTAGE" ? 100 : undefined}
+                min={0}
                 fullWidth
-                inputProps={{
-                  inputMode: "decimal",
-                }}
                 placeholder="0"
               />
 

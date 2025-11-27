@@ -39,6 +39,7 @@ import {
   type WeightBand,
 } from "../../api/shipping.api";
 import { ResponseStatus } from "../../types/response.types";
+import NumberInput from "../ui/NumberInput";
 
 interface ShippingSettingsDialogProps {
   open: boolean;
@@ -485,37 +486,32 @@ const ShippingSettingsDialog: React.FC<ShippingSettingsDialogProps> = ({
                                   alignItems: "flex-start",
                                 }}
                               >
-                                <TextField
+                                <NumberInput
                                   label="Max Weight (g)"
-                                  type="text"
                                   size="small"
-                                  value={band.maxWeight || ""}
-                                  onChange={(e) => {
-                                    const val = e.target.value;
-                                    if (val === "" || /^\d+$/.test(val)) {
-                                      updateWeightBand(key, index, {
-                                        maxWeight:
-                                          val === "" ? 0 : parseInt(val),
-                                      });
-                                    }
-                                  }}
-                                  inputProps={{ inputMode: "numeric" }}
+                                  value={band.maxWeight}
+                                  onChange={(val) =>
+                                    updateWeightBand(key, index, {
+                                      maxWeight: val,
+                                    })
+                                  }
+                                  allowDecimals={false}
+                                  min={1}
                                   placeholder="0"
                                   sx={{ flex: 1 }}
                                 />
-                                <TextField
+                                <NumberInput
                                   label="Price"
-                                  type="text"
                                   size="small"
-                                  value={band.price || ""}
-                                  onChange={(e) => {
-                                    const val = e.target.value;
-                                    if (val === "" || /^\d*\.?\d*$/.test(val)) {
-                                      updateWeightBand(key, index, {
-                                        price: val === "" ? 0 : parseFloat(val),
-                                      });
-                                    }
-                                  }}
+                                  value={band.price}
+                                  onChange={(val) =>
+                                    updateWeightBand(key, index, {
+                                      price: val,
+                                    })
+                                  }
+                                  allowDecimals={true}
+                                  decimalPlaces={2}
+                                  min={0}
                                   InputProps={{
                                     startAdornment: (
                                       <InputAdornment position="start">
@@ -523,7 +519,6 @@ const ShippingSettingsDialog: React.FC<ShippingSettingsDialogProps> = ({
                                       </InputAdornment>
                                     ),
                                   }}
-                                  inputProps={{ inputMode: "decimal" }}
                                   placeholder="0.00"
                                   sx={{ flex: 1 }}
                                 />
@@ -599,20 +594,19 @@ const ShippingSettingsDialog: React.FC<ShippingSettingsDialogProps> = ({
                           }
                         />
 
-                        <TextField
+                        <NumberInput
                           label="Price"
-                          type="text"
                           size="small"
                           fullWidth
-                          value={addOn.price || ""}
-                          onChange={(e) => {
-                            const val = e.target.value;
-                            if (val === "" || /^\d*\.?\d*$/.test(val)) {
-                              updateAddOn(key, {
-                                price: val === "" ? 0 : parseFloat(val),
-                              });
-                            }
-                          }}
+                          value={addOn.price}
+                          onChange={(val) =>
+                            updateAddOn(key, {
+                              price: val,
+                            })
+                          }
+                          allowDecimals={true}
+                          decimalPlaces={2}
+                          min={0}
                           InputProps={{
                             startAdornment: (
                               <InputAdornment position="start">
@@ -620,7 +614,6 @@ const ShippingSettingsDialog: React.FC<ShippingSettingsDialogProps> = ({
                               </InputAdornment>
                             ),
                           }}
-                          inputProps={{ inputMode: "decimal" }}
                           placeholder="0.00"
                         />
 

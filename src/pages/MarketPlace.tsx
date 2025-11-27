@@ -9,6 +9,7 @@ import type { Category } from "../types/category.types";
 import type { ReviewSummary } from "../types/review.types";
 import { getStoreItemPricing } from "../utils/discounts";
 import { useGlobalDiscount } from "../context/GlobalDiscountContext";
+import { useNumberInput } from "../hooks/useNumberInput";
 
 // Using shared StoreItem type from types to match API response
 
@@ -32,12 +33,29 @@ const MarketPlace: React.FC<MarketPlaceProps> = ({ onSearch }) => {
   const [loading, setLoading] = useState<boolean>(false);
   const [error, setError] = useState<string | null>(null);
   const [selectedCategory, setSelectedCategory] = useState<string>("All");
-  const [minPrice, setMinPrice] = useState<number>(10);
-  const [maxPrice, setMaxPrice] = useState<number>(200);
+  const [minPrice, setMinPrice] = useState<number>(0);
+  const [maxPrice, setMaxPrice] = useState<number>(0);
   const [selectedRating, setSelectedRating] = useState<string>("all");
   const [priceDropdownOpen, setPriceDropdownOpen] = useState<boolean>(false);
   const [ratingDropdownOpen, setRatingDropdownOpen] = useState<boolean>(false);
   const { globalDiscount } = useGlobalDiscount();
+
+  // Number input handlers for min/max price
+  const minPriceInput = useNumberInput({
+    value: minPrice,
+    onChange: setMinPrice,
+    allowDecimals: true,
+    decimalPlaces: 2,
+    min: 0,
+  });
+
+  const maxPriceInput = useNumberInput({
+    value: maxPrice,
+    onChange: setMaxPrice,
+    allowDecimals: true,
+    decimalPlaces: 2,
+    min: 0,
+  });
   const globalDiscountActive =
     globalDiscount?.isActive &&
     globalDiscount.type !== "NONE" &&
@@ -483,14 +501,10 @@ const MarketPlace: React.FC<MarketPlaceProps> = ({ onSearch }) => {
                         </div>
                         <input
                           type="text"
-                          inputMode="decimal"
-                          value={minPrice || ""}
-                          onChange={(e) => {
-                            const val = e.target.value;
-                            if (val === "" || /^\d*\.?\d*$/.test(val)) {
-                              setMinPrice(val === "" ? 0 : Number(val));
-                            }
-                          }}
+                          inputMode={minPriceInput.inputMode}
+                          value={minPriceInput.displayValue}
+                          onChange={(e) => minPriceInput.handleChange(e.target.value)}
+                          onBlur={minPriceInput.handleBlur}
                           placeholder="0"
                           className="w-full bg-white border border-gray-300 rounded-lg px-3 py-2 text-gray-700"
                         />
@@ -501,14 +515,10 @@ const MarketPlace: React.FC<MarketPlaceProps> = ({ onSearch }) => {
                         </div>
                         <input
                           type="text"
-                          inputMode="decimal"
-                          value={maxPrice || ""}
-                          onChange={(e) => {
-                            const val = e.target.value;
-                            if (val === "" || /^\d*\.?\d*$/.test(val)) {
-                              setMaxPrice(val === "" ? 0 : Number(val));
-                            }
-                          }}
+                          inputMode={maxPriceInput.inputMode}
+                          value={maxPriceInput.displayValue}
+                          onChange={(e) => maxPriceInput.handleChange(e.target.value)}
+                          onBlur={maxPriceInput.handleBlur}
                           placeholder="0"
                           className="w-full bg-white border border-gray-300 rounded-lg px-3 py-2 text-gray-700"
                         />
@@ -631,14 +641,10 @@ const MarketPlace: React.FC<MarketPlaceProps> = ({ onSearch }) => {
                 <div className="text-xs text-gray-600 mb-1">Minimum Price</div>
                 <input
                   type="text"
-                  inputMode="decimal"
-                  value={minPrice || ""}
-                  onChange={(e) => {
-                    const val = e.target.value;
-                    if (val === "" || /^\d*\.?\d*$/.test(val)) {
-                      setMinPrice(val === "" ? 0 : Number(val));
-                    }
-                  }}
+                  inputMode={minPriceInput.inputMode}
+                  value={minPriceInput.displayValue}
+                  onChange={(e) => minPriceInput.handleChange(e.target.value)}
+                  onBlur={minPriceInput.handleBlur}
                   placeholder="0"
                   className="w-full bg-white border border-gray-300 rounded-lg px-3 py-2 text-gray-700"
                 />
@@ -647,14 +653,10 @@ const MarketPlace: React.FC<MarketPlaceProps> = ({ onSearch }) => {
                 <div className="text-xs text-gray-600 mb-1">Maximum Price</div>
                 <input
                   type="text"
-                  inputMode="decimal"
-                  value={maxPrice || ""}
-                  onChange={(e) => {
-                    const val = e.target.value;
-                    if (val === "" || /^\d*\.?\d*$/.test(val)) {
-                      setMaxPrice(val === "" ? 0 : Number(val));
-                    }
-                  }}
+                  inputMode={maxPriceInput.inputMode}
+                  value={maxPriceInput.displayValue}
+                  onChange={(e) => maxPriceInput.handleChange(e.target.value)}
+                  onBlur={maxPriceInput.handleBlur}
                   placeholder="0"
                   className="w-full bg-white border border-gray-300 rounded-lg px-3 py-2 text-gray-700"
                 />

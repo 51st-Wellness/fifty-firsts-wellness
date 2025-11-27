@@ -30,6 +30,7 @@ import toast from "react-hot-toast";
 import { createStoreItem, updateStoreItem } from "../../api/marketplace.api";
 import type { StoreItem, DiscountType } from "../../types/marketplace.types";
 import CategorySelector from "./CategorySelector";
+import NumberInput from "../ui/NumberInput";
 
 type StoreItemFormState = {
   name: string;
@@ -309,23 +310,6 @@ const StoreItemDialog: React.FC<StoreItemDialogProps> = ({
     }));
   };
 
-  const handleDiscountValueChange = (
-    event: React.ChangeEvent<HTMLInputElement>
-  ) => {
-    const val = event.target.value;
-    if (val === "" || /^\d*\.?\d*$/.test(val)) {
-      const numVal = val === "" ? 0 : Number(val);
-      // Enforce max for percentage
-      if (formData.discountType === "PERCENTAGE" && numVal > 100) {
-        return;
-      }
-      setFormData((prev) => ({
-        ...prev,
-        discountValue: numVal,
-      }));
-    }
-  };
-
   const handleDiscountToggle = (event: React.ChangeEvent<HTMLInputElement>) => {
     const isEnabled = event.target.checked;
     setFormData((prev) => ({
@@ -557,48 +541,37 @@ const StoreItemDialog: React.FC<StoreItemDialogProps> = ({
                 }}
               >
                 <Box sx={{ flex: 1 }}>
-                  <TextField
+                  <NumberInput
                     fullWidth
                     size="small"
                     label="Price"
-                    type="text"
-                    inputProps={{ inputMode: "decimal" }}
                     InputProps={{
                       startAdornment: (
                         <InputAdornment position="start">$</InputAdornment>
                       ),
                     }}
-                    value={formData.price || ""}
-                    onChange={(e) => {
-                      const val = e.target.value;
-                      if (val === "" || /^\d*\.?\d*$/.test(val)) {
-                        setFormData((prev) => ({
-                          ...prev,
-                          price: val === "" ? 0 : Number(val),
-                        }));
-                      }
-                    }}
+                    value={formData.price}
+                    onChange={(val) =>
+                      setFormData((prev) => ({ ...prev, price: val }))
+                    }
+                    allowDecimals={true}
+                    decimalPlaces={2}
+                    min={0}
                     placeholder="0.00"
                     required
                   />
                 </Box>
                 <Box sx={{ flex: 1 }}>
-                  <TextField
+                  <NumberInput
                     fullWidth
                     size="small"
                     label="Stock"
-                    type="text"
-                    inputProps={{ inputMode: "numeric" }}
-                    value={formData.stock || ""}
-                    onChange={(e) => {
-                      const val = e.target.value;
-                      if (val === "" || /^\d+$/.test(val)) {
-                        setFormData((prev) => ({
-                          ...prev,
-                          stock: val === "" ? 0 : parseInt(val),
-                        }));
-                      }
-                    }}
+                    value={formData.stock}
+                    onChange={(val) =>
+                      setFormData((prev) => ({ ...prev, stock: val }))
+                    }
+                    allowDecimals={false}
+                    min={0}
                     placeholder="0"
                     required
                   />
@@ -796,19 +769,27 @@ const StoreItemDialog: React.FC<StoreItemDialogProps> = ({
                         direction={{ xs: "column", sm: "row" }}
                         spacing={2}
                       >
-                        <TextField
+                        <NumberInput
                           label={
                             formData.discountType === "PERCENTAGE"
                               ? "Discount (%)"
                               : "Discount amount"
                           }
-                          type="text"
                           size="small"
-                          value={formData.discountValue || ""}
-                          onChange={handleDiscountValueChange}
-                          inputProps={{
-                            inputMode: "decimal",
-                          }}
+                          value={formData.discountValue}
+                          onChange={(val) =>
+                            setFormData((prev) => ({
+                              ...prev,
+                              discountValue: val,
+                            }))
+                          }
+                          allowDecimals={true}
+                          max={
+                            formData.discountType === "PERCENTAGE"
+                              ? 100
+                              : undefined
+                          }
+                          min={0}
                           placeholder="0"
                           fullWidth
                         />
@@ -858,27 +839,21 @@ const StoreItemDialog: React.FC<StoreItemDialogProps> = ({
                 </Typography>
 
                 <Stack spacing={2}>
-                  <TextField
+                  <NumberInput
                     label="Weight (grams)"
-                    type="text"
                     size="small"
                     fullWidth
-                    value={formData.weight || ""}
-                    onChange={(e) => {
-                      const val = e.target.value;
-                      if (val === "" || /^\d+$/.test(val)) {
-                        setFormData((prev) => ({
-                          ...prev,
-                          weight: val === "" ? 0 : parseInt(val),
-                        }));
-                      }
-                    }}
+                    value={formData.weight}
+                    onChange={(val) =>
+                      setFormData((prev) => ({ ...prev, weight: val }))
+                    }
+                    allowDecimals={false}
+                    min={0}
                     InputProps={{
                       endAdornment: (
                         <InputAdornment position="end">g</InputAdornment>
                       ),
                     }}
-                    inputProps={{ inputMode: "numeric" }}
                     placeholder="0"
                     helperText="Product weight for shipping calculation"
                   />
@@ -894,70 +869,52 @@ const StoreItemDialog: React.FC<StoreItemDialogProps> = ({
                       gap: 2,
                     }}
                   >
-                    <TextField
+                    <NumberInput
                       label="Length"
-                      type="text"
                       size="small"
-                      value={formData.length || ""}
-                      onChange={(e) => {
-                        const val = e.target.value;
-                        if (val === "" || /^\d+$/.test(val)) {
-                          setFormData((prev) => ({
-                            ...prev,
-                            length: val === "" ? 0 : parseInt(val),
-                          }));
-                        }
-                      }}
+                      value={formData.length}
+                      onChange={(val) =>
+                        setFormData((prev) => ({ ...prev, length: val }))
+                      }
+                      allowDecimals={false}
+                      min={0}
                       InputProps={{
                         endAdornment: (
                           <InputAdornment position="end">mm</InputAdornment>
                         ),
                       }}
-                      inputProps={{ inputMode: "numeric" }}
                       placeholder="0"
                     />
-                    <TextField
+                    <NumberInput
                       label="Width"
-                      type="text"
                       size="small"
-                      value={formData.width || ""}
-                      onChange={(e) => {
-                        const val = e.target.value;
-                        if (val === "" || /^\d+$/.test(val)) {
-                          setFormData((prev) => ({
-                            ...prev,
-                            width: val === "" ? 0 : parseInt(val),
-                          }));
-                        }
-                      }}
+                      value={formData.width}
+                      onChange={(val) =>
+                        setFormData((prev) => ({ ...prev, width: val }))
+                      }
+                      allowDecimals={false}
+                      min={0}
                       InputProps={{
                         endAdornment: (
                           <InputAdornment position="end">mm</InputAdornment>
                         ),
                       }}
-                      inputProps={{ inputMode: "numeric" }}
                       placeholder="0"
                     />
-                    <TextField
+                    <NumberInput
                       label="Height"
-                      type="text"
                       size="small"
-                      value={formData.height || ""}
-                      onChange={(e) => {
-                        const val = e.target.value;
-                        if (val === "" || /^\d+$/.test(val)) {
-                          setFormData((prev) => ({
-                            ...prev,
-                            height: val === "" ? 0 : parseInt(val),
-                          }));
-                        }
-                      }}
+                      value={formData.height}
+                      onChange={(val) =>
+                        setFormData((prev) => ({ ...prev, height: val }))
+                      }
+                      allowDecimals={false}
+                      min={0}
                       InputProps={{
                         endAdornment: (
                           <InputAdornment position="end">mm</InputAdornment>
                         ),
                       }}
-                      inputProps={{ inputMode: "numeric" }}
                       placeholder="0"
                     />
                   </Box>
