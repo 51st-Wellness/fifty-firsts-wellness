@@ -126,6 +126,7 @@ const MarketPlace: React.FC<MarketPlaceProps> = ({ onSearch }) => {
 
         const response = await fetchStoreItems(params);
 
+        // console.log("Response:", response.data);
         const { items: newItems, pagination } = response.data!;
 
         if (opts.reset) {
@@ -179,11 +180,16 @@ const MarketPlace: React.FC<MarketPlaceProps> = ({ onSearch }) => {
     return items.filter((it) => {
       const currentPrice =
         getStoreItemPricing(it, { globalDiscount }).currentPrice ?? 0;
-      const withinPrice = currentPrice >= minPrice && currentPrice <= maxPrice;
+      // Only apply price filter if maxPrice is set (> 0) or minPrice is set (> 0)
+      const priceFilterActive = minPrice > 0 || maxPrice > 0;
+      const withinPrice = priceFilterActive
+        ? currentPrice >= minPrice &&
+          (maxPrice === 0 || currentPrice <= maxPrice)
+        : true;
       const meetsRating = getItemRating(it) >= ratingThreshold;
       return withinPrice && meetsRating;
     });
-  }, [items, minPrice, maxPrice, ratingThreshold]);
+  }, [items, minPrice, maxPrice, ratingThreshold, globalDiscount]);
 
   return (
     <main className="relative min-h-screen pb-0 bg-[#F7F8FA]">
@@ -503,7 +509,9 @@ const MarketPlace: React.FC<MarketPlaceProps> = ({ onSearch }) => {
                           type="text"
                           inputMode={minPriceInput.inputMode}
                           value={minPriceInput.displayValue}
-                          onChange={(e) => minPriceInput.handleChange(e.target.value)}
+                          onChange={(e) =>
+                            minPriceInput.handleChange(e.target.value)
+                          }
                           onBlur={minPriceInput.handleBlur}
                           placeholder="0"
                           className="w-full bg-white border border-gray-300 rounded-lg px-3 py-2 text-gray-700"
@@ -517,7 +525,9 @@ const MarketPlace: React.FC<MarketPlaceProps> = ({ onSearch }) => {
                           type="text"
                           inputMode={maxPriceInput.inputMode}
                           value={maxPriceInput.displayValue}
-                          onChange={(e) => maxPriceInput.handleChange(e.target.value)}
+                          onChange={(e) =>
+                            maxPriceInput.handleChange(e.target.value)
+                          }
                           onBlur={maxPriceInput.handleBlur}
                           placeholder="0"
                           className="w-full bg-white border border-gray-300 rounded-lg px-3 py-2 text-gray-700"

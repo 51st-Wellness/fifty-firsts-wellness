@@ -48,6 +48,7 @@ import CookieConsent from "./components/CookieConsent";
 
 import PaymentCancel from "./pages/PaymentCancel";
 import PaymentSuccess from "./pages/PaymentSuccess";
+import PaymentError from "./pages/PaymentError";
 import NotFound from "./pages/NotFound";
 import AuthSuccess from "./pages/AuthSuccess";
 import Checkout from "./pages/Checkout";
@@ -320,6 +321,16 @@ const App: React.FC = () => {
               <>
                 <Navbar />
                 <PaymentSuccess />
+                <Footer />
+              </>
+            }
+          />
+          <Route
+            path="/payment/error"
+            element={
+              <>
+                <Navbar />
+                <PaymentError />
                 <Footer />
               </>
             }
