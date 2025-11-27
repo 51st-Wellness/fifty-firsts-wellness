@@ -479,9 +479,14 @@ const StoreItemDialog: React.FC<StoreItemDialogProps> = ({
       // For edit mode, always send existing image URLs to keep (even if empty)
       // This tells the backend which existing images to preserve
       if (mode === "edit") {
-        existingImageUrls.forEach((url) => {
-          submitData.append("existingImages", url);
-        });
+        if (existingImageUrls.length === 0) {
+          // Send empty string to indicate no existing images should be kept
+          submitData.append("existingImages", "");
+        } else {
+          existingImageUrls.forEach((url) => {
+            submitData.append("existingImages", url);
+          });
+        }
       }
 
       if (mode === "create") {
