@@ -86,11 +86,25 @@ const GlobalDiscountSettings: React.FC<GlobalDiscountSettingsProps> = ({
     (event: React.ChangeEvent<HTMLInputElement>) => {
       const value =
         field === "isActive" ? event.target.checked : event.target.value;
+      
+      // For number fields, validate input
+      if (field === "value" || field === "minOrderTotal") {
+        const val = value as string;
+        if (val !== "" && !/^\d*\.?\d*$/.test(val)) {
+          return; // Reject invalid input
+        }
+        // Enforce max for percentage type
+        if (field === "value" && form.type === "PERCENTAGE") {
+          const numVal = val === "" ? 0 : Number(val);
+          if (numVal > 100) return;
+        }
+      }
+      
       setForm((prev) => ({
         ...prev,
         [field]:
           field === "value" || field === "minOrderTotal"
-            ? Number(value)
+            ? value === "" ? 0 : Number(value)
             : value,
       }));
     };
@@ -182,14 +196,14 @@ const GlobalDiscountSettings: React.FC<GlobalDiscountSettingsProps> = ({
               ? "Discount percentage (%)"
               : "Discount value"
           }
-          type="number"
+          type="text"
           size="small"
-          value={form.value}
+          value={form.value || ""}
           onChange={handleFieldChange("value")}
           inputProps={{
-            min: 0,
-            max: form.type === "PERCENTAGE" ? 100 : undefined,
+            inputMode: "decimal",
           }}
+          placeholder="0"
           helperText={
             form.type === "PERCENTAGE"
               ? "Maximum 100%"
@@ -200,12 +214,13 @@ const GlobalDiscountSettings: React.FC<GlobalDiscountSettingsProps> = ({
 
       <TextField
         label="Minimum order total"
-        type="number"
+        type="text"
         size="small"
-        value={form.minOrderTotal}
+        value={form.minOrderTotal || ""}
         onChange={handleFieldChange("minOrderTotal")}
         helperText="Discount is applied only if the cart total meets this amount."
-        inputProps={{ min: 0 }}
+        inputProps={{ inputMode: "decimal" }}
+        placeholder="0"
       />
 
       <TextField

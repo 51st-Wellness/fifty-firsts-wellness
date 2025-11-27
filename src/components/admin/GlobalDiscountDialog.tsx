@@ -246,20 +246,28 @@ const GlobalDiscountDialog: React.FC<GlobalDiscountDialogProps> = ({
                     ? "Discount (%)"
                     : "Discount amount (£)"
                 }
-                type="number"
+                type="text"
                 size="small"
-                value={form.discountValue}
-                onChange={(e) =>
-                  setForm((prev) => ({
-                    ...prev,
-                    discountValue: Number(e.target.value) || 0,
-                  }))
-                }
+                value={form.discountValue || ""}
+                onChange={(e) => {
+                  const val = e.target.value;
+                  if (val === "" || /^\d*\.?\d*$/.test(val)) {
+                    const numVal = val === "" ? 0 : Number(val);
+                    // Enforce max for percentage
+                    if (form.discountType === "PERCENTAGE" && numVal > 100) {
+                      return;
+                    }
+                    setForm((prev) => ({
+                      ...prev,
+                      discountValue: numVal,
+                    }));
+                  }
+                }}
                 fullWidth
                 inputProps={{
-                  min: 0,
-                  max: form.discountType === "PERCENTAGE" ? 100 : undefined,
+                  inputMode: "decimal",
                 }}
+                placeholder="0"
               />
 
               <FormControlLabel

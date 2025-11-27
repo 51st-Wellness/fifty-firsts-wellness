@@ -312,10 +312,18 @@ const StoreItemDialog: React.FC<StoreItemDialogProps> = ({
   const handleDiscountValueChange = (
     event: React.ChangeEvent<HTMLInputElement>
   ) => {
-    setFormData((prev) => ({
-      ...prev,
-      discountValue: Number(event.target.value) || 0,
-    }));
+    const val = event.target.value;
+    if (val === "" || /^\d*\.?\d*$/.test(val)) {
+      const numVal = val === "" ? 0 : Number(val);
+      // Enforce max for percentage
+      if (formData.discountType === "PERCENTAGE" && numVal > 100) {
+        return;
+      }
+      setFormData((prev) => ({
+        ...prev,
+        discountValue: numVal,
+      }));
+    }
   };
 
   const handleDiscountToggle = (event: React.ChangeEvent<HTMLInputElement>) => {
@@ -548,20 +556,24 @@ const StoreItemDialog: React.FC<StoreItemDialogProps> = ({
                     fullWidth
                     size="small"
                     label="Price"
-                    type="number"
-                    inputProps={{ min: 0, step: 0.01 }}
+                    type="text"
+                    inputProps={{ inputMode: "decimal" }}
                     InputProps={{
                       startAdornment: (
                         <InputAdornment position="start">$</InputAdornment>
                       ),
                     }}
-                    value={formData.price}
-                    onChange={(e) =>
-                      setFormData((prev) => ({
-                        ...prev,
-                        price: Number(e.target.value),
-                      }))
-                    }
+                    value={formData.price || ""}
+                    onChange={(e) => {
+                      const val = e.target.value;
+                      if (val === "" || /^\d*\.?\d*$/.test(val)) {
+                        setFormData((prev) => ({
+                          ...prev,
+                          price: val === "" ? 0 : Number(val),
+                        }));
+                      }
+                    }}
+                    placeholder="0.00"
                     required
                   />
                 </Box>
@@ -570,15 +582,19 @@ const StoreItemDialog: React.FC<StoreItemDialogProps> = ({
                     fullWidth
                     size="small"
                     label="Stock"
-                    type="number"
-                    inputProps={{ min: 0 }}
-                    value={formData.stock}
-                    onChange={(e) =>
-                      setFormData((prev) => ({
-                        ...prev,
-                        stock: Number(e.target.value),
-                      }))
-                    }
+                    type="text"
+                    inputProps={{ inputMode: "numeric" }}
+                    value={formData.stock || ""}
+                    onChange={(e) => {
+                      const val = e.target.value;
+                      if (val === "" || /^\d+$/.test(val)) {
+                        setFormData((prev) => ({
+                          ...prev,
+                          stock: val === "" ? 0 : parseInt(val),
+                        }));
+                      }
+                    }}
+                    placeholder="0"
                     required
                   />
                 </Box>
@@ -781,17 +797,14 @@ const StoreItemDialog: React.FC<StoreItemDialogProps> = ({
                               ? "Discount (%)"
                               : "Discount amount"
                           }
-                          type="number"
+                          type="text"
                           size="small"
-                          value={formData.discountValue}
+                          value={formData.discountValue || ""}
                           onChange={handleDiscountValueChange}
                           inputProps={{
-                            min: 0,
-                            max:
-                              formData.discountType === "PERCENTAGE"
-                                ? 100
-                                : undefined,
+                            inputMode: "decimal",
                           }}
+                          placeholder="0"
                           fullWidth
                         />
                       </Stack>
@@ -842,22 +855,26 @@ const StoreItemDialog: React.FC<StoreItemDialogProps> = ({
                 <Stack spacing={2}>
                   <TextField
                     label="Weight (grams)"
-                    type="number"
+                    type="text"
                     size="small"
                     fullWidth
-                    value={formData.weight}
-                    onChange={(e) =>
-                      setFormData((prev) => ({
-                        ...prev,
-                        weight: Number(e.target.value) || 0,
-                      }))
-                    }
+                    value={formData.weight || ""}
+                    onChange={(e) => {
+                      const val = e.target.value;
+                      if (val === "" || /^\d+$/.test(val)) {
+                        setFormData((prev) => ({
+                          ...prev,
+                          weight: val === "" ? 0 : parseInt(val),
+                        }));
+                      }
+                    }}
                     InputProps={{
                       endAdornment: (
                         <InputAdornment position="end">g</InputAdornment>
                       ),
                     }}
-                    inputProps={{ min: 0, step: 1 }}
+                    inputProps={{ inputMode: "numeric" }}
+                    placeholder="0"
                     helperText="Product weight for shipping calculation"
                   />
 
@@ -874,57 +891,69 @@ const StoreItemDialog: React.FC<StoreItemDialogProps> = ({
                   >
                     <TextField
                       label="Length"
-                      type="number"
+                      type="text"
                       size="small"
-                      value={formData.length}
-                      onChange={(e) =>
-                        setFormData((prev) => ({
-                          ...prev,
-                          length: Number(e.target.value) || 0,
-                        }))
-                      }
+                      value={formData.length || ""}
+                      onChange={(e) => {
+                        const val = e.target.value;
+                        if (val === "" || /^\d+$/.test(val)) {
+                          setFormData((prev) => ({
+                            ...prev,
+                            length: val === "" ? 0 : parseInt(val),
+                          }));
+                        }
+                      }}
                       InputProps={{
                         endAdornment: (
                           <InputAdornment position="end">mm</InputAdornment>
                         ),
                       }}
-                      inputProps={{ min: 0, step: 1 }}
+                      inputProps={{ inputMode: "numeric" }}
+                      placeholder="0"
                     />
                     <TextField
                       label="Width"
-                      type="number"
+                      type="text"
                       size="small"
-                      value={formData.width}
-                      onChange={(e) =>
-                        setFormData((prev) => ({
-                          ...prev,
-                          width: Number(e.target.value) || 0,
-                        }))
-                      }
+                      value={formData.width || ""}
+                      onChange={(e) => {
+                        const val = e.target.value;
+                        if (val === "" || /^\d+$/.test(val)) {
+                          setFormData((prev) => ({
+                            ...prev,
+                            width: val === "" ? 0 : parseInt(val),
+                          }));
+                        }
+                      }}
                       InputProps={{
                         endAdornment: (
                           <InputAdornment position="end">mm</InputAdornment>
                         ),
                       }}
-                      inputProps={{ min: 0, step: 1 }}
+                      inputProps={{ inputMode: "numeric" }}
+                      placeholder="0"
                     />
                     <TextField
                       label="Height"
-                      type="number"
+                      type="text"
                       size="small"
-                      value={formData.height}
-                      onChange={(e) =>
-                        setFormData((prev) => ({
-                          ...prev,
-                          height: Number(e.target.value) || 0,
-                        }))
-                      }
+                      value={formData.height || ""}
+                      onChange={(e) => {
+                        const val = e.target.value;
+                        if (val === "" || /^\d+$/.test(val)) {
+                          setFormData((prev) => ({
+                            ...prev,
+                            height: val === "" ? 0 : parseInt(val),
+                          }));
+                        }
+                      }}
                       InputProps={{
                         endAdornment: (
                           <InputAdornment position="end">mm</InputAdornment>
                         ),
                       }}
-                      inputProps={{ min: 0, step: 1 }}
+                      inputProps={{ inputMode: "numeric" }}
+                      placeholder="0"
                     />
                   </Box>
                 </Stack>

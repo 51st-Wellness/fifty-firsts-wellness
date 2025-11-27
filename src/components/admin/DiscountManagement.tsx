@@ -1058,27 +1058,35 @@ const EditDiscountDialog: React.FC<EditDiscountDialogProps> = ({
 
           {form.discountType !== "NONE" && (
             <>
-              <TextField
-                label={
-                  form.discountType === "PERCENTAGE"
-                    ? "Discount (%)"
-                    : "Discount amount (£)"
-                }
-                type="number"
-                size="small"
-                value={form.discountValue}
-                onChange={(e) =>
-                  setForm((prev) => ({
-                    ...prev,
-                    discountValue: Number(e.target.value) || 0,
-                  }))
-                }
-                fullWidth
-                inputProps={{
-                  min: 0,
-                  max: form.discountType === "PERCENTAGE" ? 100 : undefined,
-                }}
-              />
+                <TextField
+                  label={
+                    form.discountType === "PERCENTAGE"
+                      ? "Discount (%)"
+                      : "Discount amount (£)"
+                  }
+                  type="text"
+                  size="small"
+                  value={form.discountValue || ""}
+                  onChange={(e) => {
+                    const val = e.target.value;
+                    if (val === "" || /^\d*\.?\d*$/.test(val)) {
+                      const numVal = val === "" ? 0 : Number(val);
+                      // Enforce max for percentage
+                      if (form.discountType === "PERCENTAGE" && numVal > 100) {
+                        return;
+                      }
+                      setForm((prev) => ({
+                        ...prev,
+                        discountValue: numVal,
+                      }));
+                    }
+                  }}
+                  fullWidth
+                  inputProps={{
+                    inputMode: "decimal",
+                  }}
+                  placeholder="0"
+                />
 
               <FormControlLabel
                 control={

@@ -308,18 +308,31 @@ const ShippingSettingsDialog: React.FC<ShippingSettingsDialogProps> = ({
 
       <DialogContent dividers>
         <Stack spacing={3}>
-                  <Alert severity="info" variant="outlined">
-                    Royal Mail Click & Drop shipping configuration. The default service code is 'OLP2' for Royal Mail 2nd Class.
-                    <br />
-                    <br />
-                    If you need to update the service code:
-                    <br />
-                    1. Log into your Click & Drop account
-                    <br />
-                    2. Go to Settings → Services
-                    <br />
-                    3. Copy the exact service code for Royal Mail 2nd Class
-                  </Alert>
+          <Alert severity="info" variant="outlined">
+            Royal Mail Click &amp; Drop shipping configuration. The default
+            service code is 'OLP2' for Royal Mail 2nd Class.
+            <br />
+            <br />
+            If you need to update the service code:
+            <br />
+            1. Log into your Click &amp; Drop account
+            <br />
+            2. Go to Settings → Services
+            <br />
+            3. Copy the exact service code for Royal Mail 2nd Class
+            <br />
+            <br />
+            <strong>Tip:</strong> Find updated Royal Mail postage prices&nbsp;
+            <a
+              href="https://www.royalmail.com/current-postage-prices"
+              target="_blank"
+              rel="noopener noreferrer"
+              style={{ textDecoration: "underline", color: "#3949ab" }}
+            >
+              here
+            </a>
+            .
+          </Alert>
 
           {/* Default Service */}
           <Card variant="outlined">
@@ -415,17 +428,17 @@ const ShippingSettingsDialog: React.FC<ShippingSettingsDialogProps> = ({
                           }
                         />
 
-                                <TextField
-                                  label="Service Code"
-                                  size="small"
-                                  fullWidth
-                                  value={service.serviceCode}
-                                  onChange={(e) =>
-                                    updateService(key, { serviceCode: e.target.value })
-                                  }
-                                  helperText="Account-specific Royal Mail service code from your Click & Drop dashboard"
-                                  error={!service.serviceCode}
-                                />
+                        <TextField
+                          label="Service Code"
+                          size="small"
+                          fullWidth
+                          value={service.serviceCode}
+                          onChange={(e) =>
+                            updateService(key, { serviceCode: e.target.value })
+                          }
+                          helperText="Account-specific Royal Mail service code from your Click & Drop dashboard"
+                          error={!service.serviceCode}
+                        />
 
                         <TextField
                           label="Description"
@@ -474,27 +487,35 @@ const ShippingSettingsDialog: React.FC<ShippingSettingsDialogProps> = ({
                               >
                                 <TextField
                                   label="Max Weight (g)"
-                                  type="number"
+                                  type="text"
                                   size="small"
-                                  value={band.maxWeight}
-                                  onChange={(e) =>
-                                    updateWeightBand(key, index, {
-                                      maxWeight: parseInt(e.target.value) || 0,
-                                    })
-                                  }
-                                  inputProps={{ min: 1 }}
+                                  value={band.maxWeight || ""}
+                                  onChange={(e) => {
+                                    const val = e.target.value;
+                                    if (val === "" || /^\d+$/.test(val)) {
+                                      updateWeightBand(key, index, {
+                                        maxWeight:
+                                          val === "" ? 0 : parseInt(val),
+                                      });
+                                    }
+                                  }}
+                                  inputProps={{ inputMode: "numeric" }}
+                                  placeholder="0"
                                   sx={{ flex: 1 }}
                                 />
                                 <TextField
                                   label="Price"
-                                  type="number"
+                                  type="text"
                                   size="small"
-                                  value={band.price}
-                                  onChange={(e) =>
-                                    updateWeightBand(key, index, {
-                                      price: parseFloat(e.target.value) || 0,
-                                    })
-                                  }
+                                  value={band.price || ""}
+                                  onChange={(e) => {
+                                    const val = e.target.value;
+                                    if (val === "" || /^\d*\.?\d*$/.test(val)) {
+                                      updateWeightBand(key, index, {
+                                        price: val === "" ? 0 : parseFloat(val),
+                                      });
+                                    }
+                                  }}
                                   InputProps={{
                                     startAdornment: (
                                       <InputAdornment position="start">
@@ -502,7 +523,8 @@ const ShippingSettingsDialog: React.FC<ShippingSettingsDialogProps> = ({
                                       </InputAdornment>
                                     ),
                                   }}
-                                  inputProps={{ min: 0, step: 0.01 }}
+                                  inputProps={{ inputMode: "decimal" }}
+                                  placeholder="0.00"
                                   sx={{ flex: 1 }}
                                 />
                                 <IconButton
@@ -579,15 +601,18 @@ const ShippingSettingsDialog: React.FC<ShippingSettingsDialogProps> = ({
 
                         <TextField
                           label="Price"
-                          type="number"
+                          type="text"
                           size="small"
                           fullWidth
-                          value={addOn.price}
-                          onChange={(e) =>
-                            updateAddOn(key, {
-                              price: parseFloat(e.target.value) || 0,
-                            })
-                          }
+                          value={addOn.price || ""}
+                          onChange={(e) => {
+                            const val = e.target.value;
+                            if (val === "" || /^\d*\.?\d*$/.test(val)) {
+                              updateAddOn(key, {
+                                price: val === "" ? 0 : parseFloat(val),
+                              });
+                            }
+                          }}
                           InputProps={{
                             startAdornment: (
                               <InputAdornment position="start">
@@ -595,7 +620,8 @@ const ShippingSettingsDialog: React.FC<ShippingSettingsDialogProps> = ({
                               </InputAdornment>
                             ),
                           }}
-                          inputProps={{ min: 0, step: 0.01 }}
+                          inputProps={{ inputMode: "decimal" }}
+                          placeholder="0.00"
                         />
 
                         <TextField

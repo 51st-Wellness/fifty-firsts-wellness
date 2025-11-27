@@ -482,11 +482,16 @@ const MarketPlace: React.FC<MarketPlaceProps> = ({ onSearch }) => {
                           Minimum Price
                         </div>
                         <input
-                          type="number"
-                          value={minPrice}
-                          onChange={(e) =>
-                            setMinPrice(Number(e.target.value) || 0)
-                          }
+                          type="text"
+                          inputMode="decimal"
+                          value={minPrice || ""}
+                          onChange={(e) => {
+                            const val = e.target.value;
+                            if (val === "" || /^\d*\.?\d*$/.test(val)) {
+                              setMinPrice(val === "" ? 0 : Number(val));
+                            }
+                          }}
+                          placeholder="0"
                           className="w-full bg-white border border-gray-300 rounded-lg px-3 py-2 text-gray-700"
                         />
                       </div>
@@ -495,11 +500,16 @@ const MarketPlace: React.FC<MarketPlaceProps> = ({ onSearch }) => {
                           Maximum Price
                         </div>
                         <input
-                          type="number"
-                          value={maxPrice}
-                          onChange={(e) =>
-                            setMaxPrice(Number(e.target.value) || 0)
-                          }
+                          type="text"
+                          inputMode="decimal"
+                          value={maxPrice || ""}
+                          onChange={(e) => {
+                            const val = e.target.value;
+                            if (val === "" || /^\d*\.?\d*$/.test(val)) {
+                              setMaxPrice(val === "" ? 0 : Number(val));
+                            }
+                          }}
+                          placeholder="0"
                           className="w-full bg-white border border-gray-300 rounded-lg px-3 py-2 text-gray-700"
                         />
                       </div>
@@ -620,18 +630,32 @@ const MarketPlace: React.FC<MarketPlaceProps> = ({ onSearch }) => {
               <div className="bg-gray-50 rounded-2xl p-3">
                 <div className="text-xs text-gray-600 mb-1">Minimum Price</div>
                 <input
-                  type="number"
-                  value={minPrice}
-                  onChange={(e) => setMinPrice(Number(e.target.value) || 0)}
+                  type="text"
+                  inputMode="decimal"
+                  value={minPrice || ""}
+                  onChange={(e) => {
+                    const val = e.target.value;
+                    if (val === "" || /^\d*\.?\d*$/.test(val)) {
+                      setMinPrice(val === "" ? 0 : Number(val));
+                    }
+                  }}
+                  placeholder="0"
                   className="w-full bg-white border border-gray-300 rounded-lg px-3 py-2 text-gray-700"
                 />
               </div>
               <div className="bg-gray-50 rounded-2xl p-3">
                 <div className="text-xs text-gray-600 mb-1">Maximum Price</div>
                 <input
-                  type="number"
-                  value={maxPrice}
-                  onChange={(e) => setMaxPrice(Number(e.target.value) || 0)}
+                  type="text"
+                  inputMode="decimal"
+                  value={maxPrice || ""}
+                  onChange={(e) => {
+                    const val = e.target.value;
+                    if (val === "" || /^\d*\.?\d*$/.test(val)) {
+                      setMaxPrice(val === "" ? 0 : Number(val));
+                    }
+                  }}
+                  placeholder="0"
                   className="w-full bg-white border border-gray-300 rounded-lg px-3 py-2 text-gray-700"
                 />
               </div>
