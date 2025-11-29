@@ -30,6 +30,7 @@ import toast from "react-hot-toast";
 import { createStoreItem, updateStoreItem } from "../../api/marketplace.api";
 import type { StoreItem, DiscountType } from "../../types/marketplace.types";
 import CategorySelector from "./CategorySelector";
+import NumberInput from "../ui/NumberInput";
 
 type StoreItemFormState = {
   name: string;
@@ -48,6 +49,11 @@ type StoreItemFormState = {
   discountStart: string;
   discountEnd: string;
   preOrderEnabled: boolean;
+  // Shipping information for Click & Drop
+  weight: number; // in grams
+  length: number; // in mm
+  width: number; // in mm
+  height: number; // in mm
 };
 
 const createDefaultFormState = (): StoreItemFormState => ({
@@ -67,6 +73,10 @@ const createDefaultFormState = (): StoreItemFormState => ({
   discountStart: "",
   discountEnd: "",
   preOrderEnabled: false,
+  weight: 0,
+  length: 0,
+  width: 0,
+  height: 0,
 });
 
 const cloneFormState = (state: StoreItemFormState): StoreItemFormState => ({
@@ -173,6 +183,10 @@ const StoreItemDialog: React.FC<StoreItemDialogProps> = ({
           discountStart: toInputValue((item as any).discountStart),
           discountEnd: toInputValue((item as any).discountEnd),
           preOrderEnabled: Boolean((item as any).preOrderEnabled),
+          weight: Number((item as any).weight ?? 0),
+          length: Number((item as any).length ?? 0),
+          width: Number((item as any).width ?? 0),
+          height: Number((item as any).height ?? 0),
         };
         setFormData(nextFormState);
         initialFormDataRef.current = cloneFormState(nextFormState);
@@ -293,15 +307,6 @@ const StoreItemDialog: React.FC<StoreItemDialogProps> = ({
     setFormData((prev) => ({
       ...prev,
       discountType: nextType,
-    }));
-  };
-
-  const handleDiscountValueChange = (
-    event: React.ChangeEvent<HTMLInputElement>
-  ) => {
-    setFormData((prev) => ({
-      ...prev,
-      discountValue: Number(event.target.value) || 0,
     }));
   };
 
@@ -433,6 +438,10 @@ const StoreItemDialog: React.FC<StoreItemDialogProps> = ({
       appendDateField("discountStart", formData.discountStart, toStartOfDayISO);
       appendDateField("discountEnd", formData.discountEnd, toEndOfDayISO);
       appendField("preOrderEnabled", formData.preOrderEnabled);
+      appendField("weight", formData.weight);
+      appendField("length", formData.length);
+      appendField("width", formData.width);
+      appendField("height", formData.height);
 
       // Add tags
       if (shouldIncludeField("categories")) {
@@ -454,9 +463,14 @@ const StoreItemDialog: React.FC<StoreItemDialogProps> = ({
       // For edit mode, always send existing image URLs to keep (even if empty)
       // This tells the backend which existing images to preserve
       if (mode === "edit") {
-        existingImageUrls.forEach((url) => {
-          submitData.append("existingImages", url);
-        });
+        if (existingImageUrls.length === 0) {
+          // Send empty string to indicate no existing images should be kept
+          submitData.append("existingImages", "");
+        } else {
+          existingImageUrls.forEach((url) => {
+            submitData.append("existingImages", url);
+          });
+        }
       }
 
       if (mode === "create") {
@@ -527,41 +541,38 @@ const StoreItemDialog: React.FC<StoreItemDialogProps> = ({
                 }}
               >
                 <Box sx={{ flex: 1 }}>
-                  <TextField
+                  <NumberInput
                     fullWidth
                     size="small"
                     label="Price"
-                    type="number"
-                    inputProps={{ min: 0, step: 0.01 }}
                     InputProps={{
                       startAdornment: (
                         <InputAdornment position="start">$</InputAdornment>
                       ),
                     }}
                     value={formData.price}
-                    onChange={(e) =>
-                      setFormData((prev) => ({
-                        ...prev,
-                        price: Number(e.target.value),
-                      }))
+                    onChange={(val) =>
+                      setFormData((prev) => ({ ...prev, price: val }))
                     }
+                    allowDecimals={true}
+                    decimalPlaces={2}
+                    min={0}
+                    placeholder="0.00"
                     required
                   />
                 </Box>
                 <Box sx={{ flex: 1 }}>
-                  <TextField
+                  <NumberInput
                     fullWidth
                     size="small"
                     label="Stock"
-                    type="number"
-                    inputProps={{ min: 0 }}
                     value={formData.stock}
-                    onChange={(e) =>
-                      setFormData((prev) => ({
-                        ...prev,
-                        stock: Number(e.target.value),
-                      }))
+                    onChange={(val) =>
+                      setFormData((prev) => ({ ...prev, stock: val }))
                     }
+                    allowDecimals={false}
+                    min={0}
+                    placeholder="0"
                     required
                   />
                 </Box>
@@ -758,23 +769,28 @@ const StoreItemDialog: React.FC<StoreItemDialogProps> = ({
                         direction={{ xs: "column", sm: "row" }}
                         spacing={2}
                       >
-                        <TextField
+                        <NumberInput
                           label={
                             formData.discountType === "PERCENTAGE"
                               ? "Discount (%)"
                               : "Discount amount"
                           }
-                          type="number"
                           size="small"
                           value={formData.discountValue}
-                          onChange={handleDiscountValueChange}
-                          inputProps={{
-                            min: 0,
-                            max:
-                              formData.discountType === "PERCENTAGE"
-                                ? 100
-                                : undefined,
-                          }}
+                          onChange={(val) =>
+                            setFormData((prev) => ({
+                              ...prev,
+                              discountValue: val,
+                            }))
+                          }
+                          allowDecimals={true}
+                          max={
+                            formData.discountType === "PERCENTAGE"
+                              ? 100
+                              : undefined
+                          }
+                          min={0}
+                          placeholder="0"
                           fullWidth
                         />
                       </Stack>
@@ -804,6 +820,104 @@ const StoreItemDialog: React.FC<StoreItemDialogProps> = ({
                       </Stack>
                     </Stack>
                   </Collapse>
+                </Stack>
+              </Box>
+
+              {/* Shipping Information */}
+              <Box>
+                <Divider sx={{ my: 1 }} />
+                <Typography variant="subtitle2" sx={{ mb: 2 }}>
+                  Shipping Information (for Click & Drop)
+                </Typography>
+                <Typography
+                  variant="body2"
+                  color="text.secondary"
+                  sx={{ mb: 2 }}
+                >
+                  Enter product dimensions and weight for accurate shipping cost
+                  calculation
+                </Typography>
+
+                <Stack spacing={2}>
+                  <NumberInput
+                    label="Weight (grams)"
+                    size="small"
+                    fullWidth
+                    value={formData.weight}
+                    onChange={(val) =>
+                      setFormData((prev) => ({ ...prev, weight: val }))
+                    }
+                    allowDecimals={false}
+                    min={0}
+                    InputProps={{
+                      endAdornment: (
+                        <InputAdornment position="end">g</InputAdornment>
+                      ),
+                    }}
+                    placeholder="0"
+                    helperText="Product weight for shipping calculation"
+                  />
+
+                  <Typography variant="caption" color="text.secondary">
+                    Dimensions (millimeters)
+                  </Typography>
+
+                  <Box
+                    sx={{
+                      display: "grid",
+                      gridTemplateColumns: "repeat(3, 1fr)",
+                      gap: 2,
+                    }}
+                  >
+                    <NumberInput
+                      label="Length"
+                      size="small"
+                      value={formData.length}
+                      onChange={(val) =>
+                        setFormData((prev) => ({ ...prev, length: val }))
+                      }
+                      allowDecimals={false}
+                      min={0}
+                      InputProps={{
+                        endAdornment: (
+                          <InputAdornment position="end">mm</InputAdornment>
+                        ),
+                      }}
+                      placeholder="0"
+                    />
+                    <NumberInput
+                      label="Width"
+                      size="small"
+                      value={formData.width}
+                      onChange={(val) =>
+                        setFormData((prev) => ({ ...prev, width: val }))
+                      }
+                      allowDecimals={false}
+                      min={0}
+                      InputProps={{
+                        endAdornment: (
+                          <InputAdornment position="end">mm</InputAdornment>
+                        ),
+                      }}
+                      placeholder="0"
+                    />
+                    <NumberInput
+                      label="Height"
+                      size="small"
+                      value={formData.height}
+                      onChange={(val) =>
+                        setFormData((prev) => ({ ...prev, height: val }))
+                      }
+                      allowDecimals={false}
+                      min={0}
+                      InputProps={{
+                        endAdornment: (
+                          <InputAdornment position="end">mm</InputAdornment>
+                        ),
+                      }}
+                      placeholder="0"
+                    />
+                  </Box>
                 </Stack>
               </Box>
 

@@ -43,6 +43,7 @@ import NotificationsPreOrdersManagement from "../../components/admin/Notificatio
 import OrdersManagement from "../../components/admin/OrdersManagement";
 import GlobalDiscountSettings from "../../components/admin/GlobalDiscountSettings";
 import DiscountManagement from "../../components/admin/DiscountManagement";
+import ShippingSettingsDialog from "../../components/admin/ShippingSettingsDialog";
 
 // Enhanced marketplace management with Material UI dialogs and full CRUD support
 const ManagementMarketplace: React.FC = () => {
@@ -65,6 +66,7 @@ const ManagementMarketplace: React.FC = () => {
   const [dialogOpen, setDialogOpen] = useState(false);
   const [dialogMode, setDialogMode] = useState<"create" | "edit">("create");
   const [discountSettingsOpen, setDiscountSettingsOpen] = useState(false);
+  const [shippingSettingsOpen, setShippingSettingsOpen] = useState(false);
 
   const debouncedSearch = useDebounce(query.search, 350);
 
@@ -207,6 +209,14 @@ const ManagementMarketplace: React.FC = () => {
               Store Items
             </h2>
             <div className="flex flex-wrap gap-2 justify-end">
+              <Button
+                variant="outlined"
+                startIcon={<LocalShippingIcon />}
+                onClick={() => setShippingSettingsOpen(true)}
+                color="primary"
+              >
+                Shipping Settings
+              </Button>
               <Button
                 variant="outlined"
                 startIcon={<PercentIcon />}
@@ -622,6 +632,16 @@ const ManagementMarketplace: React.FC = () => {
               </Button>
             </DialogActions>
           </Dialog>
+
+          {/* Shipping Settings Dialog */}
+          <ShippingSettingsDialog
+            open={shippingSettingsOpen}
+            onClose={() => setShippingSettingsOpen(false)}
+            onSuccess={() => {
+              handleDialogSuccess();
+              setShippingSettingsOpen(false);
+            }}
+          />
         </div>
       )}
 

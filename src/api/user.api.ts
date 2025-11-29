@@ -255,6 +255,15 @@ export type OrderSummary = {
   paymentStatus?: string | null;
   paymentProvider?: string | null;
   paymentCurrency?: string | null;
+  // Click & Drop fields
+  clickDropOrderIdentifier?: number | null;
+  trackingReference?: string | null;
+  trackingStatus?: string | null;
+  packageFormatIdentifier?: string | null;
+  serviceCode?: string | null;
+  shippingCost?: number | null;
+  parcelWeight?: number | null;
+  labelBase64?: string | null;
 };
 
 export type OrderDetail = OrderSummary & {
@@ -323,6 +332,16 @@ export const verifyOrderPayment = async (
       message: string;
     }>
   >(`/user/orders/me/${orderId}/verify-payment`);
+  return data;
+};
+
+// Test: Submit order to Click & Drop
+export const submitOrderToClickDrop = async (
+  orderId: string
+): Promise<ResponseDto<{ message: string }>> => {
+  const { data } = await http.post<ResponseDto<{ message: string }>>(
+    `/user/orders/me/${orderId}/submit-to-clickdrop`
+  );
   return data;
 };
 
@@ -412,20 +431,6 @@ export const updateOrderStatus = async (
     `/user/orders/admin/${orderId}/status`,
     {
       status,
-    }
-  );
-  return data;
-};
-
-// Admin: Add/Update tracking reference for an order
-export const addTrackingReference = async (
-  orderId: string,
-  trackingReference: string
-): Promise<ResponseDto<{ message: string }>> => {
-  const { data } = await http.put<ResponseDto<{ message: string }>>(
-    `/tracking/admin/orders/${orderId}`,
-    {
-      trackingReference,
     }
   );
   return data;

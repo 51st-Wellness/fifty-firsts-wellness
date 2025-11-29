@@ -43,6 +43,7 @@ import { fetchStoreItems, updateStoreItem } from "../../api/marketplace.api";
 import type { StoreItem, DiscountType } from "../../types/marketplace.types";
 import { isProductDiscountActive } from "../../utils/discounts";
 import GlobalDiscountDialog from "./GlobalDiscountDialog";
+import NumberInput from "../ui/NumberInput";
 
 interface DiscountManagementProps {}
 
@@ -1058,27 +1059,26 @@ const EditDiscountDialog: React.FC<EditDiscountDialogProps> = ({
 
           {form.discountType !== "NONE" && (
             <>
-              <TextField
-                label={
-                  form.discountType === "PERCENTAGE"
-                    ? "Discount (%)"
-                    : "Discount amount (£)"
-                }
-                type="number"
-                size="small"
-                value={form.discountValue}
-                onChange={(e) =>
-                  setForm((prev) => ({
-                    ...prev,
-                    discountValue: Number(e.target.value) || 0,
-                  }))
-                }
-                fullWidth
-                inputProps={{
-                  min: 0,
-                  max: form.discountType === "PERCENTAGE" ? 100 : undefined,
-                }}
-              />
+                <NumberInput
+                  label={
+                    form.discountType === "PERCENTAGE"
+                      ? "Discount (%)"
+                      : "Discount amount (£)"
+                  }
+                  size="small"
+                  value={form.discountValue}
+                  onChange={(val) =>
+                    setForm((prev) => ({
+                      ...prev,
+                      discountValue: val,
+                    }))
+                  }
+                  allowDecimals={true}
+                  max={form.discountType === "PERCENTAGE" ? 100 : undefined}
+                  min={0}
+                  fullWidth
+                  placeholder="0"
+                />
 
               <FormControlLabel
                 control={

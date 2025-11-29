@@ -19,6 +19,7 @@ import {
   type GlobalDiscountSetting,
 } from "../../api/settings.api";
 import type { DiscountType } from "../../types/marketplace.types";
+import NumberInput from "../ui/NumberInput";
 
 const DISCOUNT_TYPES: { label: string; value: DiscountType }[] = [
   { label: "None", value: "NONE" },
@@ -86,12 +87,18 @@ const GlobalDiscountSettings: React.FC<GlobalDiscountSettingsProps> = ({
     (event: React.ChangeEvent<HTMLInputElement>) => {
       const value =
         field === "isActive" ? event.target.checked : event.target.value;
+      
       setForm((prev) => ({
         ...prev,
-        [field]:
-          field === "value" || field === "minOrderTotal"
-            ? Number(value)
-            : value,
+        [field]: value,
+      }));
+    };
+
+  const handleNumberChange =
+    (field: "value" | "minOrderTotal") => (val: number) => {
+      setForm((prev) => ({
+        ...prev,
+        [field]: val,
       }));
     };
 
@@ -176,20 +183,19 @@ const GlobalDiscountSettings: React.FC<GlobalDiscountSettingsProps> = ({
       </TextField>
 
       {showValueField && (
-        <TextField
+        <NumberInput
           label={
             form.type === "PERCENTAGE"
               ? "Discount percentage (%)"
               : "Discount value"
           }
-          type="number"
           size="small"
           value={form.value}
-          onChange={handleFieldChange("value")}
-          inputProps={{
-            min: 0,
-            max: form.type === "PERCENTAGE" ? 100 : undefined,
-          }}
+          onChange={handleNumberChange("value")}
+          allowDecimals={true}
+          max={form.type === "PERCENTAGE" ? 100 : undefined}
+          min={0}
+          placeholder="0"
           helperText={
             form.type === "PERCENTAGE"
               ? "Maximum 100%"
@@ -198,14 +204,16 @@ const GlobalDiscountSettings: React.FC<GlobalDiscountSettingsProps> = ({
         />
       )}
 
-      <TextField
+      <NumberInput
         label="Minimum order total"
-        type="number"
         size="small"
         value={form.minOrderTotal}
-        onChange={handleFieldChange("minOrderTotal")}
+        onChange={handleNumberChange("minOrderTotal")}
+        allowDecimals={true}
+        decimalPlaces={2}
+        min={0}
+        placeholder="0"
         helperText="Discount is applied only if the cart total meets this amount."
-        inputProps={{ min: 0 }}
       />
 
       <TextField
