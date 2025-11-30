@@ -1,10 +1,18 @@
 import React, { useState, useEffect } from "react";
-import { ArrowLeft, Loader } from "lucide-react";
+import { ArrowLeft, Loader, RefreshCcw, LifeBuoy, Package, ShieldCheck } from "lucide-react";
 import { useParams, useNavigate } from "react-router-dom";
 import { toast } from "react-hot-toast";
-import { getMyOrder, type OrderDetail } from "../../api/user.api";
+import {
+  getMyOrder,
+  verifyOrderPayment,
+  submitOrderToClickDrop,
+  type OrderDetail,
+} from "../../api/user.api";
 import { useCart } from "../../context/CartContext";
 import { cartAPI } from "../../api/cart.api";
+import { ResponseStatus } from "@/types/response.types";
+import SubmitReviewModal from "../../components/SubmitReviewModal";
+import { checkUserReviewForOrderItem } from "../../api/review.api";
 
 const OrderDetails: React.FC = () => {
   const { orderId } = useParams<{ orderId: string }>();
@@ -12,6 +20,20 @@ const OrderDetails: React.FC = () => {
   const [order, setOrder] = useState<OrderDetail | null>(null);
   const [loading, setLoading] = useState(true);
   const [reordering, setReordering] = useState(false);
+  const [verifyingPayment, setVerifyingPayment] = useState(false);
+  const [submittingToClickDrop, setSubmittingToClickDrop] = useState(false);
+  const [reviewModalOpen, setReviewModalOpen] = useState(false);
+  const [selectedOrderItem, setSelectedOrderItem] = useState<{
+    orderItemId: string;
+    productId: string;
+    productName: string;
+  } | null>(null);
+  const [reviewedOrderItems, setReviewedOrderItems] = useState<Set<string>>(
+    new Set()
+  );
+  const [checkingReviews, setCheckingReviews] = useState<Set<string>>(
+    new Set()
+  );
   const { refreshCart, openCart } = useCart();
 
   useEffect(() => {
@@ -25,11 +47,35 @@ const OrderDetails: React.FC = () => {
     setLoading(true);
     try {
       const response = await getMyOrder(orderId);
-      if (
-        (response.status === "SUCCESS" || response.status === "success") &&
-        response.data?.order
-      ) {
-        setOrder(response.data.order);
+      if (response.status === ResponseStatus.SUCCESS && response.data?.order) {
+        const orderData = response.data.order;
+        setOrder(orderData);
+
+        // Check review status for order items
+        orderData.orderItems.forEach((item) => {
+          if (item.hasReviewed === true) {
+            setReviewedOrderItems((prev) => {
+              if (prev.has(item.id)) return prev;
+              return new Set(prev).add(item.id);
+            });
+          }
+        });
+
+        // Check reviews for items that can be reviewed
+        const itemsToCheck = orderData.orderItems.filter((item) => {
+          const canReview =
+            item.productId &&
+            item.product?.type === "STORE" &&
+            orderData.status === "PAID";
+          const alreadyChecked =
+            reviewedOrderItems.has(item.id) || checkingReviews.has(item.id);
+          const hasBackendValue = item.hasReviewed !== undefined;
+          return canReview && !alreadyChecked && !hasBackendValue;
+        });
+
+        itemsToCheck.forEach((item) => {
+          void checkOrderItemReview(item.id);
+        });
       } else {
         toast.error(response.message || "Failed to load order details");
         navigate("/dashboard/orders");
@@ -42,6 +88,54 @@ const OrderDetails: React.FC = () => {
     } finally {
       setLoading(false);
     }
+  };
+
+  const checkOrderItemReview = async (orderItemId: string) => {
+    if (
+      checkingReviews.has(orderItemId) ||
+      reviewedOrderItems.has(orderItemId)
+    ) {
+      return;
+    }
+
+    try {
+      setCheckingReviews((prev) => new Set(prev).add(orderItemId));
+      const response = await checkUserReviewForOrderItem(orderItemId);
+      if (
+        response.status === ResponseStatus.SUCCESS &&
+        response.data?.hasReviewed
+      ) {
+        setReviewedOrderItems((prev) => new Set(prev).add(orderItemId));
+      }
+    } catch (error) {
+      console.error("Failed to check review status:", error);
+    } finally {
+      setCheckingReviews((prev) => {
+        const next = new Set(prev);
+        next.delete(orderItemId);
+        return next;
+      });
+    }
+  };
+
+  const handleReviewClick = (item: OrderDetail["orderItems"][0]) => {
+    if (!item.productId || !item.id) return;
+    setSelectedOrderItem({
+      orderItemId: item.id,
+      productId: item.productId,
+      productName: item.product?.storeItem?.name || "Product",
+    });
+    setReviewModalOpen(true);
+  };
+
+  const handleReviewSubmit = () => {
+    if (selectedOrderItem) {
+      setReviewedOrderItems((prev) =>
+        new Set(prev).add(selectedOrderItem.orderItemId)
+      );
+    }
+    setReviewModalOpen(false);
+    setSelectedOrderItem(null);
   };
 
   const getStatusColor = (status: string) => {
@@ -72,11 +166,23 @@ const OrderDetails: React.FC = () => {
     });
   };
 
-  const formatCurrency = (amount: number, currency: string = "USD") => {
-    return new Intl.NumberFormat("en-US", {
+  const formatCurrency = (amount: number, currency: string = "GBP") => {
+    // Always use GBP, convert if needed
+    const currencyCode = currency === "USD" ? "GBP" : currency || "GBP";
+    return new Intl.NumberFormat("en-GB", {
       style: "currency",
-      currency: currency,
+      currency: currencyCode,
     }).format(amount);
+  };
+
+  const getStatusLabel = (status: string): string => {
+    const upper = status.toUpperCase();
+    if (upper === "PAID") return "Paid";
+    if (upper === "PENDING") return "Pending";
+    if (upper === "FAILED") return "Failed";
+    if (upper === "CANCELLED") return "Cancelled";
+    if (upper === "REFUNDED") return "Refunded";
+    return status.charAt(0).toUpperCase() + status.slice(1).toLowerCase();
   };
 
   const handleReorder = async () => {
@@ -98,11 +204,7 @@ const OrderDetails: React.FC = () => {
         });
 
         if (
-          !(
-            (addResponse.status === "SUCCESS" ||
-              addResponse.status === "success") &&
-            addResponse.data
-          )
+          !(addResponse.status === ResponseStatus.SUCCESS && addResponse.data)
         ) {
           throw new Error(addResponse.message || "Unable to add item to cart");
         }
@@ -120,6 +222,63 @@ const OrderDetails: React.FC = () => {
       );
     } finally {
       setReordering(false);
+    }
+  };
+
+  const handleContactSupport = () => {
+    if (!orderId) return;
+    navigate(`/contact?order=${orderId}`);
+  };
+
+  const handleVerifyPayment = async () => {
+    if (!orderId) return;
+    try {
+      setVerifyingPayment(true);
+      const response = await verifyOrderPayment(orderId);
+      if (response.status === ResponseStatus.SUCCESS && response.data) {
+        if (response.data.updated) {
+          toast.success(
+            response.data.message || "Payment status verified and updated"
+          );
+          await loadOrder();
+        } else {
+          toast.success(
+            response.data.message || "Payment status verified (no changes)"
+          );
+        }
+      } else {
+        toast.error(response.message || "Failed to verify payment");
+      }
+    } catch (error: any) {
+      toast.error(error?.response?.data?.message || "Failed to verify payment");
+    } finally {
+      setVerifyingPayment(false);
+    }
+  };
+
+  const handleSubmitToClickDrop = async () => {
+    if (!orderId) return;
+    try {
+      setSubmittingToClickDrop(true);
+      const response = await submitOrderToClickDrop(orderId);
+      if (response.status === ResponseStatus.SUCCESS) {
+        toast.success(
+          response.data?.message ||
+            "Order submitted to Click & Drop successfully"
+        );
+        await loadOrder();
+      } else {
+        toast.error(
+          response.message || "Failed to submit order to Click & Drop"
+        );
+      }
+    } catch (error: any) {
+      toast.error(
+        error?.response?.data?.message ||
+          "Failed to submit order to Click & Drop"
+      );
+    } finally {
+      setSubmittingToClickDrop(false);
     }
   };
 
@@ -183,7 +342,7 @@ const OrderDetails: React.FC = () => {
             )}`}
             style={{ fontFamily: '"League Spartan", sans-serif' }}
           >
-            {order.status}
+            {getStatusLabel(order.status)}
           </span>
         </div>
         <p className="text-xs text-gray-500 mt-1">
@@ -206,7 +365,7 @@ const OrderDetails: React.FC = () => {
             item.product?.storeItem?.categories?.[0] || "Uncategorized";
           const itemPrice = formatCurrency(
             item.price,
-            order.payment?.currency || "USD"
+            order.payment?.currency || "GBP"
           );
 
           return (
@@ -241,6 +400,26 @@ const OrderDetails: React.FC = () => {
                       <p className="text-xs text-gray-500">
                         Quantity: {item.quantity}
                       </p>
+                      {order.status === "PAID" &&
+                        item.productId &&
+                        item.product?.type === "STORE" && (
+                          <div className="mt-2">
+                            {(item.hasReviewed ??
+                              reviewedOrderItems.has(item.id)) ? (
+                              <span className="inline-flex items-center gap-1 text-xs text-green-600 font-medium">
+                                Review submitted
+                              </span>
+                            ) : (
+                              <button
+                                type="button"
+                                onClick={() => handleReviewClick(item)}
+                                className="inline-flex items-center gap-1.5 text-xs font-medium text-brand-green hover:text-brand-green-dark transition-colors"
+                              >
+                                Write a Review
+                              </button>
+                            )}
+                          </div>
+                        )}
                     </div>
 
                     {/* Desktop: Price top right */}
@@ -298,13 +477,13 @@ const OrderDetails: React.FC = () => {
               Item's total ({order.orderItems.length})
             </span>
             <span className="text-right text-gray-900">
-              {formatCurrency(itemsTotal, order.payment?.currency || "USD")}
+              {formatCurrency(itemsTotal, order.payment?.currency || "GBP")}
             </span>
             {shipping > 0 && (
               <>
                 <span className="text-gray-600">Shipping</span>
                 <span className="text-right text-gray-900">
-                  {formatCurrency(shipping, order.payment?.currency || "USD")}
+                  {formatCurrency(shipping, order.payment?.currency || "GBP")}
                 </span>
               </>
             )}
@@ -312,7 +491,7 @@ const OrderDetails: React.FC = () => {
               <>
                 <span className="text-gray-600">Discount</span>
                 <span className="text-right text-gray-900">
-                  -{formatCurrency(discount, order.payment?.currency || "USD")}
+                  -{formatCurrency(discount, order.payment?.currency || "GBP")}
                 </span>
               </>
             )}
@@ -327,7 +506,7 @@ const OrderDetails: React.FC = () => {
               className="text-right text-gray-900 font-semibold"
               style={{ fontFamily: '"League Spartan", sans-serif' }}
             >
-              {formatCurrency(total, order.payment?.currency || "USD")}
+              {formatCurrency(total, order.payment?.currency || "GBP")}
             </span>
           </div>
         </div>
@@ -394,6 +573,114 @@ const OrderDetails: React.FC = () => {
             </div>
           </div>
         </div>
+      )}
+
+      {/* Action Buttons */}
+      <div className="space-y-4">
+        {/* Test button for Click & Drop submission */}
+        <div className="bg-yellow-50 rounded-xl p-4 border border-yellow-200">
+          <button
+            type="button"
+            onClick={handleSubmitToClickDrop}
+            disabled={submittingToClickDrop}
+            className="inline-flex items-center justify-center gap-2 rounded-full bg-yellow-600 text-white px-4 py-2 text-sm font-semibold hover:bg-yellow-700 transition-colors disabled:opacity-60 disabled:cursor-not-allowed"
+            style={{ fontFamily: '"League Spartan", sans-serif' }}
+          >
+            {submittingToClickDrop ? (
+              <Loader className="w-4 h-4 animate-spin" />
+            ) : (
+              <Package className="w-4 h-4" />
+            )}
+            <span>Test: Submit to Click & Drop</span>
+          </button>
+          <p className="text-xs text-yellow-700 mt-2">
+            TEST ONLY - This button will be removed in production
+          </p>
+        </div>
+
+        {/* Pending Order Actions */}
+        {order.status.toUpperCase() === "PENDING" && (
+          <div className="bg-white rounded-xl p-4 border border-gray-200">
+            <div className="flex flex-col sm:flex-row gap-3">
+              <button
+                type="button"
+                onClick={handleVerifyPayment}
+                disabled={verifyingPayment}
+                className="inline-flex items-center justify-center gap-2 rounded-full bg-brand-purple text-white px-4 py-2 text-sm font-semibold hover:bg-brand-purple-dark transition-colors disabled:opacity-60 disabled:cursor-not-allowed"
+                style={{ fontFamily: '"League Spartan", sans-serif' }}
+              >
+                {verifyingPayment ? (
+                  <Loader className="w-4 h-4 animate-spin" />
+                ) : (
+                  <ShieldCheck className="w-4 h-4" />
+                )}
+                <span>Verify Payment</span>
+              </button>
+              <button
+                type="button"
+                onClick={handleReorder}
+                disabled={reordering}
+                className="inline-flex items-center justify-center gap-2 rounded-full bg-brand-green text-white px-4 py-2 text-sm font-semibold hover:bg-brand-green-dark transition-colors disabled:opacity-60 disabled:cursor-not-allowed"
+                style={{ fontFamily: '"League Spartan", sans-serif' }}
+              >
+                {reordering ? (
+                  <Loader className="w-4 h-4 animate-spin" />
+                ) : (
+                  <RefreshCcw className="w-4 h-4" />
+                )}
+                <span>Order Again</span>
+              </button>
+              <button
+                type="button"
+                onClick={handleContactSupport}
+                className="inline-flex items-center justify-center gap-2 rounded-full border border-gray-300 text-gray-700 px-4 py-2 text-sm font-semibold hover:bg-gray-100 transition-colors"
+                style={{ fontFamily: '"League Spartan", sans-serif' }}
+              >
+                <LifeBuoy className="w-4 h-4" />
+                <span>Contact Support</span>
+              </button>
+            </div>
+            <p className="text-xs text-gray-500 mt-2">
+              If payment seems stuck, verify it with Stripe. If something feels
+              off, reach out or rebuild the order right away.
+            </p>
+          </div>
+        )}
+
+        {/* Order Again for non-pending orders */}
+        {order.status.toUpperCase() !== "PENDING" && (
+          <div className="bg-white rounded-xl p-4 border border-gray-200">
+            <button
+              type="button"
+              onClick={handleReorder}
+              disabled={reordering}
+              className="inline-flex items-center justify-center gap-2 rounded-full bg-brand-green text-white px-4 py-2 text-sm font-semibold hover:bg-brand-green-dark transition-colors disabled:opacity-60 disabled:cursor-not-allowed"
+              style={{ fontFamily: '"League Spartan", sans-serif' }}
+            >
+              {reordering ? (
+                <Loader className="w-4 h-4 animate-spin" />
+              ) : (
+                <RefreshCcw className="w-4 h-4" />
+              )}
+              <span>Order Again</span>
+            </button>
+          </div>
+        )}
+      </div>
+
+      {/* Review Modal */}
+      {selectedOrderItem && (
+        <SubmitReviewModal
+          isOpen={reviewModalOpen}
+          onClose={() => {
+            setReviewModalOpen(false);
+            setSelectedOrderItem(null);
+          }}
+          productName={selectedOrderItem.productName}
+          productId={selectedOrderItem.productId}
+          orderItemId={selectedOrderItem.orderItemId}
+          onSubmit={handleReviewSubmit}
+        />
       )}
     </div>
   );

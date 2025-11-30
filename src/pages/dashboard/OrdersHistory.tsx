@@ -1,14 +1,14 @@
 import React, { useState, useEffect } from "react";
 import {
   Package,
-  DollarSign,
-  CreditCard,
-  MapPin,
-  Edit3,
-  X,
+  Bell,
   Loader,
+  X,
+  MapPin,
+  CreditCard,
   FileText,
   ExternalLink,
+  ShieldCheck,
   RefreshCcw,
   LifeBuoy,
   Star,
@@ -22,31 +22,109 @@ import {
   type OrderSummary,
   type OrderDetail,
 } from "../../api/user.api";
+import { useNavigate } from "react-router-dom";
+import { ResponseStatus } from "@/types/response.types";
 import { useCart } from "../../context/CartContext";
 import { cartAPI } from "../../api/cart.api";
-import { useNavigate } from "react-router-dom";
 import SubmitReviewModal from "../../components/SubmitReviewModal";
 import { checkUserReviewForOrderItem } from "../../api/review.api";
-import { ResponseStatus } from "@/types/response.types";
+
+// Helper functions outside component
+const getStatusLabel = (status: string): string => {
+  const upper = status.toUpperCase();
+  if (upper === "PAID") return "Paid";
+  if (upper === "PENDING") return "Pending";
+  if (upper === "FAILED") return "Failed";
+  if (upper === "CANCELLED") return "Cancelled";
+  if (upper === "REFUNDED") return "Refunded";
+  if (upper.includes("PRE") || upper.includes("PRE-ORDER")) return "Pre-order";
+  return status.charAt(0).toUpperCase() + status.slice(1).toLowerCase();
+};
+
+const getStatusColor = (status: string) => {
+  switch (status.toUpperCase()) {
+    case "PAID":
+      return "bg-green-100 text-green-700 border-green-200";
+    case "PENDING":
+      return "bg-yellow-100 text-yellow-700 border-yellow-200";
+    case "FAILED":
+      return "bg-red-100 text-red-700 border-red-200";
+    case "CANCELLED":
+      return "bg-gray-100 text-gray-700 border-gray-200";
+    case "REFUNDED":
+      return "bg-blue-100 text-blue-700 border-blue-200";
+    default:
+      return "bg-gray-100 text-gray-700 border-gray-200";
+  }
+};
+
+const formatDate = (date: string | Date) => {
+  return new Date(date).toLocaleDateString("en-GB", {
+    year: "numeric",
+    month: "short",
+    day: "numeric",
+  });
+};
+
+const formatCurrency = (amount: number, currency: string = "GBP") => {
+  // Always use GBP, convert if needed
+  const currencyCode = currency === "USD" ? "GBP" : currency || "GBP";
+  return new Intl.NumberFormat("en-GB", {
+    style: "currency",
+    currency: currencyCode,
+  }).format(amount);
+};
+
+// Demo pre-orders data
+const generateDemoPreOrders = (): Array<OrderSummary & { firstProductImage?: string; wantsNotification?: boolean; isPreOrder?: boolean }> => {
+  return [
+    {
+      id: "pre-order-1",
+      totalAmount: 49.95,
+      itemCount: 1,
+      status: "PRE-ORDER",
+      paymentCurrency: "GBP",
+      createdAt: new Date().toISOString(),
+      firstProductImage: "https://images.unsplash.com/photo-1521572267360-ee0c2909d518?auto=format&fit=crop&w=400&q=60",
+      wantsNotification: true,
+      isPreOrder: true,
+    },
+    {
+      id: "pre-order-2",
+      totalAmount: 79.99,
+      itemCount: 1,
+      status: "PRE-ORDER",
+      paymentCurrency: "GBP",
+      createdAt: new Date(Date.now() - 86400000).toISOString(),
+      firstProductImage: "https://images.unsplash.com/photo-1505252585461-04db1eb84625?auto=format&fit=crop&w=400&q=60",
+      wantsNotification: false,
+      isPreOrder: true,
+    },
+    {
+      id: "pre-order-3",
+      totalAmount: 34.99,
+      itemCount: 1,
+      status: "PRE-ORDER",
+      paymentCurrency: "GBP",
+      createdAt: new Date(Date.now() - 172800000).toISOString(),
+      firstProductImage: "https://images.unsplash.com/photo-1447175008436-054170c2e979?auto=format&fit=crop&w=400&q=60",
+      wantsNotification: true,
+      isPreOrder: true,
+    },
+  ] as Array<OrderSummary & { firstProductImage?: string; wantsNotification?: boolean; isPreOrder?: boolean }>;
+};
 
 const OrdersHistory: React.FC = () => {
   const [orders, setOrders] = useState<OrderSummary[]>([]);
-  const [orderDetails, setOrderDetails] = useState<Record<string, OrderDetail>>(
-    {}
-  );
+  const [orderImages, setOrderImages] = useState<Record<string, string>>({});
   const [loadingOrders, setLoadingOrders] = useState(false);
-  const [loadingDetailOrderId, setLoadingDetailOrderId] = useState<
-    string | null
-  >(null);
-  const [expandedOrderId, setExpandedOrderId] = useState<string | null>(null);
+  const [loadingOrderDetails, setLoadingOrderDetails] = useState(false);
   const [activeFilter, setActiveFilter] = useState("All");
-  const [reorderingOrderId, setReorderingOrderId] = useState<string | null>(
-    null
-  );
-  const [verifyingOrderId, setVerifyingOrderId] = useState<string | null>(null);
-  const [submittingToClickDropId, setSubmittingToClickDropId] = useState<
-    string | null
-  >(null);
+  const [isModalOpen, setIsModalOpen] = useState(false);
+  const [selectedOrder, setSelectedOrder] = useState<OrderDetail | null>(null);
+  const [reordering, setReordering] = useState(false);
+  const [verifyingPayment, setVerifyingPayment] = useState(false);
+  const [submittingToClickDrop, setSubmittingToClickDrop] = useState(false);
   const [reviewModalOpen, setReviewModalOpen] = useState(false);
   const [selectedOrderItem, setSelectedOrderItem] = useState<{
     orderItemId: string;
@@ -59,53 +137,47 @@ const OrdersHistory: React.FC = () => {
   const [checkingReviews, setCheckingReviews] = useState<Set<string>>(
     new Set()
   );
-
-  const { refreshCart, openCart } = useCart();
   const navigate = useNavigate();
+  const { refreshCart, openCart } = useCart();
 
-  const filters = ["All", "PAID", "PENDING", "FAILED", "CANCELLED", "REFUNDED"];
+  const filters = ["All", "PAID", "PENDING", "FAILED", "CANCELLED", "REFUNDED", "Pre Orders"];
 
   useEffect(() => {
     void loadOrders();
   }, []);
 
-  // Check review status for order items when order details are loaded
+  // Load order images
   useEffect(() => {
-    if (!expandedOrderId) return;
+    const loadOrderImages = async () => {
+      const imagePromises = orders.map(async (order) => {
+        try {
+          const response = await getMyOrder(order.id);
+          if (response.status === ResponseStatus.SUCCESS && response.data?.order) {
+            const firstItem = response.data.order.orderItems[0];
+            const imageUrl =
+              firstItem?.product?.storeItem?.display?.url ||
+              firstItem?.product?.storeItem?.images?.[0] ||
+              "";
+            return { orderId: order.id, imageUrl };
+          }
+        } catch (error) {
+          console.error(`Failed to load image for order ${order.id}:`, error);
+        }
+        return { orderId: order.id, imageUrl: "" };
+      });
 
-    const detail = orderDetails[expandedOrderId];
-    if (!detail || !detail.orderItems) return;
+      const results = await Promise.all(imagePromises);
+      const imageMap: Record<string, string> = {};
+      results.forEach(({ orderId, imageUrl }) => {
+        imageMap[orderId] = imageUrl;
+      });
+      setOrderImages(imageMap);
+    };
 
-    // Also populate reviewedOrderItems from backend hasReviewed first
-    detail.orderItems.forEach((item) => {
-      if (item.hasReviewed === true) {
-        setReviewedOrderItems((prev) => {
-          if (prev.has(item.id)) return prev;
-          return new Set(prev).add(item.id);
-        });
-      }
-    });
-
-    // Check reviews for items that can be reviewed and don't have backend value
-    const itemsToCheck = detail.orderItems.filter((item) => {
-      const canReview =
-        item.productId &&
-        item.product?.type === "STORE" &&
-        detail.status === "PAID";
-      const alreadyChecked =
-        reviewedOrderItems.has(item.id) || checkingReviews.has(item.id);
-      // Use backend hasReviewed if available, otherwise check
-      const hasBackendValue = item.hasReviewed !== undefined;
-
-      return canReview && !alreadyChecked && !hasBackendValue;
-    });
-
-    // Check reviews for items that need checking
-    itemsToCheck.forEach((item) => {
-      void checkOrderItemReview(item.id);
-    });
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [expandedOrderId, orderDetails]);
+    if (orders.length > 0) {
+      void loadOrderImages();
+    }
+  }, [orders]);
 
   const loadOrders = async () => {
     setLoadingOrders(true);
@@ -121,187 +193,56 @@ const OrdersHistory: React.FC = () => {
     }
   };
 
-  const fetchOrderDetail = async (
-    orderId: string
-  ): Promise<OrderDetail | null> => {
-    if (orderDetails[orderId]) {
-      return orderDetails[orderId];
-    }
+  const handleViewOrder = async (orderId: string, isMobile: boolean) => {
+    if (isMobile) {
+      // Open modal on mobile
+      setLoadingOrderDetails(true);
+      setIsModalOpen(true);
+      try {
+        const response = await getMyOrder(orderId);
+        if (response.status === ResponseStatus.SUCCESS && response.data?.order) {
+          const orderData = response.data.order;
+          setSelectedOrder(orderData);
 
-    try {
-      setLoadingDetailOrderId(orderId);
-      const response = await getMyOrder(orderId);
-      if (response.status === ResponseStatus.SUCCESS && response.data?.order) {
-        const order = response.data.order;
-        setOrderDetails((prev) => ({
-          ...prev,
-          [orderId]: order,
-        }));
-        return order;
-      }
-      toast.error(response.message || "Failed to load order details.");
-      return null;
-    } catch (error: any) {
-      toast.error(
-        error?.response?.data?.message || "Failed to load order details."
-      );
-      return null;
-    } finally {
-      setLoadingDetailOrderId(null);
-    }
-  };
+          // Check review status for order items
+          orderData.orderItems.forEach((item) => {
+            if (item.hasReviewed === true) {
+              setReviewedOrderItems((prev) => {
+                if (prev.has(item.id)) return prev;
+                return new Set(prev).add(item.id);
+              });
+            }
+          });
 
-  const ensureOrderDetail = async (
-    orderId: string
-  ): Promise<OrderDetail | null> => {
-    return orderDetails[orderId] ?? (await fetchOrderDetail(orderId));
-  };
+          // Check reviews for items that can be reviewed
+          const itemsToCheck = orderData.orderItems.filter((item) => {
+            const canReview =
+              item.productId &&
+              item.product?.type === "STORE" &&
+              orderData.status === "PAID";
+            const alreadyChecked =
+              reviewedOrderItems.has(item.id) || checkingReviews.has(item.id);
+            const hasBackendValue = item.hasReviewed !== undefined;
+            return canReview && !alreadyChecked && !hasBackendValue;
+          });
 
-  const getStatusColor = (status: string) => {
-    switch (status.toUpperCase()) {
-      case "PAID":
-        return "bg-green-100 text-green-700 border-green-200";
-      case "PENDING":
-        return "bg-yellow-100 text-yellow-700 border-yellow-200";
-      case "FAILED":
-        return "bg-red-100 text-red-700 border-red-200";
-      case "CANCELLED":
-        return "bg-gray-100 text-gray-700 border-gray-200";
-      case "REFUNDED":
-        return "bg-blue-100 text-blue-700 border-blue-200";
-      default:
-        return "bg-gray-100 text-gray-700 border-gray-200";
-    }
-  };
-
-  const formatDate = (date: string | Date) => {
-    return new Date(date).toLocaleDateString("en-US", {
-      year: "numeric",
-      month: "short",
-      day: "numeric",
-    });
-  };
-
-  const formatCurrency = (amount: number, currency: string = "USD") => {
-    return new Intl.NumberFormat("en-US", {
-      style: "currency",
-      currency: currency,
-    }).format(amount);
-  };
-
-  const handleReorder = async (order: OrderSummary) => {
-    const detail = await ensureOrderDetail(order.id);
-    if (!detail || !detail.orderItems.length) {
-      toast.error("Unable to reorder at this time.");
-      return;
-    }
-
-    try {
-      setReorderingOrderId(order.id);
-      for (const item of detail.orderItems) {
-        if (!item.productId) {
-          continue;
-        }
-
-        const addResponse = await cartAPI.addToCart({
-          productId: item.productId,
-          quantity: Math.max(1, item.quantity ?? 1),
-        });
-
-        if (
-          !(addResponse.status === ResponseStatus.SUCCESS && addResponse.data)
-        ) {
-          throw new Error(addResponse?.message || "Unable to add item to cart");
-        }
-      }
-
-      await refreshCart();
-      toast.success(
-        "Order items added to your cart. Review and checkout when ready."
-      );
-      openCart();
-    } catch (error) {
-      console.error("Order again failed:", error);
-      toast.error(
-        "We couldn't add those items to your cart. Please try again."
-      );
-    } finally {
-      setReorderingOrderId(null);
-    }
-  };
-
-  const handleContactSupport = (orderId: string) => {
-    navigate(`/contact?order=${orderId}`);
-  };
-
-  const handleVerifyPayment = async (orderId: string) => {
-    try {
-      setVerifyingOrderId(orderId);
-      const response = await verifyOrderPayment(orderId);
-      if (response.status === ResponseStatus.SUCCESS && response.data) {
-        if (response.data.updated) {
-          toast.success(
-            response.data.message || "Payment status verified and updated"
-          );
-          // Reload orders to get updated status
-          await loadOrders();
-          // If order is expanded, reload its details
-          if (expandedOrderId === orderId) {
-            await fetchOrderDetail(orderId);
-          }
+          itemsToCheck.forEach((item) => {
+            void checkOrderItemReview(item.id);
+          });
         } else {
-          toast.success(
-            response.data.message || "Payment status verified (no changes)"
-          );
+          toast.error("Failed to load order details");
+          setIsModalOpen(false);
         }
-      } else {
-        toast.error(response.message || "Failed to verify payment");
+      } catch (error: any) {
+        toast.error("Failed to load order details");
+        setIsModalOpen(false);
+      } finally {
+        setLoadingOrderDetails(false);
       }
-    } catch (error: any) {
-      toast.error(error?.response?.data?.message || "Failed to verify payment");
-    } finally {
-      setVerifyingOrderId(null);
+    } else {
+      // Navigate on desktop
+      navigate(`/dashboard/orders/${orderId}`);
     }
-  };
-
-  const handleSubmitToClickDrop = async (orderId: string) => {
-    try {
-      setSubmittingToClickDropId(orderId);
-      const response = await submitOrderToClickDrop(orderId);
-      if (response.status === ResponseStatus.SUCCESS) {
-        toast.success(
-          response.data?.message ||
-            "Order submitted to Click & Drop successfully"
-        );
-        // Reload orders to get updated status
-        await loadOrders();
-        // If order is expanded, reload its details
-        if (expandedOrderId === orderId) {
-          await fetchOrderDetail(orderId);
-        }
-      } else {
-        toast.error(
-          response.message || "Failed to submit order to Click & Drop"
-        );
-      }
-    } catch (error: any) {
-      toast.error(
-        error?.response?.data?.message ||
-          "Failed to submit order to Click & Drop"
-      );
-    } finally {
-      setSubmittingToClickDropId(null);
-    }
-  };
-
-  const handleToggleOrder = (orderId: string) => {
-    setExpandedOrderId((current) => {
-      const next = current === orderId ? null : orderId;
-      if (next === orderId && !orderDetails[orderId]) {
-        void fetchOrderDetail(orderId);
-      }
-      return next;
-    });
   };
 
   const checkOrderItemReview = async (orderItemId: string) => {
@@ -322,7 +263,6 @@ const OrdersHistory: React.FC = () => {
         setReviewedOrderItems((prev) => new Set(prev).add(orderItemId));
       }
     } catch (error) {
-      // Silently fail - don't block UI
       console.error("Failed to check review status:", error);
     } finally {
       setCheckingReviews((prev) => {
@@ -353,10 +293,126 @@ const OrdersHistory: React.FC = () => {
     setSelectedOrderItem(null);
   };
 
-  const filteredOrders = orders.filter((order) => {
-    if (activeFilter === "All") return true;
-    return order.status.toUpperCase() === activeFilter.toUpperCase();
-  });
+  const handleReorder = async () => {
+    if (!selectedOrder || !selectedOrder.orderItems.length) {
+      toast.error("Unable to reorder at this time.");
+      return;
+    }
+
+    try {
+      setReordering(true);
+      for (const item of selectedOrder.orderItems) {
+        if (!item.productId) {
+          continue;
+        }
+
+        const addResponse = await cartAPI.addToCart({
+          productId: item.productId,
+          quantity: Math.max(1, item.quantity ?? 1),
+        });
+
+        if (
+          !(addResponse.status === ResponseStatus.SUCCESS && addResponse.data)
+        ) {
+          throw new Error(addResponse.message || "Unable to add item to cart");
+        }
+      }
+
+      await refreshCart();
+      toast.success(
+        "Order items added to your cart. Review and checkout when ready."
+      );
+      openCart();
+    } catch (error) {
+      console.error("Order again failed:", error);
+      toast.error(
+        "We couldn't add those items to your cart. Please try again."
+      );
+    } finally {
+      setReordering(false);
+    }
+  };
+
+  const handleContactSupport = () => {
+    if (!selectedOrder) return;
+    navigate(`/contact?order=${selectedOrder.id}`);
+  };
+
+  const handleVerifyPayment = async () => {
+    if (!selectedOrder) return;
+    try {
+      setVerifyingPayment(true);
+      const response = await verifyOrderPayment(selectedOrder.id);
+      if (response.status === ResponseStatus.SUCCESS && response.data) {
+        if (response.data.updated) {
+          toast.success(
+            response.data.message || "Payment status verified and updated"
+          );
+          // Reload order details
+          const orderResponse = await getMyOrder(selectedOrder.id);
+          if (
+            orderResponse.status === ResponseStatus.SUCCESS &&
+            orderResponse.data?.order
+          ) {
+            setSelectedOrder(orderResponse.data.order);
+          }
+        } else {
+          toast.success(
+            response.data.message || "Payment status verified (no changes)"
+          );
+        }
+      } else {
+        toast.error(response.message || "Failed to verify payment");
+      }
+    } catch (error: any) {
+      toast.error(error?.response?.data?.message || "Failed to verify payment");
+    } finally {
+      setVerifyingPayment(false);
+    }
+  };
+
+  const handleSubmitToClickDrop = async () => {
+    if (!selectedOrder) return;
+    try {
+      setSubmittingToClickDrop(true);
+      const response = await submitOrderToClickDrop(selectedOrder.id);
+      if (response.status === ResponseStatus.SUCCESS) {
+        toast.success(
+          response.data?.message ||
+            "Order submitted to Click & Drop successfully"
+        );
+        // Reload order details
+        const orderResponse = await getMyOrder(selectedOrder.id);
+        if (
+          orderResponse.status === ResponseStatus.SUCCESS &&
+          orderResponse.data?.order
+        ) {
+          setSelectedOrder(orderResponse.data.order);
+        }
+      } else {
+        toast.error(
+          response.message || "Failed to submit order to Click & Drop"
+        );
+      }
+    } catch (error: any) {
+      toast.error(
+        error?.response?.data?.message ||
+          "Failed to submit order to Click & Drop"
+      );
+    } finally {
+      setSubmittingToClickDrop(false);
+    }
+  };
+
+  const filteredOrders = (() => {
+    if (activeFilter === "Pre Orders") {
+      return generateDemoPreOrders();
+    }
+    if (activeFilter === "All") return orders;
+    return orders.filter(
+      (order) => order.status.toUpperCase() === activeFilter.toUpperCase()
+    );
+  })();
 
   return (
     <div className="space-y-6">
@@ -368,12 +424,13 @@ const OrdersHistory: React.FC = () => {
           Orders History
         </h2>
 
-        <div className="flex gap-2 mb-6 bg-white p-2 rounded-full border border-gray-200">
+        {/* Tabs */}
+        <div className="flex gap-2 mb-6 overflow-x-auto scrollbar-hide">
           {filters.map((filter) => (
             <button
               key={filter}
               onClick={() => setActiveFilter(filter)}
-              className={`px-4 py-2 rounded-full text-sm font-medium transition-colors ${
+              className={`px-4 py-2 rounded-full text-xs md:text-sm font-medium transition-colors whitespace-nowrap flex-shrink-0 ${
                 activeFilter === filter
                   ? "text-brand-green border border-brand-green bg-brand-green/5"
                   : "text-gray-600 border border-transparent hover:bg-gray-50"
@@ -407,396 +464,452 @@ const OrdersHistory: React.FC = () => {
           </div>
         ) : (
           filteredOrders.map((order) => {
-            const detail = orderDetails[order.id];
-            const isDetailLoading = loadingDetailOrderId === order.id;
-            const receiptUrl =
-              detail?.payment?.metadata?.receiptUrl ?? undefined;
+            const imageUrl = (order as any).firstProductImage || orderImages[order.id] || "";
+            const isPreOrder = (order as any).isPreOrder || false;
+            const wantsNotification = (order as any).wantsNotification || false;
 
             return (
               <div
                 key={order.id}
-                className="bg-white border border-gray-200 rounded-lg overflow-hidden hover:border-brand-green/50 transition-colors"
+                className="bg-white rounded-lg p-4 flex gap-4 cursor-pointer hover:shadow-md transition-shadow"
+                onClick={() =>
+                  handleViewOrder(order.id, window.innerWidth < 768)
+                }
               >
-                <div
-                  className="p-4 cursor-pointer"
-                  onClick={() => handleToggleOrder(order.id)}
-                >
-                  <div className="flex items-start justify-between gap-4">
-                    <div className="flex-1">
-                      <div className="flex items-center gap-3 mb-2">
-                        <Package className="w-5 h-5 text-gray-400" />
-                        <div>
-                          <h4
-                            className="text-sm font-semibold text-gray-900"
-                            style={{
-                              fontFamily: '"League Spartan", sans-serif',
-                            }}
-                          >
-                            Order #{order.id.slice(0, 8).toUpperCase()}
-                          </h4>
-                          <p className="text-xs text-gray-500 mt-0.5">
-                            {formatDate(order.createdAt)}
-                          </p>
-                        </div>
-                      </div>
-                      <div className="flex items-center gap-4 mt-2 ml-8">
-                        <div className="flex items-center gap-1.5">
-                          <DollarSign className="w-3.5 h-3.5 text-gray-400" />
-                          <span className="text-xs font-medium text-gray-700">
-                            {formatCurrency(
-                              order.totalAmount,
-                              order.paymentCurrency || "USD"
-                            )}
-                          </span>
-                        </div>
-                        <div className="flex items-center gap-1.5">
-                          <Package className="w-3.5 h-3.5 text-gray-400" />
-                          <span className="text-xs text-gray-600">
-                            {order.itemCount} item
-                            {order.itemCount !== 1 ? "s" : ""}
-                          </span>
-                        </div>
-                      </div>
+                {/* Product Image */}
+                <div className="w-20 h-20 md:w-24 md:h-24 rounded-lg overflow-hidden bg-gray-100 flex-shrink-0">
+                  {imageUrl ? (
+                    <img
+                      src={imageUrl}
+                      alt="Product"
+                      className="w-full h-full object-cover"
+                    />
+                  ) : (
+                    <div className="w-full h-full flex items-center justify-center">
+                      <Package className="w-8 h-8 text-gray-400" />
                     </div>
-                    <div className="flex items-center gap-3">
-                      <span
-                        className={`px-3 py-1 rounded-full text-xs font-medium border ${getStatusColor(
-                          order.status
-                        )}`}
+                  )}
+                </div>
+
+                {/* Order Info */}
+                <div className="flex-1 min-w-0 flex flex-col">
+                  <div className="flex items-start justify-between gap-2 mb-1">
+                    <div className="flex-1 min-w-0">
+                      <h4
+                        className="text-base md:text-lg font-semibold text-gray-900"
+                        style={{ fontFamily: '"League Spartan", sans-serif' }}
                       >
-                        {order.status}
-                      </span>
+                        Order {order.id.slice(0, 8).toUpperCase()}
+                      </h4>
+                      <p className="text-xs md:text-sm text-gray-500 mt-0.5">
+                        {formatDate(order.createdAt)}
+                      </p>
+                    </div>
+
+                    {/* See Details / Bell Icon - Top Right */}
+                    <div className="flex-shrink-0 flex items-center gap-2">
+                      {isPreOrder && wantsNotification && (
+                        <Bell className="w-5 h-5 text-brand-green" />
+                      )}
                       <button
-                        type="button"
-                        className="p-1.5 rounded-full text-gray-400 hover:bg-gray-100 transition-colors"
                         onClick={(e) => {
                           e.stopPropagation();
-                          handleToggleOrder(order.id);
+                          handleViewOrder(order.id, window.innerWidth < 768);
                         }}
+                        className="hidden md:block text-brand-green underline text-sm font-medium"
+                        style={{ fontFamily: '"League Spartan", sans-serif' }}
                       >
-                        {expandedOrderId === order.id ? (
-                          <X className="w-4 h-4" />
-                        ) : (
-                          <Edit3 className="w-4 h-4" />
-                        )}
+                        See Details
                       </button>
                     </div>
                   </div>
-                </div>
 
-                {expandedOrderId === order.id && (
-                  <div className="border-t border-gray-200 bg-gray-50">
-                    {isDetailLoading && (
-                      <div className="flex items-center justify-center py-6">
-                        <Loader className="w-5 h-5 animate-spin text-brand-green" />
-                      </div>
-                    )}
-
-                    {!isDetailLoading && !detail && (
-                      <div className="p-4 text-sm text-gray-500">
-                        Order details are currently unavailable. Please try
-                        again later.
-                      </div>
-                    )}
-
-                    {detail && (
-                      <>
-                        <div className="p-4 space-y-3">
-                          <h5
-                            className="text-xs font-semibold text-gray-700 uppercase tracking-wide mb-3"
-                            style={{
-                              fontFamily: '"League Spartan", sans-serif',
-                            }}
-                          >
-                            Order Items
-                          </h5>
-                          {detail.orderItems.map((item) => {
-                            // Use backend hasReviewed if available, otherwise use local state
-                            const hasReviewed =
-                              item.hasReviewed ??
-                              reviewedOrderItems.has(item.id);
-                            const isChecking = checkingReviews.has(item.id);
-                            const canReview =
-                              item.productId &&
-                              item.product?.type === "STORE" &&
-                              order.status === "PAID";
-
-                            return (
-                              <div
-                                key={item.id}
-                                className="bg-white rounded-lg p-3 border border-gray-200"
-                              >
-                                <div className="flex items-start gap-3">
-                                  {item.product?.storeItem?.display?.url && (
-                                    <img
-                                      src={item.product.storeItem.display.url}
-                                      alt={item.product.storeItem.name}
-                                      className="w-16 h-16 object-cover rounded border border-gray-200"
-                                    />
-                                  )}
-                                  <div className="flex-1 min-w-0">
-                                    <h6
-                                      className="text-sm font-medium text-gray-900 truncate"
-                                      style={{
-                                        fontFamily:
-                                          '"League Spartan", sans-serif',
-                                      }}
-                                    >
-                                      {item.product?.storeItem?.name ||
-                                        "Product"}
-                                    </h6>
-                                    {item.product?.storeItem?.description && (
-                                      <p className="text-xs text-gray-500 mt-0.5 line-clamp-2">
-                                        {item.product.storeItem.description}
-                                      </p>
-                                    )}
-                                    <div className="flex items-center gap-4 mt-2">
-                                      <span className="text-xs text-gray-600">
-                                        Qty: {item.quantity}
-                                      </span>
-                                      <span className="text-xs font-medium text-gray-900">
-                                        {formatCurrency(
-                                          item.price,
-                                          detail.payment?.currency ||
-                                            order.paymentCurrency ||
-                                            "USD"
-                                        )}
-                                      </span>
-                                    </div>
-                                    {canReview && (
-                                      <div className="mt-3">
-                                        {hasReviewed ? (
-                                          <span className="inline-flex items-center gap-1 text-xs text-green-600 font-medium">
-                                            <Star className="w-3 h-3 fill-green-600" />
-                                            Review submitted
-                                          </span>
-                                        ) : (
-                                          <button
-                                            type="button"
-                                            onClick={() =>
-                                              handleReviewClick(item)
-                                            }
-                                            className="inline-flex items-center gap-1.5 text-xs font-medium text-brand-green hover:text-brand-green-dark transition-colors"
-                                          >
-                                            <Star className="w-3 h-3" />
-                                            Write a Review
-                                          </button>
-                                        )}
-                                      </div>
-                                    )}
-                                  </div>
-                                </div>
-                              </div>
-                            );
-                          })}
-                        </div>
-
-                        {detail.deliveryAddress && (
-                          <div className="p-4 border-t border-gray-200">
-                            <h5
-                              className="text-xs font-semibold text-gray-700 uppercase tracking-wide mb-3 flex items-center gap-2"
-                              style={{
-                                fontFamily: '"League Spartan", sans-serif',
-                              }}
-                            >
-                              <MapPin className="w-3.5 h-3.5" />
-                              Delivery Address
-                            </h5>
-                            <div className="bg-white rounded-lg p-3 border border-gray-200">
-                              <p className="text-sm font-medium text-gray-900">
-                                {detail.deliveryAddress.recipientName}
-                              </p>
-                              <p className="text-xs text-gray-600 mt-1">
-                                {detail.deliveryAddress.contactPhone}
-                              </p>
-                              <p className="text-xs text-gray-600 mt-1">
-                                {detail.deliveryAddress.addressLine1}
-                              </p>
-                              <p className="text-xs text-gray-600">
-                                {detail.deliveryAddress.postTown}
-                              </p>
-                              <p className="text-xs text-gray-600">
-                                {detail.deliveryAddress.postcode}
-                              </p>
-                              {detail.deliveryAddress.deliveryInstructions && (
-                                <p className="text-xs text-gray-500 italic mt-2">
-                                  Note:{" "}
-                                  {detail.deliveryAddress.deliveryInstructions}
-                                </p>
-                              )}
-                            </div>
-                          </div>
-                        )}
-
-                        {detail.payment && (
-                          <div className="p-4 border-t border-gray-200">
-                            <h5
-                              className="text-xs font-semibold text-gray-700 uppercase tracking-wide mb-3 flex items-center gap-2"
-                              style={{
-                                fontFamily: '"League Spartan", sans-serif',
-                              }}
-                            >
-                              <CreditCard className="w-3.5 h-3.5" />
-                              Payment Information
-                            </h5>
-                            <div className="bg-white rounded-lg p-3 border border-gray-200">
-                              <div className="grid grid-cols-2 gap-3">
-                                <div>
-                                  <p className="text-xs text-gray-500">
-                                    Provider
-                                  </p>
-                                  <p className="text-sm font-medium text-gray-900 mt-0.5">
-                                    {detail.payment.provider}
-                                  </p>
-                                </div>
-                                <div>
-                                  <p className="text-xs text-gray-500">
-                                    Status
-                                  </p>
-                                  <span
-                                    className={`inline-block px-2 py-0.5 rounded-full text-xs font-medium border mt-0.5 ${getStatusColor(
-                                      detail.payment.status
-                                    )}`}
-                                  >
-                                    {detail.payment.status}
-                                  </span>
-                                </div>
-                                <div>
-                                  <p className="text-xs text-gray-500">
-                                    Amount
-                                  </p>
-                                  <p className="text-sm font-medium text-gray-900 mt-0.5">
-                                    {formatCurrency(
-                                      detail.payment.amount,
-                                      detail.payment.currency
-                                    )}
-                                  </p>
-                                </div>
-                                {detail.payment.providerRef && (
-                                  <div>
-                                    <p className="text-xs text-gray-500">
-                                      Reference
-                                    </p>
-                                    <p className="text-xs font-mono text-gray-700 mt-0.5 truncate">
-                                      {detail.payment.providerRef}
-                                    </p>
-                                  </div>
-                                )}
-                              </div>
-                              {receiptUrl && (
-                                <div className="mt-3 pt-3 border-t border-gray-200">
-                                  <a
-                                    href={receiptUrl}
-                                    target="_blank"
-                                    rel="noopener noreferrer"
-                                    className="flex items-center gap-2 text-sm font-medium text-brand-green hover:text-brand-green-dark transition-colors"
-                                  >
-                                    <FileText className="w-4 h-4" />
-                                    <span>View Receipt</span>
-                                    <ExternalLink className="w-3 h-3" />
-                                  </a>
-                                </div>
-                              )}
-                            </div>
-                          </div>
-                        )}
-                      </>
-                    )}
-
-                    <div className="p-4 border-t border-gray-200 bg-white">
-                      <div className="flex items-center justify-between">
-                        <span
-                          className="text-sm font-semibold text-gray-900"
-                          style={{ fontFamily: '"League Spartan", sans-serif' }}
-                        >
-                          Total Amount
-                        </span>
-                        <span className="text-lg font-bold text-brand-green">
-                          {formatCurrency(
-                            order.totalAmount,
-                            order.paymentCurrency || "USD"
-                          )}
-                        </span>
-                      </div>
+                  {/* Price, Item Count, and Status - Same Line */}
+                  <div className="flex items-center justify-between gap-2 mt-auto">
+                    <div className="flex items-center gap-2 text-xs md:text-sm text-gray-600">
+                      <span className="font-semibold text-gray-900">
+                        {formatCurrency(order.totalAmount, order.paymentCurrency || "GBP")}
+                      </span>
+                      <span>•</span>
+                      <span>
+                        {order.itemCount} {order.itemCount === 1 ? "item" : "items"}
+                      </span>
                     </div>
-
-                    {/* Test button for Click & Drop submission */}
-                    {detail && (
-                      <div className="p-4 border-t border-gray-200 bg-yellow-50">
-                        <button
-                          type="button"
-                          onClick={() => handleSubmitToClickDrop(order.id)}
-                          disabled={
-                            submittingToClickDropId === order.id ||
-                            isDetailLoading
-                          }
-                          className="inline-flex items-center justify-center gap-2 rounded-full bg-yellow-600 text-white px-4 py-2 text-sm font-semibold hover:bg-yellow-700 transition-colors disabled:opacity-60 disabled:cursor-not-allowed"
-                        >
-                          {submittingToClickDropId === order.id ? (
-                            <Loader className="w-4 h-4 animate-spin" />
-                          ) : (
-                            <Package className="w-4 h-4" />
-                          )}
-                          <span>Test: Submit to Click & Drop</span>
-                        </button>
-                        <p className="text-xs text-yellow-700 mt-2">
-                          TEST ONLY - This button will be removed in production
-                        </p>
-                      </div>
-                    )}
-
-                    {order.status.toUpperCase() === "PENDING" && (
-                      <div className="p-4 border-t border-gray-200 bg-white">
-                        <div className="flex flex-col sm:flex-row gap-3">
-                          <button
-                            type="button"
-                            onClick={() => handleVerifyPayment(order.id)}
-                            disabled={verifyingOrderId === order.id}
-                            className="inline-flex items-center justify-center gap-2 rounded-full bg-blue-600 text-white px-4 py-2 text-sm font-semibold hover:bg-blue-700 transition-colors disabled:opacity-60 disabled:cursor-not-allowed"
-                          >
-                            {verifyingOrderId === order.id ? (
-                              <Loader className="w-4 h-4 animate-spin" />
-                            ) : (
-                              <RefreshCcw className="w-4 h-4" />
-                            )}
-                            <span>Verify Payment</span>
-                          </button>
-                          <button
-                            type="button"
-                            onClick={() => handleReorder(order)}
-                            disabled={reorderingOrderId === order.id}
-                            className="inline-flex items-center justify-center gap-2 rounded-full bg-brand-green text-white px-4 py-2 text-sm font-semibold hover:bg-brand-green-dark transition-colors disabled:opacity-60 disabled:cursor-not-allowed"
-                          >
-                            {reorderingOrderId === order.id ? (
-                              <Loader className="w-4 h-4 animate-spin" />
-                            ) : (
-                              <RefreshCcw className="w-4 h-4" />
-                            )}
-                            <span>Order Again</span>
-                          </button>
-                          <button
-                            type="button"
-                            onClick={() => handleContactSupport(order.id)}
-                            className="inline-flex items-center justify-center gap-2 rounded-full border border-gray-300 text-gray-700 px-4 py-2 text-sm font-semibold hover:bg-gray-100 transition-colors"
-                          >
-                            <LifeBuoy className="w-4 h-4" />
-                            <span>Contact Support</span>
-                          </button>
-                        </div>
-                        <p className="text-xs text-gray-500 mt-2">
-                          If payment seems stuck, verify it with Stripe. If
-                          something feels off, reach out or rebuild the order
-                          right away.
-                        </p>
-                      </div>
-                    )}
+                    <span
+                      className={`px-2 py-0.5 rounded-full text-[10px] md:text-xs font-medium border flex-shrink-0 ${getStatusColor(
+                        order.status
+                      )}`}
+                    >
+                      {getStatusLabel(order.status)}
+                    </span>
                   </div>
-                )}
+                </div>
               </div>
             );
           })
         )}
       </div>
+
+      {/* Mobile Order Details Modal */}
+      {isModalOpen && (
+        <div className="fixed inset-0 z-50 md:hidden">
+          <div
+            className="absolute inset-0 bg-black/50"
+            onClick={() => {
+              setIsModalOpen(false);
+              setSelectedOrder(null);
+            }}
+          />
+          <div className="absolute bottom-0 left-0 right-0 bg-white rounded-t-3xl max-h-[90vh] overflow-y-auto">
+            <div className="sticky top-0 bg-white border-b border-gray-200 p-4 flex items-center justify-between">
+              <h3
+                className="text-lg font-semibold"
+                style={{ fontFamily: '"League Spartan", sans-serif' }}
+              >
+                Order Details
+              </h3>
+              <button
+                onClick={() => {
+                  setIsModalOpen(false);
+                  setSelectedOrder(null);
+                }}
+                className="p-2 rounded-full hover:bg-gray-100"
+              >
+                <X className="w-5 h-5" />
+              </button>
+            </div>
+            {loadingOrderDetails ? (
+              <div className="flex items-center justify-center py-12">
+                <Loader className="w-6 h-6 animate-spin text-brand-green" />
+              </div>
+            ) : selectedOrder ? (
+              <div className="p-4 space-y-4 pb-6">
+                {/* Order Header */}
+                <div>
+                  <p
+                    className="text-base font-semibold text-gray-900 mb-1"
+                    style={{ fontFamily: '"League Spartan", sans-serif' }}
+                  >
+                    Order {selectedOrder.id.slice(0, 8).toUpperCase()}
+                  </p>
+                  <p className="text-xs text-gray-500 mb-2">
+                    {formatDate(selectedOrder.createdAt)}
+                  </p>
+                  <span
+                    className={`inline-block px-2 py-1 rounded-full text-xs font-medium border ${getStatusColor(
+                      selectedOrder.status
+                    )}`}
+                  >
+                    {getStatusLabel(selectedOrder.status)}
+                  </span>
+                </div>
+
+                {/* Order Items */}
+                <div className="space-y-3">
+                  <p
+                    className="text-sm font-semibold text-gray-700"
+                    style={{ fontFamily: '"League Spartan", sans-serif' }}
+                  >
+                    Order Items
+                  </p>
+                  {selectedOrder.orderItems.map((item) => {
+                    const productImage =
+                      item.product?.storeItem?.display?.url ||
+                      item.product?.storeItem?.images?.[0] ||
+                      "";
+                    return (
+                      <div
+                        key={item.id}
+                        className="bg-gray-50 rounded-lg p-3 border border-gray-200"
+                      >
+                        <div className="flex items-start gap-3">
+                          {productImage ? (
+                            <img
+                              src={productImage}
+                              alt={item.product?.storeItem?.name || "Product"}
+                              className="w-12 h-12 object-cover rounded border border-gray-200 flex-shrink-0"
+                            />
+                          ) : (
+                            <div className="w-12 h-12 rounded border border-gray-200 bg-gray-100 flex items-center justify-center flex-shrink-0">
+                              <Package className="w-6 h-6 text-gray-400" />
+                            </div>
+                          )}
+                          <div className="flex-1 min-w-0">
+                            <p
+                              className="text-sm font-medium text-gray-900"
+                              style={{
+                                fontFamily: '"League Spartan", sans-serif',
+                              }}
+                            >
+                              {item.product?.storeItem?.name || "Product"}
+                            </p>
+                            <p className="text-xs text-gray-500 mt-1">
+                              Qty: {item.quantity}
+                            </p>
+                            <p className="text-xs font-medium text-gray-900 mt-1">
+                              {formatCurrency(
+                                item.price,
+                                selectedOrder.payment?.currency || "GBP"
+                              )}
+                            </p>
+                            {selectedOrder.status === "PAID" &&
+                              item.productId &&
+                              item.product?.type === "STORE" && (
+                                <div className="mt-2">
+                                  {(item.hasReviewed ??
+                                    reviewedOrderItems.has(item.id)) ? (
+                                    <span className="inline-flex items-center gap-1 text-xs text-green-600 font-medium">
+                                      <Star className="w-3 h-3 fill-green-600" />
+                                      Review submitted
+                                    </span>
+                                  ) : (
+                                    <button
+                                      type="button"
+                                      onClick={() => handleReviewClick(item)}
+                                      className="inline-flex items-center gap-1.5 text-xs font-medium text-brand-green hover:text-brand-green-dark transition-colors"
+                                    >
+                                      <Star className="w-3 h-3" />
+                                      Write a Review
+                                    </button>
+                                  )}
+                                </div>
+                              )}
+                          </div>
+                        </div>
+                      </div>
+                    );
+                  })}
+                </div>
+
+                {/* Totals */}
+                <div className="bg-gray-50 rounded-lg p-3 border border-gray-200">
+                  <div className="space-y-2">
+                    <div className="flex justify-between text-sm">
+                      <span className="text-gray-600">
+                        Items ({selectedOrder.orderItems.length})
+                      </span>
+                      <span className="text-gray-900">
+                        {formatCurrency(
+                          selectedOrder.orderItems.reduce(
+                            (sum, item) => sum + item.price * item.quantity,
+                            0
+                          ),
+                          selectedOrder.payment?.currency || "GBP"
+                        )}
+                      </span>
+                    </div>
+                    <div className="border-t border-gray-200 pt-2 flex justify-between items-center">
+                      <span
+                        className="text-sm font-semibold text-gray-900"
+                        style={{ fontFamily: '"League Spartan", sans-serif' }}
+                      >
+                        Total
+                      </span>
+                      <span
+                        className="text-lg font-bold text-brand-green"
+                        style={{ fontFamily: '"League Spartan", sans-serif' }}
+                      >
+                        {formatCurrency(
+                          selectedOrder.totalAmount,
+                          selectedOrder.payment?.currency || "GBP"
+                        )}
+                      </span>
+                    </div>
+                  </div>
+                </div>
+
+                {/* Delivery Address */}
+                {selectedOrder.deliveryAddress && (
+                  <div className="bg-gray-50 rounded-lg p-3 border border-gray-200">
+                    <div className="flex items-center gap-2 mb-2">
+                      <MapPin className="w-4 h-4 text-gray-500" />
+                      <p
+                        className="text-sm font-semibold text-gray-700"
+                        style={{ fontFamily: '"League Spartan", sans-serif' }}
+                      >
+                        Delivery Address
+                      </p>
+                    </div>
+                    <p className="text-xs text-gray-900 font-medium">
+                      {selectedOrder.deliveryAddress.recipientName}
+                    </p>
+                    <p className="text-xs text-gray-600 mt-1">
+                      {selectedOrder.deliveryAddress.contactPhone}
+                    </p>
+                    <p className="text-xs text-gray-600 mt-1">
+                      {selectedOrder.deliveryAddress.addressLine1}
+                    </p>
+                    <p className="text-xs text-gray-600">
+                      {selectedOrder.deliveryAddress.postTown},{" "}
+                      {selectedOrder.deliveryAddress.postcode}
+                    </p>
+                    {selectedOrder.deliveryAddress.deliveryInstructions && (
+                      <p className="text-xs text-gray-500 italic mt-2">
+                        Note:{" "}
+                        {selectedOrder.deliveryAddress.deliveryInstructions}
+                      </p>
+                    )}
+                  </div>
+                )}
+
+                {/* Payment Information */}
+                {selectedOrder.payment && (
+                  <div className="bg-gray-50 rounded-lg p-3 border border-gray-200">
+                    <div className="flex items-center gap-2 mb-2">
+                      <CreditCard className="w-4 h-4 text-gray-500" />
+                      <p
+                        className="text-sm font-semibold text-gray-700"
+                        style={{ fontFamily: '"League Spartan", sans-serif' }}
+                      >
+                        Payment Information
+                      </p>
+                    </div>
+                    <div className="grid grid-cols-2 gap-2 text-xs">
+                      <div>
+                        <p className="text-gray-500">Provider</p>
+                        <p className="text-gray-900 font-medium mt-0.5">
+                          {selectedOrder.payment.provider}
+                        </p>
+                      </div>
+                      <div>
+                        <p className="text-gray-500">Status</p>
+                        <span
+                          className={`inline-block px-2 py-0.5 rounded-full text-xs font-medium border mt-0.5 ${getStatusColor(
+                            selectedOrder.payment.status
+                          )}`}
+                        >
+                          {getStatusLabel(selectedOrder.payment.status)}
+                        </span>
+                      </div>
+                      <div>
+                        <p className="text-gray-500">Amount</p>
+                        <p className="text-gray-900 font-medium mt-0.5">
+                          {formatCurrency(
+                            selectedOrder.payment.amount,
+                            selectedOrder.payment.currency || "GBP"
+                          )}
+                        </p>
+                      </div>
+                      {selectedOrder.payment.providerRef && (
+                        <div>
+                          <p className="text-gray-500">Reference</p>
+                          <p className="text-xs font-mono text-gray-700 mt-0.5 truncate">
+                            {selectedOrder.payment.providerRef}
+                          </p>
+                        </div>
+                      )}
+                    </div>
+                    {selectedOrder.payment.metadata?.receiptUrl && (
+                      <div className="mt-3 pt-3 border-t border-gray-200">
+                        <a
+                          href={selectedOrder.payment.metadata.receiptUrl}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="flex items-center gap-2 text-xs font-medium text-brand-green hover:text-brand-green-dark transition-colors"
+                        >
+                          <FileText className="w-3.5 h-3.5" />
+                          <span>View Receipt</span>
+                          <ExternalLink className="w-3 h-3" />
+                        </a>
+                      </div>
+                    )}
+                  </div>
+                )}
+
+                {/* Action Buttons */}
+                <div className="space-y-3 mt-4">
+                  {/* Test button for Click & Drop submission */}
+                  <div className="bg-yellow-50 rounded-lg p-3 border border-yellow-200">
+                    <button
+                      type="button"
+                      onClick={handleSubmitToClickDrop}
+                      disabled={submittingToClickDrop}
+                      className="w-full inline-flex items-center justify-center gap-2 rounded-full bg-yellow-600 text-white px-4 py-2 text-sm font-semibold hover:bg-yellow-700 transition-colors disabled:opacity-60 disabled:cursor-not-allowed"
+                      style={{ fontFamily: '"League Spartan", sans-serif' }}
+                    >
+                      {submittingToClickDrop ? (
+                        <Loader className="w-4 h-4 animate-spin" />
+                      ) : (
+                        <Package className="w-4 h-4" />
+                      )}
+                      <span>Test: Submit to Click & Drop</span>
+                    </button>
+                    <p className="text-xs text-yellow-700 mt-2 text-center">
+                      TEST ONLY - This button will be removed in production
+                    </p>
+                  </div>
+
+                  {/* Pending Order Actions */}
+                  {selectedOrder.status.toUpperCase() === "PENDING" && (
+                    <div className="space-y-2">
+                      <button
+                        type="button"
+                        onClick={handleVerifyPayment}
+                        disabled={verifyingPayment}
+                        className="w-full inline-flex items-center justify-center gap-2 rounded-full bg-brand-purple text-white px-4 py-2.5 text-sm font-semibold hover:bg-brand-purple-dark transition-colors disabled:opacity-60 disabled:cursor-not-allowed"
+                        style={{ fontFamily: '"League Spartan", sans-serif' }}
+                      >
+                        {verifyingPayment ? (
+                          <Loader className="w-4 h-4 animate-spin" />
+                        ) : (
+                          <ShieldCheck className="w-4 h-4" />
+                        )}
+                        <span>Verify Payment</span>
+                      </button>
+                      <button
+                        type="button"
+                        onClick={handleReorder}
+                        disabled={reordering}
+                        className="w-full inline-flex items-center justify-center gap-2 rounded-full bg-brand-green text-white px-4 py-2.5 text-sm font-semibold hover:bg-brand-green-dark transition-colors disabled:opacity-60 disabled:cursor-not-allowed"
+                        style={{ fontFamily: '"League Spartan", sans-serif' }}
+                      >
+                        {reordering ? (
+                          <Loader className="w-4 h-4 animate-spin" />
+                        ) : (
+                          <RefreshCcw className="w-4 h-4" />
+                        )}
+                        <span>Order Again</span>
+                      </button>
+                      <button
+                        type="button"
+                        onClick={handleContactSupport}
+                        className="w-full inline-flex items-center justify-center gap-2 rounded-full border border-gray-300 text-gray-700 px-4 py-2.5 text-sm font-semibold hover:bg-gray-100 transition-colors"
+                        style={{ fontFamily: '"League Spartan", sans-serif' }}
+                      >
+                        <LifeBuoy className="w-4 h-4" />
+                        <span>Contact Support</span>
+                      </button>
+                      <p className="text-xs text-gray-500 text-center">
+                        If payment seems stuck, verify it with Stripe. If
+                        something feels off, reach out or rebuild the order right
+                        away.
+                      </p>
+                    </div>
+                  )}
+
+                  {/* Order Again for non-pending orders */}
+                  {selectedOrder.status.toUpperCase() !== "PENDING" && (
+                    <button
+                      type="button"
+                      onClick={handleReorder}
+                      disabled={reordering}
+                      className="w-full inline-flex items-center justify-center gap-2 rounded-full bg-brand-green text-white px-4 py-2.5 text-sm font-semibold hover:bg-brand-green-dark transition-colors disabled:opacity-60 disabled:cursor-not-allowed"
+                      style={{ fontFamily: '"League Spartan", sans-serif' }}
+                    >
+                      {reordering ? (
+                        <Loader className="w-4 h-4 animate-spin" />
+                      ) : (
+                        <RefreshCcw className="w-4 h-4" />
+                      )}
+                      <span>Order Again</span>
+                    </button>
+                  )}
+                </div>
+              </div>
+            ) : null}
+          </div>
+        </div>
+      )}
 
       {/* Review Modal */}
       {selectedOrderItem && (
