@@ -9,11 +9,14 @@ import {
   Eye,
   UserX,
   UserCheck,
+  Trash2,
+  Settings,
 } from "lucide-react";
 import {
   getAllUsers,
   toggleUserStatus,
   changeUserRole,
+  deleteUser,
 } from "../../api/user.api";
 import { User as UserType } from "../../types/user.types";
 import { useAuth } from "../../context/AuthContextProvider";
@@ -32,6 +35,9 @@ const ManagementUsers: React.FC = () => {
   const [pageSize] = useState(10);
   const [totalPages, setTotalPages] = useState(0);
   const [actionLoading, setActionLoading] = useState<string | null>(null);
+  const [openMenuId, setOpenMenuId] = useState<string | null>(null);
+  const [deleteConfirmOpen, setDeleteConfirmOpen] = useState(false);
+  const [userToDelete, setUserToDelete] = useState<UserType | null>(null);
 
   // Fetch users with filters and pagination
   const fetchUsers = async () => {
@@ -99,10 +105,38 @@ const ManagementUsers: React.FC = () => {
       setActionLoading(userId);
       await changeUserRole(userId, newRole);
       toast.success("User role updated successfully");
+      setOpenMenuId(null);
       fetchUsers();
     } catch (error: any) {
       console.error("Error changing user role:", error);
       toast.error("Failed to update user role");
+    } finally {
+      setActionLoading(null);
+    }
+  };
+
+  // Handle user deletion
+  const handleDeleteUser = async () => {
+    if (!userToDelete) return;
+    
+    if (userToDelete.id === currentUser?.id) {
+      toast.error("You cannot delete your own account");
+      setDeleteConfirmOpen(false);
+      setUserToDelete(null);
+      return;
+    }
+
+    try {
+      setActionLoading(userToDelete.id);
+      await deleteUser(userToDelete.id);
+      toast.success("User deleted successfully");
+      setDeleteConfirmOpen(false);
+      setUserToDelete(null);
+      setOpenMenuId(null);
+      fetchUsers();
+    } catch (error: any) {
+      console.error("Error deleting user:", error);
+      toast.error(error?.response?.data?.message || "Failed to delete user");
     } finally {
       setActionLoading(null);
     }
@@ -310,56 +344,105 @@ const ManagementUsers: React.FC = () => {
                       {formatDate(user.createdAt as any)}
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap text-sm font-medium">
-                      <div className="flex items-center gap-2">
-                        {/* Role Change Dropdown */}
-                        <select
-                          value={user.role}
-                          onChange={(e) =>
-                            handleRoleChange(
-                              user.id,
-                              e.target.value as "USER" | "ADMIN" | "MODERATOR"
-                            )
-                          }
-                          disabled={
-                            actionLoading === user.id ||
-                            user.id === currentUser?.id
-                          }
-                          className="text-xs border border-gray-300 rounded px-2 py-1 focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 disabled:opacity-50"
-                        >
-                          <option value="USER">User</option>
-                          <option value="MODERATOR">Moderator</option>
-                          <option value="ADMIN">Admin</option>
-                        </select>
-
-                        {/* Status Toggle Button */}
+                      <div className="relative">
                         <button
                           onClick={() =>
-                            handleToggleStatus(user.id, user.isActive)
+                            setOpenMenuId(openMenuId === user.id ? null : user.id)
                           }
-                          disabled={
-                            actionLoading === user.id ||
-                            user.id === currentUser?.id
-                          }
-                          className={`inline-flex items-center px-2 py-1 rounded text-xs font-medium transition-colors disabled:opacity-50 ${
-                            user.isActive
-                              ? "bg-red-100 text-red-700 hover:bg-red-200"
-                              : "bg-green-100 text-green-700 hover:bg-green-200"
-                          }`}
+                          disabled={actionLoading === user.id}
+                          className="inline-flex items-center p-2 text-gray-400 hover:text-gray-600 rounded-full hover:bg-gray-100 transition-colors disabled:opacity-50"
                         >
-                          {actionLoading === user.id ? (
-                            <div className="animate-spin rounded-full h-3 w-3 border-b border-current"></div>
-                          ) : user.isActive ? (
-                            <>
-                              <UserX size={12} className="mr-1" />
-                              Deactivate
-                            </>
-                          ) : (
-                            <>
-                              <UserCheck size={12} className="mr-1" />
-                              Activate
-                            </>
-                          )}
+                          <MoreVertical size={18} />
                         </button>
+
+                        {/* Dropdown Menu */}
+                        {openMenuId === user.id && (
+                          <>
+                            <div
+                              className="fixed inset-0 z-10"
+                              onClick={() => setOpenMenuId(null)}
+                            />
+                            <div className="absolute right-0 mt-2 w-56 rounded-md shadow-lg bg-white ring-1 ring-black ring-opacity-5 z-20">
+                              <div className="py-1">
+                                {/* Change Role Section */}
+                                <div className="px-4 py-2 border-b border-gray-200">
+                                  <p className="text-xs font-semibold text-gray-700 mb-2" style={{ fontFamily: '"League Spartan", sans-serif' }}>
+                                    Change Role
+                                  </p>
+                                  <select
+                                    value={user.role}
+                                    onChange={(e) =>
+                                      handleRoleChange(
+                                        user.id,
+                                        e.target.value as "USER" | "ADMIN" | "MODERATOR"
+                                      )
+                                    }
+                                    disabled={
+                                      actionLoading === user.id ||
+                                      user.id === currentUser?.id
+                                    }
+                                    className="w-full text-xs border border-gray-300 rounded px-2 py-1.5 focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 disabled:opacity-50"
+                                  >
+                                    <option value="USER">User</option>
+                                    <option value="MODERATOR">Moderator</option>
+                                    <option value="ADMIN">Admin</option>
+                                  </select>
+                                </div>
+
+                                {/* Activate/Deactivate */}
+                                <button
+                                  onClick={() => {
+                                    handleToggleStatus(user.id, user.isActive);
+                                    setOpenMenuId(null);
+                                  }}
+                                  disabled={
+                                    actionLoading === user.id ||
+                                    user.id === currentUser?.id
+                                  }
+                                  className={`w-full text-left px-4 py-2 text-sm flex items-center gap-2 transition-colors disabled:opacity-50 ${
+                                    user.isActive
+                                      ? "text-red-700 hover:bg-red-50"
+                                      : "text-green-700 hover:bg-green-50"
+                                  }`}
+                                >
+                                  {actionLoading === user.id ? (
+                                    <>
+                                      <div className="animate-spin rounded-full h-4 w-4 border-b border-current"></div>
+                                      <span>Processing...</span>
+                                    </>
+                                  ) : user.isActive ? (
+                                    <>
+                                      <UserX size={16} />
+                                      <span>Deactivate</span>
+                                    </>
+                                  ) : (
+                                    <>
+                                      <UserCheck size={16} />
+                                      <span>Activate</span>
+                                    </>
+                                  )}
+                                </button>
+
+                                {/* Delete User */}
+                                <button
+                                  onClick={() => {
+                                    setUserToDelete(user);
+                                    setDeleteConfirmOpen(true);
+                                    setOpenMenuId(null);
+                                  }}
+                                  disabled={
+                                    actionLoading === user.id ||
+                                    user.id === currentUser?.id
+                                  }
+                                  className="w-full text-left px-4 py-2 text-sm text-red-700 hover:bg-red-50 flex items-center gap-2 transition-colors disabled:opacity-50"
+                                >
+                                  <Trash2 size={16} />
+                                  <span>Delete User</span>
+                                </button>
+                              </div>
+                            </div>
+                          </>
+                        )}
                       </div>
                     </td>
                   </tr>
@@ -440,6 +523,71 @@ const ManagementUsers: React.FC = () => {
                   Next
                 </button>
               </nav>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Delete Confirmation Dialog */}
+      {deleteConfirmOpen && userToDelete && (
+        <div className="fixed inset-0 z-50 overflow-y-auto">
+          <div className="flex items-center justify-center min-h-screen px-4 pt-4 pb-20 text-center sm:block sm:p-0">
+            <div
+              className="fixed inset-0 transition-opacity bg-gray-500 bg-opacity-75"
+              onClick={() => {
+                setDeleteConfirmOpen(false);
+                setUserToDelete(null);
+              }}
+            />
+            <div className="inline-block align-bottom bg-white rounded-lg text-left overflow-hidden shadow-xl transform transition-all sm:my-8 sm:align-middle sm:max-w-lg sm:w-full">
+              <div className="bg-white px-4 pt-5 pb-4 sm:p-6 sm:pb-4">
+                <div className="sm:flex sm:items-start">
+                  <div className="mx-auto flex-shrink-0 flex items-center justify-center h-12 w-12 rounded-full bg-red-100 sm:mx-0 sm:h-10 sm:w-10">
+                    <Trash2 className="h-6 w-6 text-red-600" />
+                  </div>
+                  <div className="mt-3 text-center sm:mt-0 sm:ml-4 sm:text-left">
+                    <h3
+                      className="text-lg leading-6 font-medium text-gray-900"
+                      style={{ fontFamily: '"League Spartan", sans-serif' }}
+                    >
+                      Delete User
+                    </h3>
+                    <div className="mt-2">
+                      <p className="text-sm text-gray-500">
+                        Are you sure you want to delete{" "}
+                        <span className="font-semibold">
+                          {userToDelete.firstName} {userToDelete.lastName}
+                        </span>
+                        ? This action cannot be undone.
+                      </p>
+                    </div>
+                  </div>
+                </div>
+              </div>
+              <div className="bg-gray-50 px-4 py-3 sm:px-6 sm:flex sm:flex-row-reverse">
+                <button
+                  type="button"
+                  onClick={handleDeleteUser}
+                  disabled={actionLoading === userToDelete.id}
+                  className="w-full inline-flex justify-center rounded-md border border-transparent shadow-sm px-4 py-2 bg-red-600 text-base font-medium text-white hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-500 sm:ml-3 sm:w-auto sm:text-sm disabled:opacity-50"
+                >
+                  {actionLoading === userToDelete.id ? (
+                    <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white"></div>
+                  ) : (
+                    "Delete"
+                  )}
+                </button>
+                <button
+                  type="button"
+                  onClick={() => {
+                    setDeleteConfirmOpen(false);
+                    setUserToDelete(null);
+                  }}
+                  className="mt-3 w-full inline-flex justify-center rounded-md border border-gray-300 shadow-sm px-4 py-2 bg-white text-base font-medium text-gray-700 hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 sm:mt-0 sm:ml-3 sm:w-auto sm:text-sm"
+                >
+                  Cancel
+                </button>
+              </div>
             </div>
           </div>
         </div>

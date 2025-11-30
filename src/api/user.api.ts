@@ -165,6 +165,14 @@ export const changeUserRole = async (
   return data as ResponseDto<{ user: User }>;
 };
 
+// Admin only: Delete user
+export const deleteUser = async (
+  id: string
+): Promise<ResponseDto<null>> => {
+  const { data } = await http.delete(`/user/${id}`);
+  return data as ResponseDto<null>;
+};
+
 // Delivery Address CRUD operations
 
 // Get all delivery addresses for current user
