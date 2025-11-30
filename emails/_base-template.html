@@ -1,0 +1,356 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <title><%= title || 'Fifty Firsts Wellness' %></title>
+    <style>
+        /* Reset and base styles */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Quicksand', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            line-height: 1.6;
+            color: #374151;
+            background-color: #f9fafb;
+            margin: 0;
+            padding: 0;
+            width: 100%;
+        }
+
+        /* Container styles */
+        .email-wrapper {
+            width: 100%;
+            background-color: #f9fafb;
+            padding: 20px 0;
+        }
+
+        .email-container {
+            max-width: 680px;
+            margin: 0 auto;
+            background-color: #ffffff;
+            border-radius: 8px;
+            overflow: hidden;
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+        }
+
+        /* Header styles */
+        .email-header {
+            background-color: #00969b;
+            color: #ffffff;
+            padding: 32px 40px;
+            text-align: center;
+        }
+
+        .logo {
+            font-family: 'Playfair Display', serif;
+            font-size: 28px;
+            font-weight: 700;
+            margin-bottom: 8px;
+            color: #ffffff;
+        }
+
+        .tagline {
+            font-size: 16px;
+            opacity: 0.9;
+            font-weight: 400;
+        }
+
+        /* Content styles */
+        .email-content {
+            padding: 40px;
+        }
+
+        .content-title {
+            font-family: 'Playfair Display', serif;
+            font-size: 24px;
+            font-weight: 600;
+            color: #111827;
+            margin-bottom: 16px;
+            text-align: center;
+        }
+
+        .content-subtitle {
+            font-size: 18px;
+            color: #374151;
+            margin-bottom: 24px;
+            text-align: center;
+        }
+
+        .content-text {
+            font-size: 16px;
+            color: #4b5563;
+            margin-bottom: 24px;
+            line-height: 1.7;
+        }
+
+        /* Button styles */
+        .btn {
+            display: inline-block;
+            padding: 14px 28px;
+            font-size: 16px;
+            font-weight: 600;
+            text-decoration: none;
+            border-radius: 6px;
+            text-align: center;
+            transition: all 0.2s ease;
+            margin: 16px 0;
+        }
+
+        .btn-primary {
+            background-color: #00969b;
+            color: #ffffff;
+        }
+
+        .btn-secondary {
+            background-color: #5f42e5;
+            color: #ffffff;
+        }
+
+        .btn-container {
+            text-align: center;
+            margin: 32px 0;
+        }
+
+        /* Info boxes */
+        .info-box {
+            background-color: #f0fdff;
+            border: 1px solid #00969b;
+            border-radius: 6px;
+            padding: 20px;
+            margin: 24px 0;
+        }
+
+        .info-box.warning {
+            background-color: #fef3c7;
+            border-color: #f59e0b;
+        }
+
+        .info-box.success {
+            background-color: #ecfdf5;
+            border-color: #10b981;
+        }
+
+        /* Code/OTP display */
+        .code-display {
+            background-color: #f8fafc;
+            border: 2px solid #00969b;
+            border-radius: 8px;
+            padding: 24px;
+            text-align: center;
+            margin: 24px 0;
+        }
+
+        .code-value {
+            font-family: 'Poppins', monospace;
+            font-size: 32px;
+            font-weight: 700;
+            color: #00969b;
+            letter-spacing: 4px;
+            margin: 16px 0;
+        }
+
+        /* List styles */
+        .feature-list {
+            margin: 24px 0;
+        }
+
+        .feature-item {
+            display: flex;
+            align-items: flex-start;
+            margin-bottom: 16px;
+            padding: 16px;
+            background-color: #f8fafc;
+            border-radius: 6px;
+            border-left: 4px solid #00969b;
+        }
+
+        .feature-icon {
+            margin-right: 12px;
+            font-size: 18px;
+            color: #00969b;
+            min-width: 24px;
+        }
+
+        .feature-text {
+            font-size: 15px;
+            color: #374151;
+        }
+
+        /* Steps */
+        .steps-container {
+            margin: 32px 0;
+        }
+
+        .step-item {
+            display: flex;
+            align-items: flex-start;
+            margin-bottom: 16px;
+            padding: 16px;
+            background-color: #f8fafc;
+            border-radius: 6px;
+        }
+
+        .step-number {
+            background-color: #00969b;
+            color: #ffffff;
+            width: 28px;
+            height: 28px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 600;
+            font-size: 14px;
+            margin-right: 16px;
+            flex-shrink: 0;
+        }
+
+        .step-text {
+            font-size: 15px;
+            color: #374151;
+        }
+
+        /* Footer styles */
+        .email-footer {
+            background-color: #111827;
+            color: #d1d5db;
+            padding: 32px 40px;
+            text-align: center;
+        }
+
+        .footer-text {
+            font-size: 14px;
+            line-height: 1.6;
+            margin-bottom: 16px;
+        }
+
+        .footer-links {
+            margin: 20px 0;
+        }
+
+        .footer-link {
+            color: #9ca3af;
+            text-decoration: none;
+            margin: 0 12px;
+            font-size: 14px;
+        }
+
+        .footer-link:hover {
+            color: #00969b;
+        }
+
+        .footer-copyright {
+            font-size: 12px;
+            color: #9ca3af;
+            margin-top: 20px;
+            padding-top: 16px;
+            border-top: 1px solid #374151;
+        }
+
+        /* Responsive styles */
+        @media only screen and (max-width: 640px) {
+            .email-wrapper {
+                padding: 10px;
+            }
+
+            .email-container {
+                border-radius: 0;
+                margin: 0;
+            }
+
+            .email-header,
+            .email-content,
+            .email-footer {
+                padding: 24px 20px;
+            }
+
+            .content-title {
+                font-size: 20px;
+            }
+
+            .content-subtitle {
+                font-size: 16px;
+            }
+
+            .code-value {
+                font-size: 24px;
+                letter-spacing: 2px;
+            }
+
+            .feature-item,
+            .step-item {
+                padding: 12px;
+            }
+
+            .btn {
+                display: block;
+                width: 100%;
+                padding: 16px;
+            }
+        }
+
+        @media only screen and (max-width: 480px) {
+            .email-header,
+            .email-content,
+            .email-footer {
+                padding: 20px 16px;
+            }
+
+            .logo {
+                font-size: 24px;
+            }
+
+            .tagline {
+                font-size: 14px;
+            }
+
+            .content-title {
+                font-size: 18px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="email-wrapper">
+        <div class="email-container">
+            <!-- Header -->
+            <div class="email-header">
+                <div class="logo">Fifty Firsts Wellness</div>
+                <div class="tagline"><%= headerTagline || 'Empowering Your Wellness Journey' %></div>
+            </div>
+
+            <!-- Content -->
+            <div class="email-content">
+                <%- content %>
+            </div>
+
+            <!-- Footer -->
+            <div class="email-footer">
+                <div class="footer-text">
+                    <strong>Fifty Firsts Wellness</strong><br>
+                    Empowering individuals through midlife transitions
+                </div>
+                
+                <div class="footer-links">
+                    <a href="#" class="footer-link">Privacy Policy</a>
+                    <a href="#" class="footer-link">Terms of Service</a>
+                    <a href="#" class="footer-link">Contact Support</a>
+                </div>
+
+                <div class="footer-copyright">
+                    © <%= new Date().getFullYear() %> Fifty Firsts Wellness. All rights reserved.<br>
+                    <% if (typeof unsubscribeUrl !== 'undefined') { %>
+                        <a href="<%= unsubscribeUrl %>" style="color: #9ca3af;">Unsubscribe</a>
+                    <% } %>
+                </div>
+            </div>
+        </div>
+    </div>
+</body>
+</html>

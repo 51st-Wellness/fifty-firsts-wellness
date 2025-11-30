@@ -630,7 +630,10 @@ const StoreItemDialog: React.FC<StoreItemDialogProps> = ({
               </Box>
 
               <Box>
-                <Typography variant="subtitle1" sx={{ mb: 1 }}>
+                <Typography 
+                  variant="subtitle1" 
+                  sx={{ mb: 1, fontFamily: '"League Spartan", sans-serif' }}
+                >
                   Product Ingredients
                 </Typography>
                 <Stack
@@ -737,7 +740,10 @@ const StoreItemDialog: React.FC<StoreItemDialogProps> = ({
                     alignItems={{ xs: "flex-start", sm: "center" }}
                     spacing={1}
                   >
-                    <Typography variant="subtitle2">
+                    <Typography 
+                      variant="subtitle2"
+                      sx={{ fontFamily: '"League Spartan", sans-serif' }}
+                    >
                       Discount settings
                     </Typography>
                     <FormControlLabel
@@ -826,7 +832,10 @@ const StoreItemDialog: React.FC<StoreItemDialogProps> = ({
               {/* Shipping Information */}
               <Box>
                 <Divider sx={{ my: 1 }} />
-                <Typography variant="subtitle2" sx={{ mb: 2 }}>
+                <Typography 
+                  variant="subtitle2" 
+                  sx={{ mb: 2, fontFamily: '"League Spartan", sans-serif' }}
+                >
                   Shipping Information (for Click & Drop)
                 </Typography>
                 <Typography
@@ -930,7 +939,10 @@ const StoreItemDialog: React.FC<StoreItemDialogProps> = ({
                     alignItems={{ xs: "flex-start", sm: "center" }}
                     spacing={1}
                   >
-                    <Typography variant="subtitle2">
+                    <Typography 
+                      variant="subtitle2"
+                      sx={{ fontFamily: '"League Spartan", sans-serif' }}
+                    >
                       Pre-order settings
                     </Typography>
                     <FormControlLabel
@@ -966,13 +978,19 @@ const StoreItemDialog: React.FC<StoreItemDialogProps> = ({
 
           {tabIndex === 1 && (
             <Box>
-              <Typography variant="subtitle1" sx={{ mb: 2 }}>
+              <Typography 
+                variant="subtitle1" 
+                sx={{ mb: 2, fontFamily: '"League Spartan", sans-serif' }}
+              >
                 Media Files
               </Typography>
 
               {/* Display File */}
               <Box sx={{ mb: 3 }}>
-                <Typography variant="subtitle2" sx={{ mb: 1 }}>
+                <Typography 
+                  variant="subtitle2" 
+                  sx={{ mb: 1, fontFamily: '"League Spartan", sans-serif' }}
+                >
                   Display Image/Video (Required for new items)
                 </Typography>
                 <Button
@@ -1025,7 +1043,10 @@ const StoreItemDialog: React.FC<StoreItemDialogProps> = ({
 
               {/* Additional Images */}
               <Box>
-                <Typography variant="subtitle2" sx={{ mb: 1 }}>
+                <Typography 
+                  variant="subtitle2" 
+                  sx={{ mb: 1, fontFamily: '"League Spartan", sans-serif' }}
+                >
                   Additional Images (Optional, max 5)
                 </Typography>
                 <Button

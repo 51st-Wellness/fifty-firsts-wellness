@@ -198,9 +198,9 @@ const PreOrdersManagement: React.FC = () => {
 
   const formatCurrency = (amount: number | null | undefined) => {
     if (amount === null || amount === undefined) return "N/A";
-    return new Intl.NumberFormat("en-US", {
+    return new Intl.NumberFormat("en-GB", {
       style: "currency",
-      currency: "USD",
+      currency: "GBP",
     }).format(amount);
   };
 

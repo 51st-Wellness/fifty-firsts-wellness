@@ -23,7 +23,14 @@ const FeaturedSection: React.FC = () => {
         });
 
         if (response?.status?.toLowerCase() === "success" && response?.data) {
-          setFeaturedItems(response.data.items || []);
+          // Filter out products that are out of stock AND don't have pre-order enabled
+          const items = (response.data.items || []).filter((it: StoreItem) => {
+            const isOutOfStock = (it.stock ?? 0) === 0;
+            const preOrderEnabled = Boolean((it as any).preOrderEnabled);
+            // Hide products that are out of stock and don't allow pre-order
+            return !(isOutOfStock && !preOrderEnabled);
+          });
+          setFeaturedItems(items);
         }
       } catch (error) {
         console.error("Error loading featured items:", error);

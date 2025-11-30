@@ -1,0 +1,330 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <title>Welcome to Fifty Firsts Wellness</title>
+    <style>
+      /* Reset and base styles */
+      * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+      }
+
+      body {
+        font-family:
+          'Quicksand',
+          -apple-system,
+          BlinkMacSystemFont,
+          'Segoe UI',
+          Roboto,
+          sans-serif;
+        line-height: 1.6;
+        color: #374151;
+        background-color: #f9fafb;
+        margin: 0;
+        padding: 0;
+        width: 100%;
+      }
+
+      .email-wrapper {
+        width: 100%;
+        background-color: #f9fafb;
+        padding: 20px 0;
+      }
+
+      .email-container {
+        max-width: 680px;
+        margin: 0 auto;
+        background-color: #ffffff;
+        border-radius: 8px;
+        overflow: hidden;
+        box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+      }
+
+      .email-header {
+        background-color: #5f42e5;
+        color: #ffffff;
+        padding: 32px 40px;
+        text-align: center;
+      }
+
+      .logo {
+        font-family: 'Playfair Display', serif;
+        font-size: 28px;
+        font-weight: 700;
+        margin-bottom: 8px;
+        color: #ffffff;
+      }
+
+      .tagline {
+        font-size: 16px;
+        opacity: 0.9;
+        font-weight: 400;
+      }
+
+      .email-content {
+        padding: 40px;
+      }
+
+      .content-title {
+        font-family: 'Playfair Display', serif;
+        font-size: 24px;
+        font-weight: 600;
+        color: #111827;
+        margin-bottom: 16px;
+        text-align: center;
+      }
+
+      .content-text {
+        font-size: 16px;
+        color: #4b5563;
+        margin-bottom: 24px;
+        line-height: 1.7;
+        text-align: center;
+      }
+
+      .highlight-box {
+        background-color: #f0fdff;
+        border: 1px solid #00969b;
+        border-radius: 8px;
+        padding: 24px;
+        margin: 32px 0;
+        text-align: center;
+      }
+
+      .highlight-title {
+        font-size: 20px;
+        font-weight: 600;
+        color: #00969b;
+        margin-bottom: 12px;
+      }
+
+      .highlight-text {
+        font-size: 16px;
+        color: #374151;
+      }
+
+      .feature-list {
+        margin: 32px 0;
+      }
+
+      .feature-item {
+        display: flex;
+        align-items: flex-start;
+        margin-bottom: 16px;
+        padding: 16px;
+        background-color: #f8fafc;
+        border-radius: 6px;
+        border-left: 4px solid #00969b;
+      }
+
+      .feature-icon {
+        margin-right: 12px;
+        font-size: 18px;
+        color: #00969b;
+        min-width: 24px;
+      }
+
+      .feature-text {
+        font-size: 15px;
+        color: #374151;
+      }
+
+      .btn-container {
+        text-align: center;
+        margin: 32px 0;
+      }
+
+      .btn {
+        display: inline-block;
+        padding: 14px 28px;
+        font-size: 16px;
+        font-weight: 600;
+        text-decoration: none;
+        border-radius: 6px;
+        text-align: center;
+        transition: all 0.2s ease;
+        margin: 16px 0;
+        background-color: #00969b;
+        color: #ffffff;
+      }
+
+      .help-text {
+        text-align: center;
+        color: #6b7280;
+        font-size: 14px;
+        margin-top: 24px;
+      }
+
+      .email-footer {
+        background-color: #111827;
+        color: #d1d5db;
+        padding: 32px 40px;
+        text-align: center;
+      }
+
+      .footer-text {
+        font-size: 14px;
+        line-height: 1.6;
+        margin-bottom: 16px;
+      }
+
+      .footer-links {
+        margin: 20px 0;
+      }
+
+      .footer-link {
+        color: #9ca3af;
+        text-decoration: none;
+        margin: 0 12px;
+        font-size: 14px;
+      }
+
+      .footer-link:hover {
+        color: #00969b;
+      }
+
+      .footer-copyright {
+        font-size: 12px;
+        color: #9ca3af;
+        margin-top: 20px;
+        padding-top: 16px;
+        border-top: 1px solid #374151;
+      }
+
+      @media only screen and (max-width: 640px) {
+        .email-wrapper {
+          padding: 10px;
+        }
+
+        .email-container {
+          border-radius: 0;
+          margin: 0;
+        }
+
+        .email-header,
+        .email-content,
+        .email-footer {
+          padding: 24px 20px;
+        }
+
+        .content-title {
+          font-size: 20px;
+        }
+
+        .feature-item {
+          padding: 12px;
+        }
+
+        .btn {
+          display: block;
+          width: 100%;
+          padding: 16px;
+        }
+      }
+
+      @media only screen and (max-width: 480px) {
+        .email-header,
+        .email-content,
+        .email-footer {
+          padding: 20px 16px;
+        }
+
+        .logo {
+          font-size: 24px;
+        }
+
+        .tagline {
+          font-size: 14px;
+        }
+
+        .content-title {
+          font-size: 18px;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <div class="email-wrapper">
+      <div class="email-container">
+        <div class="email-header">
+          <div class="logo">Fifty Firsts Wellness</div>
+          <div class="tagline">Empowering Midlife Transformation</div>
+        </div>
+
+        <div class="email-content">
+          <h1 class="content-title">
+            Welcome to Your Wellness Journey, <%= firstName %>! 🌟
+          </h1>
+
+          <p class="content-text">
+            We're thrilled to have you join our community of individuals
+            navigating midlife transitions. Your journey to growth, reinvention,
+            and wellness starts now!
+          </p>
+
+          <div class="highlight-box">
+            <div class="highlight-title">Your Mission</div>
+            <div class="highlight-text">
+              Transform your midlife experience through mindset coaching,
+              lifestyle wellness, and practical tools for growth.
+            </div>
+          </div>
+
+          <div class="feature-list">
+            <div class="feature-item">
+              <div class="feature-text">
+                <strong>Mindset Coaching:</strong> Develop resilience and
+                positive thinking patterns
+              </div>
+            </div>
+
+            <div class="feature-item">
+              <div class="feature-text">
+                <strong>Lifestyle Wellness:</strong> Practical tools for
+                physical and mental well-being
+              </div>
+            </div>
+
+            <div class="feature-item">
+              <div class="feature-text">
+                <strong>Personal Growth:</strong> Resources for continuous
+                learning and development
+              </div>
+            </div>
+          </div>
+
+          <div class="btn-container">
+            <a href="<%= frontendUrl %>" class="btn"> Start Your Journey </a>
+          </div>
+
+          <p class="help-text">
+            Ready to explore our wellness programmes, workshops, and community?
+            Your first step towards transformation awaits!
+          </p>
+        </div>
+
+        <div class="email-footer">
+          <div class="footer-text">
+            <strong>Fifty Firsts Wellness</strong><br />
+            Empowering individuals through midlife transitions
+          </div>
+
+          <div class="footer-links">
+            <a href="#" class="footer-link">Privacy Policy</a>
+            <a href="#" class="footer-link">Terms of Service</a>
+            <a href="#" class="footer-link">Contact Support</a>
+          </div>
+
+          <div class="footer-copyright">
+            © <%= new Date().getFullYear() %> Fifty Firsts Wellness. All rights
+            reserved.
+          </div>
+        </div>
+      </div>
+    </div>
+  </body>
+</html>

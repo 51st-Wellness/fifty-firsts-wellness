@@ -28,6 +28,7 @@ const ProductDetail: React.FC = () => {
   const [item, setItem] = useState<StoreItem | null>(null);
   const [loading, setLoading] = useState(true);
   const [selectedImageIndex, setSelectedImageIndex] = useState(0);
+  const [imageFade, setImageFade] = useState(true);
   const [quantity, setQuantity] = useState(1);
   const [reviewModalOpen, setReviewModalOpen] = useState(false);
   const [reviewCarouselIndex, setReviewCarouselIndex] = useState(0);
@@ -50,6 +51,8 @@ const ProductDetail: React.FC = () => {
         setLoading(true);
         const res = await fetchStoreItemById(productId);
         setItem(res.data!);
+        setSelectedImageIndex(0);
+        setImageFade(true);
         document.title = `${
           res.data?.name ?? "Product"
         } • Fifty Firsts Wellness`;
@@ -144,22 +147,28 @@ const ProductDetail: React.FC = () => {
     );
   }
 
-  // Use same image logic as StoreItemCard and also fall back to navigation state
-  const state = (location as any)?.state as
-    | { cover?: string; images?: string[] }
-    | undefined;
-  const imageUrl = item.display?.url || item.images?.[0] || state?.cover || "";
-  const images =
-    item.images && item.images.length
-      ? item.images
-      : state?.images && state.images.length
-      ? state.images
-      : item.display?.url
-      ? [item.display.url]
-      : state?.cover
-      ? [state.cover]
-      : [];
-  const mainImage = images[selectedImageIndex] || imageUrl || "";
+  // Use display image as main image, and item.images as additional images
+  // Similar to how ManagementMarketplace handles it
+  const displayImage = item.display?.url || "";
+  const additionalImages = item.images || [];
+  
+  // Combine display image with additional images, ensuring display image is first
+  // Always include all images, even if display image is in the additional images array
+  const allImages = displayImage 
+    ? [displayImage, ...additionalImages.filter(img => img && img !== displayImage && img.trim() !== "")]
+    : additionalImages.filter(img => img && img.trim() !== "");
+  
+  const mainImage = allImages[selectedImageIndex] || displayImage || additionalImages[0] || "";
+
+  // Handle image transition with fade effect
+  const handleImageChange = (index: number) => {
+    if (index === selectedImageIndex) return;
+    setImageFade(false);
+    setTimeout(() => {
+      setSelectedImageIndex(index);
+      setImageFade(true);
+    }, 150);
+  };
 
   const defaultDescription =
     "We're here to help! Whether you have a question about our services, need assistance with your wellness journey, or want to learn more about what we offer, our team is ready to assist you.";
@@ -203,28 +212,48 @@ const ProductDetail: React.FC = () => {
         <div className="order-1 lg:order-1">
           {/* Image Gallery */}
           <div className="mb-8 lg:mb-8">
-            <div className="bg-white rounded-2xl overflow-hidden mb-4">
-              {mainImage ? (
-                <img
-                  src={mainImage}
-                  alt={item.name}
-                  className="w-full h-auto object-cover"
-                />
-              ) : (
-                <div className="h-96 bg-gray-100 flex items-center justify-center">
-                  <ShoppingCart className="w-16 h-16 text-gray-400" />
-                </div>
-              )}
+            <div className="bg-white rounded-2xl overflow-hidden mb-4 relative" style={{ aspectRatio: "1", minHeight: "250px", maxHeight: "350px" }}>
+              <style>{`
+                @media (min-width: 768px) {
+                  .product-image-container {
+                    min-height: 400px !important;
+                    max-height: 600px !important;
+                  }
+                }
+              `}</style>
+              <div className="product-image-container" style={{ aspectRatio: "1", minHeight: "250px", maxHeight: "350px", position: "relative", width: "100%" }}>
+                {mainImage ? (
+                  <img
+                    src={mainImage}
+                    alt={item.name}
+                    className="w-full h-full object-cover"
+                    style={{ 
+                      position: "absolute",
+                      top: 0,
+                      left: 0,
+                      width: "100%",
+                      height: "100%",
+                      opacity: imageFade ? 1 : 0,
+                      transition: "opacity 0.3s ease-in-out"
+                    }}
+                    key={selectedImageIndex}
+                  />
+                ) : (
+                  <div className="h-full bg-gray-100 flex items-center justify-center" style={{ minHeight: "250px" }}>
+                    <ShoppingCart className="w-16 h-16 text-gray-400" />
+                  </div>
+                )}
+              </div>
             </div>
 
             {/* Thumbnails */}
-            {images.length > 1 && (
+            {allImages.length > 1 && (
               <div className="flex gap-2">
-                {images.map((img, idx) => (
+                {allImages.map((img, idx) => (
                   <button
                     key={idx}
-                    onClick={() => setSelectedImageIndex(idx)}
-                    className={`w-20 h-20 rounded-lg overflow-hidden border-2 flex-shrink-0 ${
+                    onClick={() => handleImageChange(idx)}
+                    className={`w-20 h-20 rounded-lg overflow-hidden border-2 flex-shrink-0 transition-all ${
                       selectedImageIndex === idx
                         ? "border-brand-green"
                         : "border-transparent hover:border-gray-300"
@@ -502,9 +531,6 @@ const ProductDetail: React.FC = () => {
                                   <p className="text-sm text-gray-600 mb-2 leading-relaxed">
                                     {review.comment || ""}
                                   </p>
-                                  <span className="inline-block px-2 py-1 rounded-full bg-green-100 text-green-700 text-xs font-medium">
-                                    Verified Purchase
-                                  </span>
                                 </div>
                               ))
                             : null}

@@ -145,40 +145,42 @@ const StoreItemCard: React.FC<StoreItemCardProps> = ({
             />
           </div>
 
-          {item.stock !== undefined && item.stock > 0 && (
-            <div className="mt-1.5 text-[10px] md:text-xs text-gray-500">
+          {item.stock !== undefined && (
+            <div className="mt-0.5 text-[10px] md:text-xs text-gray-500">
               {item.stock} {item.stock === 1 ? "item" : "items"} in stock
             </div>
           )}
 
-          {reviewSummary && reviewSummary.reviewCount > 0 && (
-            <div className="mt-2 md:mt-3 flex flex-col md:flex-row md:items-center gap-1 md:gap-2 text-xs md:text-base text-gray-600 min-h-[28px] md:min-h-[20px]">
-              <div className="flex items-center gap-0.5">
-                {[...Array(5)].map((_, i) => (
+          <div className="mt-1 md:mt-1.5 flex flex-col md:flex-row md:items-center gap-1 md:gap-2 text-xs md:text-base text-gray-600 min-h-[28px] md:min-h-[20px]">
+            <div className="flex items-center gap-0.5">
+              {[...Array(5)].map((_, i) => {
+                const averageRating = reviewSummary?.averageRating ?? 0;
+                const hasRating = i < Math.round(averageRating);
+                return (
                   <Star
                     key={i}
                     className={`w-3 h-3 md:w-4 md:h-4 ${
-                      i < Math.round(reviewSummary.averageRating)
+                      hasRating
                         ? "fill-yellow-400 text-yellow-400"
                         : "text-gray-300"
                     }`}
                   />
-                ))}
-              </div>
-              <span className="text-gray-500 text-[10px] md:text-sm">
-                ({reviewSummary.reviewCount}{" "}
-                {reviewSummary.reviewCount === 1 ? "review" : "reviews"})
-              </span>
+                );
+              })}
             </div>
-          )}
+            <span className="text-gray-500 text-[10px] md:text-sm">
+              ({reviewSummary?.reviewCount ?? 0}{" "}
+              {(reviewSummary?.reviewCount ?? 0) === 1 ? "review" : "reviews"})
+            </span>
+          </div>
 
           <div
             className="mt-auto pt-0.5 md:pt-2 cart-controls flex flex-wrap items-center gap-2"
             onClick={(e) => e.stopPropagation()}
           >
             {canPreOrder ? (
-              <div className="w-full space-y-2">
-                <span className="relative group block">
+              <div className="w-full flex items-center gap-2">
+                <span className="relative group flex-1">
                   <button
                     type="button"
                     onClick={handlePreOrder}
@@ -208,35 +210,30 @@ const StoreItemCard: React.FC<StoreItemCardProps> = ({
                     </div>
                   )}
                 </span>
-                <div className="flex items-center justify-between">
-                  <span className="text-[10px] text-gray-500">
-                    Want updates?
-                  </span>
-                  <span className="relative group">
-                    <button
-                      type="button"
-                      onClick={() => {
-                        if (!isAuthenticated) return;
-                        setNotifyOpen(true);
-                      }}
-                      disabled={!isAuthenticated}
-                      title={
-                        !isAuthenticated
-                          ? "Login required to be notified"
-                          : undefined
-                      }
-                      className="inline-flex items-center justify-center bg-white border border-brand-green text-brand-green w-8 h-8 md:w-10 md:h-10 rounded-full hover:bg-brand-green hover:text-white transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
-                      aria-label="Notify me when available"
-                    >
-                      <Bell className="w-3.5 h-3.5 md:w-4 md:h-4" />
-                    </button>
-                    {!isAuthenticated && (
-                      <div className="pointer-events-none absolute -top-9 left-1/2 -translate-x-1/2 whitespace-nowrap bg-gray-900 text-white text-[10px] px-2 py-1 rounded opacity-0 group-hover:opacity-100 transition-opacity">
-                        Login required
-                      </div>
-                    )}
-                  </span>
-                </div>
+                <span className="relative group flex-shrink-0">
+                  <button
+                    type="button"
+                    onClick={() => {
+                      if (!isAuthenticated) return;
+                      setNotifyOpen(true);
+                    }}
+                    disabled={!isAuthenticated}
+                    title={
+                      !isAuthenticated
+                        ? "Login required to be notified"
+                        : undefined
+                    }
+                    className="inline-flex items-center justify-center bg-white border border-brand-green text-brand-green w-8 h-8 md:w-10 md:h-10 rounded-full hover:bg-brand-green hover:text-white transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                    aria-label="Notify me when available"
+                  >
+                    <Bell className="w-3.5 h-3.5 md:w-4 md:h-4" />
+                  </button>
+                  {!isAuthenticated && (
+                    <div className="pointer-events-none absolute -top-9 left-1/2 -translate-x-1/2 whitespace-nowrap bg-gray-900 text-white text-[10px] px-2 py-1 rounded opacity-0 group-hover:opacity-100 transition-opacity">
+                      Login required
+                    </div>
+                  )}
+                </span>
               </div>
             ) : showAddToCart ? (
               <span className="relative group w-full">

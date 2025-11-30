@@ -340,7 +340,11 @@ const ShippingSettingsDialog: React.FC<ShippingSettingsDialogProps> = ({
             <CardHeader
               title="Default Shipping Service"
               subheader="Recommended service shown to customers by default"
-              titleTypographyProps={{ variant: "subtitle1", fontWeight: 600 }}
+              titleTypographyProps={{ 
+                variant: "subtitle1", 
+                fontWeight: 600,
+                sx: { fontFamily: '"League Spartan", sans-serif' }
+              }}
             />
             <CardContent>
               <TextField
@@ -376,7 +380,11 @@ const ShippingSettingsDialog: React.FC<ShippingSettingsDialogProps> = ({
                   Add Service
                 </Button>
               }
-              titleTypographyProps={{ variant: "h6", fontWeight: 600 }}
+              titleTypographyProps={{ 
+                variant: "h6", 
+                fontWeight: 600,
+                sx: { fontFamily: '"League Spartan", sans-serif' }
+              }}
             />
             <CardContent>
               <Stack spacing={2}>
@@ -399,10 +407,18 @@ const ShippingSettingsDialog: React.FC<ShippingSettingsDialogProps> = ({
                         }}
                       >
                         <Box>
-                          <Typography variant="subtitle1" fontWeight={600}>
+                          <Typography 
+                            variant="subtitle1" 
+                            fontWeight={600}
+                            sx={{ fontFamily: '"League Spartan", sans-serif' }}
+                          >
                             {service.label}
                           </Typography>
-                          <Typography variant="caption" color="text.secondary">
+                          <Typography 
+                            variant="caption" 
+                            color="text.secondary"
+                            sx={{ fontFamily: '"League Spartan", sans-serif' }}
+                          >
                             Code: {service.serviceCode} • {service.bands.length}{" "}
                             weight bands
                           </Typography>
@@ -464,7 +480,11 @@ const ShippingSettingsDialog: React.FC<ShippingSettingsDialogProps> = ({
                               mb: 2,
                             }}
                           >
-                            <Typography variant="subtitle2" fontWeight={600}>
+                            <Typography 
+                              variant="subtitle2" 
+                              fontWeight={600}
+                              sx={{ fontFamily: '"League Spartan", sans-serif' }}
+                            >
                               Weight Bands
                             </Typography>
                             <Button
@@ -568,7 +588,11 @@ const ShippingSettingsDialog: React.FC<ShippingSettingsDialogProps> = ({
                   Add Add-on
                 </Button>
               }
-              titleTypographyProps={{ variant: "h6", fontWeight: 600 }}
+              titleTypographyProps={{ 
+                variant: "h6", 
+                fontWeight: 600,
+                sx: { fontFamily: '"League Spartan", sans-serif' }
+              }}
             />
             <CardContent>
               {config.addOns && Object.keys(config.addOns).length > 0 ? (
@@ -642,7 +666,11 @@ const ShippingSettingsDialog: React.FC<ShippingSettingsDialogProps> = ({
                   ))}
                 </Stack>
               ) : (
-                <Typography variant="body2" color="text.secondary">
+                <Typography 
+                  variant="body2" 
+                  color="text.secondary"
+                  sx={{ fontFamily: '"League Spartan", sans-serif' }}
+                >
                   No add-ons configured. Click "Add Add-on" to create one.
                 </Typography>
               )}

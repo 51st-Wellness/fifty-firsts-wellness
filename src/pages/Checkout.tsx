@@ -69,12 +69,14 @@ const Checkout: React.FC = () => {
   const isSuccessStatus = (status?: string | null) =>
     typeof status === "string" && status.toUpperCase() === "SUCCESS";
 
-  // Format helper for currency display
-  const formatCurrency = (amount: number, currencyCode: string) =>
-    new Intl.NumberFormat("en-GB", {
+  // Format helper for currency display - Always use GBP
+  const formatCurrency = (amount: number, currencyCode?: string) => {
+    // Always use GBP regardless of API response
+    return new Intl.NumberFormat("en-GB", {
       style: "currency",
-      currency: currencyCode || "USD",
+      currency: "GBP",
     }).format(amount);
+  };
 
   // Get selected or default shipping service
   const selectedShipping = useMemo(() => {
@@ -108,7 +110,7 @@ const Checkout: React.FC = () => {
   }, [summary, selectedShippingKey]);
 
   const orderTotals = useMemo(() => {
-    const fallbackCurrency = summary?.currency || "USD";
+    const fallbackCurrency = summary?.currency || "GBP";
     if (!summary) {
       return {
         subtotal: 0,
@@ -161,7 +163,8 @@ const Checkout: React.FC = () => {
       totalQuantity: summaryBreakdown?.totalQuantity || items.length,
     };
   }, [summary, items.length, selectedShipping]);
-  const currencyCode = summary?.pricing?.currency || summary?.currency || "USD";
+  // Always use GBP - force conversion regardless of API response
+  const currencyCode = "GBP";
   const discountSummary = summary?.discounts;
   const globalDiscountInfo =
     summary?.globalDiscount || discountSummary?.globalDiscount;
@@ -708,17 +711,11 @@ const Checkout: React.FC = () => {
                                 <p className="mt-1 text-xs text-gray-500">
                                   Unit price:{" "}
                                   <span className="font-medium text-gray-900">
-                                    {formatCurrency(
-                                      item.unitPrice,
-                                      currencyCode
-                                    )}
+                                    {formatCurrency(item.unitPrice)}
                                   </span>
                                   {showBaseUnit && (
                                     <span className="ml-1 line-through text-gray-400">
-                                      {formatCurrency(
-                                        item.baseUnitPrice!,
-                                        currencyCode
-                                      )}
+                                      {formatCurrency(item.baseUnitPrice!)}
                                     </span>
                                   )}
                                 </p>
@@ -726,10 +723,7 @@ const Checkout: React.FC = () => {
                                   item.discount.totalAmount > 0 && (
                                     <p className="text-[11px] text-emerald-600 mt-0.5">
                                       -
-                                      {formatCurrency(
-                                        item.discount.totalAmount,
-                                        currencyCode
-                                      )}{" "}
+                                      {formatCurrency(item.discount.totalAmount)}{" "}
                                       savings (
                                       {item.discount.type === "PERCENTAGE"
                                         ? `${item.discount.value}%`
@@ -741,7 +735,7 @@ const Checkout: React.FC = () => {
                                   <p className="text-[11px] text-amber-600 mt-0.5">
                                     Charged today{" "}
                                     <strong className="text-amber-700">
-                                      {formatCurrency(itemDueNow, currencyCode)}
+                                      {formatCurrency(itemDueNow)}
                                     </strong>
                                   </p>
                                 )}
@@ -792,14 +786,11 @@ const Checkout: React.FC = () => {
                             </div>
                             <div className="text-left sm:text-right sm:flex-shrink-0">
                               <p className="text-sm sm:text-base font-semibold text-gray-900">
-                                {formatCurrency(item.lineTotal, currencyCode)}
+                                {formatCurrency(item.lineTotal)}
                               </p>
                               {showBaseLine && (
                                 <p className="text-xs text-gray-400 line-through">
-                                  {formatCurrency(
-                                    item.baseLineTotal!,
-                                    currencyCode
-                                  )}
+                                  {formatCurrency(item.baseLineTotal!)}
                                 </p>
                               )}
                               <p className="text-xs text-gray-500">
@@ -815,34 +806,26 @@ const Checkout: React.FC = () => {
                       <div className="flex justify-between text-gray-600">
                         <span>Items ({orderTotals.itemCount})</span>
                         <span>
-                          {formatCurrency(
-                            orderTotals.baseSubtotal,
-                            currencyCode
-                          )}
+                          {formatCurrency(orderTotals.baseSubtotal)}
                         </span>
                       </div>
+                      
                       {orderTotals.productDiscountTotal > 0 && (
-                        <div className="flex justify-between text-rose-600">
-                          <span>Product savings</span>
+                        <div className="flex justify-between text-rose-600 font-semibold">
+                          <span>Total product savings</span>
                           <span>
                             -{" "}
-                            {formatCurrency(
-                              orderTotals.productDiscountTotal,
-                              currencyCode
-                            )}
+                            {formatCurrency(orderTotals.productDiscountTotal)}
                           </span>
                         </div>
                       )}
                       {orderTotals.globalDiscountTotal > 0 &&
                         globalDiscountInfo?.applied && (
-                          <div className="flex justify-between text-rose-600">
+                          <div className="flex justify-between text-rose-600 font-semibold">
                             <span>Global discount</span>
                             <span>
                               -{" "}
-                              {formatCurrency(
-                                orderTotals.globalDiscountTotal,
-                                currencyCode
-                              )}
+                              {formatCurrency(orderTotals.globalDiscountTotal)}
                             </span>
                           </div>
                         )}
@@ -851,7 +834,10 @@ const Checkout: React.FC = () => {
                       {summary?.shipping?.availableServices &&
                         summary.shipping.availableServices.length > 0 && (
                           <div className="border-t border-gray-200 pt-4 space-y-3">
-                            <h4 className="text-sm font-semibold text-gray-900">
+                            <h4 
+                              className="text-sm font-semibold text-gray-900"
+                              style={{ fontFamily: '"League Spartan", sans-serif' }}
+                            >
                               Shipping Method
                             </h4>
                             <div className="space-y-2">
@@ -900,10 +886,7 @@ const Checkout: React.FC = () => {
                                           )}
                                         </div>
                                         <span className="text-sm font-semibold text-gray-900 whitespace-nowrap">
-                                          {formatCurrency(
-                                            service.price,
-                                            currencyCode
-                                          )}
+                                          {formatCurrency(service.price)}
                                         </span>
                                       </div>
                                     </div>
@@ -918,11 +901,8 @@ const Checkout: React.FC = () => {
                         <span>Shipping</span>
                         <span className="font-medium">
                           {selectedShipping
-                            ? formatCurrency(
-                                selectedShipping.price,
-                                currencyCode
-                              )
-                            : formatCurrency(0, currencyCode)}
+                            ? formatCurrency(selectedShipping.price)
+                            : formatCurrency(0)}
                         </span>
                       </div>
 
@@ -931,16 +911,13 @@ const Checkout: React.FC = () => {
                           Total due today
                         </span>
                         <span className="text-xl sm:text-2xl font-bold text-brand-green">
-                          {formatCurrency(orderTotals.grandTotal, currencyCode)}
+                          {formatCurrency(orderTotals.grandTotal)}
                         </span>
                       </div>
                       {orderTotals.totalDiscount > 0 && (
                         <p className="text-[11px] text-gray-500">
                           You save{" "}
-                          {formatCurrency(
-                            orderTotals.totalDiscount,
-                            currencyCode
-                          )}{" "}
+                          {formatCurrency(orderTotals.totalDiscount)}{" "}
                           with applied discounts.
                         </p>
                       )}
@@ -1249,7 +1226,7 @@ const Checkout: React.FC = () => {
 // Render delivery defaults in a subtle card to reassure the user
 const deliveryDetailsCard = (
   summary: CartCheckoutSummary | null,
-  formatCurrency: (amount: number, currencyCode: string) => string,
+  formatCurrency: (amount: number) => string,
   hasPreOrders?: boolean,
   grandTotal?: number
 ) => {
@@ -1281,15 +1258,14 @@ const deliveryDetailsCard = (
         <li>
           Cart total:{" "}
           <span className="font-semibold text-gray-900">
-            {formatCurrency(summary.totalAmount, summary.currency)}
+            {formatCurrency(summary.totalAmount)}
           </span>
         </li>
         <li>
           Due today:{" "}
           <span className="font-semibold text-gray-900">
             {formatCurrency(
-              grandTotal ?? summary.totalAmount ?? summary.summary.subtotal,
-              summary.currency
+              grandTotal ?? summary.totalAmount ?? summary.summary.subtotal
             )}
           </span>
         </li>
@@ -1300,6 +1276,42 @@ const deliveryDetailsCard = (
           </li>
         )}
       </ul>
+      
+      {/* Per-item discount breakdown */}
+      {summary?.orderItems?.some(
+        (item) =>
+          item.discount?.isActive &&
+          item.discount?.totalAmount &&
+          item.discount.totalAmount > 0
+      ) && (
+        <div className="mt-3 pt-3 border-t border-gray-200">
+          <p className="text-xs font-semibold text-gray-900 mb-2" style={{ fontFamily: '"League Spartan", sans-serif' }}>
+            Item Discounts:
+          </p>
+          <ul className="space-y-1.5">
+            {summary.orderItems
+              .filter(
+                (item) =>
+                  item.discount?.isActive &&
+                  item.discount?.totalAmount &&
+                  item.discount.totalAmount > 0
+              )
+              .map((item) => (
+                <li
+                  key={item.productId}
+                  className="flex justify-between text-xs text-rose-600"
+                >
+                  <span className="truncate pr-2">
+                    {item.name}
+                  </span>
+                  <span className="flex-shrink-0">
+                    -{formatCurrency(item.discount!.totalAmount)}
+                  </span>
+                </li>
+              ))}
+          </ul>
+        </div>
+      )}
       {summary.shipping && (
         <div className="mt-3 pt-3 border-t border-gray-100">
           <p className="text-[11px] sm:text-xs text-gray-600 mb-1">
