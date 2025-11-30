@@ -13,16 +13,21 @@ import {
 
 const PaymentError: React.FC = () => {
   const [searchParams] = useSearchParams();
-  const errorMessage = searchParams.get("message") || "An unexpected error occurred during payment processing.";
+  const errorMessage =
+    searchParams.get("message") ||
+    "An unexpected error occurred during payment processing.";
 
   // Determine error type based on message
-  const isServerError = errorMessage.toLowerCase().includes("server") || 
-                        errorMessage.toLowerCase().includes("down") ||
-                        errorMessage.toLowerCase().includes("unavailable");
-  const isPaymentNotFound = errorMessage.toLowerCase().includes("payment not found") ||
-                            errorMessage.toLowerCase().includes("not found");
-  const isNetworkError = errorMessage.toLowerCase().includes("network") ||
-                         errorMessage.toLowerCase().includes("connection");
+  const isServerError =
+    errorMessage.toLowerCase().includes("server") ||
+    errorMessage.toLowerCase().includes("down") ||
+    errorMessage.toLowerCase().includes("unavailable");
+  const isPaymentNotFound =
+    errorMessage.toLowerCase().includes("payment not found") ||
+    errorMessage.toLowerCase().includes("not found");
+  const isNetworkError =
+    errorMessage.toLowerCase().includes("network") ||
+    errorMessage.toLowerCase().includes("connection");
 
   const getErrorTitle = () => {
     if (isServerError) return "Service Temporarily Unavailable";
@@ -127,22 +132,30 @@ const PaymentError: React.FC = () => {
                 <p className="text-sm sm:text-base text-gray-700">
                   {isServerError && (
                     <>
-                      Our payment processing system is temporarily unavailable. This is usually resolved quickly, and you can try again shortly.
+                      Our payment processing system is temporarily unavailable.
+                      This is usually resolved quickly, and you can try again
+                      shortly.
                     </>
                   )}
                   {isPaymentNotFound && (
                     <>
-                      The payment session may have expired or was interrupted. This can happen if you navigated away from the payment page or if there was a timeout.
+                      The payment session may have expired or was interrupted.
+                      This can happen if you navigated away from the payment
+                      page or if there was a timeout.
                     </>
                   )}
                   {isNetworkError && (
                     <>
-                      There was a problem connecting to our payment service. This could be due to network issues on your end or temporary service interruptions.
+                      There was a problem connecting to our payment service.
+                      This could be due to network issues on your end or
+                      temporary service interruptions.
                     </>
                   )}
                   {!isServerError && !isPaymentNotFound && !isNetworkError && (
                     <>
-                      An unexpected error occurred while processing your payment. This could be due to various reasons, but rest assured that no charges have been made to your account.
+                      An unexpected error occurred while processing your
+                      payment. This could be due to various reasons, but rest
+                      assured that no charges have been made to your account.
                     </>
                   )}
                 </p>
@@ -161,7 +174,9 @@ const PaymentError: React.FC = () => {
                       Your Payment is Safe
                     </h3>
                     <p className="text-xs sm:text-sm text-gray-600">
-                      No charges have been made to your account. If you see a pending transaction, it will be automatically reversed within a few business days.
+                      No charges have been made to your account. If you see a
+                      pending transaction, it will be automatically reversed
+                      within a few business days.
                     </p>
                   </div>
                 </div>
@@ -245,7 +260,8 @@ const PaymentError: React.FC = () => {
                     Check Your Payment Method
                   </p>
                   <p className="text-xs sm:text-sm text-gray-600">
-                    Ensure your card has sufficient funds and is not expired. Some banks may require additional verification.
+                    Ensure your card has sufficient funds and is not expired.
+                    Some banks may require additional verification.
                   </p>
                 </div>
               </div>
@@ -256,7 +272,8 @@ const PaymentError: React.FC = () => {
                     Clear Your Browser Cache
                   </p>
                   <p className="text-xs sm:text-sm text-gray-600">
-                    Sometimes clearing your browser cache or trying a different browser can resolve payment issues.
+                    Sometimes clearing your browser cache or trying a different
+                    browser can resolve payment issues.
                   </p>
                 </div>
               </div>
@@ -267,7 +284,8 @@ const PaymentError: React.FC = () => {
                     Contact Our Support Team
                   </p>
                   <p className="text-xs sm:text-sm text-gray-600">
-                    Our support team is available to help you complete your purchase. We're here to assist you every step of the way.
+                    Our support team is available to help you complete your
+                    purchase. We're here to assist you every step of the way.
                   </p>
                 </div>
               </div>
@@ -280,4 +298,7 @@ const PaymentError: React.FC = () => {
 };
 
 export default PaymentError;
+
+
+
 

@@ -47,7 +47,7 @@ const statusConfig: Record<
   FULFILLED: { label: "Fulfilled", color: "success" },
   // Tracking statuses
   NOTFOUND: { label: "Not Found", color: "error" },
-  INFORECEIVED: { label: "Info Received", color: "info" },
+  DISPATCHED: { label: "Dispatched", color: "info" },
   TRANSIT: { label: "In Transit", color: "info" },
   PICKUP: { label: "Ready for Pickup", color: "warning" },
   UNDELIVERED: { label: "Undelivered", color: "error" },
@@ -98,7 +98,7 @@ const normalizeOrderStatus = (status: string): AdminOrderStatus | string => {
     FULFILLED: "FULFILLED",
     // Tracking statuses (keep as-is)
     NOTFOUND: "NOTFOUND",
-    INFORECEIVED: "INFORECEIVED",
+    DISPATCHED: "DISPATCHED",
     TRANSIT: "TRANSIT",
     PICKUP: "PICKUP",
     UNDELIVERED: "UNDELIVERED",
@@ -501,7 +501,12 @@ const OrderDetailsModal: React.FC<OrderDetailsModalProps> = ({
                 order.shippingCost) && (
                 <Card sx={{ mt: 2, bgcolor: "grey.50" }}>
                   <CardContent sx={{ p: 2, "&:last-child": { pb: 2 } }}>
-                    <Stack direction="row" spacing={1} alignItems="center" mb={1}>
+                    <Stack
+                      direction="row"
+                      spacing={1}
+                      alignItems="center"
+                      mb={1}
+                    >
                       <LocalShippingIcon fontSize="small" color="primary" />
                       <Typography variant="subtitle2" fontWeight={600}>
                         Shipping Details
@@ -536,12 +541,14 @@ const OrderDetailsModal: React.FC<OrderDetailsModalProps> = ({
                           <Typography variant="body2" fontWeight={500}>
                             {order.trackingReference}
                           </Typography>
-                          {order.trackingStatus && (
+                          {order.status && (
                             <Chip
-                              label={order.trackingStatus}
+                              label={normalizeOrderStatus(order.status)}
                               size="small"
                               color={
-                                getStatusConfig(order.trackingStatus).color
+                                getStatusConfig(
+                                  normalizeOrderStatus(order.status)
+                                ).color
                               }
                               sx={{ mt: 0.5 }}
                             />
