@@ -258,7 +258,6 @@ export type OrderSummary = {
   // Click & Drop fields
   clickDropOrderIdentifier?: number | null;
   trackingReference?: string | null;
-  trackingStatus?: string | null;
   packageFormatIdentifier?: string | null;
   serviceCode?: string | null;
   shippingCost?: number | null;

@@ -63,7 +63,7 @@ const statusConfig: Record<
   FULFILLED: { label: "Fulfilled", color: "success" },
   // Tracking statuses
   NOTFOUND: { label: "Not Found", color: "error" },
-  INFORECEIVED: { label: "Info Received", color: "info" },
+  DISPATCHED: { label: "Dispatched", color: "info" },
   TRANSIT: { label: "In Transit", color: "info" },
   PICKUP: { label: "Ready for Pickup", color: "warning" },
   UNDELIVERED: { label: "Undelivered", color: "error" },
@@ -116,7 +116,7 @@ const normalizeOrderStatus = (status: string): AdminOrderStatus | string => {
     FULFILLED: "FULFILLED",
     // Tracking statuses (keep as-is)
     NOTFOUND: "NOTFOUND",
-    INFORECEIVED: "INFORECEIVED",
+    DISPATCHED: "DISPATCHED",
     TRANSIT: "TRANSIT",
     PICKUP: "PICKUP",
     UNDELIVERED: "UNDELIVERED",
@@ -251,7 +251,6 @@ const OrdersManagement: React.FC = () => {
     }
   };
 
-
   const handleChangePage = (event: unknown, newPage: number) => {
     setPage(newPage);
   };
@@ -340,7 +339,7 @@ const OrdersManagement: React.FC = () => {
                 <MenuItem value="PACKAGING">Packaging</MenuItem>
                 <MenuItem value="IN_TRANSIT">In-Transit</MenuItem>
                 <MenuItem value="FULFILLED">Fulfilled</MenuItem>
-                <MenuItem value="INFORECEIVED">Info Received</MenuItem>
+                <MenuItem value="DISPATCHED">Dispatched</MenuItem>
                 <MenuItem value="TRANSIT">In Transit</MenuItem>
                 <MenuItem value="DELIVERED">Delivered</MenuItem>
                 <MenuItem value="UNDELIVERED">Undelivered</MenuItem>
