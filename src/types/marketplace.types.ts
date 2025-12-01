@@ -43,6 +43,9 @@ export type StoreItemListParams = {
   isFeatured?: boolean;
   isPublished?: boolean;
   category?: string;
+  minPrice?: number;
+  maxPrice?: number;
+  minRating?: number;
 };
 
 export type PaginationMeta = {

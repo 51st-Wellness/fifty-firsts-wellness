@@ -30,6 +30,7 @@ const MarketPlace: React.FC<MarketPlaceProps> = ({ onSearch }) => {
   const [page, setPage] = useState<number>(1);
   const [pageSize] = useState<number>(12);
   const [hasMore, setHasMore] = useState<boolean>(true);
+  const [hasPrev, setHasPrev] = useState<boolean>(false);
   const [loading, setLoading] = useState<boolean>(false);
   const [error, setError] = useState<string | null>(null);
   const [selectedCategory, setSelectedCategory] = useState<string>("All");
@@ -108,6 +109,15 @@ const MarketPlace: React.FC<MarketPlaceProps> = ({ onSearch }) => {
     loadCategories();
   }, [loadCategories]);
 
+  // Load items from the backend using current filters and pagination
+  const ratingThreshold = useMemo(() => {
+    if (selectedRating === "4+") return 4;
+    if (selectedRating === "3+") return 3;
+    if (selectedRating === "2+") return 2;
+    if (selectedRating === "1+") return 1;
+    return 0;
+  }, [selectedRating]);
+
   const loadItems = useCallback(
     async (opts: any = {}) => {
       setLoading(true);
@@ -120,6 +130,9 @@ const MarketPlace: React.FC<MarketPlaceProps> = ({ onSearch }) => {
           search: opts.search ?? (debouncedQuery || undefined),
           isPublished: true,
           category: selectedCategory !== "All" ? selectedCategory : undefined,
+          minPrice: minPrice || undefined,
+          maxPrice: maxPrice || undefined,
+          minRating: ratingThreshold || undefined,
         };
 
         console.log("Loading items with params:", params);
@@ -129,27 +142,32 @@ const MarketPlace: React.FC<MarketPlaceProps> = ({ onSearch }) => {
         // console.log("Response:", response.data);
         const { items: newItems, pagination } = response.data!;
 
-        if (opts.reset) {
-          setItems(newItems || []);
-        } else {
-          setItems((prev) => [...prev, ...(newItems || [])]);
-        }
+        // Always treat results as a single page when filters/page change
+        setItems(newItems || []);
         setHasMore(Boolean(pagination?.hasMore));
+        setHasPrev(Boolean(pagination?.hasPrev));
         setError(null);
       } catch (e: any) {
         console.error("Error loading items:", e);
         const errorMessage =
           e?.response?.data?.message || e?.message || "Network error occurred";
         setError(errorMessage);
-        if (opts.reset) {
-          setItems([]);
-        }
+        setItems([]);
         setHasMore(false);
+        setHasPrev(false);
       } finally {
         setLoading(false);
       }
     },
-    [page, pageSize, debouncedQuery, selectedCategory]
+    [
+      page,
+      pageSize,
+      debouncedQuery,
+      selectedCategory,
+      minPrice,
+      maxPrice,
+      ratingThreshold,
+    ]
   );
 
   const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
@@ -164,32 +182,6 @@ const MarketPlace: React.FC<MarketPlaceProps> = ({ onSearch }) => {
     setPage(1);
     loadItems({ page: 1, reset: true });
   }, [debouncedQuery, selectedCategory]);
-
-  // Client-side filtering for demo: filter by price and rating threshold
-  const ratingThreshold = useMemo(() => {
-    if (selectedRating === "4+") return 4;
-    if (selectedRating === "3+") return 3;
-    if (selectedRating === "2+") return 2;
-    if (selectedRating === "1+") return 1;
-    return 0;
-  }, [selectedRating]);
-
-  const getItemRating = (item: StoreItemType) => 4; // placeholder until backend provides rating
-
-  const filteredItems = useMemo(() => {
-    return items.filter((it) => {
-      const currentPrice =
-        getStoreItemPricing(it, { globalDiscount }).currentPrice ?? 0;
-      // Only apply price filter if maxPrice is set (> 0) or minPrice is set (> 0)
-      const priceFilterActive = minPrice > 0 || maxPrice > 0;
-      const withinPrice = priceFilterActive
-        ? currentPrice >= minPrice &&
-          (maxPrice === 0 || currentPrice <= maxPrice)
-        : true;
-      const meetsRating = getItemRating(it) >= ratingThreshold;
-      return withinPrice && meetsRating;
-    });
-  }, [items, minPrice, maxPrice, ratingThreshold, globalDiscount]);
 
   return (
     <main className="relative min-h-screen pb-0 bg-[#F7F8FA]">
@@ -411,7 +403,7 @@ const MarketPlace: React.FC<MarketPlaceProps> = ({ onSearch }) => {
                 </div>
               ) : (
                 <div className="grid grid-cols-2 md:grid-cols-2 lg:grid-cols-3 gap-4 md:gap-6">
-                  {filteredItems.map((item) => {
+                  {items.map((item) => {
                     // Create ReviewSummary from store item data (already includes averageRating and reviewCount)
                     const reviewSummary: ReviewSummary | undefined =
                       item.averageRating !== undefined &&
@@ -441,27 +433,36 @@ const MarketPlace: React.FC<MarketPlaceProps> = ({ onSearch }) => {
                 </div>
               )}
 
-              {/* Load More Button */}
-              {!loading && items.length > 0 && hasMore && (
-                <div className="pt-10 flex justify-center">
+              {/* Pagination Controls */}
+              {!loading && items.length > 0 && (
+                <div className="pt-10 flex items-center justify-center gap-4">
                   <button
-                    disabled={!hasMore || loading}
+                    type="button"
+                    disabled={loading || !hasPrev}
                     onClick={async () => {
-                      const next = page + 1;
-                      setPage(next);
-                      await loadItems({ page: next });
+                      if (!hasPrev) return;
+                      const prevPage = Math.max(1, page - 1);
+                      setPage(prevPage);
+                      await loadItems({ page: prevPage, reset: true });
                     }}
-                    className="px-6 py-3 rounded-full text-white bg-brand-green hover:opacity-90 transition-opacity disabled:opacity-50 disabled:cursor-not-allowed"
+                    className="px-4 py-2 rounded-full border border-brand-green text-brand-green bg-white hover:bg-brand-green/5 transition-colors disabled:opacity-50 disabled:cursor-not-allowed text-sm"
                     style={{ fontFamily: '"League Spartan", sans-serif' }}
                   >
-                    {loading ? (
-                      <div className="flex items-center gap-2">
-                        <div className="animate-spin rounded-full h-4 w-4 border-2 border-white border-t-transparent"></div>
-                        Loading...
-                      </div>
-                    ) : (
-                      "Load More"
-                    )}
+                    Previous
+                  </button>
+                  <button
+                    type="button"
+                    disabled={loading || !hasMore}
+                    onClick={async () => {
+                      if (!hasMore) return;
+                      const nextPage = page + 1;
+                      setPage(nextPage);
+                      await loadItems({ page: nextPage, reset: true });
+                    }}
+                    className="px-4 py-2 rounded-full text-white bg-brand-green hover:opacity-90 transition-opacity disabled:opacity-50 disabled:cursor-not-allowed text-sm"
+                    style={{ fontFamily: '"League Spartan", sans-serif' }}
+                  >
+                    Next
                   </button>
                 </div>
               )}
@@ -483,8 +484,8 @@ const MarketPlace: React.FC<MarketPlaceProps> = ({ onSearch }) => {
                       <div className="flex items-center gap-2">
                         <button
                           onClick={() => {
-                            setMinPrice(10);
-                            setMaxPrice(200);
+                            setMinPrice(0);
+                            setMaxPrice(0);
                           }}
                           className="px-2 py-1.5 rounded-full border border-brand-green text-brand-green text-xs hover:bg-brand-green/5 transition-colors"
                           style={{ fontFamily: '"League Spartan", sans-serif' }}
@@ -676,8 +677,8 @@ const MarketPlace: React.FC<MarketPlaceProps> = ({ onSearch }) => {
               <div className="flex gap-3 pt-4">
                 <button
                   onClick={() => {
-                    setMinPrice(10);
-                    setMaxPrice(200);
+                    setMinPrice(0);
+                    setMaxPrice(0);
                     setPriceDropdownOpen(false);
                   }}
                   className="flex-1 px-4 py-3 rounded-full border border-brand-green text-brand-green text-sm hover:bg-brand-green/5 transition-colors"
