@@ -202,6 +202,7 @@ export const CartProvider: React.FC<CartProviderProps> = ({ children }) => {
       const addToCartDto: AddToCartDto = { productId, quantity };
       const response = await cartAPI.addToCart(addToCartDto);
 
+      // Only show success if we have a valid response with data
       if (
         (response.status === "SUCCESS" || response.status === "success") &&
         response.data
@@ -212,6 +213,12 @@ export const CartProvider: React.FC<CartProviderProps> = ({ children }) => {
         // Open the cart and refresh its contents to ensure consistency
         dispatch({ type: "SET_CART_OPEN", payload: true });
         await refreshCart();
+      } else {
+        // Response was successful but no data - treat as error
+        const errorMessage = response.message || "Failed to add item to cart";
+        dispatch({ type: "SET_ERROR", payload: errorMessage });
+        toast.error(errorMessage);
+        throw new Error(errorMessage); // Throw to propagate error to caller
       }
     } catch (error: any) {
       const backendMessage: string | undefined =
@@ -222,11 +229,13 @@ export const CartProvider: React.FC<CartProviderProps> = ({ children }) => {
 
       const errorMessage =
         backendMessage ||
+        error.message ||
         "Failed to add item to cart. Please try again or adjust your cart.";
 
       dispatch({ type: "SET_ERROR", payload: errorMessage });
       toast.error(errorMessage);
       console.error("Error adding to cart:", error);
+      throw error; // Re-throw to let caller handle it
     } finally {
       dispatch({ type: "SET_LOADING", payload: false });
     }

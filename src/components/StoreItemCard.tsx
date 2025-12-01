@@ -76,10 +76,10 @@ const StoreItemCard: React.FC<StoreItemCardProps> = ({
     try {
       setItemLoading(true);
       await addToCart(item.productId, 1);
-      toast.success("Pre-order item added to cart");
+      // Success toast is already shown by CartContext
     } catch (error) {
       console.error("Failed to add pre-order item to cart:", error);
-      toast.error("Failed to add pre-order item to cart");
+      // Error toast is already shown by CartContext
     } finally {
       setItemLoading(false);
     }
