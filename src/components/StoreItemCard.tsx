@@ -146,8 +146,14 @@ const StoreItemCard: React.FC<StoreItemCardProps> = ({
           </div>
 
           {item.stock !== undefined && (
-            <div className="mt-0.5 text-[10px] md:text-xs text-gray-500">
-              {item.stock} {item.stock === 1 ? "item" : "items"} in stock
+            <div className={`mt-0.5 text-[10px] md:text-xs ${
+              (item.stock ?? 0) <= 0 
+                ? "text-red-500 font-medium" 
+                : "text-gray-500"
+            }`}>
+              {(item.stock ?? 0) <= 0 
+                ? "Out of stock" 
+                : `${item.stock} ${item.stock === 1 ? "item" : "items"} in stock`}
             </div>
           )}
 
