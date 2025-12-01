@@ -214,8 +214,16 @@ export const CartProvider: React.FC<CartProviderProps> = ({ children }) => {
         await refreshCart();
       }
     } catch (error: any) {
+      const backendMessage: string | undefined =
+        error?.response?.data?.message ||
+        (Array.isArray(error?.response?.data?.message)
+          ? error.response.data.message[0]
+          : undefined);
+
       const errorMessage =
-        error.response?.data?.message || "Failed to add item to cart";
+        backendMessage ||
+        "Failed to add item to cart. Please try again or adjust your cart.";
+
       dispatch({ type: "SET_ERROR", payload: errorMessage });
       toast.error(errorMessage);
       console.error("Error adding to cart:", error);

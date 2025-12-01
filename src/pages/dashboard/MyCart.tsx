@@ -19,6 +19,10 @@ const MyCart: React.FC = () => {
     navigate("/checkout");
   };
 
+  const hasPreOrderItem = items.some(
+    (ci) => ci.product.storeItem?.preOrderEnabled
+  );
+
   if (items.length === 0) {
     return (
       <div className="rounded-lg">
@@ -63,6 +67,18 @@ const MyCart: React.FC = () => {
           My Cart
         </h2>
       </div>
+
+      {/* Info banner for preorder rules */}
+      {hasPreOrderItem && (
+        <div className="mb-4 rounded-xl bg-amber-50 border border-amber-200 px-4 py-3 text-sm text-amber-800">
+          <p className="font-semibold mb-1">Pre-order items are delivered separately</p>
+          <p>
+            Your cart currently contains a pre-order item. You&apos;ll need to{" "}
+            <span className="font-medium">checkout this item on its own</span> before adding other
+            products, as it will ship once it becomes available.
+          </p>
+        </div>
+      )}
 
       <div className="space-y-4">
         {items.map((ci) => {

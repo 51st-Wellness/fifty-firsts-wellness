@@ -172,12 +172,6 @@ const Checkout: React.FC = () => {
     summary?.orderItems?.some((orderItem) => orderItem.isPreOrder) ?? false;
   const totalDueToday = orderTotals.subtotal;
 
-  useEffect(() => {
-    if (!isAuthenticated) {
-      navigate("/login?redirect=/checkout");
-    }
-  }, [isAuthenticated, navigate]);
-
   const loadSummary = useCallback(
     async (options?: { showLoading?: boolean }) => {
       if (!isAuthenticated) return;

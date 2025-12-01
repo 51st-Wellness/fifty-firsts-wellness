@@ -1,81 +1,99 @@
 import React, { useEffect, useState } from "react";
 import { Navigate, useNavigate, useLocation } from "react-router-dom";
 import { useAuth } from "../context/AuthContextProvider";
-import { getUserProfile } from "../api/user.api";
-import Loader from "./Loader";
+import { checkAuth, getUserProfile } from "../api/user.api";
+import { getAuthToken } from "../lib/utils";
+import PageLoader from "./ui/PageLoader";
 
 interface ManagementGuardProps {
   children: React.ReactNode;
 }
 
+// Guard component for management routes requiring admin/moderator access
 const ManagementGuard: React.FC<ManagementGuardProps> = ({ children }) => {
   const { isAuthenticated, user, loading: authLoading } = useAuth();
   const navigate = useNavigate();
   const location = useLocation();
-  const [isCheckingProfile, setIsCheckingProfile] = useState(false);
+  const [isVerifying, setIsVerifying] = useState(true);
+  const [shouldRedirect, setShouldRedirect] = useState(false);
   const [profileError, setProfileError] = useState<string | null>(null);
 
   useEffect(() => {
-    if (!authLoading && isAuthenticated && user) {
-      // If user is already loaded and authenticated, check their role
+    const verifyAuthAndRole = async () => {
+      const token = getAuthToken();
+
+      // If no token, redirect immediately
+      if (!token) {
+        setShouldRedirect(true);
+        setIsVerifying(false);
+        return;
+      }
+
+      // If already authenticated with user data, check role
+      if (isAuthenticated && user) {
+        if (user.role !== "ADMIN" && user.role !== "MODERATOR") {
+          setProfileError(
+            "Access denied. Admin or Moderator privileges required."
+          );
+        }
+        setIsVerifying(false);
+        return;
+      }
+
+      // Verify authentication with backend
+      try {
+        await checkAuth();
+
+        // Fetch user profile to check role
+        const response = await getUserProfile();
+        const userProfile = response.data?.user;
+
+        if (!userProfile) {
+          setProfileError("Failed to load user profile");
+          setIsVerifying(false);
+          return;
+        }
+
+        if (userProfile.role !== "ADMIN" && userProfile.role !== "MODERATOR") {
+          setProfileError(
+            "Access denied. Admin or Moderator privileges required."
+          );
+        }
+
+        setIsVerifying(false);
+      } catch (error: any) {
+        console.error("Auth verification failed:", error);
+
+        if (error.response?.status === 401 || error.response?.status === 403) {
+          setShouldRedirect(true);
+        } else {
+          setProfileError("Failed to verify user permissions");
+        }
+        setIsVerifying(false);
+      }
+    };
+
+    // Only verify if we're still loading auth or not authenticated
+    if (authLoading || !isAuthenticated || !user) {
+      verifyAuthAndRole();
+    } else {
+      // Check role if user is already loaded
       if (user.role !== "ADMIN" && user.role !== "MODERATOR") {
-        // User is authenticated but not an admin or moderator
-        return;
-      }
-    } else if (!authLoading && isAuthenticated && !user) {
-      // User is authenticated but profile not loaded, fetch it
-      fetchUserProfile();
-    }
-  }, [isAuthenticated, user, authLoading]);
-
-  const fetchUserProfile = async () => {
-    try {
-      setIsCheckingProfile(true);
-      setProfileError(null);
-
-      const response = await getUserProfile();
-      const userProfile = response.data?.user;
-
-      if (!userProfile) {
-        setProfileError("Failed to load user profile");
-        return;
-      }
-
-      if (userProfile.role !== "ADMIN" && userProfile.role !== "MODERATOR") {
-        // User is not an admin or moderator
         setProfileError(
           "Access denied. Admin or Moderator privileges required."
         );
-        return;
       }
-    } catch (error: any) {
-      console.error("Error fetching user profile:", error);
-
-      if (error.response?.status === 401) {
-        // User is not authenticated or token expired
-        setProfileError("Authentication required");
-      } else {
-        setProfileError("Failed to verify user permissions");
-      }
-    } finally {
-      setIsCheckingProfile(false);
+      setIsVerifying(false);
     }
-  };
+  }, [isAuthenticated, user, authLoading]);
 
-  // Show loading while checking authentication
-  if (authLoading || isCheckingProfile) {
-    return (
-      <div className="min-h-screen flex items-center justify-center">
-        <div className="text-center">
-          <Loader />
-          <p className="mt-4 text-gray-600">Verifying access...</p>
-        </div>
-      </div>
-    );
+  // Show loading while verifying authentication
+  if (authLoading || isVerifying) {
+    return <PageLoader />;
   }
 
   // If not authenticated, show login message
-  if (!isAuthenticated) {
+  if (shouldRedirect || !isAuthenticated) {
     return (
       <div className="min-h-screen flex items-center justify-center bg-gray-50">
         <div className="text-center max-w-md mx-auto px-6">

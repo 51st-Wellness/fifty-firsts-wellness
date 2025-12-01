@@ -34,6 +34,10 @@ const CartSlider: React.FC<CartSliderProps> = ({ isOpen, onClose }) => {
   const isMobile = useMediaQuery(theme.breakpoints.down("sm"));
   const { globalDiscount } = useGlobalDiscount();
 
+  const hasPreOrderItem = items.some(
+    (ci) => ci.product.storeItem?.preOrderEnabled
+  );
+
   // iOS needs these flags for smoother swipe behavior
   const iOS =
     typeof navigator !== "undefined" &&
@@ -233,13 +237,27 @@ const CartSlider: React.FC<CartSliderProps> = ({ isOpen, onClose }) => {
             </div>
           ) : (
             // Cart Items with separators, no shadows
-            <div className="bg-white rounded-xl divide-y divide-gray-200">
-              {items.map((item) => (
-                <div key={item.id} className="">
-                  <CartItem item={item} />
+            <>
+              {hasPreOrderItem && (
+                <div className="mb-3 rounded-xl bg-amber-50 border border-amber-200 px-3 py-2.5 text-xs sm:text-sm text-amber-800">
+                  <p className="font-semibold mb-0.5">
+                    Pre-order items are delivered separately
+                  </p>
+                  <p>
+                    You&apos;ll need to checkout this pre-order item on its own before
+                    adding other products to your cart.
+                  </p>
                 </div>
-              ))}
-            </div>
+              )}
+
+              <div className="bg-white rounded-xl divide-y divide-gray-200">
+                {items.map((item) => (
+                  <div key={item.id}>
+                    <CartItem item={item} />
+                  </div>
+                ))}
+              </div>
+            </>
           )}
         </Box>
 

@@ -5,15 +5,13 @@ import { checkAuth } from "../api/user.api";
 import { getAuthToken } from "../lib/utils";
 import PageLoader from "./ui/PageLoader";
 
-interface EmailVerificationGuardProps {
+interface ProtectedRouteProps {
   children: React.ReactNode;
 }
 
-// Guard component for routes requiring authenticated and email-verified users
-const EmailVerificationGuard: React.FC<EmailVerificationGuardProps> = ({
-  children,
-}) => {
-  const { isAuthenticated, isEmailVerified, user, loading: authLoading } = useAuth();
+// Component to protect routes that require authentication
+const ProtectedRoute: React.FC<ProtectedRouteProps> = ({ children }) => {
+  const { isAuthenticated, user, loading: authLoading } = useAuth();
   const location = useLocation();
   const [isVerifying, setIsVerifying] = useState(true);
   const [shouldRedirect, setShouldRedirect] = useState(false);
@@ -58,35 +56,20 @@ const EmailVerificationGuard: React.FC<EmailVerificationGuardProps> = ({
     }
   }, [isAuthenticated, user, authLoading]);
 
-  // Show loading while verifying authentication
+  // Show loader while verifying authentication
   if (authLoading || isVerifying) {
     return <PageLoader />;
   }
 
-  // If not authenticated, redirect to login (unless on email verification page)
-  if (shouldRedirect || (!isAuthenticated && location.pathname !== "/email-verification")) {
-    // Preserve the current location as redirect parameter
+  // Redirect to login if not authenticated
+  if (shouldRedirect || !isAuthenticated) {
     const redirectPath = location.pathname + location.search;
-    const loginPath =
-      redirectPath !== "/login"
-        ? `/login?redirect=${encodeURIComponent(redirectPath)}`
-        : "/login";
+    const loginPath = `/login?redirect=${encodeURIComponent(redirectPath)}`;
     return <Navigate to={loginPath} replace />;
   }
 
-  // If authenticated but email not verified, redirect to verification
-  if (isAuthenticated && !isEmailVerified) {
-    return (
-      <Navigate
-        to="/email-verification"
-        state={{ email: user?.email }}
-        replace
-      />
-    );
-  }
-
-  // If authenticated and email verified, render children
+  // Render protected content
   return <>{children}</>;
 };
 
-export default EmailVerificationGuard;
+export default ProtectedRoute;

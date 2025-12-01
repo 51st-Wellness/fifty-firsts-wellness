@@ -41,6 +41,7 @@ import CheckEmail from "./pages/CheckEmail";
 import EmailVerification from "./pages/EmailVerification";
 import EmailVerificationGuard from "./components/EmailVerificationGuard";
 import ManagementGuard from "./components/ManagementGuard";
+import ProtectedRoute from "./components/ProtectedRoute";
 import Loader from "./components/Loader";
 import Footer from "./components/Footer";
 import BlogPost from "@/pages/BlogPost";
@@ -338,11 +339,11 @@ const App: React.FC = () => {
           <Route
             path="/checkout"
             element={
-              <>
+              <ProtectedRoute>
                 <Navbar />
                 <Checkout />
                 <Footer />
-              </>
+              </ProtectedRoute>
             }
           />
 
