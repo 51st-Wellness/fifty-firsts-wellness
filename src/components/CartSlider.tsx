@@ -228,7 +228,10 @@ const CartSlider: React.FC<CartSliderProps> = ({ isOpen, onClose }) => {
             // Empty Cart
             <div className="flex flex-col items-center justify-center h-full px-6 py-12">
               <ShoppingCart className="w-16 h-16 text-gray-300 mb-4" />
-              <h3 className="text-lg font-medium text-gray-900 mb-2">
+              <h3
+                className="text-lg font-medium text-gray-900 mb-2"
+                style={{ fontFamily: '"League Spartan", sans-serif' }}
+              >
                 Your cart is empty
               </h3>
               <p className="text-gray-500 text-center text-sm">

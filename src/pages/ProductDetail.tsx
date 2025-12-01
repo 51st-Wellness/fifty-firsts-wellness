@@ -371,16 +371,28 @@ const ProductDetail: React.FC = () => {
                 <span className="px-4 py-2 text-sm font-medium">
                   {quantity}
                 </span>
-                <button
-                  onClick={() => {
-                    const maxQuantity = item.stock && item.stock > 0 ? item.stock : Infinity;
-                    setQuantity(Math.min(maxQuantity, quantity + 1));
-                  }}
-                  disabled={item.stock !== undefined && item.stock > 0 && quantity >= item.stock}
-                  className="px-3 py-2 text-gray-600 hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed"
-                >
-                  +
-                </button>
+                <span className="relative group">
+                  <button
+                    onClick={() => {
+                      const maxQuantity = item.stock && item.stock > 0 ? item.stock : Infinity;
+                      setQuantity(Math.min(maxQuantity, quantity + 1));
+                    }}
+                    disabled={item.stock !== undefined && item.stock > 0 && quantity >= item.stock}
+                    className="px-3 py-2 text-gray-600 hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed"
+                    title={
+                      item.stock !== undefined && item.stock > 0 && quantity >= item.stock
+                        ? `Only ${item.stock} ${item.stock === 1 ? "item" : "items"} available in stock`
+                        : undefined
+                    }
+                  >
+                    +
+                  </button>
+                  {item.stock !== undefined && item.stock > 0 && quantity >= item.stock && (
+                    <div className="pointer-events-none absolute -top-9 left-1/2 -translate-x-1/2 whitespace-nowrap bg-gray-900 text-white text-xs px-2 py-1 rounded opacity-0 group-hover:opacity-100 transition-opacity z-10">
+                      Only {item.stock} {item.stock === 1 ? "item" : "items"} available in stock
+                    </div>
+                  )}
+                </span>
               </div>
             </div>
 
