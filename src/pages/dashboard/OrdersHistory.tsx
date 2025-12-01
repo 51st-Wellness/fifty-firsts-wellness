@@ -75,48 +75,8 @@ const formatCurrency = (amount: number, currency: string = "GBP") => {
   }).format(amount);
 };
 
-// Demo pre-orders data
-const generateDemoPreOrders = (): Array<OrderSummary & { firstProductImage?: string; wantsNotification?: boolean; isPreOrder?: boolean }> => {
-  return [
-    {
-      id: "pre-order-1",
-      totalAmount: 49.95,
-      itemCount: 1,
-      status: "PRE-ORDER",
-      paymentCurrency: "GBP",
-      createdAt: new Date().toISOString(),
-      firstProductImage: "https://images.unsplash.com/photo-1521572267360-ee0c2909d518?auto=format&fit=crop&w=400&q=60",
-      wantsNotification: true,
-      isPreOrder: true,
-    },
-    {
-      id: "pre-order-2",
-      totalAmount: 79.99,
-      itemCount: 1,
-      status: "PRE-ORDER",
-      paymentCurrency: "GBP",
-      createdAt: new Date(Date.now() - 86400000).toISOString(),
-      firstProductImage: "https://images.unsplash.com/photo-1505252585461-04db1eb84625?auto=format&fit=crop&w=400&q=60",
-      wantsNotification: false,
-      isPreOrder: true,
-    },
-    {
-      id: "pre-order-3",
-      totalAmount: 34.99,
-      itemCount: 1,
-      status: "PRE-ORDER",
-      paymentCurrency: "GBP",
-      createdAt: new Date(Date.now() - 172800000).toISOString(),
-      firstProductImage: "https://images.unsplash.com/photo-1447175008436-054170c2e979?auto=format&fit=crop&w=400&q=60",
-      wantsNotification: true,
-      isPreOrder: true,
-    },
-  ] as Array<OrderSummary & { firstProductImage?: string; wantsNotification?: boolean; isPreOrder?: boolean }>;
-};
-
 const OrdersHistory: React.FC = () => {
   const [orders, setOrders] = useState<OrderSummary[]>([]);
-  const [orderImages, setOrderImages] = useState<Record<string, string>>({});
   const [loadingOrders, setLoadingOrders] = useState(false);
   const [loadingOrderDetails, setLoadingOrderDetails] = useState(false);
   const [activeFilter, setActiveFilter] = useState("All");
@@ -140,44 +100,19 @@ const OrdersHistory: React.FC = () => {
   const navigate = useNavigate();
   const { refreshCart, openCart } = useCart();
 
-  const filters = ["All", "PAID", "PENDING", "FAILED", "CANCELLED", "REFUNDED", "Pre Orders"];
+  const filters = [
+    "All",
+    "PAID",
+    "PENDING",
+    "FAILED",
+    "CANCELLED",
+    "REFUNDED",
+    "Pre Orders",
+  ];
 
   useEffect(() => {
     void loadOrders();
   }, []);
-
-  // Load order images
-  useEffect(() => {
-    const loadOrderImages = async () => {
-      const imagePromises = orders.map(async (order) => {
-        try {
-          const response = await getMyOrder(order.id);
-          if (response.status === ResponseStatus.SUCCESS && response.data?.order) {
-            const firstItem = response.data.order.orderItems[0];
-            const imageUrl =
-              firstItem?.product?.storeItem?.display?.url ||
-              firstItem?.product?.storeItem?.images?.[0] ||
-              "";
-            return { orderId: order.id, imageUrl };
-          }
-        } catch (error) {
-          console.error(`Failed to load image for order ${order.id}:`, error);
-        }
-        return { orderId: order.id, imageUrl: "" };
-      });
-
-      const results = await Promise.all(imagePromises);
-      const imageMap: Record<string, string> = {};
-      results.forEach(({ orderId, imageUrl }) => {
-        imageMap[orderId] = imageUrl;
-      });
-      setOrderImages(imageMap);
-    };
-
-    if (orders.length > 0) {
-      void loadOrderImages();
-    }
-  }, [orders]);
 
   const loadOrders = async () => {
     setLoadingOrders(true);
@@ -200,7 +135,10 @@ const OrdersHistory: React.FC = () => {
       setIsModalOpen(true);
       try {
         const response = await getMyOrder(orderId);
-        if (response.status === ResponseStatus.SUCCESS && response.data?.order) {
+        if (
+          response.status === ResponseStatus.SUCCESS &&
+          response.data?.order
+        ) {
           const orderData = response.data.order;
           setSelectedOrder(orderData);
 
@@ -406,7 +344,7 @@ const OrdersHistory: React.FC = () => {
 
   const filteredOrders = (() => {
     if (activeFilter === "Pre Orders") {
-      return generateDemoPreOrders();
+      return orders.filter((order) => order.isPreOrder);
     }
     if (activeFilter === "All") return orders;
     return orders.filter(
@@ -464,9 +402,12 @@ const OrdersHistory: React.FC = () => {
           </div>
         ) : (
           filteredOrders.map((order) => {
-            const imageUrl = (order as any).firstProductImage || orderImages[order.id] || "";
-            const isPreOrder = (order as any).isPreOrder || false;
-            const wantsNotification = (order as any).wantsNotification || false;
+            const imageUrl =
+              order.previewImage ||
+              ((order as any).previewImage as string | undefined) ||
+              "";
+            const isPreOrder = order.isPreOrder === true;
+            const wantsNotification = Boolean((order as any).wantsNotification);
 
             return (
               <div
@@ -528,11 +469,15 @@ const OrdersHistory: React.FC = () => {
                   <div className="flex items-center justify-between gap-2 mt-auto">
                     <div className="flex items-center gap-2 text-xs md:text-sm text-gray-600">
                       <span className="font-semibold text-gray-900">
-                        {formatCurrency(order.totalAmount, order.paymentCurrency || "GBP")}
+                        {formatCurrency(
+                          order.totalAmount,
+                          order.paymentCurrency || "GBP"
+                        )}
                       </span>
                       <span>•</span>
                       <span>
-                        {order.itemCount} {order.itemCount === 1 ? "item" : "items"}
+                        {order.itemCount}{" "}
+                        {order.itemCount === 1 ? "item" : "items"}
                       </span>
                     </div>
                     <span
@@ -656,8 +601,8 @@ const OrdersHistory: React.FC = () => {
                               item.productId &&
                               item.product?.type === "STORE" && (
                                 <div className="mt-2">
-                                  {(item.hasReviewed ??
-                                    reviewedOrderItems.has(item.id)) ? (
+                                  {item.hasReviewed ??
+                                  reviewedOrderItems.has(item.id) ? (
                                     <span className="inline-flex items-center gap-1 text-xs text-green-600 font-medium">
                                       <Star className="w-3 h-3 fill-green-600" />
                                       Review submitted
@@ -881,8 +826,8 @@ const OrdersHistory: React.FC = () => {
                       </button>
                       <p className="text-xs text-gray-500 text-center">
                         If payment seems stuck, verify it with Stripe. If
-                        something feels off, reach out or rebuild the order right
-                        away.
+                        something feels off, reach out or rebuild the order
+                        right away.
                       </p>
                     </div>
                   )}

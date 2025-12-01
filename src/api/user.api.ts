@@ -254,8 +254,11 @@ export type OrderSummary = {
   userId: string;
   status: string;
   totalAmount: number;
+  previewImage?: string | null;
   paymentId?: string | null;
   deliveryAddressId?: string | null;
+  isPreOrder?: boolean;
+  preOrderStatus?: string | null;
   createdAt: string | Date;
   updatedAt: string | Date;
   itemCount: number;
