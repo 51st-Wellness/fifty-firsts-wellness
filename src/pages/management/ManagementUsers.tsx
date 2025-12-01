@@ -550,7 +550,7 @@ const ManagementUsers: React.FC = () => {
                       className="text-lg leading-6 font-medium text-gray-900"
                       style={{ fontFamily: '"League Spartan", sans-serif' }}
                     >
-                      Delete User
+                      Delete User (Permanent)
                     </h3>
                     <div className="mt-2">
                       <p className="text-sm text-gray-500">
@@ -558,7 +558,7 @@ const ManagementUsers: React.FC = () => {
                         <span className="font-semibold">
                           {userToDelete.firstName} {userToDelete.lastName}
                         </span>
-                        ? This action cannot be undone.
+                        ? This will permanently remove their account and data. They can sign up again in the future, but this record cannot be restored.
                       </p>
                     </div>
                   </div>
