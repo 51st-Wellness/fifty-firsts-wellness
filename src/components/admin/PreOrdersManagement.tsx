@@ -315,20 +315,19 @@ const PreOrdersManagement: React.FC = () => {
                 <TableCell>Total Amount</TableCell>
                 <TableCell>Pre-Order Status</TableCell>
                 <TableCell>Order Status</TableCell>
-                <TableCell>Expected Fulfillment</TableCell>
                 <TableCell>Order Date</TableCell>
               </TableRow>
             </TableHead>
             <TableBody>
               {loading ? (
                 <TableRow>
-                  <TableCell colSpan={8} align="center" sx={{ py: 4 }}>
+                  <TableCell colSpan={7} align="center" sx={{ py: 4 }}>
                     <CircularProgress size={32} />
                   </TableCell>
                 </TableRow>
               ) : filteredPreOrders.length === 0 ? (
                 <TableRow>
-                  <TableCell colSpan={8} align="center" sx={{ py: 4 }}>
+                  <TableCell colSpan={7} align="center" sx={{ py: 4 }}>
                     <Typography variant="body1" color="text.secondary">
                       No pre-orders found
                     </Typography>
@@ -400,12 +399,6 @@ const PreOrdersManagement: React.FC = () => {
                         label={order.status}
                         size="small"
                         variant="outlined"
-                      />
-                    </TableCell>
-                    <TableCell>
-                      <Typography variant="caption" color="text.secondary">
-                        {formatDate((order as any).expectedFulfillmentDate)}
-                      </Typography>
                     </TableCell>
                     <TableCell>
                       <Typography variant="caption" color="text.secondary">
