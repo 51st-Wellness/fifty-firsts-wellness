@@ -100,7 +100,7 @@ const FeaturedSection: React.FC = () => {
                     )}
                   </div>
                   <div className="p-4 flex flex-col">
-                    <h3 className="text-base font-normal text-gray-900 leading-snug line-clamp-2 font-primary min-h-[30px]">
+                    <h3 className="text-base font-normal text-gray-900 leading-snug line-clamp-2 font-primary h-[48px] flex items-start">
                       {item.name}
                     </h3>
                     <div className="mt-4 flex items-center justify-between min-h-[28px]">

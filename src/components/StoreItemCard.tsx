@@ -129,7 +129,7 @@ const StoreItemCard: React.FC<StoreItemCardProps> = ({
 
         <div className="p-2 md:p-4 flex flex-col flex-1">
           <h3
-            className="text-base md:text-xl font-medium text-gray-900 leading-snug line-clamp-2 min-h-[38px] md:min-h-[44px]"
+            className="text-base md:text-xl font-medium text-gray-900 leading-snug line-clamp-2 h-[38px] md:h-[56px] flex items-start"
             style={{ fontFamily: '"League Spartan", sans-serif' }}
           >
             {title}

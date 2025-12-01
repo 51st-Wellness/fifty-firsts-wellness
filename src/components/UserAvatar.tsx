@@ -2,6 +2,7 @@ import React, { useState, useRef, useEffect } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { User, LogOut, UserCircle, Shield } from "lucide-react";
 import { useAuth } from "../context/AuthContextProvider";
+import { getDeliveryAddresses } from "../api/user.api";
 // import { UserRole } from "../types/user.types";
 interface UserAvatarProps {
   className?: string;
@@ -11,8 +12,31 @@ interface UserAvatarProps {
 export function UserAvatar({ className = "" }: UserAvatarProps) {
   const { user, isAuthenticated, logout, loading } = useAuth();
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
+  const [hasDeliveryAddress, setHasDeliveryAddress] = useState<boolean | null>(null);
   const dropdownRef = useRef<HTMLDivElement>(null);
   const navigate = useNavigate();
+
+  // Check for delivery addresses
+  useEffect(() => {
+    const checkDeliveryAddresses = async () => {
+      if (!isAuthenticated || !user) {
+        setHasDeliveryAddress(null);
+        return;
+      }
+      try {
+        const response = await getDeliveryAddresses();
+        if (response?.data?.addresses && response.data.addresses.length > 0) {
+          setHasDeliveryAddress(true);
+        } else {
+          setHasDeliveryAddress(false);
+        }
+      } catch (error) {
+        console.error("Failed to check delivery addresses:", error);
+        setHasDeliveryAddress(false);
+      }
+    };
+    checkDeliveryAddresses();
+  }, [isAuthenticated, user]);
 
   // Close dropdown when clicking outside
   useEffect(() => {
@@ -58,10 +82,14 @@ export function UserAvatar({ className = "" }: UserAvatarProps) {
   }
 
   // Check if profile is incomplete
-  const requiredFields = ["firstName", "lastName", "phone", "city", "address"];
-  const isProfileIncomplete = requiredFields.some(
-    (field) => !user[field as keyof typeof user]
+  const requiredFields = ["firstName", "lastName", "phone"];
+  const hasRequiredFields = requiredFields.every(
+    (field) => {
+      const value = user[field as keyof typeof user];
+      return value && (typeof value !== "string" || value.trim() !== "");
+    }
   );
+  const isProfileIncomplete = !hasRequiredFields || hasDeliveryAddress === false;
 
   return (
     <div className="relative flex items-center" ref={dropdownRef}>
@@ -86,7 +114,7 @@ export function UserAvatar({ className = "" }: UserAvatarProps) {
                 )}
               </div>
               {isProfileIncomplete && (
-                <div className="absolute -top-0.5 -right-0.5 w-3 h-3 bg-yellow-400 text-white text-[9px] rounded-full flex items-center justify-center font-bold">
+                <div className="absolute -top-0.5 -right-0.5 w-3 h-3 bg-orange-500 text-white text-[9px] rounded-full flex items-center justify-center font-bold">
                   !
                 </div>
               )}
@@ -131,8 +159,8 @@ export function UserAvatar({ className = "" }: UserAvatarProps) {
                       <User className="w-4 h-4 text-gray-500" />
                       <span>User Dashboard</span>
                       {isProfileIncomplete && (
-                        <span className="ml-auto text-yellow-500 text-xs font-medium">
-                          Incomplete
+                        <span className="ml-auto text-orange-500 text-[10px] font-medium">
+                          Complete profile
                         </span>
                       )}
                     </Link>
@@ -154,8 +182,8 @@ export function UserAvatar({ className = "" }: UserAvatarProps) {
                     <User className="w-4 h-4 text-gray-500" />
                     <span>Dashboard</span>
                     {isProfileIncomplete && (
-                      <span className="ml-auto text-yellow-500 text-xs font-medium">
-                        Incomplete
+                      <span className="ml-auto text-orange-500 text-[10px] font-medium">
+                        Complete profile
                       </span>
                     )}
                   </Link>
