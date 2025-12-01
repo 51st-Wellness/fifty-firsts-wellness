@@ -159,8 +159,8 @@ export function UserAvatar({ className = "" }: UserAvatarProps) {
                       <User className="w-4 h-4 text-gray-500 flex-shrink-0" />
                       <span className="flex-1">User Dashboard</span>
                       {isProfileIncomplete && (
-                        <span className="ml-auto text-orange-500 text-[9px] font-medium whitespace-nowrap">
-                          Complete profile
+                        <span className="ml-auto text-orange-500 text-[8px] font-medium whitespace-nowrap">
+                          Incomplete Profile
                         </span>
                       )}
                     </Link>
