@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { Link } from "react-router-dom";
+import { Link, useSearchParams } from "react-router-dom";
 import {
   XCircle,
   Mail,
@@ -12,6 +12,8 @@ import {
   Users,
   MessageSquare,
 } from "lucide-react";
+import { submitContactForm } from "../api/contact-subscription.api";
+import toast from "react-hot-toast";
 import {
   Select,
   SelectContent,
@@ -21,35 +23,106 @@ import {
 } from "../components/ui/select";
 
 const PaymentCancel: React.FC = () => {
+  const [searchParams] = useSearchParams();
   const [formData, setFormData] = useState({
     email: "",
     issue: "",
     message: "",
   });
   const [isSubmitted, setIsSubmitted] = useState(false);
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [error, setError] = useState<string | null>(null);
 
+  // buildMessageBody constructs a rich message body for support based on user feedback and payment context
+  const buildMessageBody = () => {
+    const paymentId =
+      searchParams.get("paymentId") || searchParams.get("token");
+    const status = searchParams.get("status");
+
+    const lines: string[] = [];
+
+    if (formData.issue) {
+      lines.push(`Issue type: ${formData.issue}`);
+    }
+
+    if (paymentId) {
+      lines.push(`Payment reference: ${paymentId}`);
+    }
+
+    if (status) {
+      lines.push(`Payment status from provider: ${status}`);
+    }
+
+    if (formData.message) {
+      lines.push("");
+      lines.push("User description:");
+      lines.push(formData.message);
+    }
+
+    if (!lines.length) {
+      return "User reported a payment issue but did not provide additional details.";
+    }
+
+    return lines.join("\n");
+  };
+
+  // handleChange syncs text inputs and textarea with local form state
   const handleChange = (
     e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
   ) => {
     setFormData({ ...formData, [e.target.name]: e.target.value });
   };
 
+  // handleIssueChange updates the selected issue in local state
   const handleIssueChange = (value: string) => {
     setFormData({ ...formData, issue: value });
   };
 
-  const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
+  // handleSubmit sends the feedback via the contact API and provides user feedback
+  const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
+
     if (!formData.issue) {
+      toast.error("Please select what went wrong so we can better assist you.");
       return;
     }
-    console.log("Feedback submitted: ", formData);
-    setIsSubmitted(true);
-    // Reset form after 3 seconds
-    setTimeout(() => {
-      setIsSubmitted(false);
-      setFormData({ email: "", issue: "", message: "" });
-    }, 3000);
+
+    setIsSubmitting(true);
+    setError(null);
+
+    try {
+      const response = await submitContactForm({
+        firstName: "Payment",
+        lastName: "Issue",
+        email: formData.email,
+        message: buildMessageBody(),
+      });
+
+      if (response.success) {
+        setIsSubmitted(true);
+        toast.success(response.message || "Your feedback has been sent.");
+        // Reset form after 3 seconds
+        setTimeout(() => {
+          setIsSubmitted(false);
+          setFormData({ email: "", issue: "", message: "" });
+        }, 3000);
+      } else {
+        setError(
+          response.message || "Failed to send feedback. Please try again."
+        );
+        toast.error(
+          response.message || "Failed to send feedback. Please try again."
+        );
+      }
+    } catch (err) {
+      const message =
+        "Something went wrong while sending your feedback. Please try again later.";
+      setError(message);
+      toast.error(message);
+      console.error("Payment cancel feedback error:", err);
+    } finally {
+      setIsSubmitting(false);
+    }
   };
 
   const products = [
@@ -140,6 +213,12 @@ const PaymentCancel: React.FC = () => {
               </div>
             ) : (
               <form onSubmit={handleSubmit} className="space-y-4 sm:space-y-5">
+                {error && (
+                  <div className="p-3 sm:p-4 bg-red-50 border border-red-200 rounded-xl text-xs sm:text-sm text-red-700">
+                    {error}
+                  </div>
+                )}
+
                 <div>
                   <label
                     htmlFor="email"
@@ -174,22 +253,22 @@ const PaymentCancel: React.FC = () => {
                       <SelectValue placeholder="Select an issue" />
                     </SelectTrigger>
                     <SelectContent>
-                      <SelectItem value="payment-declined">
-                      Payment was declined
+                      <SelectItem value="Payment was declined">
+                        Payment was declined
                       </SelectItem>
-                      <SelectItem value="technical-error">
-                      Technical error occurred
+                      <SelectItem value="Technical error occurred">
+                        Technical error occurred
                       </SelectItem>
-                      <SelectItem value="page-crashed">
+                      <SelectItem value="Page crashed or froze">
                         Page crashed or froze
                       </SelectItem>
-                      <SelectItem value="unclear-pricing">
+                      <SelectItem value="Pricing was unclear">
                         Pricing was unclear
                       </SelectItem>
-                      <SelectItem value="changed-mind">
+                      <SelectItem value="Changed my mind">
                         Changed my mind
                       </SelectItem>
-                      <SelectItem value="other">Other</SelectItem>
+                      <SelectItem value="Other">Other</SelectItem>
                     </SelectContent>
                   </Select>
                 </div>
@@ -214,10 +293,11 @@ const PaymentCancel: React.FC = () => {
 
                 <button
                   type="submit"
-                  className="w-full bg-brand-green text-white py-2.5 px-5 rounded-full text-sm font-semibold hover:bg-brand-green-dark transition-colors flex items-center justify-center gap-2"
+                  disabled={isSubmitting}
+                  className="w-full bg-brand-green text-white py-2.5 px-5 rounded-full text-sm font-semibold hover:bg-brand-green-dark transition-colors flex items-center justify-center gap-2 disabled:opacity-60 disabled:cursor-not-allowed"
                 >
                   <Send className="w-4 h-4" />
-                  Send Feedback
+                  {isSubmitting ? "Sending..." : "Send Feedback"}
                 </button>
               </form>
             )}
