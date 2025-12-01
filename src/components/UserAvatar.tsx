@@ -156,10 +156,10 @@ export function UserAvatar({ className = "" }: UserAvatarProps) {
                       onClick={() => setIsDropdownOpen(false)}
                       className="w-full flex items-center gap-3 px-4 py-2 text-sm text-gray-700 hover:bg-gray-50 transition-colors"
                     >
-                      <User className="w-4 h-4 text-gray-500" />
-                      <span>User Dashboard</span>
+                      <User className="w-4 h-4 text-gray-500 flex-shrink-0" />
+                      <span className="flex-1">User Dashboard</span>
                       {isProfileIncomplete && (
-                        <span className="ml-auto text-orange-500 text-[10px] font-medium">
+                        <span className="ml-auto text-orange-500 text-[9px] font-medium whitespace-nowrap">
                           Complete profile
                         </span>
                       )}
@@ -179,10 +179,10 @@ export function UserAvatar({ className = "" }: UserAvatarProps) {
                     onClick={() => setIsDropdownOpen(false)}
                     className="w-full flex items-center gap-3 px-4 py-2 text-sm text-gray-700 hover:bg-gray-50 transition-colors"
                   >
-                    <User className="w-4 h-4 text-gray-500" />
-                    <span>Dashboard</span>
+                    <User className="w-4 h-4 text-gray-500 flex-shrink-0" />
+                    <span className="flex-1">Dashboard</span>
                     {isProfileIncomplete && (
-                      <span className="ml-auto text-orange-500 text-[10px] font-medium">
+                      <span className="ml-auto text-orange-500 text-[9px] font-medium whitespace-nowrap">
                         Complete profile
                       </span>
                     )}
