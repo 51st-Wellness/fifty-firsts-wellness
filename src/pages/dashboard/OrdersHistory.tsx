@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef, useCallback } from "react";
 import {
   Package,
   Bell,
@@ -100,6 +100,8 @@ const OrdersHistory: React.FC = () => {
   const navigate = useNavigate();
   const { refreshCart, openCart } = useCart();
 
+  const hasFetchedOrders = useRef(false);
+
   const filters = [
     "All",
     "PAID",
@@ -110,11 +112,8 @@ const OrdersHistory: React.FC = () => {
     "Pre Orders",
   ];
 
-  useEffect(() => {
-    void loadOrders();
-  }, []);
-
-  const loadOrders = async () => {
+  // loadOrders fetches the current user's order summaries
+  const loadOrders = useCallback(async () => {
     setLoadingOrders(true);
     try {
       const response = await getMyOrders();
@@ -126,7 +125,15 @@ const OrdersHistory: React.FC = () => {
     } finally {
       setLoadingOrders(false);
     }
-  };
+  }, []);
+
+  useEffect(() => {
+    if (hasFetchedOrders.current) {
+      return;
+    }
+    hasFetchedOrders.current = true;
+    void loadOrders();
+  }, [loadOrders]);
 
   const handleViewOrder = async (orderId: string, isMobile: boolean) => {
     if (isMobile) {
