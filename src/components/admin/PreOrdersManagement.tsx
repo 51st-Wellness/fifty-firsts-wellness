@@ -308,7 +308,7 @@ const PreOrdersManagement: React.FC = () => {
         <TableContainer>
           <Table>
             <TableHead>
-              <TableRow>
+                  <TableRow>
                 <TableCell>Order ID</TableCell>
                 <TableCell>Customer</TableCell>
                 <TableCell>Items</TableCell>
@@ -399,6 +399,8 @@ const PreOrdersManagement: React.FC = () => {
                         label={order.status}
                         size="small"
                         variant="outlined"
+                        color="default"
+                      />
                     </TableCell>
                     <TableCell>
                       <Typography variant="caption" color="text.secondary">
