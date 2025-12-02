@@ -105,7 +105,10 @@ const CartSlider: React.FC<CartSliderProps> = ({ isOpen, onClose }) => {
 
         {/* Middle section: product name, category, quantity controls */}
         <div className="flex-1 min-w-0 pr-20 sm:pr-24">
-          <h4 className="font-semibold text-gray-900 text-sm sm:text-base line-clamp-2 leading-tight">
+          <h4
+            className="font-semibold text-gray-900 text-sm sm:text-base line-clamp-2 leading-tight"
+            style={{ fontFamily: '"League Spartan", sans-serif' }}
+          >
             {storeItem.name}
           </h4>
           <p className="text-xs text-gray-500 mt-1 leading-snug">
