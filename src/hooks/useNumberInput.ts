@@ -21,6 +21,7 @@ export const useNumberInput = ({
   const [displayValue, setDisplayValue] = useState<string>("");
 
   // Sync display value with prop value when it changes externally
+  // todo: trigger deployment
   useEffect(() => {
     setDisplayValue(value === 0 ? "" : String(value));
   }, [value]);
@@ -123,9 +124,6 @@ export const useNumberInput = ({
     displayValue,
     handleChange,
     handleBlur,
-    inputMode: (allowDecimals ? "decimal" : "numeric") as
-      | "decimal"
-      | "numeric",
+    inputMode: (allowDecimals ? "decimal" : "numeric") as "decimal" | "numeric",
   };
 };
-
