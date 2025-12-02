@@ -99,7 +99,8 @@ const ProductDetail: React.FC = () => {
   // Fetch related products by category (fetched last, after product and reviews)
   useEffect(() => {
     (async () => {
-      if (!item || !productId) return;
+      // Wait for product to load and reviews to finish loading
+      if (!item || !productId || loadingReviews) return;
       
       // Get the first category from the product's categories array
       const productCategory = item.categories && item.categories.length > 0 
@@ -130,7 +131,7 @@ const ProductDetail: React.FC = () => {
         setRelatedProducts([]);
       }
     })();
-  }, [item, productId]);
+  }, [item, productId, loadingReviews]);
 
   // Auto-advance reviews carousel every 10 seconds
   useEffect(() => {

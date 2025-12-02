@@ -242,14 +242,11 @@ const CartSlider: React.FC<CartSliderProps> = ({ isOpen, onClose }) => {
             // Cart Items with separators, no shadows
             <>
               {hasPreOrderItem && (
-                <div className="mb-3 rounded-xl bg-amber-50 border border-amber-200 px-3 py-2.5 text-xs sm:text-sm text-amber-800">
+                <div className="mb-3 rounded-xl bg-brand-green/5 border border-brand-green/40 px-3 py-2.5 text-xs sm:text-sm text-brand-green">
                   <p className="font-semibold mb-0.5">
-                    Pre-order items are delivered separately
+                    Pre-order item
                   </p>
-                  <p>
-                    You&apos;ll need to checkout this pre-order item on its own before
-                    adding other products to your cart.
-                  </p>
+                  <p>Checked out separately from other items.</p>
                 </div>
               )}
 
