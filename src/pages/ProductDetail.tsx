@@ -30,6 +30,14 @@ const ProductDetail: React.FC = () => {
   const [selectedImageIndex, setSelectedImageIndex] = useState(0);
   const [imageFade, setImageFade] = useState(true);
   const [quantity, setQuantity] = useState(1);
+
+  // Ensure quantity doesn't exceed stock when item changes
+  useEffect(() => {
+    if (item && item.stock !== undefined) {
+      const maxStock = item.stock > 0 ? item.stock : 1;
+      setQuantity((prev) => Math.min(prev, maxStock));
+    }
+  }, [item]);
   const [reviewModalOpen, setReviewModalOpen] = useState(false);
   const [reviewCarouselIndex, setReviewCarouselIndex] = useState(0);
   const [relatedProducts, setRelatedProducts] = useState<StoreItem[]>([]);
@@ -295,17 +303,6 @@ const ProductDetail: React.FC = () => {
             )}
           </div>
 
-          {/* Product Benefits - Desktop only (mobile moved below) */}
-          <div className="mb-8 hidden lg:block">
-            <h2
-              className="text-xl font-semibold text-gray-900 mb-4"
-              style={{ fontFamily: '"League Spartan", sans-serif' }}
-            >
-              Product Benefits
-            </h2>
-            <p className="text-gray-600 leading-relaxed">{productBenefits}</p>
-          </div>
-
           {/* Product Ingredients - Desktop only (mobile moved below) */}
           {hasIngredients && (
             <div className="hidden lg:block">
@@ -399,12 +396,28 @@ const ProductDetail: React.FC = () => {
                 <span className="px-4 py-2 text-sm font-medium">
                   {quantity}
                 </span>
-                <button
-                  onClick={() => setQuantity(quantity + 1)}
-                  className="px-3 py-2 text-gray-600 hover:bg-gray-50"
-                >
-                  +
-                </button>
+                <span className="relative group">
+                  <button
+                    onClick={() => {
+                      const maxQuantity = item.stock && item.stock > 0 ? item.stock : Infinity;
+                      setQuantity(Math.min(maxQuantity, quantity + 1));
+                    }}
+                    disabled={item.stock !== undefined && item.stock > 0 && quantity >= item.stock}
+                    className="px-3 py-2 text-gray-600 hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed"
+                    title={
+                      item.stock !== undefined && item.stock > 0 && quantity >= item.stock
+                        ? `Only ${item.stock} ${item.stock === 1 ? "item" : "items"} available in stock`
+                        : undefined
+                    }
+                  >
+                    +
+                  </button>
+                  {item.stock !== undefined && item.stock > 0 && quantity >= item.stock && (
+                    <div className="pointer-events-none absolute -top-9 left-1/2 -translate-x-1/2 whitespace-nowrap bg-gray-900 text-white text-xs px-2 py-1 rounded opacity-0 group-hover:opacity-100 transition-opacity z-10">
+                      Only {item.stock} {item.stock === 1 ? "item" : "items"} available in stock
+                    </div>
+                  )}
+                </span>
               </div>
             </div>
 
@@ -422,21 +435,8 @@ const ProductDetail: React.FC = () => {
             </div>
           </div>
 
-          {/* Product Description */}
-          <div className="mb-8 order-3 lg:order-2">
-            <h2
-              className="text-xl font-semibold text-gray-900 mb-4"
-              style={{ fontFamily: '"League Spartan", sans-serif' }}
-            >
-              Product Description
-            </h2>
-            <p className="text-gray-600 leading-relaxed">
-              {descriptionContent}
-            </p>
-          </div>
-
           {/* Product Usage */}
-          <div className="order-4 lg:order-3">
+          <div className="mb-8 order-3 lg:order-2">
             <h2
               className="text-xl font-semibold text-gray-900 mb-4"
               style={{ fontFamily: '"League Spartan", sans-serif' }}
@@ -444,6 +444,17 @@ const ProductDetail: React.FC = () => {
               Product Usage
             </h2>
             <p className="text-gray-600 leading-relaxed">{productUsage}</p>
+          </div>
+
+          {/* Product Benefits */}
+          <div className="order-4 lg:order-3">
+            <h2
+              className="text-xl font-semibold text-gray-900 mb-4"
+              style={{ fontFamily: '"League Spartan", sans-serif' }}
+            >
+              Product Benefits
+            </h2>
+            <p className="text-gray-600 leading-relaxed">{productBenefits}</p>
           </div>
         </div>
 

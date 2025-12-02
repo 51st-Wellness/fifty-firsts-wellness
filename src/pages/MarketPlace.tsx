@@ -433,23 +433,9 @@ const MarketPlace: React.FC<MarketPlaceProps> = ({ onSearch }) => {
                 </div>
               )}
 
-              {/* Pagination Controls */}
-              {!loading && items.length > 0 && (
-                <div className="pt-10 flex items-center justify-center gap-4">
-                  <button
-                    type="button"
-                    disabled={loading || !hasPrev}
-                    onClick={async () => {
-                      if (!hasPrev) return;
-                      const prevPage = Math.max(1, page - 1);
-                      setPage(prevPage);
-                      await loadItems({ page: prevPage, reset: true });
-                    }}
-                    className="px-4 py-2 rounded-full border border-brand-green text-brand-green bg-white hover:bg-brand-green/5 transition-colors disabled:opacity-50 disabled:cursor-not-allowed text-sm"
-                    style={{ fontFamily: '"League Spartan", sans-serif' }}
-                  >
-                    Previous
-                  </button>
+              {/* Load More Button */}
+              {!loading && items.length > 0 && hasMore && (
+                <div className="pt-10 flex items-center justify-center">
                   <button
                     type="button"
                     disabled={loading || !hasMore}
@@ -457,12 +443,38 @@ const MarketPlace: React.FC<MarketPlaceProps> = ({ onSearch }) => {
                       if (!hasMore) return;
                       const nextPage = page + 1;
                       setPage(nextPage);
-                      await loadItems({ page: nextPage, reset: true });
+                      setLoading(true);
+                      setError(null);
+                      try {
+                        const params = {
+                          page: nextPage,
+                          limit: pageSize,
+                          search: debouncedQuery || undefined,
+                          isPublished: true,
+                          category: selectedCategory !== "All" ? selectedCategory : undefined,
+                          minPrice: minPrice || undefined,
+                          maxPrice: maxPrice || undefined,
+                          minRating: ratingThreshold || undefined,
+                        };
+                        const response = await fetchStoreItems(params);
+                        const { items: newItems, pagination } = response.data!;
+                        // Append new items instead of replacing
+                        setItems((prevItems) => [...prevItems, ...(newItems || [])]);
+                        setHasMore(Boolean(pagination?.hasMore));
+                        setHasPrev(Boolean(pagination?.hasPrev));
+                      } catch (e: any) {
+                        console.error("Error loading more items:", e);
+                        const errorMessage =
+                          e?.response?.data?.message || e?.message || "Network error occurred";
+                        setError(errorMessage);
+                      } finally {
+                        setLoading(false);
+                      }
                     }}
-                    className="px-4 py-2 rounded-full text-white bg-brand-green hover:opacity-90 transition-opacity disabled:opacity-50 disabled:cursor-not-allowed text-sm"
+                    className="px-6 py-3 rounded-full text-white bg-brand-purple hover:bg-brand-purple-dark transition-colors disabled:opacity-50 disabled:cursor-not-allowed text-sm font-semibold"
                     style={{ fontFamily: '"League Spartan", sans-serif' }}
                   >
-                    Next
+                    {loading ? "Loading..." : "Load more"}
                   </button>
                 </div>
               )}

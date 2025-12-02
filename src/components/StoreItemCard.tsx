@@ -129,7 +129,7 @@ const StoreItemCard: React.FC<StoreItemCardProps> = ({
 
         <div className="p-2 md:p-4 flex flex-col flex-1">
           <h3
-            className="text-base md:text-xl font-medium text-gray-900 leading-snug line-clamp-2 min-h-[38px] md:min-h-[44px]"
+            className="text-base md:text-xl font-medium text-gray-900 leading-snug line-clamp-2 h-[38px] md:h-[56px] flex items-start"
             style={{ fontFamily: '"League Spartan", sans-serif' }}
           >
             {title}
@@ -146,8 +146,14 @@ const StoreItemCard: React.FC<StoreItemCardProps> = ({
           </div>
 
           {item.stock !== undefined && (
-            <div className="mt-0.5 text-[10px] md:text-xs text-gray-500">
-              {item.stock} {item.stock === 1 ? "item" : "items"} in stock
+            <div className={`mt-0.5 text-[10px] md:text-xs ${
+              (item.stock ?? 0) <= 0 
+                ? "text-red-500 font-medium" 
+                : "text-gray-500"
+            }`}>
+              {(item.stock ?? 0) <= 0 
+                ? "Out of stock" 
+                : `${item.stock} ${item.stock === 1 ? "item" : "items"} in stock`}
             </div>
           )}
 

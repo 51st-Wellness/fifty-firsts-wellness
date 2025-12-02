@@ -50,7 +50,7 @@ const MyCart: React.FC = () => {
             to="/marketplace"
             className="inline-block px-6 py-3 rounded-full bg-brand-green text-white font-semibold hover:bg-brand-green-dark"
           >
-            Go to Marketplace
+            Go to Shop
           </Link>
         </div>
       </div>

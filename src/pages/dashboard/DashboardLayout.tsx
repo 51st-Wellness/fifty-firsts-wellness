@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { Link, useLocation, Outlet } from "react-router-dom";
 import {
   User,
@@ -13,10 +13,36 @@ import MyAccount from "./MyAccount";
 import OrdersHistory from "./OrdersHistory";
 import MyCart from "./MyCart";
 import DeliveryAddresses from "./DeliveryAddresses";
+import { useAuth } from "../../context/AuthContextProvider";
+import { getDeliveryAddresses } from "../../api/user.api";
 
 const DashboardLayout: React.FC = () => {
   const location = useLocation();
   const [expandedItem, setExpandedItem] = useState<string | null>(null);
+  const [hasDeliveryAddress, setHasDeliveryAddress] = useState<boolean | null>(null);
+  const { isAuthenticated } = useAuth();
+
+  // Check for delivery addresses
+  useEffect(() => {
+    const checkDeliveryAddresses = async () => {
+      if (!isAuthenticated) {
+        setHasDeliveryAddress(null);
+        return;
+      }
+      try {
+        const response = await getDeliveryAddresses();
+        if (response?.data?.addresses && response.data.addresses.length > 0) {
+          setHasDeliveryAddress(true);
+        } else {
+          setHasDeliveryAddress(false);
+        }
+      } catch (error) {
+        console.error("Failed to check delivery addresses:", error);
+        setHasDeliveryAddress(false);
+      }
+    };
+    checkDeliveryAddresses();
+  }, [isAuthenticated]);
 
   const menuItems = [
     {
@@ -77,9 +103,12 @@ const DashboardLayout: React.FC = () => {
                           {isExpanded && (
                             <div className="absolute left-0 top-0 bottom-0 w-1 bg-brand-green"></div>
                           )}
-                          <div className="flex items-center gap-3">
+                          <div className="flex items-center gap-3 flex-1">
                             <Icon className="w-5 h-5" />
                             <span>{item.label}</span>
+                            {item.path === "/dashboard/addresses" && hasDeliveryAddress === false && (
+                              <span className="ml-auto w-2 h-2 bg-orange-500 rounded-full"></span>
+                            )}
                           </div>
                           <ChevronDown
                             className={`w-4 h-4 transition-transform duration-300 ${
@@ -128,7 +157,10 @@ const DashboardLayout: React.FC = () => {
                         style={{ fontFamily: '"League Spartan", sans-serif' }}
                       >
                         <Icon className="w-5 h-5" />
-                        <span>{item.label}</span>
+                        <span className="flex-1">{item.label}</span>
+                        {item.path === "/dashboard/addresses" && hasDeliveryAddress === false && (
+                          <span className="w-2 h-2 bg-orange-500 rounded-full"></span>
+                        )}
                       </Link>
                     );
                   })}
