@@ -630,7 +630,7 @@ const OrderDetails: React.FC = () => {
                 type="button"
                 onClick={handleVerifyPayment}
                 disabled={verifyingPayment}
-                className="inline-flex items-center justify-center gap-2 rounded-full bg-brand-purple text-white px-4 py-2 text-sm font-semibold hover:bg-brand-purple-dark transition-colors disabled:opacity-60 disabled:cursor-not-allowed"
+                className="inline-flex items-center justify-center gap-2 rounded-full bg-[#580F41] text-white px-4 py-2 text-sm font-semibold hover:bg-[#580F41]/80 transition-colors disabled:opacity-60 disabled:cursor-not-allowed"
                 style={{ fontFamily: '"League Spartan", sans-serif' }}
               >
                 {verifyingPayment ? (
