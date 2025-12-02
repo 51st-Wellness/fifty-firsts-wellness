@@ -34,9 +34,12 @@ const CartSlider: React.FC<CartSliderProps> = ({ isOpen, onClose }) => {
   const isMobile = useMediaQuery(theme.breakpoints.down("sm"));
   const { globalDiscount } = useGlobalDiscount();
 
-  const hasPreOrderItem = items.some(
-    (ci) => ci.product.storeItem?.preOrderEnabled
-  );
+  const hasPreOrderItem = items.some((ci) => {
+    const storeItem = ci.product.storeItem;
+    if (!storeItem) return false;
+    const stock = storeItem.stock ?? 0;
+    return Boolean(storeItem.preOrderEnabled) && stock < 1;
+  });
 
   // iOS needs these flags for smoother swipe behavior
   const iOS =

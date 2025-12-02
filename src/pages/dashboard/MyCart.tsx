@@ -19,9 +19,12 @@ const MyCart: React.FC = () => {
     navigate("/checkout");
   };
 
-  const hasPreOrderItem = items.some(
-    (ci) => ci.product.storeItem?.preOrderEnabled
-  );
+  const hasPreOrderItem = items.some((ci) => {
+    const storeItem = ci.product.storeItem;
+    if (!storeItem) return false;
+    const stock = storeItem.stock ?? 0;
+    return Boolean(storeItem.preOrderEnabled) && stock < 1;
+  });
 
   if (items.length === 0) {
     return (

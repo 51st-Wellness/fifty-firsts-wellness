@@ -23,12 +23,14 @@ const FeaturedSection: React.FC = () => {
         });
 
         if (response?.status?.toLowerCase() === "success" && response?.data) {
-          // Filter out products that are out of stock AND don't have pre-order enabled
+          // Filter out products that are out of stock AND don't allow true pre-order
           const items = (response.data.items || []).filter((it: StoreItem) => {
-            const isOutOfStock = (it.stock ?? 0) === 0;
-            const preOrderEnabled = Boolean((it as any).preOrderEnabled);
-            // Hide products that are out of stock and don't allow pre-order
-            return !(isOutOfStock && !preOrderEnabled);
+            const stock = it.stock ?? 0;
+            const canPreOrder =
+              Boolean((it as any).preOrderEnabled) && stock < 1;
+            const isOutOfStock = stock === 0;
+            // Hide products that are out of stock and don't allow pre-order when out of stock
+            return !(isOutOfStock && !canPreOrder);
           });
           setFeaturedItems(items);
         }
@@ -68,7 +70,9 @@ const FeaturedSection: React.FC = () => {
           </div>
         ) : featuredItems.length === 0 ? (
           <div className="text-center py-12">
-            <p className="text-white text-lg">No featured products available at this time.</p>
+            <p className="text-white text-lg">
+              No featured products available at this time.
+            </p>
           </div>
         ) : (
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
@@ -77,7 +81,8 @@ const FeaturedSection: React.FC = () => {
               const pricing = getStoreItemPricing(item);
               const hasReviews = item.reviews && item.reviews.length > 0;
               const averageRating = hasReviews
-                ? item.reviews.reduce((sum, r) => sum + (r.rating || 0), 0) / item.reviews.length
+                ? item.reviews.reduce((sum, r) => sum + (r.rating || 0), 0) /
+                  item.reviews.length
                 : 0;
 
               return (
@@ -106,13 +111,18 @@ const FeaturedSection: React.FC = () => {
                     <div className="mt-4 flex items-center justify-between min-h-[28px]">
                       <Price
                         price={pricing.currentPrice ?? item.price ?? 0}
-                        oldPrice={pricing.hasDiscount ? pricing.basePrice : item.oldPrice}
+                        oldPrice={
+                          pricing.hasDiscount
+                            ? pricing.basePrice
+                            : item.oldPrice
+                        }
                       />
                     </div>
                     <div className="mt-3 flex items-center gap-2 text-sm text-gray-600 min-h-[20px]">
                       {hasReviews ? (
                         <span className="text-gray-600">
-                          {averageRating.toFixed(1)} ({item.reviews.length} review{item.reviews.length !== 1 ? "s" : ""})
+                          {averageRating.toFixed(1)} ({item.reviews.length}{" "}
+                          review{item.reviews.length !== 1 ? "s" : ""})
                         </span>
                       ) : (
                         <span className="text-gray-500">NO REVIEWS YET</span>
@@ -143,5 +153,3 @@ const FeaturedSection: React.FC = () => {
 };
 
 export default FeaturedSection;
-
-
