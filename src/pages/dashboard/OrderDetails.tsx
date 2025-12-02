@@ -314,6 +314,9 @@ const OrderDetails: React.FC = () => {
     : 0;
   const discount = 0; // This would come from order data if available
   const total = order.totalAmount;
+  const trackingNumber =
+    (order as any).trackingNumber || order.trackingReference || null;
+  const hasTrackingNumber = Boolean(trackingNumber);
 
   return (
     <div className="space-y-6">
@@ -348,6 +351,27 @@ const OrderDetails: React.FC = () => {
         <p className="text-xs text-gray-500 mt-1">
           {formatDate(order.createdAt)}
         </p>
+        <div className="mt-3">
+          <button
+            type="button"
+            onClick={() => {
+              if (!hasTrackingNumber || !trackingNumber) return;
+              const url = `https://www.royalmail.com/track-your-item#/tracking-results/${encodeURIComponent(
+                trackingNumber
+              )}`;
+              window.open(url, "_blank", "noopener,noreferrer");
+            }}
+            disabled={!hasTrackingNumber}
+            className={`inline-flex items-center px-4 py-1.5 rounded-full text-xs font-semibold border transition-colors ${
+              hasTrackingNumber
+                ? "bg-brand-green text-white border-brand-green hover:bg-brand-green-dark disabled:opacity-70"
+                : "bg-gray-100 text-gray-500 border-gray-200 cursor-not-allowed"
+            }`}
+            style={{ fontFamily: '"League Spartan", sans-serif' }}
+          >
+            {hasTrackingNumber ? "Track order" : "Order processing"}
+          </button>
+        </div>
       </div>
 
       {/* Items */}
