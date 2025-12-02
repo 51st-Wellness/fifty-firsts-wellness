@@ -334,9 +334,28 @@ const StoreItemDialog: React.FC<StoreItemDialogProps> = ({
       }));
     };
 
+  // Extract error message from API error response
+  const extractErrorMessage = (error: any): string => {
+    if (error?.response?.data?.message) {
+      // Handle array of messages (validation errors)
+      if (Array.isArray(error.response.data.message)) {
+        return error.response.data.message.join(", ");
+      }
+      // Handle single message string
+      return error.response.data.message;
+    }
+    if (error?.response?.data?.error) {
+      return error.response.data.error;
+    }
+    if (error?.message) {
+      return error.message;
+    }
+    return "An unexpected error occurred";
+  };
+
   // Handle form submission
   const handleSubmit = async () => {
-    // Validation
+    // Frontend validation
     if (!formData.name.trim()) {
       toast.error("Name is required");
       return;
@@ -347,6 +366,11 @@ const StoreItemDialog: React.FC<StoreItemDialogProps> = ({
     }
     if (formData.stock < 0) {
       toast.error("Stock must be positive");
+      return;
+    }
+    // Validate display image is required for new items
+    if (mode === "create" && !displayFile) {
+      toast.error("Display image is required for new store items");
       return;
     }
 
@@ -427,7 +451,10 @@ const StoreItemDialog: React.FC<StoreItemDialogProps> = ({
       appendField("description", formData.description);
       appendField("productUsage", formData.productUsage);
       appendField("productBenefits", formData.productBenefits);
-      appendArrayField("productIngredients", formData.productIngredients);
+      // Only append ingredients if there are any (empty arrays are handled by backend)
+      if (formData.productIngredients.length > 0) {
+        appendArrayField("productIngredients", formData.productIngredients);
+      }
       appendField("price", formData.price);
       appendField("stock", formData.stock);
       appendField("isFeatured", formData.isFeatured);
@@ -443,8 +470,8 @@ const StoreItemDialog: React.FC<StoreItemDialogProps> = ({
       appendField("width", formData.width);
       appendField("height", formData.height);
 
-      // Add tags
-      if (shouldIncludeField("categories")) {
+      // Add categories (only if there are any, empty arrays are handled by backend)
+      if (shouldIncludeField("categories") && formData.categories.length > 0) {
         formData.categories.forEach((tag) => {
           submitData.append("categories", tag);
         });
@@ -485,7 +512,8 @@ const StoreItemDialog: React.FC<StoreItemDialogProps> = ({
       onClose();
     } catch (error) {
       console.error("Failed to save item:", error);
-      toast.error(`Failed to ${mode === "create" ? "create" : "update"} item`);
+      const errorMessage = extractErrorMessage(error);
+      toast.error(errorMessage);
     } finally {
       setSubmitting(false);
     }
@@ -630,8 +658,8 @@ const StoreItemDialog: React.FC<StoreItemDialogProps> = ({
               </Box>
 
               <Box>
-                <Typography 
-                  variant="subtitle1" 
+                <Typography
+                  variant="subtitle1"
                   sx={{ mb: 1, fontFamily: '"League Spartan", sans-serif' }}
                 >
                   Product Ingredients
@@ -740,7 +768,7 @@ const StoreItemDialog: React.FC<StoreItemDialogProps> = ({
                     alignItems={{ xs: "flex-start", sm: "center" }}
                     spacing={1}
                   >
-                    <Typography 
+                    <Typography
                       variant="subtitle2"
                       sx={{ fontFamily: '"League Spartan", sans-serif' }}
                     >
@@ -832,8 +860,8 @@ const StoreItemDialog: React.FC<StoreItemDialogProps> = ({
               {/* Shipping Information */}
               <Box>
                 <Divider sx={{ my: 1 }} />
-                <Typography 
-                  variant="subtitle2" 
+                <Typography
+                  variant="subtitle2"
                   sx={{ mb: 2, fontFamily: '"League Spartan", sans-serif' }}
                 >
                   Shipping Information (for Click & Drop)
@@ -939,7 +967,7 @@ const StoreItemDialog: React.FC<StoreItemDialogProps> = ({
                     alignItems={{ xs: "flex-start", sm: "center" }}
                     spacing={1}
                   >
-                    <Typography 
+                    <Typography
                       variant="subtitle2"
                       sx={{ fontFamily: '"League Spartan", sans-serif' }}
                     >
@@ -978,8 +1006,8 @@ const StoreItemDialog: React.FC<StoreItemDialogProps> = ({
 
           {tabIndex === 1 && (
             <Box>
-              <Typography 
-                variant="subtitle1" 
+              <Typography
+                variant="subtitle1"
                 sx={{ mb: 2, fontFamily: '"League Spartan", sans-serif' }}
               >
                 Media Files
@@ -987,8 +1015,8 @@ const StoreItemDialog: React.FC<StoreItemDialogProps> = ({
 
               {/* Display File */}
               <Box sx={{ mb: 3 }}>
-                <Typography 
-                  variant="subtitle2" 
+                <Typography
+                  variant="subtitle2"
                   sx={{ mb: 1, fontFamily: '"League Spartan", sans-serif' }}
                 >
                   Display Image/Video (Required for new items)
@@ -1043,8 +1071,8 @@ const StoreItemDialog: React.FC<StoreItemDialogProps> = ({
 
               {/* Additional Images */}
               <Box>
-                <Typography 
-                  variant="subtitle2" 
+                <Typography
+                  variant="subtitle2"
                   sx={{ mb: 1, fontFamily: '"League Spartan", sans-serif' }}
                 >
                   Additional Images (Optional, max 5)

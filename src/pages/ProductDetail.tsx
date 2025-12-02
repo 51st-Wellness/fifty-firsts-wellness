@@ -56,17 +56,6 @@ const ProductDetail: React.FC = () => {
         document.title = `${
           res.data?.name ?? "Product"
         } • Fifty Firsts Wellness`;
-
-        // Fetch related products
-        const relatedRes = await fetchStoreItems({
-          limit: 4,
-          isPublished: true,
-        });
-        setRelatedProducts(
-          relatedRes.data?.items
-            ?.filter((p) => p.productId !== productId)
-            .slice(0, 4) || []
-        );
       } finally {
         setLoading(false);
       }
@@ -98,6 +87,42 @@ const ProductDetail: React.FC = () => {
       }
     })();
   }, [productId]);
+
+  // Fetch related products by category (fetched last, after product and reviews)
+  useEffect(() => {
+    (async () => {
+      if (!item || !productId) return;
+      
+      // Get the first category from the product's categories array
+      const productCategory = item.categories && item.categories.length > 0 
+        ? item.categories[0] 
+        : null;
+      
+      // Only fetch if product has a category
+      if (!productCategory) {
+        setRelatedProducts([]);
+        return;
+      }
+
+      try {
+        const relatedRes = await fetchStoreItems({
+          limit: 5, // Fetch 5 to account for filtering out current product
+          isPublished: true,
+          category: productCategory,
+        });
+        
+        // Filter out current product and limit to 4
+        setRelatedProducts(
+          relatedRes.data?.items
+            ?.filter((p) => p.productId !== productId)
+            .slice(0, 4) || []
+        );
+      } catch (error) {
+        console.error("Failed to load related products:", error);
+        setRelatedProducts([]);
+      }
+    })();
+  }, [item, productId]);
 
   // Auto-advance reviews carousel every 10 seconds
   useEffect(() => {
