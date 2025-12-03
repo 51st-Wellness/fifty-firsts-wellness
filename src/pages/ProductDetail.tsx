@@ -241,12 +241,12 @@ const ProductDetail: React.FC = () => {
 
       {/* Main Layout */}
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 mb-12">
-        {/* Left Column - Desktop: Image Gallery, Benefits, Ingredients */}
+        {/* Left Column - Desktop: Image Gallery, Ingredients */}
         {/* Mobile: Gallery first */}
         <div className="order-1 lg:order-1">
           {/* Image Gallery */}
           <div className="mb-8 lg:mb-8">
-            <div className="bg-white rounded-2xl overflow-hidden mb-4 relative" style={{ aspectRatio: "1", minHeight: "250px", maxHeight: "350px" }}>
+            <div className="bg-white rounded-2xl overflow-hidden mb-4 relative">
               <style>{`
                 @media (min-width: 768px) {
                   .product-image-container {
@@ -255,51 +255,89 @@ const ProductDetail: React.FC = () => {
                   }
                 }
               `}</style>
-              <div className="product-image-container" style={{ aspectRatio: "1", minHeight: "250px", maxHeight: "350px", position: "relative", width: "100%" }}>
-                {mainImage ? (
-                  <img
-                    src={mainImage}
-                    alt={item.name}
-                    className="w-full h-full object-cover"
-                    style={{ 
-                      position: "absolute",
-                      top: 0,
-                      left: 0,
-                      width: "100%",
-                      height: "100%",
-                      opacity: imageFade ? 1 : 0,
-                      transition: "opacity 0.3s ease-in-out"
-                    }}
-                    key={selectedImageIndex}
-                  />
-                ) : (
-                  <div className="h-full bg-gray-100 flex items-center justify-center" style={{ minHeight: "250px" }}>
-                    <ShoppingCart className="w-16 h-16 text-gray-400" />
+              {/* Desktop: main image left, vertical gallery on the right */}
+              <div className="flex flex-col md:flex-row gap-4 p-4">
+                <div
+                  className="product-image-container flex-1 relative rounded-xl overflow-hidden bg-gray-50"
+                  style={{
+                    aspectRatio: "1",
+                    minHeight: "250px",
+                    maxHeight: "450px",
+                  }}
+                >
+                  {mainImage ? (
+                    <img
+                      src={mainImage}
+                      alt={item.name}
+                      className="w-full h-full object-cover"
+                      style={{
+                        position: "absolute",
+                        top: 0,
+                        left: 0,
+                        width: "100%",
+                        height: "100%",
+                        opacity: imageFade ? 1 : 0,
+                        transition: "opacity 0.3s ease-in-out",
+                      }}
+                      key={selectedImageIndex}
+                    />
+                  ) : (
+                    <div
+                      className="h-full bg-gray-100 flex items-center justify-center"
+                      style={{ minHeight: "250px" }}
+                    >
+                      <ShoppingCart className="w-16 h-16 text-gray-400" />
+                    </div>
+                  )}
+                </div>
+
+                {/* Desktop thumbnails stacked on the right */}
+                {allImages.length > 1 && (
+                  <div className="hidden md:flex flex-col gap-2 w-24">
+                    {allImages.map((img, idx) => (
+                      <button
+                        key={idx}
+                        onClick={() => handleImageChange(idx)}
+                        className={`w-20 h-20 rounded-lg overflow-hidden border-2 flex-shrink-0 transition-all ${
+                          selectedImageIndex === idx
+                            ? "border-brand-green"
+                            : "border-transparent hover:border-gray-300"
+                        }`}
+                      >
+                        <img
+                          src={img}
+                          alt={`${item.name} view ${idx + 1}`}
+                          className="w-full h-full object-cover"
+                        />
+                      </button>
+                    ))}
                   </div>
                 )}
               </div>
             </div>
 
-            {/* Thumbnails */}
+            {/* Mobile thumbnails: smaller and horizontally scrollable without affecting the whole page */}
             {allImages.length > 1 && (
-              <div className="flex gap-2">
-                {allImages.map((img, idx) => (
-                  <button
-                    key={idx}
-                    onClick={() => handleImageChange(idx)}
-                    className={`w-20 h-20 rounded-lg overflow-hidden border-2 flex-shrink-0 transition-all ${
-                      selectedImageIndex === idx
-                        ? "border-brand-green"
-                        : "border-transparent hover:border-gray-300"
-                    }`}
-                  >
-                    <img
-                      src={img}
-                      alt={`${item.name} view ${idx + 1}`}
-                      className="w-full h-full object-cover"
-                    />
-                  </button>
-                ))}
+              <div className="md:hidden -mx-4 px-4">
+                <div className="flex gap-2 overflow-x-auto pb-2">
+                  {allImages.map((img, idx) => (
+                    <button
+                      key={idx}
+                      onClick={() => handleImageChange(idx)}
+                      className={`min-w-[4.5rem] min-h-[4.5rem] max-w-[4.5rem] max-h-[4.5rem] rounded-lg overflow-hidden border-2 flex-shrink-0 transition-all ${
+                        selectedImageIndex === idx
+                          ? "border-brand-green"
+                          : "border-transparent hover:border-gray-300"
+                      }`}
+                    >
+                      <img
+                        src={img}
+                        alt={`${item.name} view ${idx + 1}`}
+                        className="w-full h-full object-cover"
+                      />
+                    </button>
+                  ))}
+                </div>
               </div>
             )}
           </div>
@@ -447,8 +485,8 @@ const ProductDetail: React.FC = () => {
             <p className="text-gray-600 leading-relaxed">{productUsage}</p>
           </div>
 
-          {/* Product Benefits */}
-          <div className="order-4 lg:order-3">
+          {/* Product Benefits (desktop only; mobile version below) */}
+          <div className="order-4 lg:order-3 hidden lg:block">
             <h2
               className="text-xl font-semibold text-gray-900 mb-4"
               style={{ fontFamily: '"League Spartan", sans-serif' }}
