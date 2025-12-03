@@ -18,7 +18,6 @@ import {
   getMyOrders,
   getMyOrder,
   verifyOrderPayment,
-  submitOrderToClickDrop,
   type OrderSummary,
   type OrderDetail,
 } from "../../api/user.api";
@@ -84,7 +83,6 @@ const OrdersHistory: React.FC = () => {
   const [selectedOrder, setSelectedOrder] = useState<OrderDetail | null>(null);
   const [reordering, setReordering] = useState(false);
   const [verifyingPayment, setVerifyingPayment] = useState(false);
-  const [submittingToClickDrop, setSubmittingToClickDrop] = useState(false);
   const [reviewModalOpen, setReviewModalOpen] = useState(false);
   const [selectedOrderItem, setSelectedOrderItem] = useState<{
     orderItemId: string;
@@ -316,38 +314,6 @@ const OrdersHistory: React.FC = () => {
     }
   };
 
-  const handleSubmitToClickDrop = async () => {
-    if (!selectedOrder) return;
-    try {
-      setSubmittingToClickDrop(true);
-      const response = await submitOrderToClickDrop(selectedOrder.id);
-      if (response.status === ResponseStatus.SUCCESS) {
-        toast.success(
-          response.data?.message ||
-            "Order submitted to Click & Drop successfully"
-        );
-        // Reload order details
-        const orderResponse = await getMyOrder(selectedOrder.id);
-        if (
-          orderResponse.status === ResponseStatus.SUCCESS &&
-          orderResponse.data?.order
-        ) {
-          setSelectedOrder(orderResponse.data.order);
-        }
-      } else {
-        toast.error(
-          response.message || "Failed to submit order to Click & Drop"
-        );
-      }
-    } catch (error: any) {
-      toast.error(
-        error?.response?.data?.message ||
-          "Failed to submit order to Click & Drop"
-      );
-    } finally {
-      setSubmittingToClickDrop(false);
-    }
-  };
 
   const filteredOrders = (() => {
     if (activeFilter === "Pre Orders") {
@@ -788,27 +754,6 @@ const OrdersHistory: React.FC = () => {
 
                 {/* Action Buttons */}
                 <div className="space-y-3 mt-4">
-                  {/* Test button for Click & Drop submission */}
-                  <div className="bg-yellow-50 rounded-lg p-3 border border-yellow-200">
-                    <button
-                      type="button"
-                      onClick={handleSubmitToClickDrop}
-                      disabled={submittingToClickDrop}
-                      className="w-full inline-flex items-center justify-center gap-2 rounded-full bg-yellow-600 text-white px-4 py-2 text-sm font-semibold hover:bg-yellow-700 transition-colors disabled:opacity-60 disabled:cursor-not-allowed"
-                      style={{ fontFamily: '"League Spartan", sans-serif' }}
-                    >
-                      {submittingToClickDrop ? (
-                        <Loader className="w-4 h-4 animate-spin" />
-                      ) : (
-                        <Package className="w-4 h-4" />
-                      )}
-                      <span>Test: Submit to Click & Drop</span>
-                    </button>
-                    <p className="text-xs text-yellow-700 mt-2 text-center">
-                      TEST ONLY - This button will be removed in production
-                    </p>
-                  </div>
-
                   {/* Pending Order Actions */}
                   {selectedOrder.status.toUpperCase() === "PENDING" && (
                     <div className="space-y-2">
