@@ -122,6 +122,8 @@ const StoreItemDialog: React.FC<StoreItemDialogProps> = ({
     createDefaultFormState()
   );
   const initialExistingImagesRef = useRef<string[]>([]);
+  const [productUsageIsList, setProductUsageIsList] = useState(false);
+  const [productBenefitsIsList, setProductBenefitsIsList] = useState(false);
   // Extract date part (YYYY-MM-DD) from ISO string for date input
   const toInputValue = (value?: string | Date | null) => {
     if (!value) return "";
@@ -195,6 +197,17 @@ const StoreItemDialog: React.FC<StoreItemDialogProps> = ({
         setImagePreviews(existingImages);
         setExistingImageUrls(existingImages);
         initialExistingImagesRef.current = [...existingImages];
+        // Infer whether usage/benefits look like lists (multiple non-empty lines)
+        const inferIsList = (raw?: string | null): boolean => {
+          if (!raw) return false;
+          const lines = raw
+            .split(/\r?\n/)
+            .map((l) => l.trim())
+            .filter(Boolean);
+          return lines.length > 1;
+        };
+        setProductUsageIsList(inferIsList((item as any).productUsage));
+        setProductBenefitsIsList(inferIsList((item as any).productBenefits));
       } else {
         const defaultState = createDefaultFormState();
         setFormData(defaultState);
@@ -203,6 +216,8 @@ const StoreItemDialog: React.FC<StoreItemDialogProps> = ({
         setImagePreviews([]);
         setExistingImageUrls([]);
         initialExistingImagesRef.current = [];
+        setProductUsageIsList(false);
+        setProductBenefitsIsList(false);
       }
       setDisplayFile(null);
       setImageFiles([]);
@@ -624,10 +639,42 @@ const StoreItemDialog: React.FC<StoreItemDialogProps> = ({
               </Box>
 
               <Box>
+                <Stack
+                  direction="row"
+                  justifyContent="space-between"
+                  alignItems="center"
+                  sx={{ mb: 0.5 }}
+                >
+                  <Typography
+                    variant="subtitle1"
+                    sx={{ fontFamily: '"League Spartan", sans-serif' }}
+                  >
+                    Product Usage (optional)
+                  </Typography>
+                  <Stack direction="row" spacing={0.5}>
+                    <Button
+                      size="small"
+                      variant={productUsageIsList ? "text" : "contained"}
+                      onClick={() => setProductUsageIsList(false)}
+                    >
+                      Paragraph
+                    </Button>
+                    <Button
+                      size="small"
+                      variant={productUsageIsList ? "contained" : "text"}
+                      onClick={() => setProductUsageIsList(true)}
+                    >
+                      List
+                    </Button>
+                  </Stack>
+                </Stack>
                 <TextField
                   fullWidth
-                  label="Product Usage (optional)"
-                  placeholder="How to use this product"
+                  placeholder={
+                    productUsageIsList
+                      ? "Each new line will appear as a bullet on the product page"
+                      : "How to use this product"
+                  }
                   multiline
                   rows={4}
                   value={formData.productUsage}
@@ -641,10 +688,42 @@ const StoreItemDialog: React.FC<StoreItemDialogProps> = ({
               </Box>
 
               <Box>
+                <Stack
+                  direction="row"
+                  justifyContent="space-between"
+                  alignItems="center"
+                  sx={{ mb: 0.5 }}
+                >
+                  <Typography
+                    variant="subtitle1"
+                    sx={{ fontFamily: '"League Spartan", sans-serif' }}
+                  >
+                    Product Benefits (optional)
+                  </Typography>
+                  <Stack direction="row" spacing={0.5}>
+                    <Button
+                      size="small"
+                      variant={productBenefitsIsList ? "text" : "contained"}
+                      onClick={() => setProductBenefitsIsList(false)}
+                    >
+                      Paragraph
+                    </Button>
+                    <Button
+                      size="small"
+                      variant={productBenefitsIsList ? "contained" : "text"}
+                      onClick={() => setProductBenefitsIsList(true)}
+                    >
+                      List
+                    </Button>
+                  </Stack>
+                </Stack>
                 <TextField
                   fullWidth
-                  label="Product Benefits (optional)"
-                  placeholder="Benefits of using this product"
+                  placeholder={
+                    productBenefitsIsList
+                      ? "Each new line will appear as a bullet on the product page"
+                      : "Benefits of using this product"
+                  }
                   multiline
                   rows={4}
                   value={formData.productBenefits}

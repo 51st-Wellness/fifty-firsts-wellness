@@ -189,6 +189,7 @@ const CartSlider: React.FC<CartSliderProps> = ({ isOpen, onClose }) => {
           height: "100%",
           display: "flex",
           flexDirection: "column",
+          position: "relative",
         }}
       >
         {/* Header (sticky) */}
@@ -314,6 +315,9 @@ const CartSlider: React.FC<CartSliderProps> = ({ isOpen, onClose }) => {
                   px: 2,
                   py: 2,
                   bgcolor: "grey.50",
+                  position: "sticky",
+                  bottom: 0,
+                  zIndex: 1,
                 }}
               >
                 {/* Total */}

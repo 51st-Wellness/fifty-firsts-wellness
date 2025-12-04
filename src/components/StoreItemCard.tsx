@@ -45,11 +45,6 @@ const StoreItemCard: React.FC<StoreItemCardProps> = ({
   const inCart = isInCart(item.productId);
 
   const handleAddToCart = async () => {
-    if (!isAuthenticated) {
-      // Could show a login prompt here
-      return;
-    }
-
     try {
       setItemLoading(true);
       await addToCart(item.productId, 1);
@@ -71,7 +66,7 @@ const StoreItemCard: React.FC<StoreItemCardProps> = ({
   const showNotifyOnly = !canPreOrder && (isComingSoon || isOutOfStock);
 
   const handlePreOrder = async () => {
-    if (!isAuthenticated || !canPreOrder) return;
+    if (!canPreOrder) return;
 
     try {
       setItemLoading(true);
@@ -190,12 +185,7 @@ const StoreItemCard: React.FC<StoreItemCardProps> = ({
                   <button
                     type="button"
                     onClick={handlePreOrder}
-                    disabled={!isAuthenticated || !canPreOrder || itemLoading}
-                    title={
-                      !isAuthenticated
-                        ? "Login required to pre-order"
-                        : undefined
-                    }
+                    disabled={!canPreOrder || itemLoading}
                     className="w-full inline-flex items-center justify-center gap-1 md:gap-2 bg-brand-green text-white px-2 md:px-4 py-1.5 md:py-2 rounded-full text-[10px] md:text-sm font-semibold hover:bg-brand-green-dark transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
                   >
                     {itemLoading ? (
@@ -210,11 +200,6 @@ const StoreItemCard: React.FC<StoreItemCardProps> = ({
                       {itemLoading ? "..." : "Pre-order"}
                     </span>
                   </button>
-                  {!isAuthenticated && (
-                    <div className="pointer-events-none absolute -top-9 left-1/2 -translate-x-1/2 whitespace-nowrap bg-gray-900 text-white text-[10px] px-2 py-1 rounded opacity-0 group-hover:opacity-100 transition-opacity">
-                      Login required
-                    </div>
-                  )}
                 </span>
                 <span className="relative group flex-shrink-0">
                   <button
@@ -224,21 +209,11 @@ const StoreItemCard: React.FC<StoreItemCardProps> = ({
                       setNotifyOpen(true);
                     }}
                     disabled={!isAuthenticated}
-                    title={
-                      !isAuthenticated
-                        ? "Login required to be notified"
-                        : undefined
-                    }
                     className="inline-flex items-center justify-center bg-white border border-brand-green text-brand-green w-8 h-8 md:w-10 md:h-10 rounded-full hover:bg-brand-green hover:text-white transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
                     aria-label="Notify me when available"
                   >
                     <Bell className="w-3.5 h-3.5 md:w-4 md:h-4" />
                   </button>
-                  {!isAuthenticated && (
-                    <div className="pointer-events-none absolute -top-9 left-1/2 -translate-x-1/2 whitespace-nowrap bg-gray-900 text-white text-[10px] px-2 py-1 rounded opacity-0 group-hover:opacity-100 transition-opacity">
-                      Login required
-                    </div>
-                  )}
                 </span>
               </div>
             ) : showAddToCart ? (
@@ -246,12 +221,7 @@ const StoreItemCard: React.FC<StoreItemCardProps> = ({
                 <button
                   type="button"
                   onClick={handleAddToCart}
-                  disabled={itemLoading || !isAuthenticated}
-                  title={
-                    !isAuthenticated
-                      ? "Login required to add items to cart"
-                      : undefined
-                  }
+                  disabled={itemLoading}
                   className="w-full inline-flex items-center justify-center gap-1 md:gap-2 bg-brand-green text-white px-2 md:px-4 py-1.5 md:py-2 rounded-full text-[10px] md:text-sm font-semibold hover:bg-brand-green-dark transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
                 >
                   {itemLoading ? (
@@ -266,11 +236,6 @@ const StoreItemCard: React.FC<StoreItemCardProps> = ({
                     {itemLoading ? "..." : "Add"}
                   </span>
                 </button>
-                {!isAuthenticated && (
-                  <div className="pointer-events-none absolute -top-9 left-1/2 -translate-x-1/2 whitespace-nowrap bg-gray-900 text-white text-[10px] px-2 py-1 rounded opacity-0 group-hover:opacity-100 transition-opacity">
-                    Login required
-                  </div>
-                )}
               </span>
             ) : null}
 

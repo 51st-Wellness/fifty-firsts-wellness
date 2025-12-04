@@ -212,9 +212,18 @@ const ProductDetail: React.FC = () => {
     "This product offers numerous benefits including improved wellness, enhanced daily routines, and a sense of calm and balance. Our carefully curated selection ensures you receive the highest quality items designed to support your holistic health journey.";
 
   const descriptionContent = item.description?.trim() || defaultDescription;
-  const productUsage = (item as any).productUsage?.trim() || defaultUsage;
-  const productBenefits =
+  const rawProductUsage = (item as any).productUsage?.trim() || defaultUsage;
+  const rawProductBenefits =
     (item as any).productBenefits?.trim() || defaultBenefits;
+  const splitToLines = (value: string) =>
+    value
+      .split(/\r?\n/)
+      .map((line) => line.trim())
+      .filter((line) => line.length > 0);
+  const productUsageLines = splitToLines(rawProductUsage);
+  const productBenefitsLines = splitToLines(rawProductBenefits);
+  const productUsageIsList = productUsageLines.length > 1;
+  const productBenefitsIsList = productBenefitsLines.length > 1;
   const productIngredients =
     ((item as any).productIngredients as string[] | undefined)?.filter(
       (ingredient) =>
@@ -482,7 +491,17 @@ const ProductDetail: React.FC = () => {
             >
               Product Usage
             </h2>
-            <p className="text-gray-600 leading-relaxed">{productUsage}</p>
+            {productUsageIsList ? (
+              <ul className="list-disc list-inside text-gray-600 space-y-1">
+                {productUsageLines.map((line, idx) => (
+                  <li key={`usage-${idx}`}>{line}</li>
+                ))}
+              </ul>
+            ) : (
+              <p className="text-gray-600 leading-relaxed">
+                {productUsageLines[0] || rawProductUsage}
+              </p>
+            )}
           </div>
 
           {/* Product Benefits (desktop only; mobile version below) */}
@@ -493,7 +512,17 @@ const ProductDetail: React.FC = () => {
             >
               Product Benefits
             </h2>
-            <p className="text-gray-600 leading-relaxed">{productBenefits}</p>
+            {productBenefitsIsList ? (
+              <ul className="list-disc list-inside text-gray-600 space-y-1">
+                {productBenefitsLines.map((line, idx) => (
+                  <li key={`benefit-${idx}`}>{line}</li>
+                ))}
+              </ul>
+            ) : (
+              <p className="text-gray-600 leading-relaxed">
+                {productBenefitsLines[0] || rawProductBenefits}
+              </p>
+            )}
           </div>
         </div>
 
@@ -507,7 +536,17 @@ const ProductDetail: React.FC = () => {
             >
               Product Benefits
             </h2>
-            <p className="text-gray-600 leading-relaxed">{productBenefits}</p>
+            {productBenefitsIsList ? (
+              <ul className="list-disc list-inside text-gray-600 space-y-1">
+                {productBenefitsLines.map((line, idx) => (
+                  <li key={`benefit-mobile-${idx}`}>{line}</li>
+                ))}
+              </ul>
+            ) : (
+              <p className="text-gray-600 leading-relaxed">
+                {productBenefitsLines[0] || rawProductBenefits}
+              </p>
+            )}
           </div>
 
           {/* Product Ingredients */}

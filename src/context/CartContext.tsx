@@ -3,6 +3,7 @@ import React, {
   useContext,
   useReducer,
   useEffect,
+  useCallback,
   ReactNode,
 } from "react";
 import {
@@ -15,6 +16,18 @@ import toast from "react-hot-toast";
 import { useAuth } from "./AuthContextProvider";
 import { getStoreItemPricing } from "../utils/discounts";
 import { useGlobalDiscount } from "./GlobalDiscountContext";
+import {
+  getGuestCart,
+  saveGuestCart,
+  addToGuestCart,
+  updateGuestCartItem,
+  removeFromGuestCart,
+  clearGuestCart,
+  getGuestCartItemQuantity,
+  isInGuestCart,
+  type GuestCartItem,
+} from "../utils/guestCart";
+import { fetchStoreItemById } from "../api/marketplace.api";
 
 // Cart state interface
 interface CartState {
@@ -152,19 +165,136 @@ export const CartProvider: React.FC<CartProviderProps> = ({ children }) => {
     return total + price * item.quantity;
   }, 0);
 
-  // Load cart when user logs in
+  // Load guest cart from localStorage and convert to CartItemWithRelations format
+  const loadGuestCart = useCallback(async () => {
+    try {
+      dispatch({ type: "SET_LOADING", payload: true });
+      const guestItems = getGuestCart();
+
+      if (guestItems.length === 0) {
+        dispatch({ type: "SET_ITEMS", payload: [] });
+        return;
+      }
+
+      // Fetch product details for each guest cart item
+      const cartItems: CartItemWithRelations[] = await Promise.all(
+        guestItems.map(async (guestItem) => {
+          try {
+            const productResponse = await fetchStoreItemById(
+              guestItem.productId
+            );
+            const storeItem = productResponse.data;
+
+            if (!storeItem) {
+              return null;
+            }
+
+            // Create a CartItemWithRelations-like structure for guest cart
+            const cartItem: CartItemWithRelations = {
+              id: `guest-${guestItem.productId}`,
+              productId: guestItem.productId,
+              userId: "guest",
+              quantity: guestItem.quantity,
+              createdAt: guestItem.addedAt || new Date().toISOString(),
+              updatedAt: new Date().toISOString(),
+              product: {
+                id: storeItem.productId,
+                type: "STORE",
+                pricingModel: "ONE_TIME",
+                createdAt: storeItem.createdAt || new Date().toISOString(),
+                updatedAt: storeItem.updatedAt || new Date().toISOString(),
+                storeItem: storeItem,
+              },
+              user: {
+                id: "guest",
+                email: "",
+                firstName: "",
+                lastName: "",
+                role: "USER",
+                profilePicture: null,
+                isActive: true,
+                createdAt: new Date().toISOString(),
+                updatedAt: new Date().toISOString(),
+              },
+            };
+            return cartItem;
+          } catch (error) {
+            console.error(
+              `Failed to fetch product ${guestItem.productId}:`,
+              error
+            );
+            return null;
+          }
+        })
+      );
+
+      // Filter out null items (failed fetches)
+      const validItems = cartItems.filter(
+        (item): item is CartItemWithRelations => item !== null
+      );
+      dispatch({ type: "SET_ITEMS", payload: validItems });
+    } catch (error) {
+      console.error("Error loading guest cart:", error);
+      dispatch({ type: "SET_ITEMS", payload: [] });
+    } finally {
+      dispatch({ type: "SET_LOADING", payload: false });
+    }
+  }, []);
+
+  // Sync guest cart to server when user logs in
+  const syncGuestCartToServer = useCallback(async () => {
+    const guestItems = getGuestCart();
+    if (guestItems.length === 0) {
+      clearGuestCart();
+      return;
+    }
+
+    try {
+      // Add each guest cart item to server cart
+      for (const guestItem of guestItems) {
+        try {
+          await cartAPI.addToCart({
+            productId: guestItem.productId,
+            quantity: guestItem.quantity,
+          });
+        } catch (error) {
+          console.error(
+            `Failed to sync item ${guestItem.productId} to server:`,
+            error
+          );
+          // Continue with other items even if one fails
+        }
+      }
+
+      // Clear guest cart after successful sync
+      clearGuestCart();
+      toast.success("Your cart items have been saved");
+    } catch (error) {
+      console.error("Error syncing guest cart to server:", error);
+      // Don't clear guest cart if sync fails - user can try again
+    }
+  }, []);
+
+  // Load cart when user logs in or load guest cart when logged out
   useEffect(() => {
     if (isAuthenticated && user) {
+      // Sync guest cart to server when user logs in
+      syncGuestCartToServer();
       refreshCart();
     } else {
-      // Clear cart when user logs out
-      dispatch({ type: "CLEAR_CART" });
+      // Load guest cart from localStorage when logged out
+      loadGuestCart();
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [isAuthenticated, user]);
 
-  // Refresh cart from server
-  const refreshCart = async () => {
-    if (!isAuthenticated) return;
+  // Refresh cart from server (authenticated) or localStorage (guest)
+  const refreshCart = useCallback(async () => {
+    if (!isAuthenticated) {
+      // For guests, reload from localStorage
+      await loadGuestCart();
+      return;
+    }
 
     try {
       dispatch({ type: "SET_LOADING", payload: true });
@@ -177,6 +307,16 @@ export const CartProvider: React.FC<CartProviderProps> = ({ children }) => {
         response.data
       ) {
         dispatch({ type: "SET_ITEMS", payload: response.data.items });
+
+        // Sync server cart to localStorage for consistency
+        const serverItems: GuestCartItem[] = response.data.items.map(
+          (item) => ({
+            productId: item.productId,
+            quantity: item.quantity,
+            addedAt: item.createdAt,
+          })
+        );
+        saveGuestCart(serverItems);
       }
     } catch (error: any) {
       const errorMessage =
@@ -186,56 +326,116 @@ export const CartProvider: React.FC<CartProviderProps> = ({ children }) => {
     } finally {
       dispatch({ type: "SET_LOADING", payload: false });
     }
-  };
+  }, [isAuthenticated, loadGuestCart]);
 
   // Add item to cart
+  // For guests: stores in localStorage
+  // For authenticated users: stores on server and syncs to localStorage
   const addToCart = async (productId: string, quantity: number = 1) => {
-    if (!isAuthenticated) {
-      toast.error("Please login to add items to cart");
-      return;
-    }
-
     try {
       dispatch({ type: "SET_LOADING", payload: true });
       dispatch({ type: "SET_ERROR", payload: null });
 
-      const addToCartDto: AddToCartDto = { productId, quantity };
-      const response = await cartAPI.addToCart(addToCartDto);
+      if (!isAuthenticated) {
+        // Guest cart: store in localStorage
+        addToGuestCart(productId, quantity);
 
-      // Only show success if we have a valid response with data
-      if (
-        (response.status === "SUCCESS" || response.status === "success") &&
-        response.data
-      ) {
-        dispatch({ type: "ADD_ITEM", payload: response.data });
-        toast.success("Item added to cart");
+        // Fetch product details to add to state
+        try {
+          const productResponse = await fetchStoreItemById(productId);
+          const storeItem = productResponse.data;
 
-        // Open the cart and refresh its contents to ensure consistency
-        dispatch({ type: "SET_CART_OPEN", payload: true });
-        await refreshCart();
+          if (storeItem) {
+            const cartItem: CartItemWithRelations = {
+              id: `guest-${productId}`,
+              productId: productId,
+              userId: "guest",
+              quantity: getGuestCartItemQuantity(productId),
+              createdAt: new Date().toISOString(),
+              updatedAt: new Date().toISOString(),
+              product: {
+                id: storeItem.productId,
+                type: "STORE",
+                pricingModel: "ONE_TIME",
+                createdAt: storeItem.createdAt || new Date().toISOString(),
+                updatedAt: storeItem.updatedAt || new Date().toISOString(),
+                storeItem: storeItem,
+              },
+              user: {
+                id: "guest",
+                email: "",
+                firstName: "",
+                lastName: "",
+                role: "USER",
+                profilePicture: null,
+                isActive: true,
+                createdAt: new Date().toISOString(),
+                updatedAt: new Date().toISOString(),
+              },
+            };
+
+            // Check if item already exists in state
+            const existingIndex = state.items.findIndex(
+              (item) => item.productId === productId
+            );
+
+            if (existingIndex >= 0) {
+              dispatch({ type: "UPDATE_ITEM", payload: cartItem });
+            } else {
+              dispatch({ type: "ADD_ITEM", payload: cartItem });
+            }
+
+            toast.success("Item added to cart");
+            dispatch({ type: "SET_CART_OPEN", payload: true });
+          }
+        } catch (error) {
+          console.error("Failed to fetch product details:", error);
+          toast.error("Item added to cart, but couldn't load details");
+        }
       } else {
-        // Response was successful but no data - treat as error
-        const errorMessage = response.message || "Failed to add item to cart";
-        dispatch({ type: "SET_ERROR", payload: errorMessage });
-        toast.error(errorMessage);
-        throw new Error(errorMessage); // Throw to propagate error to caller
+        // Authenticated: use server API
+        const addToCartDto: AddToCartDto = { productId, quantity };
+        const response = await cartAPI.addToCart(addToCartDto);
+
+        if (
+          (response.status === "SUCCESS" || response.status === "success") &&
+          response.data
+        ) {
+          dispatch({ type: "ADD_ITEM", payload: response.data });
+          toast.success("Item added to cart");
+
+          // Sync to localStorage for consistency
+          addToGuestCart(productId, quantity);
+
+          // Open the cart and refresh its contents to ensure consistency
+          dispatch({ type: "SET_CART_OPEN", payload: true });
+          await refreshCart();
+        } else {
+          const errorMessage = response.message || "Failed to add item to cart";
+          dispatch({ type: "SET_ERROR", payload: errorMessage });
+          toast.error(errorMessage);
+          throw new Error(errorMessage);
+        }
       }
     } catch (error: any) {
-      const backendMessage: string | undefined =
-        error?.response?.data?.message ||
-        (Array.isArray(error?.response?.data?.message)
-          ? error.response.data.message[0]
-          : undefined);
+      // Only handle errors for authenticated users (server errors)
+      if (isAuthenticated) {
+        const backendMessageRaw =
+          error?.response?.data?.message ||
+          (Array.isArray(error?.response?.data?.message)
+            ? error.response.data.message[0]
+            : undefined);
 
-      const errorMessage =
-        backendMessage ||
-        error.message ||
-        "Failed to add item to cart. Please try again or adjust your cart.";
+        const errorMessage =
+          backendMessageRaw ||
+          error?.message ||
+          "Failed to add item to cart. Please try again.";
 
-      dispatch({ type: "SET_ERROR", payload: errorMessage });
-      toast.error(errorMessage);
-      console.error("Error adding to cart:", error);
-      throw error; // Re-throw to let caller handle it
+        dispatch({ type: "SET_ERROR", payload: errorMessage });
+        toast.error(errorMessage);
+        console.error("Error adding to cart:", error);
+        throw error;
+      }
     } finally {
       dispatch({ type: "SET_LOADING", payload: false });
     }
@@ -243,31 +443,57 @@ export const CartProvider: React.FC<CartProviderProps> = ({ children }) => {
 
   // Update cart item quantity
   const updateCartItem = async (productId: string, quantity: number) => {
-    if (!isAuthenticated) return;
-
     try {
       dispatch({ type: "SET_LOADING", payload: true });
       dispatch({ type: "SET_ERROR", payload: null });
 
-      const updateDto: UpdateCartItemDto = { quantity };
-      const response = await cartAPI.updateCartItem(productId, updateDto);
+      if (!isAuthenticated) {
+        // Guest cart: update localStorage
+        updateGuestCartItem(productId, quantity);
 
-      if (
-        (response.status === "SUCCESS" || response.status === "success") &&
-        response.data
-      ) {
-        dispatch({ type: "UPDATE_ITEM", payload: response.data });
-        toast.success("Cart updated");
+        // Update state
+        const existingItem = state.items.find(
+          (item) => item.productId === productId
+        );
+        if (existingItem) {
+          const updatedItem: CartItemWithRelations = {
+            ...existingItem,
+            quantity: quantity,
+            updatedAt: new Date().toISOString(),
+          };
+          dispatch({ type: "UPDATE_ITEM", payload: updatedItem });
+        }
 
-        // Refresh for consistency
-        await refreshCart();
+        if (quantity <= 0) {
+          dispatch({ type: "REMOVE_ITEM", payload: productId });
+        }
+      } else {
+        // Authenticated: use server API
+        const updateDto: UpdateCartItemDto = { quantity };
+        const response = await cartAPI.updateCartItem(productId, updateDto);
+
+        if (
+          (response.status === "SUCCESS" || response.status === "success") &&
+          response.data
+        ) {
+          dispatch({ type: "UPDATE_ITEM", payload: response.data });
+          toast.success("Cart updated");
+
+          // Sync to localStorage
+          updateGuestCartItem(productId, quantity);
+
+          // Refresh for consistency
+          await refreshCart();
+        }
       }
     } catch (error: any) {
-      const errorMessage =
-        error.response?.data?.message || "Failed to update cart item";
-      dispatch({ type: "SET_ERROR", payload: errorMessage });
-      toast.error(errorMessage);
-      console.error("Error updating cart item:", error);
+      if (isAuthenticated) {
+        const errorMessage =
+          error.response?.data?.message || "Failed to update cart item";
+        dispatch({ type: "SET_ERROR", payload: errorMessage });
+        toast.error(errorMessage);
+        console.error("Error updating cart item:", error);
+      }
     } finally {
       dispatch({ type: "SET_LOADING", payload: false });
     }
@@ -275,24 +501,35 @@ export const CartProvider: React.FC<CartProviderProps> = ({ children }) => {
 
   // Remove item from cart
   const removeFromCart = async (productId: string) => {
-    if (!isAuthenticated) return;
-
     try {
       dispatch({ type: "SET_LOADING", payload: true });
       dispatch({ type: "SET_ERROR", payload: null });
 
-      await cartAPI.removeFromCart(productId);
-      dispatch({ type: "REMOVE_ITEM", payload: productId });
-      toast.success("Item removed from cart");
+      if (!isAuthenticated) {
+        // Guest cart: remove from localStorage
+        removeFromGuestCart(productId);
+        dispatch({ type: "REMOVE_ITEM", payload: productId });
+        toast.success("Item removed from cart");
+      } else {
+        // Authenticated: use server API
+        await cartAPI.removeFromCart(productId);
+        dispatch({ type: "REMOVE_ITEM", payload: productId });
+        toast.success("Item removed from cart");
 
-      // Refresh for consistency
-      await refreshCart();
+        // Sync to localStorage
+        removeFromGuestCart(productId);
+
+        // Refresh for consistency
+        await refreshCart();
+      }
     } catch (error: any) {
-      const errorMessage =
-        error.response?.data?.message || "Failed to remove item from cart";
-      dispatch({ type: "SET_ERROR", payload: errorMessage });
-      toast.error(errorMessage);
-      console.error("Error removing from cart:", error);
+      if (isAuthenticated) {
+        const errorMessage =
+          error.response?.data?.message || "Failed to remove item from cart";
+        dispatch({ type: "SET_ERROR", payload: errorMessage });
+        toast.error(errorMessage);
+        console.error("Error removing from cart:", error);
+      }
     } finally {
       dispatch({ type: "SET_LOADING", payload: false });
     }
@@ -300,24 +537,35 @@ export const CartProvider: React.FC<CartProviderProps> = ({ children }) => {
 
   // Clear entire cart
   const clearCart = async () => {
-    if (!isAuthenticated) return;
-
     try {
       dispatch({ type: "SET_LOADING", payload: true });
       dispatch({ type: "SET_ERROR", payload: null });
 
-      await cartAPI.clearCart();
-      dispatch({ type: "CLEAR_CART" });
-      toast.success("Cart cleared");
+      if (!isAuthenticated) {
+        // Guest cart: clear localStorage
+        clearGuestCart();
+        dispatch({ type: "CLEAR_CART" });
+        toast.success("Cart cleared");
+      } else {
+        // Authenticated: use server API
+        await cartAPI.clearCart();
+        dispatch({ type: "CLEAR_CART" });
+        toast.success("Cart cleared");
 
-      // Refresh for consistency
-      await refreshCart();
+        // Sync to localStorage
+        clearGuestCart();
+
+        // Refresh for consistency
+        await refreshCart();
+      }
     } catch (error: any) {
-      const errorMessage =
-        error.response?.data?.message || "Failed to clear cart";
-      dispatch({ type: "SET_ERROR", payload: errorMessage });
-      toast.error(errorMessage);
-      console.error("Error clearing cart:", error);
+      if (isAuthenticated) {
+        const errorMessage =
+          error.response?.data?.message || "Failed to clear cart";
+        dispatch({ type: "SET_ERROR", payload: errorMessage });
+        toast.error(errorMessage);
+        console.error("Error clearing cart:", error);
+      }
     } finally {
       dispatch({ type: "SET_LOADING", payload: false });
     }
@@ -331,11 +579,23 @@ export const CartProvider: React.FC<CartProviderProps> = ({ children }) => {
   // Utility functions
   const getItemQuantity = (productId: string): number => {
     const item = state.items.find((item) => item.productId === productId);
-    return item ? item.quantity : 0;
+    if (item) return item.quantity;
+    // Fallback to guest cart if not authenticated
+    if (!isAuthenticated) {
+      return getGuestCartItemQuantity(productId);
+    }
+    return 0;
   };
 
   const isInCart = (productId: string): boolean => {
-    return state.items.some((item) => item.productId === productId);
+    if (state.items.some((item) => item.productId === productId)) {
+      return true;
+    }
+    // Fallback to guest cart if not authenticated
+    if (!isAuthenticated) {
+      return isInGuestCart(productId);
+    }
+    return false;
   };
 
   const contextValue: CartContextType = {
