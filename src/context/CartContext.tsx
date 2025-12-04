@@ -419,7 +419,6 @@ export const CartProvider: React.FC<CartProviderProps> = ({ children }) => {
               dispatch({ type: "ADD_ITEM", payload: cartItem });
             }
 
-            toast.success("Item added to cart");
             dispatch({ type: "SET_CART_OPEN", payload: true });
           }
         } catch (error) {
@@ -432,15 +431,11 @@ export const CartProvider: React.FC<CartProviderProps> = ({ children }) => {
         const response = await cartAPI.addToCart(addToCartDto);
 
         if (response.status === ResponseStatus.SUCCESS && response.data) {
-          dispatch({ type: "ADD_ITEM", payload: response.data });
-          toast.success("Item added to cart");
-
-          // Sync to localStorage for consistency
-          addToGuestCart(productId, quantity);
-
-          // Open the cart and refresh its contents to ensure consistency
-          dispatch({ type: "SET_CART_OPEN", payload: true });
+          // Refresh cart from server to ensure UI is in sync (this also syncs to localStorage)
           await refreshCart();
+
+          // Open the cart after refresh completes
+          dispatch({ type: "SET_CART_OPEN", payload: true });
         } else {
           const errorMessage = response.message || "Failed to add item to cart";
           dispatch({ type: "SET_ERROR", payload: errorMessage });
