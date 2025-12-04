@@ -28,6 +28,7 @@ import {
   type GuestCartItem,
 } from "../utils/guestCart";
 import { fetchStoreItemById } from "../api/marketplace.api";
+import { ResponseStatus } from "../types/response.types";
 
 // Cart state interface
 interface CartState {
@@ -250,13 +251,46 @@ export const CartProvider: React.FC<CartProviderProps> = ({ children }) => {
     }
 
     try {
-      // Add each guest cart item to server cart
+      // First, fetch the current server cart to compare
+      const serverCartResponse = await cartAPI.getCart();
+      const serverItems = serverCartResponse.data?.items || [];
+
+      // Create a map of server cart items for quick lookup
+      const serverItemsMap = new Map(
+        serverItems.map((item) => [item.productId, item.quantity])
+      );
+
+      let syncedCount = 0;
+
+      // Process each guest cart item
       for (const guestItem of guestItems) {
         try {
-          await cartAPI.addToCart({
-            productId: guestItem.productId,
-            quantity: guestItem.quantity,
-          });
+          const serverQuantity = serverItemsMap.get(guestItem.productId);
+
+          if (serverQuantity !== undefined) {
+            // Item exists on server - intelligently merge quantities
+            // Use max to handle cases where user modified quantity offline
+            const maxQuantity = Math.max(serverQuantity, guestItem.quantity);
+
+            // Only update if guest has more items than server
+            if (guestItem.quantity > serverQuantity) {
+              const quantityToAdd = guestItem.quantity - serverQuantity;
+
+              await cartAPI.addToCart({
+                productId: guestItem.productId,
+                quantity: quantityToAdd,
+              });
+              syncedCount++;
+            }
+            // If server has more or equal, keep server quantity (no action needed)
+          } else {
+            // Item doesn't exist on server - add it
+            await cartAPI.addToCart({
+              productId: guestItem.productId,
+              quantity: guestItem.quantity,
+            });
+            syncedCount++;
+          }
         } catch (error) {
           console.error(
             `Failed to sync item ${guestItem.productId} to server:`,
@@ -268,7 +302,10 @@ export const CartProvider: React.FC<CartProviderProps> = ({ children }) => {
 
       // Clear guest cart after successful sync
       clearGuestCart();
-      toast.success("Your cart items have been saved");
+
+      if (syncedCount > 0) {
+        toast.success("Your cart items have been saved");
+      }
     } catch (error) {
       console.error("Error syncing guest cart to server:", error);
       // Don't clear guest cart if sync fails - user can try again
@@ -302,10 +339,7 @@ export const CartProvider: React.FC<CartProviderProps> = ({ children }) => {
 
       const response = await cartAPI.getCart();
 
-      if (
-        (response.status === "SUCCESS" || response.status === "success") &&
-        response.data
-      ) {
+      if (response.status === ResponseStatus.SUCCESS && response.data) {
         dispatch({ type: "SET_ITEMS", payload: response.data.items });
 
         // Sync server cart to localStorage for consistency
@@ -397,10 +431,7 @@ export const CartProvider: React.FC<CartProviderProps> = ({ children }) => {
         const addToCartDto: AddToCartDto = { productId, quantity };
         const response = await cartAPI.addToCart(addToCartDto);
 
-        if (
-          (response.status === "SUCCESS" || response.status === "success") &&
-          response.data
-        ) {
+        if (response.status === ResponseStatus.SUCCESS && response.data) {
           dispatch({ type: "ADD_ITEM", payload: response.data });
           toast.success("Item added to cart");
 
@@ -472,10 +503,7 @@ export const CartProvider: React.FC<CartProviderProps> = ({ children }) => {
         const updateDto: UpdateCartItemDto = { quantity };
         const response = await cartAPI.updateCartItem(productId, updateDto);
 
-        if (
-          (response.status === "SUCCESS" || response.status === "success") &&
-          response.data
-        ) {
+        if (response.status === ResponseStatus.SUCCESS && response.data) {
           dispatch({ type: "UPDATE_ITEM", payload: response.data });
           toast.success("Cart updated");
 
