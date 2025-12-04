@@ -314,14 +314,24 @@ export const CartProvider: React.FC<CartProviderProps> = ({ children }) => {
 
   // Load cart when user logs in or load guest cart when logged out
   useEffect(() => {
-    if (isAuthenticated && user) {
-      // Sync guest cart to server when user logs in
-      syncGuestCartToServer();
-      refreshCart();
-    } else {
-      // Load guest cart from localStorage when logged out
-      loadGuestCart();
-    }
+    const initializeCart = async () => {
+      if (isAuthenticated && user) {
+        // Sync guest cart to server when user logs in (await to ensure sync completes)
+        try {
+          await syncGuestCartToServer();
+        } catch (error) {
+          console.error("Error syncing guest cart:", error);
+          // Continue to refresh cart even if sync fails
+        }
+        // Always refresh cart from server to update UI (even if sync failed)
+        await refreshCart();
+      } else {
+        // Load guest cart from localStorage when logged out
+        await loadGuestCart();
+      }
+    };
+
+    initializeCart();
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [isAuthenticated, user]);
 
