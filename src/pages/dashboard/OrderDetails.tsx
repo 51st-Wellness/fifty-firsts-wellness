@@ -599,28 +599,8 @@ const OrderDetails: React.FC = () => {
         </div>
       )}
 
-      {/* Action Buttons */}
       <div className="space-y-4">
-        {/* Test button for Click & Drop submission */}
-        <div className="bg-yellow-50 rounded-xl p-4 border border-yellow-200">
-          <button
-            type="button"
-            onClick={handleSubmitToClickDrop}
-            disabled={submittingToClickDrop}
-            className="inline-flex items-center justify-center gap-2 rounded-full bg-yellow-600 text-white px-4 py-2 text-sm font-semibold hover:bg-yellow-700 transition-colors disabled:opacity-60 disabled:cursor-not-allowed"
-            style={{ fontFamily: '"League Spartan", sans-serif' }}
-          >
-            {submittingToClickDrop ? (
-              <Loader className="w-4 h-4 animate-spin" />
-            ) : (
-              <Package className="w-4 h-4" />
-            )}
-            <span>Test: Submit to Click & Drop</span>
-          </button>
-          <p className="text-xs text-yellow-700 mt-2">
-            TEST ONLY - This button will be removed in production
-          </p>
-        </div>
+        
 
         {/* Pending Order Actions */}
         {order.status.toUpperCase() === "PENDING" && (
