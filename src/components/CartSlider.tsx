@@ -229,6 +229,7 @@ const CartSlider: React.FC<CartSliderProps> = ({ isOpen, onClose }) => {
             overflowY: "auto",
             bgcolor: "#F9FAFB", // A light grey background
             p: 2,
+            pb: items.length > 0 ? (isMobile ? "200px" : "180px") : 2, // Add padding bottom to account for footer
           }}
         >
           {items.length === 0 ? (
@@ -314,10 +315,11 @@ const CartSlider: React.FC<CartSliderProps> = ({ isOpen, onClose }) => {
                   borderColor: "divider",
                   px: 2,
                   py: 2,
-                  bgcolor: "grey.50",
+                  bgcolor: "background.paper", // Use white background
                   position: "sticky",
                   bottom: 0,
-                  zIndex: 1,
+                  zIndex: 10,
+                  boxShadow: isMobile ? "0 -2px 8px rgba(0,0,0,0.1)" : "none", // Add shadow on mobile for visibility
                 }}
               >
                 {/* Total */}
