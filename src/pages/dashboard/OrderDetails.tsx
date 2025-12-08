@@ -337,7 +337,7 @@ const OrderDetails: React.FC = () => {
         >
           Order Summary
         </h2>
-        <div className="mt-3 flex items-center gap-3 text-sm text-gray-600">
+        <div className="mt-3 flex flex-col sm:flex-row sm:items-center gap-3 text-sm text-gray-600">
           <span>Order No: {order.id.slice(0, 8).toUpperCase()}</span>
           <span
             className={`inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium border ${getStatusColor(
@@ -348,10 +348,11 @@ const OrderDetails: React.FC = () => {
             {getStatusLabel(order.status)}
           </span>
         </div>
-        <p className="text-xs text-gray-500 mt-1">
-          {formatDate(order.createdAt)}
-        </p>
-        <div className="mt-3">
+        <div className="mt-3 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
+          <p className="text-xs text-gray-500">
+            {formatDate(order.createdAt)}
+          </p>
+          {/* Track Order Button */}
           <button
             type="button"
             onClick={() => {
@@ -362,7 +363,7 @@ const OrderDetails: React.FC = () => {
               window.open(url, "_blank", "noopener,noreferrer");
             }}
             disabled={!hasTrackingNumber}
-            className={`inline-flex items-center px-4 py-1.5 rounded-full text-xs font-semibold border transition-colors ${
+            className={`inline-flex items-center justify-center px-4 py-2 rounded-full text-sm font-semibold border transition-colors ${
               hasTrackingNumber
                 ? "bg-brand-green text-white border-brand-green hover:bg-brand-green-dark disabled:opacity-70"
                 : "bg-gray-100 text-gray-500 border-gray-200 cursor-not-allowed"

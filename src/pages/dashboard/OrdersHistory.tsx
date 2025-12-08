@@ -381,9 +381,6 @@ const OrdersHistory: React.FC = () => {
               "";
             const isPreOrder = order.isPreOrder === true;
             const wantsNotification = Boolean((order as any).wantsNotification);
-            const trackingNumber =
-              (order as any).trackingNumber || order.trackingReference || null;
-            const hasTrackingNumber = Boolean(trackingNumber);
 
             return (
               <div
@@ -456,28 +453,14 @@ const OrdersHistory: React.FC = () => {
                         {order.itemCount === 1 ? "item" : "items"}
                       </span>
                     </div>
-                    <button
-                      type="button"
-                      onClick={(e) => {
-                        e.stopPropagation();
-                        if (!hasTrackingNumber || !trackingNumber) {
-                          return;
-                        }
-                        const url = `https://www.royalmail.com/track-your-item#/tracking-results/${encodeURIComponent(
-                          trackingNumber
-                        )}`;
-                        window.open(url, "_blank", "noopener,noreferrer");
-                      }}
-                      disabled={!hasTrackingNumber}
-                      className={`px-3 py-1 rounded-full text-[10px] md:text-xs font-semibold flex-shrink-0 border transition-colors ${
-                        hasTrackingNumber
-                          ? "bg-brand-green text-white border-brand-green hover:bg-brand-green-dark disabled:opacity-70"
-                          : "bg-gray-100 text-gray-500 border-gray-200 cursor-not-allowed"
-                      }`}
-                      style={{ fontFamily: '"League Spartan", sans-serif' }}
+                    {/* Status tag */}
+                    <span
+                      className={`inline-flex items-center px-2 py-1 rounded-full text-[10px] md:text-xs font-medium border flex-shrink-0 ${getStatusColor(
+                        order.status
+                      )}`}
                     >
-                      {hasTrackingNumber ? "Track order" : "Order processing"}
-                    </button>
+                      {getStatusLabel(order.status)}
+                    </span>
                   </div>
                 </div>
               </div>
