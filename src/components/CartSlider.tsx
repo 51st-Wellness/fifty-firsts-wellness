@@ -177,8 +177,8 @@ const CartSlider: React.FC<CartSliderProps> = ({ isOpen, onClose }) => {
       PaperProps={{
         sx: {
           width: isMobile ? "100vw" : 480,
-          height: "100vh",
-          pb: isMobile ? "env(safe-area-inset-bottom)" : 0,
+          height: isMobile ? "100dvh" : "100vh", // Use dynamic viewport height for mobile browsers
+          pb: 0, // Remove padding, let footer handle safe area
           backdropFilter: isMobile ? "saturate(180%) blur(8px)" : "none",
           boxShadow: "none",
         },
@@ -229,7 +229,8 @@ const CartSlider: React.FC<CartSliderProps> = ({ isOpen, onClose }) => {
             overflowY: "auto",
             bgcolor: "#F9FAFB", // A light grey background
             p: 2,
-            pb: items.length > 0 ? (isMobile ? "200px" : "180px") : 2, // Add padding bottom to account for footer
+            pb: 2, // Remove fixed padding, let footer handle its own space
+            minHeight: 0, // Allow flex shrinking
           }}
         >
           {items.length === 0 ? (
@@ -251,9 +252,7 @@ const CartSlider: React.FC<CartSliderProps> = ({ isOpen, onClose }) => {
             <>
               {hasPreOrderItem && (
                 <div className="mb-3 rounded-xl bg-brand-green/5 border border-brand-green/40 px-3 py-2.5 text-xs sm:text-sm text-brand-green">
-                  <p className="font-semibold mb-0.5">
-                    Pre-order item
-                  </p>
+                  <p className="font-semibold mb-0.5">Pre-order item</p>
                   <p>Checked out separately from other items.</p>
                 </div>
               )}
@@ -315,6 +314,7 @@ const CartSlider: React.FC<CartSliderProps> = ({ isOpen, onClose }) => {
                   borderColor: "divider",
                   px: 2,
                   py: 2,
+                  pb: isMobile ? "calc(16px + env(safe-area-inset-bottom))" : 2, // Add safe area inset for iOS notch
                   bgcolor: "background.paper", // Use white background
                   position: "sticky",
                   bottom: 0,
