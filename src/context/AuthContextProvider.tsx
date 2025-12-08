@@ -13,6 +13,7 @@ import type { UpdateProfilePayload } from "./AuthContext";
 import { useNavigate } from "react-router-dom";
 import { toast } from "react-hot-toast";
 import { storeAuthToken, getAuthToken, removeAuthToken } from "../lib/utils";
+import { getGuestCart, clearGuestCart } from "../utils/guestCart";
 
 interface AuthProviderProps {
   children: ReactNode;
@@ -107,7 +108,14 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
     setError(null);
 
     try {
-      const response = await loginApi({ email, password });
+      // Get guest cart items to sync
+      const guestCart = getGuestCart();
+      const cartItems = guestCart.map((item) => ({
+        productId: item.productId,
+        quantity: item.quantity,
+      }));
+
+      const response = await loginApi({ email, password, cartItems });
 
       if (response.data?.accessToken) {
         storeAuthToken(response.data.accessToken);
@@ -158,6 +166,10 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
       setIsAuthenticated(false);
       setError(null);
       setLoading(false);
+
+      // Clear guest cart to prevent duplicates on next login/signup
+      clearGuestCart();
+
       navigate("/");
       toast.success("Logged out successfully");
     }
@@ -209,7 +221,14 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
     setError(null);
 
     try {
-      const response = await googleOneTap({ token });
+      // Get guest cart items to sync
+      const guestCart = getGuestCart();
+      const cartItems = guestCart.map((item) => ({
+        productId: item.productId,
+        quantity: item.quantity,
+      }));
+
+      const response = await googleOneTap({ token, cartItems });
 
       if (response.data?.accessToken) {
         storeAuthToken(response.data.accessToken);

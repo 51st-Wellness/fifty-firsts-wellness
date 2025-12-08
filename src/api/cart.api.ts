@@ -18,8 +18,6 @@ export interface CartItem {
   productId: string;
   userId: string;
   quantity: number;
-  createdAt: string;
-  updatedAt: string;
 }
 
 // This represents the structure of the 'product' object inside a cart item
@@ -100,7 +98,7 @@ class CartAPI {
   // Clear entire cart
   async clearCart(): Promise<ResponseDto<{ deletedCount: number }>> {
     const response = await http.delete<ResponseDto<{ deletedCount: number }>>(
-      this.baseURL
+      `${this.baseURL}/clear`
     );
     return response.data;
   }

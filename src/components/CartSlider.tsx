@@ -1,5 +1,5 @@
 import React from "react";
-import { Link, useNavigate } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 import {
   SwipeableDrawer,
   Box,
@@ -361,19 +361,14 @@ const CartSlider: React.FC<CartSliderProps> = ({ isOpen, onClose }) => {
                   >
                     Checkout
                   </Button>
-                  <Link
-                    to="/dashboard/cart"
-                    onClick={onClose}
-                    className="flex-1"
+                  <Button
+                    variant="outline"
+                    className="flex-1 border-red-500 text-red-600 hover:bg-red-50 font-semibold rounded-full py-2 sm:py-3 text-sm"
+                    disabled={isLoading}
+                    onClick={clearCart}
                   >
-                    <Button
-                      variant="outline"
-                      className="w-full border-brand-green text-brand-green hover:bg-brand-green/5 font-semibold rounded-full py-2 sm:py-3 text-sm"
-                      disabled={isLoading}
-                    >
-                      Go to Cart
-                    </Button>
-                  </Link>
+                    Clear Cart
+                  </Button>
                 </div>
               </Box>
             );

@@ -4,7 +4,6 @@
 export interface GuestCartItem {
   productId: string;
   quantity: number;
-  addedAt: string; // ISO timestamp
 }
 
 const GUEST_CART_KEY = "fifty_firsts_guest_cart";
@@ -16,17 +15,32 @@ export const getGuestCart = (): GuestCartItem[] => {
   try {
     const stored = localStorage.getItem(GUEST_CART_KEY);
     if (!stored) return [];
-    const items = JSON.parse(stored) as GuestCartItem[];
-    // Validate structure
-    return Array.isArray(items)
-      ? items.filter(
-          (item) =>
-            item &&
-            typeof item.productId === "string" &&
-            typeof item.quantity === "number" &&
-            item.quantity > 0
-        )
-      : [];
+    
+    const parsed = JSON.parse(stored);
+    
+    // Handle legacy format (object with items array)
+    if (!Array.isArray(parsed) && parsed.items) {
+      return parsed.items.filter(
+        (item: any) =>
+          item &&
+          typeof item.productId === "string" &&
+          typeof item.quantity === "number" &&
+          item.quantity > 0
+      );
+    }
+    
+    // Handle array format
+    if (Array.isArray(parsed)) {
+      return parsed.filter(
+        (item: any) =>
+          item &&
+          typeof item.productId === "string" &&
+          typeof item.quantity === "number" &&
+          item.quantity > 0
+      );
+    }
+    
+    return [];
   } catch (error) {
     console.error("Error reading guest cart from localStorage:", error);
     return [];
@@ -45,6 +59,8 @@ export const saveGuestCart = (items: GuestCartItem[]): void => {
         typeof item.quantity === "number" &&
         item.quantity > 0
     );
+    
+    // Store as simple array
     localStorage.setItem(GUEST_CART_KEY, JSON.stringify(validItems));
   } catch (error) {
     console.error("Error saving guest cart to localStorage:", error);
@@ -71,7 +87,6 @@ export const addToGuestCart = (
     items.push({
       productId,
       quantity,
-      addedAt: new Date().toISOString(),
     });
   }
 

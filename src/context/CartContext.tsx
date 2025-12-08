@@ -178,7 +178,7 @@ export const CartProvider: React.FC<CartProviderProps> = ({ children }) => {
       }
 
       // Fetch product details for each guest cart item
-      const cartItems: CartItemWithRelations[] = await Promise.all(
+      const cartItems: (CartItemWithRelations | null)[] = await Promise.all(
         guestItems.map(async (guestItem) => {
           try {
             const productResponse = await fetchStoreItemById(
@@ -196,14 +196,20 @@ export const CartProvider: React.FC<CartProviderProps> = ({ children }) => {
               productId: guestItem.productId,
               userId: "guest",
               quantity: guestItem.quantity,
-              createdAt: guestItem.addedAt || new Date().toISOString(),
-              updatedAt: new Date().toISOString(),
               product: {
                 id: storeItem.productId,
                 type: "STORE",
                 pricingModel: "ONE_TIME",
-                createdAt: storeItem.createdAt || new Date().toISOString(),
-                updatedAt: storeItem.updatedAt || new Date().toISOString(),
+                createdAt: storeItem.createdAt
+                  ? typeof storeItem.createdAt === "string"
+                    ? storeItem.createdAt
+                    : new Date(storeItem.createdAt).toISOString()
+                  : new Date().toISOString(),
+                updatedAt: storeItem.updatedAt
+                  ? typeof storeItem.updatedAt === "string"
+                    ? storeItem.updatedAt
+                    : new Date(storeItem.updatedAt).toISOString()
+                  : new Date().toISOString(),
                 storeItem: storeItem,
               },
               user: {
@@ -242,88 +248,11 @@ export const CartProvider: React.FC<CartProviderProps> = ({ children }) => {
     }
   }, []);
 
-  // Sync guest cart to server when user logs in
-  const syncGuestCartToServer = useCallback(async () => {
-    const guestItems = getGuestCart();
-    if (guestItems.length === 0) {
-      clearGuestCart();
-      return;
-    }
-
-    try {
-      // First, fetch the current server cart to compare
-      const serverCartResponse = await cartAPI.getCart();
-      const serverItems = serverCartResponse.data?.items || [];
-
-      // Create a map of server cart items for quick lookup
-      const serverItemsMap = new Map(
-        serverItems.map((item) => [item.productId, item.quantity])
-      );
-
-      let syncedCount = 0;
-
-      // Process each guest cart item
-      for (const guestItem of guestItems) {
-        try {
-          const serverQuantity = serverItemsMap.get(guestItem.productId);
-
-          if (serverQuantity !== undefined) {
-            // Item exists on server - intelligently merge quantities
-            // Use max to handle cases where user modified quantity offline
-            const maxQuantity = Math.max(serverQuantity, guestItem.quantity);
-
-            // Only update if guest has more items than server
-            if (guestItem.quantity > serverQuantity) {
-              const quantityToAdd = guestItem.quantity - serverQuantity;
-
-              await cartAPI.addToCart({
-                productId: guestItem.productId,
-                quantity: quantityToAdd,
-              });
-              syncedCount++;
-            }
-            // If server has more or equal, keep server quantity (no action needed)
-          } else {
-            // Item doesn't exist on server - add it
-            await cartAPI.addToCart({
-              productId: guestItem.productId,
-              quantity: guestItem.quantity,
-            });
-            syncedCount++;
-          }
-        } catch (error) {
-          console.error(
-            `Failed to sync item ${guestItem.productId} to server:`,
-            error
-          );
-          // Continue with other items even if one fails
-        }
-      }
-
-      // Clear guest cart after successful sync
-      clearGuestCart();
-
-      if (syncedCount > 0) {
-        toast.success("Your cart items have been saved");
-      }
-    } catch (error) {
-      console.error("Error syncing guest cart to server:", error);
-      // Don't clear guest cart if sync fails - user can try again
-    }
-  }, []);
-
   // Load cart when user logs in or load guest cart when logged out
   useEffect(() => {
     const initializeCart = async () => {
       if (isAuthenticated && user) {
-        // Sync guest cart to server when user logs in (await to ensure sync completes)
-        try {
-          await syncGuestCartToServer();
-        } catch (error) {
-          console.error("Error syncing guest cart:", error);
-          // Continue to refresh cart even if sync fails
-        }
-        // Always refresh cart from server to update UI (even if sync failed)
+        // Always refresh cart from server to update UI
         await refreshCart();
       } else {
         // Load guest cart from localStorage when logged out
@@ -357,7 +286,6 @@ export const CartProvider: React.FC<CartProviderProps> = ({ children }) => {
           (item) => ({
             productId: item.productId,
             quantity: item.quantity,
-            addedAt: item.createdAt,
           })
         );
         saveGuestCart(serverItems);
@@ -395,14 +323,20 @@ export const CartProvider: React.FC<CartProviderProps> = ({ children }) => {
               productId: productId,
               userId: "guest",
               quantity: getGuestCartItemQuantity(productId),
-              createdAt: new Date().toISOString(),
-              updatedAt: new Date().toISOString(),
               product: {
                 id: storeItem.productId,
                 type: "STORE",
                 pricingModel: "ONE_TIME",
-                createdAt: storeItem.createdAt || new Date().toISOString(),
-                updatedAt: storeItem.updatedAt || new Date().toISOString(),
+                createdAt: storeItem.createdAt
+                  ? typeof storeItem.createdAt === "string"
+                    ? storeItem.createdAt
+                    : new Date(storeItem.createdAt).toISOString()
+                  : new Date().toISOString(),
+                updatedAt: storeItem.updatedAt
+                  ? typeof storeItem.updatedAt === "string"
+                    ? storeItem.updatedAt
+                    : new Date(storeItem.updatedAt).toISOString()
+                  : new Date().toISOString(),
                 storeItem: storeItem,
               },
               user: {
@@ -441,11 +375,16 @@ export const CartProvider: React.FC<CartProviderProps> = ({ children }) => {
         const response = await cartAPI.addToCart(addToCartDto);
 
         if (response.status === ResponseStatus.SUCCESS && response.data) {
-          // Refresh cart from server to ensure UI is in sync (this also syncs to localStorage)
-          await refreshCart();
+          // Add the item to state immediately for instant feedback
+          dispatch({ type: "ADD_ITEM", payload: response.data });
 
-          // Open the cart after refresh completes
+          // Open the cart immediately
           dispatch({ type: "SET_CART_OPEN", payload: true });
+
+          // Refresh cart from server in the background to ensure consistency
+          refreshCart().catch((err) =>
+            console.error("Background cart refresh failed:", err)
+          );
         } else {
           const errorMessage = response.message || "Failed to add item to cart";
           dispatch({ type: "SET_ERROR", payload: errorMessage });
@@ -495,7 +434,6 @@ export const CartProvider: React.FC<CartProviderProps> = ({ children }) => {
           const updatedItem: CartItemWithRelations = {
             ...existingItem,
             quantity: quantity,
-            updatedAt: new Date().toISOString(),
           };
           dispatch({ type: "UPDATE_ITEM", payload: updatedItem });
         }
@@ -514,9 +452,6 @@ export const CartProvider: React.FC<CartProviderProps> = ({ children }) => {
 
           // Sync to localStorage
           updateGuestCartItem(productId, quantity);
-
-          // Refresh for consistency
-          await refreshCart();
         }
       }
     } catch (error: any) {
@@ -551,9 +486,6 @@ export const CartProvider: React.FC<CartProviderProps> = ({ children }) => {
 
         // Sync to localStorage
         removeFromGuestCart(productId);
-
-        // Refresh for consistency
-        await refreshCart();
       }
     } catch (error: any) {
       if (isAuthenticated) {
@@ -587,9 +519,6 @@ export const CartProvider: React.FC<CartProviderProps> = ({ children }) => {
 
         // Sync to localStorage
         clearGuestCart();
-
-        // Refresh for consistency
-        await refreshCart();
       }
     } catch (error: any) {
       if (isAuthenticated) {

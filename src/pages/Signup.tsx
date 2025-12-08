@@ -13,6 +13,7 @@ import PhoneInput from "react-phone-number-input";
 import "react-phone-number-input/style.css";
 import "../styles/phone-input.css";
 import GoogleOAuthButton from "../components/GoogleOAuthButton";
+import { getGuestCart } from "../utils/guestCart";
 
 // Signup page component
 const Signup: React.FC = () => {
@@ -40,12 +41,20 @@ const Signup: React.FC = () => {
   const onSubmit = async (data: SignupFormData) => {
     setLoading(true);
     try {
+      // Get guest cart items to sync
+      const guestCart = getGuestCart();
+      const cartItems = guestCart.map((item) => ({
+        productId: item.productId,
+        quantity: item.quantity,
+      }));
+
       await signUp({
         email: data.email,
         password: data.password,
         firstName: data.firstName,
         lastName: data.lastName,
         phone: data.phone,
+        cartItems,
       });
       setLoading(false);
       toast.success(
