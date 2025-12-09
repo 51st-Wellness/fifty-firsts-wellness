@@ -10,6 +10,7 @@ import { forgetPassword } from "../api/auth.api";
 import toast from "react-hot-toast";
 import { ArrowLeft } from "lucide-react";
 import logo from "../assets/images/logo-with-name.png";
+import LoadingButton from "../components/ui/LoadingButton";
 
 const ForgotPassword: React.FC = () => {
   const [loading, setLoading] = useState<boolean>(false);
@@ -128,14 +129,16 @@ const ForgotPassword: React.FC = () => {
             </div>
 
             {/* Submit Button */}
-            <button
+            <LoadingButton
               type="submit"
-              disabled={loading || !watchedFields.email}
-              className="w-full bg-brand-green text-white py-3 px-6 rounded-full font-semibold hover:bg-brand-green-dark transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
-              style={{ fontFamily: '"League Spartan", sans-serif' }}
+              loading={loading}
+              loadingText="Sending..."
+              disabled={!watchedFields.email}
+              fullWidth
+              className="py-3 px-6"
             >
-              {loading ? "Sending..." : "Submit"}
-            </button>
+              Submit
+            </LoadingButton>
 
             {/* Login Link */}
             <div className="text-center text-sm text-gray-600">

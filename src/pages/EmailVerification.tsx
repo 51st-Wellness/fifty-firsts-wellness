@@ -9,6 +9,7 @@ import toast from "react-hot-toast";
 import { ArrowLeft, Mail, RefreshCw } from "lucide-react";
 import logo from "../assets/images/logo-with-name.png";
 import { storeAuthToken } from "../lib/utils";
+import LoadingButton from "../components/ui/LoadingButton";
 
 // Validation schema for OTP
 const otpSchema = z.object({
@@ -192,15 +193,17 @@ const EmailVerification: React.FC = () => {
             </div>
 
             {/* Submit Button */}
-            <button
+            <LoadingButton
               type="submit"
-              disabled={
-                loading || !watchedFields.otp || watchedFields.otp.length !== 6
-              }
-              className="w-full bg-brand-green text-white py-3.5 rounded-xl font-semibold text-base hover:bg-brand-green-dark transition-all shadow-lg hover:shadow-xl disabled:opacity-50 disabled:cursor-not-allowed disabled:shadow-none"
+              loading={loading}
+              loadingText="Verifying..."
+              disabled={!watchedFields.otp || watchedFields.otp.length !== 6}
+              fullWidth
+              rounded="xl"
+              className="py-3.5 text-base shadow-lg hover:shadow-xl disabled:shadow-none"
             >
-              {loading ? "Verifying..." : "Verify Email"}
-            </button>
+              Verify Email
+            </LoadingButton>
           </form>
 
           {/* Resend Section */}

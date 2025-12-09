@@ -15,6 +15,7 @@ import {
   InputOTPGroup,
   InputOTPSlot,
 } from "../components/ui/input-otp";
+import LoadingButton from "../components/ui/LoadingButton";
 
 // Step 1: OTP Verification Schema
 const otpVerificationSchema = z.object({
@@ -84,9 +85,16 @@ const ResetPassword: React.FC = () => {
     }
   }, [resendCooldown]);
 
+  const [otpLoading, setOtpLoading] = useState<boolean>(false);
+
   const onOtpSubmit = async (data: OtpVerificationData) => {
-    setVerifiedData(data);
-    setCurrentStep(2);
+    setOtpLoading(true);
+    try {
+      setVerifiedData(data);
+      setCurrentStep(2);
+    } finally {
+      setOtpLoading(false);
+    }
   };
 
   const onPasswordSubmit = async (data: PasswordResetData) => {
@@ -266,17 +274,19 @@ const ResetPassword: React.FC = () => {
                   </div>
 
                   {/* Next Button */}
-                  <button
+                  <LoadingButton
                     type="submit"
+                    loading={otpLoading}
+                    loadingText="Verifying..."
                     disabled={
                       !otpForm.watch("otp") ||
                       otpForm.watch("otp")?.length !== 6
                     }
-                    className="w-full bg-brand-green text-white py-3.5 px-6 rounded-full font-semibold hover:opacity-90 transition-all disabled:opacity-50 disabled:cursor-not-allowed"
-                    style={{ fontFamily: '"League Spartan", sans-serif' }}
+                    fullWidth
+                    className="py-3.5 px-6"
                   >
                     Next
-                  </button>
+                  </LoadingButton>
 
                   {/* Resend Section */}
                   <div className="mt-6 pt-6 border-t border-gray-100">
@@ -401,14 +411,15 @@ const ResetPassword: React.FC = () => {
                   </div>
 
                   {/* Submit Button */}
-                  <button
+                  <LoadingButton
                     type="submit"
-                    disabled={loading}
-                    className="w-full bg-brand-green text-white py-3.5 px-6 rounded-full font-semibold hover:opacity-90 transition-all disabled:opacity-50 disabled:cursor-not-allowed"
-                    style={{ fontFamily: '"League Spartan", sans-serif' }}
+                    loading={loading}
+                    loadingText="Resetting Password..."
+                    fullWidth
+                    className="py-3.5 px-6"
                   >
-                    {loading ? "Resetting Password..." : "Reset Password"}
-                  </button>
+                    Reset Password
+                  </LoadingButton>
                 </form>
               )}
             </div>

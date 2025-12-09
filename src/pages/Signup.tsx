@@ -14,6 +14,7 @@ import "react-phone-number-input/style.css";
 import "../styles/phone-input.css";
 import GoogleOAuthButton from "../components/GoogleOAuthButton";
 import { getGuestCart } from "../utils/guestCart";
+import LoadingButton from "../components/ui/LoadingButton";
 
 // Signup page component
 const Signup: React.FC = () => {
@@ -333,14 +334,15 @@ const Signup: React.FC = () => {
             )}
 
             {/* Signup Button */}
-            <button
+            <LoadingButton
               type="submit"
-              disabled={loading}
-              className="w-full bg-brand-green text-white py-3 px-6 rounded-full font-semibold hover:bg-brand-green-dark transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
-              style={{ fontFamily: '"League Spartan", sans-serif' }}
+              loading={loading}
+              loadingText="Creating account..."
+              fullWidth
+              className="py-3 px-6"
             >
-              {loading ? "Creating account..." : "Signup"}
-            </button>
+              Signup
+            </LoadingButton>
 
             {/* Divider */}
             <div className="relative">

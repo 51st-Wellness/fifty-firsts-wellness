@@ -7,10 +7,12 @@ import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { loginSchema, LoginFormData } from "../lib/validation";
 import GoogleOAuthButton from "../components/GoogleOAuthButton";
+import LoadingButton from "../components/ui/LoadingButton";
 
 // Login page component
 const Login: React.FC = () => {
   const [showPassword, setShowPassword] = useState<boolean>(false);
+  const [loading, setLoading] = useState<boolean>(false);
 
   const { login } = useAuth();
   const navigate = useNavigate();
@@ -28,20 +30,24 @@ const Login: React.FC = () => {
 
   const onSubmit = async (data: LoginFormData) => {
     const { email, password } = data;
-
-    const result = await login(email, password);
-    if (result === true) {
-      // Get redirect URL from query parameter, default to home
-      const redirectUrl = searchParams.get("redirect") || "/";
-      // Validate redirect URL to prevent open redirects
-      const isValidRedirect =
-        redirectUrl.startsWith("/") && !redirectUrl.startsWith("//");
-      navigate(isValidRedirect ? redirectUrl : "/");
-    } else if (result === "verification_required") {
-      // Show info message and redirect to email verification page
-      setTimeout(() => {
-        navigate("/email-verification", { state: { email } });
-      }, 1500); // Small delay to let user read the message
+    setLoading(true);
+    try {
+      const result = await login(email, password);
+      if (result === true) {
+        // Get redirect URL from query parameter, default to home
+        const redirectUrl = searchParams.get("redirect") || "/";
+        // Validate redirect URL to prevent open redirects
+        const isValidRedirect =
+          redirectUrl.startsWith("/") && !redirectUrl.startsWith("//");
+        navigate(isValidRedirect ? redirectUrl : "/");
+      } else if (result === "verification_required") {
+        // Show info message and redirect to email verification page
+        setTimeout(() => {
+          navigate("/email-verification", { state: { email } });
+        }, 1500); // Small delay to let user read the message
+      }
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -171,13 +177,15 @@ const Login: React.FC = () => {
             </div>
 
             {/* Login Button */}
-            <button
+            <LoadingButton
               type="submit"
-              className="w-full bg-brand-green text-white py-3 px-6 rounded-full font-semibold hover:bg-brand-green-dark transition-colors"
-              style={{ fontFamily: '"League Spartan", sans-serif' }}
+              loading={loading}
+              loadingText="Logging in..."
+              fullWidth
+              className="py-3 px-6"
             >
               Login
-            </button>
+            </LoadingButton>
 
             {/* Divider */}
             <div className="relative">
