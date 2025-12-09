@@ -360,9 +360,9 @@ const ProductDetail: React.FC = () => {
               >
                 Product Ingredients
               </h2>
-              <ul className="space-y-2 text-gray-600">
+              <ul className="list-disc list-outside text-gray-600 space-y-1 pl-5">
                 {productIngredients.map((ingredient, idx) => (
-                  <li key={`${ingredient}-${idx}`}>• {ingredient}</li>
+                  <li key={`${ingredient}-${idx}`}>{ingredient}</li>
                 ))}
               </ul>
             </div>
@@ -492,7 +492,7 @@ const ProductDetail: React.FC = () => {
               Product Usage
             </h2>
             {productUsageIsList ? (
-              <ul className="list-disc list-inside text-gray-600 space-y-1">
+              <ul className="list-disc list-outside text-gray-600 space-y-1 pl-5">
                 {productUsageLines.map((line, idx) => (
                   <li key={`usage-${idx}`}>{line}</li>
                 ))}
@@ -513,7 +513,7 @@ const ProductDetail: React.FC = () => {
               Product Benefits
             </h2>
             {productBenefitsIsList ? (
-              <ul className="list-disc list-inside text-gray-600 space-y-1">
+              <ul className="list-disc list-outside text-gray-600 space-y-1 pl-5">
                 {productBenefitsLines.map((line, idx) => (
                   <li key={`benefit-${idx}`}>{line}</li>
                 ))}
@@ -537,7 +537,7 @@ const ProductDetail: React.FC = () => {
               Product Benefits
             </h2>
             {productBenefitsIsList ? (
-              <ul className="list-disc list-inside text-gray-600 space-y-1">
+              <ul className="list-disc list-outside text-gray-600 space-y-1 pl-5">
                 {productBenefitsLines.map((line, idx) => (
                   <li key={`benefit-mobile-${idx}`}>{line}</li>
                 ))}
@@ -558,9 +558,9 @@ const ProductDetail: React.FC = () => {
               >
                 Product Ingredients
               </h2>
-              <ul className="space-y-2 text-gray-600">
+              <ul className="list-disc list-outside text-gray-600 space-y-1 pl-5">
                 {productIngredients.map((ingredient, idx) => (
-                  <li key={`mobile-${ingredient}-${idx}`}>• {ingredient}</li>
+                  <li key={`mobile-${ingredient}-${idx}`}>{ingredient}</li>
                 ))}
               </ul>
             </div>
