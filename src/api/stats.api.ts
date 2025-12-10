@@ -12,6 +12,11 @@ export interface OverviewStats extends ProgrammeStats {
   totalUsers: number;
   totalOrders: number;
   totalRevenue: number;
+  reviewsThisWeek: number;
+  totalPreOrders: number;
+  userGrowth: { date: string; count: number }[];
+  userGrowthPercentage: number;
+  orderGrowthPercentage: number;
 }
 
 export const fetchProgrammeStats = async (): Promise<
@@ -29,5 +34,14 @@ export const fetchOverviewStats = async (): Promise<
   const response = await http.get<ResponseDto<OverviewStats>>(
     "/stats/overview"
   );
+  return response.data.data;
+};
+
+export const fetchUserGrowth = async (
+  offset: number
+): Promise<{ date: string; count: number }[] | undefined> => {
+  const response = await http.get<
+    ResponseDto<{ date: string; count: number }[]>
+  >(`/stats/user-growth?offset=${offset}`);
   return response.data.data;
 };
