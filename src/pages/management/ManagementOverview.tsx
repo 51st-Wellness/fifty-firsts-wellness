@@ -96,7 +96,10 @@ const ManagementOverview: React.FC = () => {
     <div className="space-y-8 font-primary max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
       {/* Header */}
       <div>
-        <h1 className="text-3xl font-bold text-gray-900 tracking-tight">
+        <h1 
+          className="text-3xl font-bold text-gray-900 tracking-tight"
+          style={{ fontFamily: '"League Spartan", sans-serif' }}
+        >
           Dashboard Overview
         </h1>
         <p className="text-gray-500 mt-2 font-medium">
@@ -152,7 +155,10 @@ const ManagementOverview: React.FC = () => {
         <div className="lg:col-span-2 bg-white rounded-2xl border border-gray-100 shadow-sm p-6">
           <div className="flex items-center justify-between mb-6">
             <div>
-              <h2 className="text-lg font-semibold text-gray-900">
+              <h2 
+                className="text-lg font-semibold text-gray-900"
+                style={{ fontFamily: '"League Spartan", sans-serif' }}
+              >
                 User Growth
               </h2>
               <p className="text-sm text-gray-500">New signups over 30 days</p>
@@ -257,7 +263,10 @@ const ManagementOverview: React.FC = () => {
 
         {/* Quick Actions (Compact) */}
         <div className="bg-white rounded-2xl border border-gray-100 shadow-sm p-6">
-          <h2 className="text-lg font-semibold text-gray-900 mb-6">
+          <h2 
+            className="text-lg font-semibold text-gray-900 mb-6"
+            style={{ fontFamily: '"League Spartan", sans-serif' }}
+          >
             Quick Actions
           </h2>
           <div className="space-y-4">
@@ -341,7 +350,10 @@ const QuickAction: React.FC<{
       {icon}
     </div>
     <div className="ml-4">
-      <p className="font-semibold text-gray-900 group-hover:text-brand-green transition-colors">
+      <p 
+        className="font-semibold text-gray-900 group-hover:text-brand-green transition-colors"
+        style={{ fontFamily: '"League Spartan", sans-serif' }}
+      >
         {title}
       </p>
       <p className="text-xs text-gray-500 mt-0.5">{description}</p>

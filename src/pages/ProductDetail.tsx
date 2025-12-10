@@ -222,8 +222,24 @@ const ProductDetail: React.FC = () => {
       .filter((line) => line.length > 0);
   const productUsageLines = splitToLines(rawProductUsage);
   const productBenefitsLines = splitToLines(rawProductBenefits);
-  const productUsageIsList = productUsageLines.length > 1;
-  const productBenefitsIsList = productBenefitsLines.length > 1;
+  // Use listType from item if available, otherwise infer from line count
+  const getIsList = (
+    listType?: "paragraph" | "list",
+    lines: string[]
+  ): boolean => {
+    if (listType === "list") return true;
+    if (listType === "paragraph") return false;
+    // Fallback: infer from line count (for backward compatibility)
+    return lines.length > 1;
+  };
+  const productUsageIsList = getIsList(
+    (item as any).productUsageListType,
+    productUsageLines
+  );
+  const productBenefitsIsList = getIsList(
+    (item as any).productBenefitsListType,
+    productBenefitsLines
+  );
   const productIngredients =
     ((item as any).productIngredients as string[] | undefined)?.filter(
       (ingredient) =>
