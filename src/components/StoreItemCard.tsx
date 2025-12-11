@@ -180,18 +180,18 @@ const StoreItemCard: React.FC<StoreItemCardProps> = ({
             onClick={(e) => e.stopPropagation()}
           >
             {canPreOrder ? (
-              <div className="w-full flex items-center gap-2">
+              <div className="w-full flex items-center gap-1 md:gap-2">
                 <span className="relative group flex-1">
                   <button
                     type="button"
                     onClick={handlePreOrder}
                     disabled={!canPreOrder || itemLoading}
-                    className="w-full inline-flex items-center justify-center gap-1 md:gap-2 bg-brand-green text-white px-2 md:px-4 py-1.5 md:py-2 rounded-full text-[10px] md:text-sm font-semibold hover:bg-brand-green-dark transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                    className="w-full inline-flex items-center justify-center gap-1 md:gap-2 bg-brand-green text-white px-2 md:px-4 py-[6px] md:py-2 rounded-full text-[10px] md:text-sm font-semibold hover:bg-brand-green-dark transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
                   >
                     {itemLoading ? (
                       <div className="animate-spin rounded-full h-3 w-3 md:h-4 md:w-4 border-2 border-white border-t-transparent"></div>
                     ) : (
-                      <Package className="w-3 h-3 md:w-4 md:h-4" />
+                      <Package className="hidden md:inline-block w-3 h-3 md:w-4 md:h-4" />
                     )}
                     <span className="hidden md:inline">
                       {itemLoading ? "Adding..." : "Pre-order now"}
@@ -209,10 +209,10 @@ const StoreItemCard: React.FC<StoreItemCardProps> = ({
                       setNotifyOpen(true);
                     }}
                     disabled={!isAuthenticated}
-                    className="inline-flex items-center justify-center bg-white border border-brand-green text-brand-green w-8 h-8 md:w-10 md:h-10 rounded-full hover:bg-brand-green hover:text-white transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                    className="inline-flex items-center justify-center bg-white border border-brand-green text-brand-green w-7 h-7 md:w-10 md:h-10 rounded-full hover:bg-brand-green hover:text-white transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
                     aria-label="Notify me when available"
                   >
-                    <Bell className="w-3.5 h-3.5 md:w-4 md:h-4" />
+                    <Bell className="w-3 h-3 md:w-4 md:h-4" />
                   </button>
                 </span>
               </div>
