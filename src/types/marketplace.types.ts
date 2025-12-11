@@ -16,6 +16,8 @@ export type StoreItem = {
   productUsage?: string | null;
   productBenefits?: string | null;
   productIngredients?: string[] | null;
+  productUsageListType?: "paragraph" | "list";
+  productBenefitsListType?: "paragraph" | "list";
   price: number;
   oldPrice?: number;
   stock: number;
