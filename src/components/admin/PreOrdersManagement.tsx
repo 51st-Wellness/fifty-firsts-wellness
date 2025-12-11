@@ -308,7 +308,7 @@ const PreOrdersManagement: React.FC = () => {
         <TableContainer>
           <Table>
             <TableHead>
-                  <TableRow>
+              <TableRow>
                 <TableCell>Order ID</TableCell>
                 <TableCell>Customer</TableCell>
                 <TableCell>Items</TableCell>
@@ -626,7 +626,7 @@ We have an important update regarding your pre-order for "<Product Name>".
 <Your custom message here>
 
 Thank you for your patience,
-The Fifty First Wellness Team`}
+The Fifty Firsts Wellness Team`}
         title="Send Bulk Email to Pre-Order Customers"
         sending={sendingEmail}
       />

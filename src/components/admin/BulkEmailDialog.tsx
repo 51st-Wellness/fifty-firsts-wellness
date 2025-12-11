@@ -42,7 +42,7 @@ Don't miss out - grab yours today while stocks last!
 Visit our marketplace to complete your order: <Product URL>
 
 Thank you for your patience,
-The Fifty First Wellness Team`,
+The Fifty Firsts Wellness Team`,
   title = "Send Bulk Email",
   sending = false,
 }) => {
