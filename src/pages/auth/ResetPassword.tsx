@@ -6,16 +6,16 @@ import { z } from "zod";
 import {
   resetPassword as resetPasswordApi,
   forgetPassword,
-} from "../api/auth.api";
+} from "../../api/auth.api";
 import toast from "react-hot-toast";
 import { ArrowLeft, Eye, EyeOff, RefreshCw } from "lucide-react";
-import StepIndicator from "../components/ui/StepIndicator";
+import StepIndicator from "../../components/ui/StepIndicator";
 import {
   InputOTP,
   InputOTPGroup,
   InputOTPSlot,
-} from "../components/ui/input-otp";
-import LoadingButton from "../components/ui/LoadingButton";
+} from "../../components/ui/input-otp";
+import LoadingButton from "../../components/ui/LoadingButton";
 
 // Step 1: OTP Verification Schema
 const otpVerificationSchema = z.object({

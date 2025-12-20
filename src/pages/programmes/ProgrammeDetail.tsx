@@ -3,17 +3,16 @@ import { useParams, useNavigate, Link } from "react-router-dom";
 import {
   ChevronRight,
   Clock,
-  Eye,
   Tag,
   Share2,
   Play,
   Calendar,
 } from "lucide-react";
 import MuxPlayer from "@mux/mux-player-react";
-import { Programme, fetchSecureProgrammeById } from "../api/programme.api";
-import { useAuth } from "../context/AuthContextProvider";
-import Loader from "../components/Loader";
-import SubscriptionRequiredModal from "../components/SubscriptionRequiredModal";
+import { Programme, fetchSecureProgrammeById } from "../../api/programme.api";
+import { useAuth } from "../../context/AuthContextProvider";
+import Loader from "../../components/Loader";
+import SubscriptionRequiredModal from "../../components/SubscriptionRequiredModal";
 import toast from "react-hot-toast";
 
 type ProgrammeResponse = {

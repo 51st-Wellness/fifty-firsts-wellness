@@ -3,13 +3,13 @@ import { useLocation, useNavigate } from "react-router-dom";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
-import { verifyEmail, resendVerification } from "../api/auth.api";
-import { useAuth } from "../context/AuthContextProvider";
+import { verifyEmail, resendVerification } from "../../api/auth.api";
+import { useAuth } from "../../context/AuthContextProvider";
 import toast from "react-hot-toast";
 import { ArrowLeft, Mail, RefreshCw } from "lucide-react";
-import logo from "../assets/images/logo-with-name.png";
-import { storeAuthToken } from "../lib/utils";
-import LoadingButton from "../components/ui/LoadingButton";
+import logo from "../../assets/images/logo-with-name.png";
+import { storeAuthToken } from "../../lib/utils";
+import LoadingButton from "../../components/ui/LoadingButton";
 
 // Validation schema for OTP
 const otpSchema = z.object({

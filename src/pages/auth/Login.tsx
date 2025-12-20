@@ -1,13 +1,13 @@
 import React, { useState } from "react";
-import logo from "../assets/images/logo-with-name.png";
+import logo from "../../assets/images/logo-with-name.png";
 import { Eye, EyeOff, ArrowLeft } from "lucide-react";
 import { Link, useNavigate, useSearchParams } from "react-router-dom";
-import { useAuth } from "../context/AuthContextProvider";
+import { useAuth } from "../../context/AuthContextProvider";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { loginSchema, LoginFormData } from "../lib/validation";
-import GoogleOAuthButton from "../components/GoogleOAuthButton";
-import LoadingButton from "../components/ui/LoadingButton";
+import { loginSchema, LoginFormData } from "../../lib/validation";
+import GoogleOAuthButton from "../../components/GoogleOAuthButton";
+import LoadingButton from "../../components/ui/LoadingButton";
 
 // Login page component
 const Login: React.FC = () => {

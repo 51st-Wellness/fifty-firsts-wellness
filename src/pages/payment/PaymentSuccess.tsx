@@ -11,8 +11,8 @@ import {
   ShoppingBag,
   Crown,
 } from "lucide-react";
-import { paymentAPI } from "../api/payment.api";
-import { PaymentDetails, PaymentStatusResponse } from "../types/payment";
+import { paymentAPI } from "../../api/payment.api";
+import { PaymentDetails, PaymentStatusResponse } from "../../types/payment";
 
 const PaymentSuccess: React.FC = () => {
   const [searchParams] = useSearchParams();

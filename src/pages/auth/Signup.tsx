@@ -1,20 +1,20 @@
 import React, { useState } from "react";
-import logo from "../assets/images/logo-with-name.png";
+import logo from "../../assets/images/logo-with-name.png";
 import { Eye, EyeOff, ArrowLeft } from "lucide-react";
 import { FcGoogle } from "react-icons/fc";
-import { signUp } from "../api/auth.api";
+import { signUp } from "../../api/auth.api";
 import toast from "react-hot-toast";
 import { useNavigate, Link } from "react-router-dom";
 import { AxiosError } from "axios";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { signupSchema, SignupFormData } from "../lib/validation";
+import { signupSchema, SignupFormData } from "../../lib/validation";
 import PhoneInput from "react-phone-number-input";
 import "react-phone-number-input/style.css";
-import "../styles/phone-input.css";
-import GoogleOAuthButton from "../components/GoogleOAuthButton";
-import { getGuestCart } from "../utils/guestCart";
-import LoadingButton from "../components/ui/LoadingButton";
+import "../../styles/phone-input.css";
+import GoogleOAuthButton from "../../components/GoogleOAuthButton";
+import { getGuestCart } from "../../utils/guestCart";
+import LoadingButton from "../../components/ui/LoadingButton";
 
 // Signup page component
 const Signup: React.FC = () => {

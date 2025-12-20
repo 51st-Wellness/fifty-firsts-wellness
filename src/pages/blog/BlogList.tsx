@@ -1,7 +1,7 @@
 import { useEffect, useState, useMemo } from "react";
 import { Link } from "react-router-dom";
-import { fetchBlogs, mediaUrl, type BlogEntity } from "../api/blog.api";
-import SearchBar from "../components/ui/SearchBar";
+import { fetchBlogs, mediaUrl, type BlogEntity } from "../../api/blog.api";
+import SearchBar from "../../components/ui/SearchBar";
 
 export default function BlogList() {
   const [blogs, setBlogs] = useState<BlogEntity[]>([]);

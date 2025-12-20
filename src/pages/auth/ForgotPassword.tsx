@@ -5,12 +5,12 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import {
   forgotPasswordSchema,
   ForgotPasswordFormData,
-} from "../lib/validation";
-import { forgetPassword } from "../api/auth.api";
+} from "../../lib/validation";
+import { forgetPassword } from "../../api/auth.api";
 import toast from "react-hot-toast";
 import { ArrowLeft } from "lucide-react";
-import logo from "../assets/images/logo-with-name.png";
-import LoadingButton from "../components/ui/LoadingButton";
+import logo from "../../assets/images/logo-with-name.png";
+import LoadingButton from "../../components/ui/LoadingButton";
 
 const ForgotPassword: React.FC = () => {
   const [loading, setLoading] = useState<boolean>(false);

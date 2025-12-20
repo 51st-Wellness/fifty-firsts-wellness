@@ -7,21 +7,23 @@ import {
   ChevronLeft,
   ChevronRight,
 } from "lucide-react";
-import { fetchStoreItemById } from "../api/marketplace.api";
-import type { StoreItem } from "../types/marketplace.types";
-import NotificationOptIn from "../components/NotificationOptIn";
-import { useCart } from "../context/CartContext";
-import { useAuth } from "../context/AuthContextProvider";
-import Price from "../components/Price";
-import StoreItemCard from "../components/StoreItemCard";
-import { fetchStoreItems } from "../api/marketplace.api";
-import SubmitReviewModal from "../components/SubmitReviewModal";
-import AllReviewsModal from "../components/AllReviewsModal";
-import { getStoreItemPricing } from "../utils/discounts";
-import { useGlobalDiscount } from "../context/GlobalDiscountContext";
+import { fetchStoreItemById } from "../../api/marketplace.api";
+import type { StoreItem } from "../../types/marketplace.types";
+import NotificationOptIn from "../../components/NotificationOptIn";
+import { useCart } from "../../context/CartContext";
+import { useAuth } from "../../context/AuthContextProvider";
+import Price from "../../components/Price";
+import StoreItemCard from "../../components/StoreItemCard";
+import { fetchStoreItems } from "../../api/marketplace.api";
+import SubmitReviewModal from "../../components/SubmitReviewModal";
+import AllReviewsModal from "../../components/AllReviewsModal";
+import { getStoreItemPricing } from "../../utils/discounts";
+import { useGlobalDiscount } from "../../context/GlobalDiscountContext";
 import toast from "react-hot-toast";
-import { getProductReviews, getProductReviewSummary } from "../api/review.api";
-import type { ProductReview, ReviewSummary } from "../types/review.types";
+import { getProductReviews, getProductReviewSummary } from "../../api/review.api";
+import type { ProductReview, ReviewSummary } from "../../types/review.types";
+import ProductImageGallery from "../../components/product/ProductImageGallery";
+import ProductInfoSection from "../../components/product/ProductInfoSection";
 
 const ProductDetail: React.FC = () => {
   const { productId } = useParams();
@@ -224,8 +226,8 @@ const ProductDetail: React.FC = () => {
   const productBenefitsLines = splitToLines(rawProductBenefits);
   // Use listType from item if available, otherwise infer from line count
   const getIsList = (
-    listType?: "paragraph" | "list",
-    lines: string[]
+    lines: string[],
+    listType?: "paragraph" | "list"
   ): boolean => {
     if (listType === "list") return true;
     if (listType === "paragraph") return false;
@@ -233,12 +235,12 @@ const ProductDetail: React.FC = () => {
     return lines.length > 1;
   };
   const productUsageIsList = getIsList(
-    (item as any).productUsageListType,
-    productUsageLines
+    productUsageLines,
+    (item as any).productUsageListType
   );
   const productBenefitsIsList = getIsList(
-    (item as any).productBenefitsListType,
-    productBenefitsLines
+    productBenefitsLines,
+    (item as any).productBenefitsListType
   );
   const productIngredients =
     ((item as any).productIngredients as string[] | undefined)?.filter(
@@ -270,102 +272,13 @@ const ProductDetail: React.FC = () => {
         {/* Mobile: Gallery first */}
         <div className="order-1 lg:order-1">
           {/* Image Gallery */}
-          <div className="mb-8 lg:mb-8">
-            <div className="bg-white rounded-2xl overflow-hidden mb-4 relative">
-              <style>{`
-                @media (min-width: 768px) {
-                  .product-image-container {
-                    min-height: 400px !important;
-                    max-height: 600px !important;
-                  }
-                }
-              `}</style>
-              {/* Desktop: main image left, vertical gallery on the right */}
-              <div className="flex flex-col md:flex-row gap-4 p-4">
-                <div
-                  className="product-image-container flex-1 relative rounded-xl overflow-hidden bg-gray-50"
-                  style={{
-                    aspectRatio: "1",
-                    minHeight: "250px",
-                    maxHeight: "450px",
-                  }}
-                >
-                  {mainImage ? (
-                    <img
-                      src={mainImage}
-                      alt={item.name}
-                      className="w-full h-full object-cover"
-                      style={{
-                        position: "absolute",
-                        top: 0,
-                        left: 0,
-                        width: "100%",
-                        height: "100%",
-                        opacity: imageFade ? 1 : 0,
-                        transition: "opacity 0.3s ease-in-out",
-                      }}
-                      key={selectedImageIndex}
-                    />
-                  ) : (
-                    <div
-                      className="h-full bg-gray-100 flex items-center justify-center"
-                      style={{ minHeight: "250px" }}
-                    >
-                      <ShoppingCart className="w-16 h-16 text-gray-400" />
-                    </div>
-                  )}
-                </div>
-
-                {/* Desktop thumbnails stacked on the right */}
-                {allImages.length > 1 && (
-                  <div className="hidden md:flex flex-col gap-2 w-24">
-                    {allImages.map((img, idx) => (
-                      <button
-                        key={idx}
-                        onClick={() => handleImageChange(idx)}
-                        className={`w-20 h-20 rounded-lg overflow-hidden border-2 flex-shrink-0 transition-all ${
-                          selectedImageIndex === idx
-                            ? "border-brand-green"
-                            : "border-transparent hover:border-gray-300"
-                        }`}
-                      >
-                        <img
-                          src={img}
-                          alt={`${item.name} view ${idx + 1}`}
-                          className="w-full h-full object-cover"
-                        />
-                      </button>
-                    ))}
-                  </div>
-                )}
-              </div>
-            </div>
-
-            {/* Mobile thumbnails: smaller and horizontally scrollable without affecting the whole page */}
-            {allImages.length > 1 && (
-              <div className="md:hidden -mx-4 px-4">
-                <div className="flex gap-2 overflow-x-auto pb-2">
-                  {allImages.map((img, idx) => (
-                    <button
-                      key={idx}
-                      onClick={() => handleImageChange(idx)}
-                      className={`min-w-[4.5rem] min-h-[4.5rem] max-w-[4.5rem] max-h-[4.5rem] rounded-lg overflow-hidden border-2 flex-shrink-0 transition-all ${
-                        selectedImageIndex === idx
-                          ? "border-brand-green"
-                          : "border-transparent hover:border-gray-300"
-                      }`}
-                    >
-                      <img
-                        src={img}
-                        alt={`${item.name} view ${idx + 1}`}
-                        className="w-full h-full object-cover"
-                      />
-                    </button>
-                  ))}
-                </div>
-              </div>
-            )}
-          </div>
+          <ProductImageGallery
+            images={allImages}
+            selectedIndex={selectedImageIndex}
+            productName={item.name}
+            onImageSelect={handleImageChange}
+            imageFade={imageFade}
+          />
 
           {/* Product Ingredients - Desktop only (mobile moved below) */}
           {hasIngredients && (
@@ -389,115 +302,26 @@ const ProductDetail: React.FC = () => {
         {/* Mobile: Product Info, Description, Usage, then Benefits, Ingredients */}
         <div className="order-2 lg:order-2">
           {/* Product Info */}
-          <div className="mb-8 order-2 lg:order-1">
-            <h1
-              className="text-2xl sm:text-3xl font-bold text-gray-900 mb-4"
-              style={{ fontFamily: '"League Spartan", sans-serif' }}
-            >
-              {item.name}
-            </h1>
-
-            {/* Price & Discount */}
-            <div className="flex items-center gap-3 mb-4">
-              <Price price={displayPrice} oldPrice={strikePrice} />
-              {pricing.hasDiscount && (
-                <span className="px-3 py-1 rounded-full bg-brand-green/10 text-brand-green text-xs font-semibold">
-                  Save {pricing.discountPercent}%
-                </span>
-              )}
-            </div>
-
-            {/* Rating */}
-            {reviewCount > 0 && (
-              <div className="flex items-center gap-2 mb-4">
-                <div className="flex items-center gap-1">
-                  {[...Array(5)].map((_, i) => (
-                    <Star
-                      key={i}
-                      className={`w-5 h-5 ${
-                        i < Math.round(averageRating)
-                          ? "fill-yellow-400 text-yellow-400"
-                          : "text-gray-300"
-                      }`}
-                    />
-                  ))}
-                </div>
-                <span className="text-sm text-gray-600">
-                  ({reviewCount} {reviewCount === 1 ? "review" : "reviews"})
-                </span>
-              </div>
-            )}
-
-            {/* Tags */}
-            <div className="flex items-center gap-2 mb-6 flex-wrap">
-              {item.isFeatured && (
-                <span className="px-3 py-1 rounded-full bg-[#4444B3]/10 text-[#4444B3] text-xs font-semibold">
-                  Featured
-                </span>
-              )}
-              <span className="px-3 py-1 rounded-full bg-green-100 text-green-700 text-xs font-semibold">
-                Amount in stock: {item.stock}
-              </span>
-            </div>
-
-            {/* Description */}
-            <p className="text-gray-600 mb-6 leading-relaxed">
-              {descriptionContent}
-            </p>
-
-            {/* Quantity Selector */}
-            <div className="flex items-center gap-3 mb-6">
-              <span className="text-sm font-medium text-gray-700">
-                Quantity:
-              </span>
-              <div className="flex items-center gap-2 border border-gray-300 rounded-lg">
-                <button
-                  onClick={() => setQuantity(Math.max(1, quantity - 1))}
-                  className="px-3 py-2 text-gray-600 hover:bg-gray-50"
-                >
-                  -
-                </button>
-                <span className="px-4 py-2 text-sm font-medium">
-                  {quantity}
-                </span>
-                <span className="relative group">
-                  <button
-                    onClick={() => {
-                      const maxQuantity = item.stock && item.stock > 0 ? item.stock : Infinity;
-                      setQuantity(Math.min(maxQuantity, quantity + 1));
-                    }}
-                    disabled={item.stock !== undefined && item.stock > 0 && quantity >= item.stock}
-                    className="px-3 py-2 text-gray-600 hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed"
-                    title={
-                      item.stock !== undefined && item.stock > 0 && quantity >= item.stock
-                        ? `Only ${item.stock} ${item.stock === 1 ? "item" : "items"} available in stock`
-                        : undefined
-                    }
-                  >
-                    +
-                  </button>
-                  {item.stock !== undefined && item.stock > 0 && quantity >= item.stock && (
-                    <div className="pointer-events-none absolute -top-9 left-1/2 -translate-x-1/2 whitespace-nowrap bg-gray-900 text-white text-xs px-2 py-1 rounded opacity-0 group-hover:opacity-100 transition-opacity z-10">
-                      Only {item.stock} {item.stock === 1 ? "item" : "items"} available in stock
-                    </div>
-                  )}
-                </span>
-              </div>
-            </div>
-
-            {/* Action Buttons */}
-            <div className="flex flex-col sm:flex-row gap-3 mb-8">
-              <button
-                onClick={() => addToCart(item.productId, quantity)}
-                disabled={!isAuthenticated || item.stock === 0}
-                className="flex-1 inline-flex items-center justify-center gap-2 bg-brand-green text-white px-6 py-3 rounded-full font-semibold hover:bg-brand-green-dark transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
-              >
-                <ShoppingCart className="w-4 h-4" />
-                Add to Cart
-              </button>
-              {/* Note: Reviews can only be submitted from order history for verified purchases */}
-            </div>
-          </div>
+          <ProductInfoSection
+            name={item.name}
+            displayPrice={displayPrice}
+            strikePrice={strikePrice}
+            hasDiscount={pricing.hasDiscount}
+            averageRating={averageRating}
+            reviewCount={reviewCount}
+            isFeatured={item.isFeatured}
+            stock={item.stock}
+            description={descriptionContent}
+            quantity={quantity}
+            maxQuantity={item.stock > 0 ? item.stock : 1}
+            onQuantityChange={(newQuantity: number) => {
+              const maxQty = item.stock > 0 ? item.stock : 1;
+              setQuantity(Math.min(maxQty, Math.max(1, newQuantity)));
+            }}
+            onAddToCart={() => addToCart(item.productId, quantity)}
+            isAuthenticated={isAuthenticated}
+            stockAvailable={item.stock > 0}
+          />
 
           {/* Product Usage */}
           <div className="mb-8 order-3 lg:order-2">

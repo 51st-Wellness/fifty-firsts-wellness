@@ -5,8 +5,8 @@ import {
   mediaUrl,
   type BlogEntity,
   type Author,
-} from "../api/blog.api";
-import RichTextWrapper from "../components/RichTextWrapper";
+} from "../../api/blog.api";
+import RichTextWrapper from "../../components/RichTextWrapper";
 import { ChevronRight } from "lucide-react";
 
 // Strapi RichText stores HTML; we render it safely and restyle with Tailwind prose classes.

@@ -12,7 +12,7 @@ import {
   Users,
   MessageSquare,
 } from "lucide-react";
-import { submitContactForm } from "../api/contact-subscription.api";
+import { submitContactForm } from "../../api/contact-subscription.api";
 import toast from "react-hot-toast";
 import {
   Select,
@@ -20,7 +20,7 @@ import {
   SelectItem,
   SelectTrigger,
   SelectValue,
-} from "../components/ui/select";
+} from "../../components/ui/select";
 
 const PaymentCancel: React.FC = () => {
   const [searchParams] = useSearchParams();

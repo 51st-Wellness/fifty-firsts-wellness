@@ -1,8 +1,8 @@
 import React, { useEffect } from "react";
 import { useNavigate, useSearchParams } from "react-router-dom";
-import { useAuth } from "../context/AuthContextProvider";
-import { storeAuthToken } from "../lib/utils";
-import http from "../api/http";
+import { useAuth } from "../../context/AuthContextProvider";
+import { storeAuthToken } from "../../lib/utils";
+import http from "../../api/http";
 // Auth success page for handling OAuth redirects
 const AuthSuccess: React.FC = () => {
   const navigate = useNavigate();

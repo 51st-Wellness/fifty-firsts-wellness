@@ -1,5 +1,5 @@
 import React from "react";
-import Footer from "../components/Footer";
+import Footer from "../../components/Footer";
 
 const CookiePolicy: React.FC = () => {
   return (
