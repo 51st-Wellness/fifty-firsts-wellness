@@ -93,22 +93,22 @@ const ManagementOverview: React.FC = () => {
   };
 
   return (
-    <div className="space-y-8 font-primary max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+    <div className="space-y-6 sm:space-y-8 font-primary max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4 sm:py-6 lg:py-8">
       {/* Header */}
       <div>
         <h1 
-          className="text-3xl font-bold text-gray-900 tracking-tight"
+          className="text-2xl sm:text-3xl font-bold text-gray-900 tracking-tight"
           style={{ fontFamily: '"League Spartan", sans-serif' }}
         >
           Dashboard Overview
         </h1>
-        <p className="text-gray-500 mt-2 font-medium">
+        <p className="text-sm sm:text-base text-gray-500 mt-1 sm:mt-2">
           Welcome back! Here's what's happening with your wellness platform.
         </p>
       </div>
 
       {/* Stats Grid */}
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-6">
         <StatsCard
           title="Total Users"
           value={totalUsers}
@@ -150,56 +150,58 @@ const ManagementOverview: React.FC = () => {
       </div>
 
       {/* Charts Section */}
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-4 sm:gap-6 lg:gap-8">
         {/* User Growth Chart */}
-        <div className="lg:col-span-2 bg-white rounded-2xl border border-gray-100 shadow-sm p-6">
-          <div className="flex items-center justify-between mb-6">
+        <div className="lg:col-span-2 bg-white rounded-xl sm:rounded-2xl border border-gray-100 shadow-sm p-4 sm:p-6">
+          <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-4 sm:mb-6">
             <div>
               <h2 
-                className="text-lg font-semibold text-gray-900"
+                className="text-base sm:text-lg font-semibold text-gray-900"
                 style={{ fontFamily: '"League Spartan", sans-serif' }}
               >
                 User Growth
               </h2>
-              <p className="text-sm text-gray-500">New signups over 30 days</p>
+              <p className="text-xs sm:text-sm text-gray-500">New signups over 30 days</p>
             </div>
-            <div className="flex items-center space-x-2">
+            <div className="flex items-center gap-2 flex-wrap">
               <button
                 onClick={handlePrevMonth}
-                className="flex items-center space-x-1 px-3 py-1.5 text-sm font-medium text-gray-600 bg-white border border-gray-200 rounded-lg hover:bg-gray-50 hover:text-gray-900 transition-all shadow-sm"
+                className="flex items-center gap-1 px-2 sm:px-3 py-1.5 text-xs sm:text-sm font-medium text-gray-600 bg-white border border-gray-200 rounded-lg hover:bg-gray-50 hover:text-gray-900 transition-all shadow-sm"
                 title="Previous 30 Days"
               >
                 <ChevronLeft className="w-4 h-4" />
-                <span>Prev 30 Days</span>
+                <span className="hidden sm:inline">Prev 30 Days</span>
+                <span className="sm:hidden">Prev</span>
               </button>
 
-              <div className="hidden sm:flex items-center space-x-2 text-sm text-green-600 bg-green-50 px-3 py-1.5 rounded-full font-medium border border-green-100">
+              <div className="flex items-center gap-1.5 sm:gap-2 text-xs sm:text-sm text-brand-green bg-brand-green/10 px-2 sm:px-3 py-1.5 rounded-full font-medium border border-brand-green/20">
                 <TrendingUp className="h-3.5 w-3.5" />
                 <span>
                   {userGrowthData.length > 0
                     ? userGrowthData[userGrowthData.length - 1].count
                     : 0}{" "}
-                  {monthOffset === 0 ? "today" : "on last day"}
+                  <span className="hidden sm:inline">{monthOffset === 0 ? "today" : "on last day"}</span>
                 </span>
               </div>
 
               <button
                 onClick={handleNextMonth}
                 disabled={monthOffset === 0}
-                className={`flex items-center space-x-1 px-3 py-1.5 text-sm font-medium border border-gray-200 rounded-lg transition-all shadow-sm ${
+                className={`flex items-center gap-1 px-2 sm:px-3 py-1.5 text-xs sm:text-sm font-medium border border-gray-200 rounded-lg transition-all shadow-sm ${
                   monthOffset === 0
                     ? "bg-gray-50 text-gray-300 cursor-not-allowed border-gray-100"
                     : "bg-white text-gray-600 hover:bg-gray-50 hover:text-gray-900"
                 }`}
                 title="Next 30 Days"
               >
-                <span>Next 30 Days</span>
+                <span className="hidden sm:inline">Next 30 Days</span>
+                <span className="sm:hidden">Next</span>
                 <ChevronRight className="w-4 h-4" />
               </button>
             </div>
           </div>
 
-          <div className="h-[300px] w-full">
+          <div className="h-[250px] sm:h-[300px] w-full overflow-x-auto">
             {loading || loadingChart ? (
               <div className="h-full w-full flex items-center justify-center text-gray-400">
                 Loading chart...
@@ -212,8 +214,8 @@ const ManagementOverview: React.FC = () => {
                 >
                   <defs>
                     <linearGradient id="colorCount" x1="0" y1="0" x2="0" y2="1">
-                      <stop offset="5%" stopColor="#10B981" stopOpacity={0.2} />
-                      <stop offset="95%" stopColor="#10B981" stopOpacity={0} />
+                      <stop offset="5%" stopColor="#00969b" stopOpacity={0.2} />
+                      <stop offset="95%" stopColor="#00969b" stopOpacity={0} />
                     </linearGradient>
                   </defs>
                   <CartesianGrid
@@ -249,7 +251,7 @@ const ManagementOverview: React.FC = () => {
                   <Area
                     type="monotone"
                     dataKey="count"
-                    stroke="#10B981"
+                    stroke="#00969b"
                     strokeWidth={3}
                     fillOpacity={1}
                     fill="url(#colorCount)"
@@ -262,14 +264,14 @@ const ManagementOverview: React.FC = () => {
         </div>
 
         {/* Quick Actions (Compact) */}
-        <div className="bg-white rounded-2xl border border-gray-100 shadow-sm p-6">
+        <div className="bg-white rounded-xl sm:rounded-2xl border border-gray-100 shadow-sm p-4 sm:p-6">
           <h2 
-            className="text-lg font-semibold text-gray-900 mb-6"
+            className="text-base sm:text-lg font-semibold text-gray-900 mb-4 sm:mb-6"
             style={{ fontFamily: '"League Spartan", sans-serif' }}
           >
             Quick Actions
           </h2>
-          <div className="space-y-4">
+          <div className="space-y-3 sm:space-y-4">
             <QuickAction
               href="/management/programmes"
               title="Create Programme"
@@ -314,22 +316,23 @@ const StatsCard: React.FC<StatsCardProps> = ({
   trend,
   iconBg,
 }) => (
-  <div className="bg-white rounded-2xl border border-gray-100 shadow-sm p-6 hover:shadow-md transition-shadow duration-200">
-    <div className="flex items-start justify-between">
-      <div>
-        <p className="text-sm font-medium text-gray-500">{title}</p>
-        <h3 className="text-3xl font-bold text-gray-900 mt-2 font-sans">
-          {loading ? "—" : value}
+  <div className="bg-white rounded-xl sm:rounded-2xl border border-gray-100 shadow-sm p-4 sm:p-6 hover:shadow-md transition-shadow duration-200">
+    <div className="flex items-start justify-between gap-3">
+      <div className="flex-1 min-w-0">
+        <p className="text-xs sm:text-sm font-medium text-gray-500">{title}</p>
+        <h3 className="text-2xl sm:text-3xl font-bold text-gray-900 mt-1 sm:mt-2 font-sans">
+          {loading ? "—" : value.toLocaleString()}
         </h3>
       </div>
-      <div className={`p-3 rounded-xl ${iconBg}`}>{icon}</div>
+      <div className={`p-2 sm:p-3 rounded-lg sm:rounded-xl ${iconBg} flex-shrink-0`}>{icon}</div>
     </div>
-    <div className="mt-4 flex items-center justify-between">
-      <p className="text-sm text-gray-500">{subtext}</p>
+    <div className="mt-3 sm:mt-4 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2">
+      <p className="text-xs sm:text-sm text-gray-500">{subtext}</p>
       {trend && (
-        <div className="flex items-center text-xs font-medium text-green-600 bg-green-50 px-2 py-1 rounded-lg">
+        <div className="flex items-center text-xs font-medium text-brand-green bg-brand-green/10 px-2 py-1 rounded-lg border border-brand-green/20">
           <ArrowUpRight className="h-3 w-3 mr-1" />
-          {trend}
+          <span className="hidden sm:inline">{trend}</span>
+          <span className="sm:hidden">{trend.split(" ")[0]}</span>
         </div>
       )}
     </div>
@@ -344,21 +347,21 @@ const QuickAction: React.FC<{
 }> = ({ href, title, description, icon }) => (
   <a
     href={href}
-    className="flex items-center p-4 rounded-xl border border-gray-100 hover:border-brand-green hover:bg-green-50/50 transition-all duration-200 group"
+    className="flex items-center p-3 sm:p-4 rounded-lg sm:rounded-xl border border-gray-100 hover:border-brand-green hover:bg-brand-green/5 transition-all duration-200 group"
   >
-    <div className="bg-white p-2 rounded-lg shadow-sm group-hover:scale-110 transition-transform duration-200 border border-gray-100">
+    <div className="bg-white p-2 rounded-lg shadow-sm group-hover:scale-110 transition-transform duration-200 border border-gray-100 flex-shrink-0">
       {icon}
     </div>
-    <div className="ml-4">
+    <div className="ml-3 sm:ml-4 flex-1 min-w-0">
       <p 
-        className="font-semibold text-gray-900 group-hover:text-brand-green transition-colors"
+        className="text-sm sm:text-base font-semibold text-gray-900 group-hover:text-brand-green transition-colors"
         style={{ fontFamily: '"League Spartan", sans-serif' }}
       >
         {title}
       </p>
-      <p className="text-xs text-gray-500 mt-0.5">{description}</p>
+      <p className="text-xs text-gray-500 mt-0.5 line-clamp-1">{description}</p>
     </div>
-    <div className="ml-auto opacity-0 group-hover:opacity-100 transition-opacity">
+    <div className="ml-2 sm:ml-auto opacity-0 group-hover:opacity-100 transition-opacity flex-shrink-0">
       <ArrowUpRight className="h-4 w-4 text-brand-green" />
     </div>
   </a>
