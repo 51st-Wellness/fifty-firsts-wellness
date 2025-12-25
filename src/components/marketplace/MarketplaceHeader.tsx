@@ -1,5 +1,5 @@
 import React from "react";
-import { Search } from "lucide-react";
+import { Search, ChevronDown } from "lucide-react";
 
 interface MarketplaceHeaderProps {
   title: string;
@@ -14,6 +14,8 @@ interface MarketplaceHeaderProps {
   onSearchChange: (query: string) => void;
   onSearchSubmit: (e: React.FormEvent<HTMLFormElement>) => void;
   formatCurrency: (value: number, currency?: string) => string;
+  onPriceFilterOpen?: () => void;
+  onRatingFilterOpen?: () => void;
 }
 
 const MarketplaceHeader: React.FC<MarketplaceHeaderProps> = ({
@@ -25,10 +27,12 @@ const MarketplaceHeader: React.FC<MarketplaceHeaderProps> = ({
   onSearchChange,
   onSearchSubmit,
   formatCurrency,
+  onPriceFilterOpen,
+  onRatingFilterOpen,
 }) => {
   return (
     <div className="max-w-7xl mx-auto px-6 sm:px-10 lg:px-16 py-10 sm:py-12 lg:py-16">
-      <div className="mb-6">
+      <div className="mb-2 lg:mb-4">
         <h1
           className="text-3xl sm:text-4xl lg:text-5xl font-semibold mb-3"
           style={{ fontFamily: '"League Spartan", sans-serif' }}
@@ -72,6 +76,29 @@ const MarketplaceHeader: React.FC<MarketplaceHeaderProps> = ({
               />
             </form>
           </div>
+
+          {/* Mobile Filter Buttons - Right after search bar */}
+          {onPriceFilterOpen && onRatingFilterOpen && (
+            <div className="mt-2 flex gap-2 md:hidden">
+              <button
+                onClick={onPriceFilterOpen}
+                className="px-4 py-2 rounded-full border border-brand-green text-brand-green text-sm hover:bg-brand-green/5 transition-colors flex items-center gap-2"
+                style={{ fontFamily: '"League Spartan", sans-serif' }}
+              >
+                Price Range
+                <ChevronDown className="w-4 h-4" />
+              </button>
+
+              <button
+                onClick={onRatingFilterOpen}
+                className="px-4 py-2 rounded-full border border-brand-green text-brand-green text-sm hover:bg-brand-green/5 transition-colors flex items-center gap-2"
+                style={{ fontFamily: '"League Spartan", sans-serif' }}
+              >
+                Product Rating
+                <ChevronDown className="w-4 h-4" />
+              </button>
+            </div>
+          )}
         </div>
     </div>
   );

@@ -7,7 +7,7 @@ import {
   fetchSecureProgrammeById,
   deleteProgramme,
 } from "@/api/programme.api";
-import CreateProgrammeDialog from "@/components/admin/CreateProgrammeDialog";
+import CreateProgrammeDialog from "@/components/admin/programmes";
 import AdminProgrammeCard from "@/components/admin/AdminProgrammeCard";
 import ConfirmationDialog from "@/components/admin/ConfirmationDialog";
 

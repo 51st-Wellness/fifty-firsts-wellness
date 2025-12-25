@@ -203,32 +203,13 @@ const MarketPlace: React.FC<MarketPlaceProps> = ({ onSearch }) => {
           onSearchChange={setQuery}
           onSearchSubmit={handleSubmit}
           formatCurrency={formatCurrency}
+          onPriceFilterOpen={() => setPriceDropdownOpen(true)}
+          onRatingFilterOpen={() => setRatingDropdownOpen(true)}
         />
 
         <div className="max-w-7xl mx-auto px-6 sm:px-10 lg:px-16">
-          {/* Mobile Filter Buttons - Below Search Bar */}
-          <MarketplaceFilters
-            minPrice={minPrice}
-            maxPrice={maxPrice}
-            minPriceInput={minPriceInput}
-            maxPriceInput={maxPriceInput}
-            onMinPriceClear={() => setMinPrice(0)}
-            onMaxPriceClear={() => setMaxPrice(0)}
-            onPriceApply={() => loadItems({ page: 1, reset: true })}
-            selectedRating={selectedRating}
-            onRatingChange={setSelectedRating}
-            onRatingClear={() => setSelectedRating("all")}
-            onRatingApply={() => loadItems({ page: 1, reset: true })}
-            priceDropdownOpen={priceDropdownOpen}
-            ratingDropdownOpen={ratingDropdownOpen}
-            onPriceDropdownClose={() => setPriceDropdownOpen(false)}
-            onRatingDropdownClose={() => setRatingDropdownOpen(false)}
-            onPriceDropdownOpen={() => setPriceDropdownOpen(true)}
-            onRatingDropdownOpen={() => setRatingDropdownOpen(true)}
-          />
-
           {/* Categories */}
-          <div className="mt-6">
+          <div className="mt-2 lg:mt-3">
             <div className="flex-1">
               <div
                 className="w-full overflow-x-auto scrollbar-hide"

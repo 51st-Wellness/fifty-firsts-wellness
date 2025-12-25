@@ -31,7 +31,7 @@ import {
   QrCodeScanner as QrCodeScannerIcon,
 } from "@mui/icons-material";
 import toast from "react-hot-toast";
-import OrderDetailsModal from "./OrderDetailsModal";
+import OrderDetailsModal from "./orders";
 import {
   getAdminOrders,
   updateOrderStatus,

@@ -37,13 +37,13 @@ import {
   deleteStoreItem,
 } from "../../api/marketplace.api";
 import type { StoreItem } from "../../types/marketplace.types";
-import StoreItemDialog from "../../components/admin/StoreItemDialog";
+import StoreItemDialog from "../../components/admin/store-items";
 import ReviewManagement from "../../components/admin/ReviewManagement";
 import NotificationsPreOrdersManagement from "../../components/admin/NotificationsPreOrdersManagement";
 import OrdersManagement from "../../components/admin/OrdersManagement";
 import GlobalDiscountSettings from "../../components/admin/GlobalDiscountSettings";
-import DiscountManagement from "../../components/admin/DiscountManagement";
-import ShippingSettingsDialog from "../../components/admin/ShippingSettingsDialog";
+import DiscountManagement from "../../components/admin/discounts";
+import ShippingSettingsDialog from "../../components/admin/shipping";
 
 // Enhanced marketplace management with Material UI dialogs and full CRUD support
 const ManagementMarketplace: React.FC = () => {

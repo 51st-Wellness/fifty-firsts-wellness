@@ -1,5 +1,4 @@
 import React from "react";
-import { ChevronDown } from "lucide-react";
 
 interface PriceInput {
   inputMode: "numeric" | "text" | "decimal";
@@ -186,27 +185,6 @@ const MarketplaceFilters: React.FC<MarketplaceFiltersProps> = ({
 
   return (
     <>
-      {/* Mobile Filter Buttons */}
-      <div className="mt-4 flex gap-2 md:hidden">
-        <button
-          onClick={onPriceDropdownOpen}
-          className="px-4 py-2 rounded-full border border-brand-green text-brand-green text-sm hover:bg-brand-green/5 transition-colors flex items-center gap-2"
-          style={{ fontFamily: '"League Spartan", sans-serif' }}
-        >
-          Price Range
-          <ChevronDown className="w-4 h-4" />
-        </button>
-
-        <button
-          onClick={onRatingDropdownOpen}
-          className="px-4 py-2 rounded-full border border-brand-green text-brand-green text-sm hover:bg-brand-green/5 transition-colors flex items-center gap-2"
-          style={{ fontFamily: '"League Spartan", sans-serif' }}
-        >
-          Product Rating
-          <ChevronDown className="w-4 h-4" />
-        </button>
-      </div>
-
       {/* Desktop Filters Sidebar */}
       <div className="hidden lg:block lg:col-span-1">
         <div className="sticky top-20">
