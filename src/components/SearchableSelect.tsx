@@ -304,7 +304,7 @@ export const SearchableSelect: React.FC<SearchableSelectProps> = ({
     <div className={`relative w-full ${className}`}>
       {label && (
         <label
-          className="block text-sm font-medium mb-2"
+          className="block text-xs sm:text-sm font-medium mb-1 sm:mb-2"
           style={{
             fontFamily: '"League Spartan", sans-serif',
             color: "#344054",
@@ -332,7 +332,7 @@ export const SearchableSelect: React.FC<SearchableSelectProps> = ({
           return (
             <div className="relative">
               <ComboboxInput
-                className={`w-full py-3 pl-4 pr-10 text-sm leading-5 bg-white border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:border-transparent transition-all text-gray-700 ${
+                className={`w-full py-2 sm:py-3 pl-3 sm:pl-4 pr-8 sm:pr-10 text-xs sm:text-sm leading-5 bg-white border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:border-transparent transition-all text-gray-700 ${
                   disabled
                     ? "bg-gray-100 cursor-not-allowed"
                     : "hover:border-gray-400"
@@ -348,38 +348,38 @@ export const SearchableSelect: React.FC<SearchableSelectProps> = ({
                 placeholder={placeholder}
                 autoComplete="off"
               />
-              <ComboboxButton className="absolute inset-y-0 right-0 flex items-center pr-3 hover:bg-gray-50 rounded-r-lg transition-colors">
+              <ComboboxButton className="absolute inset-y-0 right-0 flex items-center pr-2 sm:pr-3 hover:bg-gray-50 rounded-r-lg transition-colors">
                 <ChevronsUpDown
-                  className="w-4 h-4 text-gray-400"
+                  className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-gray-400"
                   aria-hidden="true"
                 />
               </ComboboxButton>
 
-              <ComboboxOptions className="absolute z-50 w-full mt-1 bg-white border border-gray-200 rounded-lg shadow-xl max-h-60 overflow-auto text-sm focus:outline-none divide-y divide-gray-100">
+              <ComboboxOptions className="absolute z-50 w-full mt-1 bg-white border border-gray-200 rounded-lg shadow-xl max-h-60 overflow-auto text-xs sm:text-sm focus:outline-none divide-y divide-gray-100">
                 {isLoading ? (
-                  <div className="px-4 py-3 text-center text-gray-500">
+                  <div className="px-3 sm:px-4 py-2 sm:py-3 text-center text-gray-500">
                     <div className="flex items-center justify-center space-x-2">
                       <div
-                        className="w-4 h-4 border-2 border-gray-300 rounded-full animate-spin"
+                        className="w-3.5 h-3.5 sm:w-4 sm:h-4 border-2 border-gray-300 rounded-full animate-spin"
                         style={{ borderTopColor: "#00969b" }}
                       ></div>
-                      <span>Searching...</span>
+                      <span className="text-xs sm:text-sm">Searching...</span>
                     </div>
                   </div>
                 ) : showMinCharMessage ? (
-                  <div className="px-4 py-3 text-center text-gray-500">
+                  <div className="px-3 sm:px-4 py-2 sm:py-3 text-center text-gray-500 text-xs sm:text-sm">
                     Type at least 3 characters to search
                   </div>
                 ) : showEmptyState ? (
-                  <div className="px-4 py-3 text-center text-gray-500">
+                  <div className="px-3 sm:px-4 py-2 sm:py-3 text-center text-gray-500 text-xs sm:text-sm">
                     Start typing to search for products
                   </div>
                 ) : showNoResults ? (
-                  <div className="px-4 py-3 text-center text-gray-500">
+                  <div className="px-3 sm:px-4 py-2 sm:py-3 text-center text-gray-500 text-xs sm:text-sm">
                     {emptyMessage}
                   </div>
                 ) : options.length === 0 ? (
-                  <div className="px-4 py-3 text-center text-gray-500">
+                  <div className="px-3 sm:px-4 py-2 sm:py-3 text-center text-gray-500 text-xs sm:text-sm">
                     No options available
                   </div>
                 ) : (
@@ -388,7 +388,7 @@ export const SearchableSelect: React.FC<SearchableSelectProps> = ({
                       key={option.value}
                       value={option}
                       className={({ focus, selected }) =>
-                        `relative cursor-pointer select-none py-3 px-4 transition-colors ${
+                        `relative cursor-pointer select-none py-2 sm:py-3 px-3 sm:px-4 transition-colors ${
                           focus
                             ? "bg-[#00969b] text-white"
                             : selected
@@ -400,7 +400,7 @@ export const SearchableSelect: React.FC<SearchableSelectProps> = ({
                       {({ selected, focus }) => (
                         <div className="flex items-center justify-between w-full">
                           <span
-                            className="block truncate flex-1"
+                            className="block truncate flex-1 text-xs sm:text-sm"
                             style={{
                               fontFamily: '"League Spartan", sans-serif',
                             }}
@@ -412,7 +412,7 @@ export const SearchableSelect: React.FC<SearchableSelectProps> = ({
                               className="ml-2 flex-shrink-0"
                               style={{ color: focus ? "white" : "#00969b" }}
                             >
-                              <Check className="w-5 h-5" aria-hidden="true" />
+                              <Check className="w-4 h-4 sm:w-5 sm:h-5" aria-hidden="true" />
                             </span>
                           )}
                         </div>

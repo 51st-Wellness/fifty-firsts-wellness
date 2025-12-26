@@ -193,60 +193,58 @@ const GlobalDiscountsTab: React.FC<GlobalDiscountsTabProps> = ({
   return (
     <div>
       {/* Stats Cards */}
-      <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 mb-6">
+      <div className="grid grid-cols-2 gap-2 sm:gap-3 lg:gap-4 mb-3 sm:mb-4 lg:mb-6">
         <Card>
-          <CardContent>
-            <Typography variant="body2" color="text.secondary" gutterBottom>
+          <CardContent sx={{ p: { xs: 1.5, sm: 2, lg: 3 } }}>
+            <Typography
+              variant="body2"
+              color="text.secondary"
+              gutterBottom
+              sx={{ fontSize: { xs: "0.75rem", sm: "0.875rem" } }}
+            >
               Global Discount Status
             </Typography>
             <Typography
               variant="h5"
-              sx={{ fontFamily: '"League Spartan", sans-serif' }}
+              sx={{
+                fontFamily: '"League Spartan", sans-serif',
+                fontSize: { xs: "1.25rem", sm: "1.5rem", lg: "1.75rem" },
+              }}
             >
               {globalDiscount ? "Active" : "None"}
             </Typography>
           </CardContent>
         </Card>
         <Card>
-          <CardContent>
-            <Typography variant="body2" color="text.secondary" gutterBottom>
+          <CardContent sx={{ p: { xs: 1.5, sm: 2, lg: 3 } }}>
+            <Typography
+              variant="body2"
+              color="text.secondary"
+              gutterBottom
+              sx={{ fontSize: { xs: "0.75rem", sm: "0.875rem" } }}
+            >
               Products Affected
             </Typography>
             <Typography
               variant="h5"
-              sx={{ fontFamily: '"League Spartan", sans-serif' }}
+              sx={{
+                fontFamily: '"League Spartan", sans-serif',
+                fontSize: { xs: "1.25rem", sm: "1.5rem", lg: "1.75rem" },
+              }}
             >
               {globalDiscount ? items.length : 0}
             </Typography>
           </CardContent>
         </Card>
-        <Card>
-          <CardContent>
-            <Typography variant="body2" color="text.secondary" gutterBottom>
-              Status
-            </Typography>
-            {globalDiscount ? (
-              <Chip
-                label={getDiscountStatus(globalDiscount).label}
-                color={getDiscountStatus(globalDiscount).color}
-                size="small"
-              />
-            ) : (
-              <Typography variant="body2" color="text.secondary">
-                No global discount
-              </Typography>
-            )}
-          </CardContent>
-        </Card>
       </div>
 
       {/* Filters */}
-      <Card sx={{ mb: 3 }}>
-        <CardContent>
+      <Card sx={{ mb: { xs: 2, sm: 3 } }}>
+        <CardContent sx={{ p: { xs: 1.5, sm: 2, lg: 3 } }}>
           <Stack
             direction={{ xs: "column", sm: "row" }}
-            spacing={2}
-            alignItems="center"
+            spacing={{ xs: 1.5, sm: 2 }}
+            alignItems={{ xs: "stretch", sm: "center" }}
           >
             <TextField
               size="small"
@@ -255,10 +253,15 @@ const GlobalDiscountsTab: React.FC<GlobalDiscountsTabProps> = ({
               onChange={(e) => onSearchChange(e.target.value)}
               InputProps={{
                 startAdornment: (
-                  <SearchIcon sx={{ mr: 1, color: "text.secondary" }} />
+                  <SearchIcon sx={{ mr: 1, color: "text.secondary", fontSize: { xs: "1rem", sm: "1.25rem" } }} />
                 ),
               }}
-              sx={{ flex: 1 }}
+              sx={{
+                flex: 1,
+                "& .MuiInputBase-root": {
+                  fontSize: { xs: "0.875rem", sm: "1rem" },
+                },
+              }}
               disabled={!globalDiscount}
             />
             {!globalDiscount && (
@@ -267,8 +270,14 @@ const GlobalDiscountsTab: React.FC<GlobalDiscountsTabProps> = ({
                 startIcon={<EditIcon />}
                 onClick={onOpenGlobalDiscountDialog}
                 disabled={loading}
+                size="small"
+                sx={{
+                  fontSize: { xs: "0.75rem", sm: "0.875rem" },
+                  px: { xs: 1.5, sm: 2 },
+                }}
               >
-                Create Global Discount
+                <span className="hidden sm:inline">Create Global Discount</span>
+                <span className="sm:hidden">Create</span>
               </Button>
             )}
           </Stack>
@@ -277,14 +286,16 @@ const GlobalDiscountsTab: React.FC<GlobalDiscountsTabProps> = ({
 
       {/* Global Discount Table */}
       <Card>
-        <TableContainer>
-          <Table>
+        <TableContainer sx={{ overflowX: "auto" }}>
+          <Table size="small">
             <TableHead>
               <TableRow>
                 <TableCell
                   sx={{
                     fontFamily: '"League Spartan", sans-serif',
                     fontWeight: 600,
+                    fontSize: { xs: "0.7rem", sm: "0.75rem", lg: "0.875rem" },
+                    py: { xs: 1, sm: 1.5 },
                   }}
                 >
                   Name
@@ -293,6 +304,8 @@ const GlobalDiscountsTab: React.FC<GlobalDiscountsTabProps> = ({
                   sx={{
                     fontFamily: '"League Spartan", sans-serif',
                     fontWeight: 600,
+                    fontSize: { xs: "0.7rem", sm: "0.75rem", lg: "0.875rem" },
+                    py: { xs: 1, sm: 1.5 },
                   }}
                 >
                   Type
@@ -301,6 +314,8 @@ const GlobalDiscountsTab: React.FC<GlobalDiscountsTabProps> = ({
                   sx={{
                     fontFamily: '"League Spartan", sans-serif',
                     fontWeight: 600,
+                    fontSize: { xs: "0.7rem", sm: "0.75rem", lg: "0.875rem" },
+                    py: { xs: 1, sm: 1.5 },
                   }}
                 >
                   Value
@@ -309,6 +324,8 @@ const GlobalDiscountsTab: React.FC<GlobalDiscountsTabProps> = ({
                   sx={{
                     fontFamily: '"League Spartan", sans-serif',
                     fontWeight: 600,
+                    fontSize: { xs: "0.7rem", sm: "0.75rem", lg: "0.875rem" },
+                    py: { xs: 1, sm: 1.5 },
                   }}
                 >
                   Status
@@ -317,6 +334,9 @@ const GlobalDiscountsTab: React.FC<GlobalDiscountsTabProps> = ({
                   sx={{
                     fontFamily: '"League Spartan", sans-serif',
                     fontWeight: 600,
+                    fontSize: { xs: "0.7rem", sm: "0.75rem", lg: "0.875rem" },
+                    py: { xs: 1, sm: 1.5 },
+                    display: { xs: "none", md: "table-cell" },
                   }}
                 >
                   Products Affected
@@ -325,6 +345,9 @@ const GlobalDiscountsTab: React.FC<GlobalDiscountsTabProps> = ({
                   sx={{
                     fontFamily: '"League Spartan", sans-serif',
                     fontWeight: 600,
+                    fontSize: { xs: "0.7rem", sm: "0.75rem", lg: "0.875rem" },
+                    py: { xs: 1, sm: 1.5 },
+                    display: { xs: "none", lg: "table-cell" },
                   }}
                 >
                   Start Date
@@ -333,6 +356,9 @@ const GlobalDiscountsTab: React.FC<GlobalDiscountsTabProps> = ({
                   sx={{
                     fontFamily: '"League Spartan", sans-serif',
                     fontWeight: 600,
+                    fontSize: { xs: "0.7rem", sm: "0.75rem", lg: "0.875rem" },
+                    py: { xs: 1, sm: 1.5 },
+                    display: { xs: "none", lg: "table-cell" },
                   }}
                 >
                   End Date
@@ -342,6 +368,8 @@ const GlobalDiscountsTab: React.FC<GlobalDiscountsTabProps> = ({
                   sx={{
                     fontFamily: '"League Spartan", sans-serif',
                     fontWeight: 600,
+                    fontSize: { xs: "0.7rem", sm: "0.75rem", lg: "0.875rem" },
+                    py: { xs: 1, sm: 1.5 },
                   }}
                 >
                   Actions
@@ -351,23 +379,33 @@ const GlobalDiscountsTab: React.FC<GlobalDiscountsTabProps> = ({
             <TableBody>
               {loading && items.length === 0 ? (
                 <TableRow>
-                  <TableCell colSpan={8} align="center">
-                    <Typography variant="body2" color="text.secondary">
+                  <TableCell colSpan={8} align="center" sx={{ py: { xs: 3, sm: 4 } }}>
+                    <Typography variant="body2" color="text.secondary" sx={{ fontSize: { xs: "0.75rem", sm: "0.875rem" } }}>
                       Loading...
                     </Typography>
                   </TableCell>
                 </TableRow>
               ) : globalDiscountTableData.length === 0 ? (
                 <TableRow>
-                  <TableCell colSpan={7} align="center">
-                    <Box sx={{ py: 4 }}>
+                  <TableCell colSpan={8} align="center" sx={{ py: { xs: 4, sm: 6 } }}>
+                    <Box sx={{ py: { xs: 2, sm: 4 } }}>
                       <PublicIcon
-                        sx={{ fontSize: 48, color: "text.secondary", mb: 2 }}
+                        sx={{
+                          fontSize: { xs: 48, sm: 64 },
+                          color: "text.secondary",
+                          mb: 2,
+                        }}
                       />
                       <Typography
                         variant="body2"
                         color="text.secondary"
                         gutterBottom
+                        sx={{
+                          fontSize: { xs: "0.875rem", sm: "1rem" },
+                          fontFamily: '"League Spartan", sans-serif',
+                          fontWeight: 600,
+                          mb: 1,
+                        }}
                       >
                         No global discount active
                       </Typography>
@@ -375,9 +413,15 @@ const GlobalDiscountsTab: React.FC<GlobalDiscountsTabProps> = ({
                         variant="contained"
                         startIcon={<EditIcon />}
                         onClick={onOpenGlobalDiscountDialog}
-                        sx={{ mt: 2 }}
+                        size="small"
+                        sx={{
+                          mt: 2,
+                          fontSize: { xs: "0.75rem", sm: "0.875rem" },
+                          px: { xs: 1.5, sm: 2 },
+                        }}
                       >
-                        Create Global Discount
+                        <span className="hidden sm:inline">Create Global Discount</span>
+                        <span className="sm:hidden">Create</span>
                       </Button>
                     </Box>
                   </TableCell>
@@ -387,20 +431,28 @@ const GlobalDiscountsTab: React.FC<GlobalDiscountsTabProps> = ({
                   const status = getDiscountStatus(item);
                   return (
                     <TableRow key={item.productId} hover>
-                      <TableCell>
+                      <TableCell sx={{ py: { xs: 1, sm: 1.5 } }}>
                         <Box>
-                          <Typography variant="body2" fontWeight={600}>
+                          <Typography
+                            variant="body2"
+                            fontWeight={600}
+                            sx={{ fontSize: { xs: "0.75rem", sm: "0.875rem" } }}
+                          >
                             {item.name}
                           </Typography>
                           <Chip
                             label="Global"
                             size="small"
                             color="primary"
-                            sx={{ mt: 0.5 }}
+                            sx={{
+                              mt: 0.5,
+                              height: { xs: 20, sm: 24 },
+                              fontSize: { xs: "0.65rem", sm: "0.75rem" },
+                            }}
                           />
                         </Box>
                       </TableCell>
-                      <TableCell>
+                      <TableCell sx={{ py: { xs: 1, sm: 1.5 } }}>
                         <Chip
                           label={
                             item.discountType === "PERCENTAGE"
@@ -410,25 +462,39 @@ const GlobalDiscountsTab: React.FC<GlobalDiscountsTabProps> = ({
                           size="small"
                           color="primary"
                           variant="outlined"
+                          sx={{
+                            height: { xs: 20, sm: 24 },
+                            fontSize: { xs: "0.65rem", sm: "0.75rem" },
+                          }}
                         />
                       </TableCell>
-                      <TableCell>
-                        <Typography variant="body2" fontWeight={600}>
+                      <TableCell sx={{ py: { xs: 1, sm: 1.5 } }}>
+                        <Typography
+                          variant="body2"
+                          fontWeight={600}
+                          sx={{ fontSize: { xs: "0.75rem", sm: "0.875rem" } }}
+                        >
                           {formatDiscountValue(item)}
                         </Typography>
                       </TableCell>
-                      <TableCell>
+                      <TableCell sx={{ py: { xs: 1, sm: 1.5 } }}>
                         <Chip
                           label={status.label}
                           color={status.color}
                           size="small"
+                          sx={{
+                            height: { xs: 20, sm: 24 },
+                            fontSize: { xs: "0.65rem", sm: "0.75rem" },
+                          }}
                         />
                       </TableCell>
-                      <TableCell>
-                        <Typography variant="body2">{items.length} products</Typography>
+                      <TableCell sx={{ py: { xs: 1, sm: 1.5 }, display: { xs: "none", md: "table-cell" } }}>
+                        <Typography variant="body2" sx={{ fontSize: { xs: "0.75rem", sm: "0.875rem" } }}>
+                          {items.length} products
+                        </Typography>
                       </TableCell>
-                      <TableCell>
-                        <Typography variant="body2">
+                      <TableCell sx={{ py: { xs: 1, sm: 1.5 }, display: { xs: "none", lg: "table-cell" } }}>
+                        <Typography variant="body2" sx={{ fontSize: { xs: "0.75rem", sm: "0.875rem" } }}>
                           {item.discountStart
                             ? new Date(item.discountStart).toLocaleDateString(
                                 "en-GB",
@@ -443,8 +509,8 @@ const GlobalDiscountsTab: React.FC<GlobalDiscountsTabProps> = ({
                             : "-"}
                         </Typography>
                       </TableCell>
-                      <TableCell>
-                        <Typography variant="body2">
+                      <TableCell sx={{ py: { xs: 1, sm: 1.5 }, display: { xs: "none", lg: "table-cell" } }}>
+                        <Typography variant="body2" sx={{ fontSize: { xs: "0.75rem", sm: "0.875rem" } }}>
                           {item.discountEnd
                             ? new Date(item.discountEnd).toLocaleDateString(
                                 "en-GB",
@@ -459,12 +525,13 @@ const GlobalDiscountsTab: React.FC<GlobalDiscountsTabProps> = ({
                             : "-"}
                         </Typography>
                       </TableCell>
-                      <TableCell align="right">
+                      <TableCell align="right" sx={{ py: { xs: 1, sm: 1.5 } }}>
                         <IconButton
                           size="small"
                           onClick={(e) => onMenuOpen(e, item)}
+                          sx={{ fontSize: { xs: "1rem", sm: "1.25rem" } }}
                         >
-                          <MoreVertIcon />
+                          <MoreVertIcon fontSize="inherit" />
                         </IconButton>
                       </TableCell>
                     </TableRow>
@@ -482,6 +549,15 @@ const GlobalDiscountsTab: React.FC<GlobalDiscountsTabProps> = ({
           rowsPerPage={rowsPerPage}
           onRowsPerPageChange={onRowsPerPageChange}
           rowsPerPageOptions={[5, 10, 25, 50]}
+          sx={{
+            "& .MuiTablePagination-toolbar": {
+              px: { xs: 1, sm: 2 },
+              fontSize: { xs: "0.75rem", sm: "0.875rem" },
+            },
+            "& .MuiTablePagination-selectLabel, & .MuiTablePagination-displayedRows": {
+              fontSize: { xs: "0.75rem", sm: "0.875rem" },
+            },
+          }}
         />
       </Card>
 
@@ -495,22 +571,34 @@ const GlobalDiscountsTab: React.FC<GlobalDiscountsTabProps> = ({
         onClose={onMenuClose}
         anchorOrigin={{ vertical: "bottom", horizontal: "right" }}
         transformOrigin={{ vertical: "top", horizontal: "right" }}
+        PaperProps={{
+          sx: {
+            minWidth: { xs: 160, sm: 180 },
+          },
+        }}
       >
         <MenuItem
           onClick={() => {
             onOpenGlobalDiscountDialog();
             onMenuClose();
           }}
+          sx={{ fontSize: { xs: "0.75rem", sm: "0.875rem" }, py: { xs: 0.75, sm: 1 } }}
         >
-          <EditIcon sx={{ fontSize: 20, mr: 1 }} />
+          <EditIcon sx={{ fontSize: { xs: 16, sm: 20 }, mr: 1 }} />
           Edit Discount
         </MenuItem>
-        <MenuItem onClick={handleDeactivate}>
-          <PowerOffIcon sx={{ fontSize: 20, mr: 1 }} />
+        <MenuItem
+          onClick={handleDeactivate}
+          sx={{ fontSize: { xs: "0.75rem", sm: "0.875rem" }, py: { xs: 0.75, sm: 1 } }}
+        >
+          <PowerOffIcon sx={{ fontSize: { xs: 16, sm: 20 }, mr: 1 }} />
           Deactivate
         </MenuItem>
-        <MenuItem onClick={handleDelete}>
-          <DeleteIcon sx={{ fontSize: 20, mr: 1, color: "error.main" }} />
+        <MenuItem
+          onClick={handleDelete}
+          sx={{ fontSize: { xs: "0.75rem", sm: "0.875rem" }, py: { xs: 0.75, sm: 1 } }}
+        >
+          <DeleteIcon sx={{ fontSize: { xs: 16, sm: 20 }, mr: 1, color: "error.main" }} />
           Delete
         </MenuItem>
       </Menu>

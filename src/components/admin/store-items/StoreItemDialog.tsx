@@ -75,17 +75,43 @@ const StoreItemDialog: React.FC<StoreItemDialogProps> = ({
   };
 
   return (
-    <Dialog open={open} onClose={handleClose} maxWidth="md" fullWidth>
-      <DialogTitle>
+    <Dialog
+      open={open}
+      onClose={handleClose}
+      maxWidth="md"
+      fullWidth
+      sx={{
+        "& .MuiDialog-paper": {
+          margin: { xs: 1, sm: 2 },
+          width: { xs: "calc(100% - 16px)", sm: "auto" },
+        },
+      }}
+    >
+      <DialogTitle
+        sx={{
+          fontSize: { xs: "1rem", sm: "1.25rem" },
+          px: { xs: 2, sm: 3 },
+          py: { xs: 1.5, sm: 2 },
+          fontFamily: '"League Spartan", sans-serif',
+          fontWeight: 600,
+        }}
+      >
         {mode === "create" ? "Create New Store Item" : "Edit Store Item"}
       </DialogTitle>
 
-      <DialogContent>
-        <Box sx={{ pt: 1 }}>
+      <DialogContent sx={{ px: { xs: 2, sm: 3 }, py: { xs: 2, sm: 3 } }}>
+        <Box sx={{ pt: { xs: 0.5, sm: 1 } }}>
           <Tabs
             value={tabIndex}
             onChange={(_, v) => setTabIndex(v)}
-            sx={{ mb: 2 }}
+            sx={{
+              mb: { xs: 1.5, sm: 2 },
+              "& .MuiTab-root": {
+                fontSize: { xs: "0.75rem", sm: "0.875rem" },
+                minHeight: { xs: 40, sm: 48 },
+                px: { xs: 1, sm: 2 },
+              },
+            }}
             variant="fullWidth"
           >
             <Tab label="Details" />
@@ -93,7 +119,7 @@ const StoreItemDialog: React.FC<StoreItemDialogProps> = ({
           </Tabs>
 
           {tabIndex === 0 && (
-            <Stack spacing={2}>
+            <Stack spacing={{ xs: 1.5, sm: 2 }}>
               <StoreItemBasicInfo
                 formData={formData}
                 onFormDataChange={updateFormData}
@@ -143,21 +169,34 @@ const StoreItemDialog: React.FC<StoreItemDialogProps> = ({
         </Box>
       </DialogContent>
 
-      <DialogActions>
-        <Button onClick={handleClose} disabled={submitting}>
+      <DialogActions sx={{ px: { xs: 2, sm: 3 }, py: { xs: 1.5, sm: 2 } }}>
+        <Button
+          onClick={handleClose}
+          disabled={submitting}
+          size="small"
+          sx={{ fontSize: { xs: "0.875rem", sm: "1rem" } }}
+        >
           Cancel
         </Button>
         <Button
           onClick={handleSubmit}
           variant="contained"
           disabled={submitting}
+          size="small"
           sx={{
             bgcolor: "#00969b",
             "&:hover": { bgcolor: "#007a7e" },
             color: "white",
+            fontSize: { xs: "0.875rem", sm: "1rem" },
           }}
         >
-          {submitting ? <CircularProgress size={20} sx={{ mr: 1 }} /> : null}
+          {submitting ? (
+            <CircularProgress
+              size={14}
+              sx={{ mr: 1, fontSize: { xs: 14, sm: 20 } }}
+              color="inherit"
+            />
+          ) : null}
           {submitting ? "Saving..." : mode === "create" ? "Create" : "Update"}
         </Button>
       </DialogActions>

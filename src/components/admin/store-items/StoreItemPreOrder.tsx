@@ -21,17 +21,20 @@ const StoreItemPreOrder: React.FC<StoreItemPreOrderProps> = ({
 }) => {
   return (
     <Box>
-      <Divider sx={{ my: 1 }} />
-      <Stack spacing={2}>
+      <Divider sx={{ my: { xs: 0.75, sm: 1 } }} />
+      <Stack spacing={{ xs: 1.5, sm: 2 }}>
         <Stack
           direction={{ xs: "column", sm: "row" }}
           justifyContent="space-between"
           alignItems={{ xs: "flex-start", sm: "center" }}
-          spacing={1}
+          spacing={{ xs: 1, sm: 1 }}
         >
           <Typography
             variant="subtitle2"
-            sx={{ fontFamily: '"League Spartan", sans-serif' }}
+            sx={{
+              fontFamily: '"League Spartan", sans-serif',
+              fontSize: { xs: "0.875rem", sm: "1rem" },
+            }}
           >
             Pre-order settings
           </Typography>
@@ -42,15 +45,25 @@ const StoreItemPreOrder: React.FC<StoreItemPreOrderProps> = ({
                 onChange={(e) =>
                   onFormDataChange({ preOrderEnabled: e.target.checked })
                 }
+                size="small"
               />
             }
             label="Enable pre-orders"
+            sx={{
+              "& .MuiFormControlLabel-label": {
+                fontSize: { xs: "0.875rem", sm: "1rem" },
+              },
+            }}
           />
         </Stack>
 
         <Collapse in={formData.preOrderEnabled} unmountOnExit>
-          <Stack spacing={2} sx={{ mt: 1 }}>
-            <Typography variant="body2" color="text.secondary">
+          <Stack spacing={{ xs: 1.5, sm: 2 }} sx={{ mt: { xs: 0.5, sm: 1 } }}>
+            <Typography
+              variant="body2"
+              color="text.secondary"
+              sx={{ fontSize: { xs: "0.75rem", sm: "0.875rem" } }}
+            >
               When enabled, customers can place pre-orders whenever this product
               sells out. Those orders are flagged for your team so they can be
               fulfilled once inventory is replenished.

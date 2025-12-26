@@ -86,8 +86,13 @@ const CategorySelector: React.FC<CategorySelectorProps> = ({
 
   return (
     <Box>
-      <FormControl fullWidth required={required}>
-        <InputLabel id="category-selector-label">{label}</InputLabel>
+      <FormControl fullWidth required={required} size="small">
+        <InputLabel
+          id="category-selector-label"
+          sx={{ fontSize: { xs: "0.875rem", sm: "1rem" } }}
+        >
+          {label}
+        </InputLabel>
         <Select
           labelId="category-selector-label"
           multiple
@@ -98,6 +103,11 @@ const CategorySelector: React.FC<CategorySelectorProps> = ({
           onClose={() => setOpen(false)}
           onOpen={() => setOpen(true)}
           placeholder={placeholder}
+          sx={{
+            "& .MuiInputBase-root": {
+              fontSize: { xs: "0.875rem", sm: "1rem" },
+            },
+          }}
           renderValue={(selected) => (
             <Stack
               direction="row"
@@ -114,14 +124,25 @@ const CategorySelector: React.FC<CategorySelectorProps> = ({
                     event.stopPropagation();
                   }}
                   deleteIcon={<CloseIcon />}
+                  sx={{
+                    height: { xs: 20, sm: 24 },
+                    fontSize: { xs: "0.7rem", sm: "0.75rem" },
+                    "& .MuiChip-deleteIcon": {
+                      fontSize: { xs: 14, sm: 16 },
+                    },
+                  }}
                 />
               ))}
             </Stack>
           )}
         >
           {categories.length === 0 ? (
-            <MenuItem disabled>
-              <Typography variant="body2" color="text.secondary">
+            <MenuItem disabled sx={{ fontSize: { xs: "0.875rem", sm: "1rem" } }}>
+              <Typography
+                variant="body2"
+                color="text.secondary"
+                sx={{ fontSize: { xs: "0.75rem", sm: "0.875rem" } }}
+              >
                 {loading ? "Loading categories..." : "No categories available"}
               </Typography>
             </MenuItem>
@@ -134,12 +155,22 @@ const CategorySelector: React.FC<CategorySelectorProps> = ({
                   fontWeight: selectedCategories.includes(category.name)
                     ? 600
                     : 400,
+                  fontSize: { xs: "0.875rem", sm: "1rem" },
                 }}
               >
                 <Box>
-                  <Typography variant="body2">{category.name}</Typography>
+                  <Typography
+                    variant="body2"
+                    sx={{ fontSize: { xs: "0.875rem", sm: "1rem" } }}
+                  >
+                    {category.name}
+                  </Typography>
                   {category.description && (
-                    <Typography variant="caption" color="text.secondary">
+                    <Typography
+                      variant="caption"
+                      color="text.secondary"
+                      sx={{ fontSize: { xs: "0.7rem", sm: "0.75rem" } }}
+                    >
                       {category.description}
                     </Typography>
                   )}
@@ -152,7 +183,11 @@ const CategorySelector: React.FC<CategorySelectorProps> = ({
           <Typography
             variant="caption"
             color="text.secondary"
-            sx={{ mt: 0.5, ml: 1 }}
+            sx={{
+              mt: 0.5,
+              ml: 1,
+              fontSize: { xs: "0.7rem", sm: "0.75rem" },
+            }}
           >
             {helperText}
           </Typography>
@@ -161,14 +196,19 @@ const CategorySelector: React.FC<CategorySelectorProps> = ({
 
       {/* Display selected categories as chips below */}
       {selectedCategories.length > 0 && (
-        <Box sx={{ mt: 1 }}>
-          <Typography variant="caption" color="text.secondary" gutterBottom>
+        <Box sx={{ mt: { xs: 0.75, sm: 1 } }}>
+          <Typography
+            variant="caption"
+            color="text.secondary"
+            gutterBottom
+            sx={{ fontSize: { xs: "0.7rem", sm: "0.75rem" } }}
+          >
             Selected Categories:
           </Typography>
           <Stack
             direction="row"
             spacing={0.5}
-            sx={{ flexWrap: "wrap", gap: 0.5 }}
+            sx={{ flexWrap: "wrap", gap: { xs: 0.5, sm: 0.5 } }}
           >
             {selectedCategories.map((categoryName) => {
               const category = categories.find(
@@ -183,6 +223,13 @@ const CategorySelector: React.FC<CategorySelectorProps> = ({
                   onDelete={() => removeCategory(categoryName)}
                   deleteIcon={<CloseIcon />}
                   title={category?.description || categoryName}
+                  sx={{
+                    height: { xs: 20, sm: 24 },
+                    fontSize: { xs: "0.7rem", sm: "0.75rem" },
+                    "& .MuiChip-deleteIcon": {
+                      fontSize: { xs: 14, sm: 16 },
+                    },
+                  }}
                 />
               );
             })}

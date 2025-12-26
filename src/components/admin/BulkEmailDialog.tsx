@@ -102,7 +102,18 @@ The Fifty Firsts Wellness Team`,
   };
 
   return (
-    <Dialog open={open} onClose={handleClose} maxWidth="md" fullWidth>
+    <Dialog
+      open={open}
+      onClose={handleClose}
+      maxWidth="md"
+      fullWidth
+      sx={{
+        "& .MuiDialog-paper": {
+          margin: { xs: 1, sm: 2 },
+          width: { xs: "calc(100% - 16px)", sm: "auto" },
+        },
+      }}
+    >
       <DialogTitle
         sx={{
           fontFamily: '"League Spartan", sans-serif',
@@ -110,6 +121,9 @@ The Fifty Firsts Wellness Team`,
           display: "flex",
           alignItems: "center",
           justifyContent: "space-between",
+          fontSize: { xs: "1rem", sm: "1.25rem" },
+          px: { xs: 2, sm: 3 },
+          py: { xs: 1.5, sm: 2 },
         }}
       >
         {title}
@@ -118,12 +132,14 @@ The Fifty Firsts Wellness Team`,
           onClick={handleClose}
           disabled={sending}
           edge="end"
+          size="small"
+          sx={{ fontSize: { xs: "1rem", sm: "1.25rem" } }}
         >
-          <CloseIcon />
+          <CloseIcon fontSize="inherit" />
         </IconButton>
       </DialogTitle>
-      <DialogContent dividers>
-        <Box sx={{ display: "flex", flexDirection: "column", gap: 3, py: 2 }}>
+      <DialogContent dividers sx={{ px: { xs: 2, sm: 3 }, py: { xs: 2, sm: 3 } }}>
+        <Box sx={{ display: "flex", flexDirection: "column", gap: { xs: 2, sm: 3 }, py: { xs: 0, sm: 1 } }}>
           {/* Product Select */}
           <SearchableSelect
             value={selectedProductId}
@@ -144,6 +160,12 @@ The Fifty Firsts Wellness Team`,
             onChange={(e) => setEmailSubject(e.target.value)}
             disabled={sending}
             required
+            size="small"
+            sx={{
+              "& .MuiInputBase-root": {
+                fontSize: { xs: "0.875rem", sm: "1rem" },
+              },
+            }}
           />
 
           {/* Email Message */}
@@ -154,14 +176,31 @@ The Fifty Firsts Wellness Team`,
             value={emailMessage}
             onChange={(e) => setEmailMessage(e.target.value)}
             multiline
-            rows={10}
+            rows={8}
             disabled={sending}
             required
+            sx={{
+              "& .MuiInputBase-root": {
+                fontSize: { xs: "0.875rem", sm: "1rem" },
+                minHeight: { xs: "120px", sm: "auto" },
+              },
+              "& .MuiInputBase-input": {
+                fontSize: { xs: "0.875rem", sm: "1rem" },
+              },
+              "& .MuiInputBase-inputMultiline": {
+                minHeight: { xs: "120px", sm: "auto" },
+              },
+            }}
           />
         </Box>
       </DialogContent>
-      <DialogActions sx={{ px: 3, py: 2 }}>
-        <Button onClick={handleClose} disabled={sending}>
+      <DialogActions sx={{ px: { xs: 2, sm: 3 }, py: { xs: 1.5, sm: 2 } }}>
+        <Button
+          onClick={handleClose}
+          disabled={sending}
+          size="small"
+          sx={{ fontSize: { xs: "0.875rem", sm: "1rem" } }}
+        >
           Cancel
         </Button>
         <Button
@@ -173,11 +212,23 @@ The Fifty Firsts Wellness Team`,
             !emailSubject.trim() ||
             !emailMessage.trim()
           }
-          startIcon={sending ? <CircularProgress size={16} /> : <EmailIcon />}
+          startIcon={
+            sending ? (
+              <CircularProgress
+                size={14}
+                sx={{ fontSize: { xs: 14, sm: 16 } }}
+                color="inherit"
+              />
+            ) : (
+              <EmailIcon sx={{ fontSize: { xs: "1rem", sm: "1.25rem" } }} />
+            )
+          }
+          size="small"
           sx={{
             bgcolor: "#00969b",
             "&:hover": { bgcolor: "#007a7f" },
             fontFamily: '"League Spartan", sans-serif',
+            fontSize: { xs: "0.875rem", sm: "1rem" },
           }}
         >
           {sending ? "Sending..." : "Send Email"}

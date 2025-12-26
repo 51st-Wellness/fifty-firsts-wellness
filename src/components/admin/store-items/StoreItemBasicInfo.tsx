@@ -41,7 +41,7 @@ const StoreItemBasicInfo: React.FC<StoreItemBasicInfoProps> = ({
   onProductBenefitsIsListChange,
 }) => {
   return (
-    <Stack spacing={2}>
+    <Stack spacing={{ xs: 1.5, sm: 2 }}>
       {/* Basic Information */}
       <Box>
         <TextField
@@ -52,13 +52,18 @@ const StoreItemBasicInfo: React.FC<StoreItemBasicInfoProps> = ({
           value={formData.name}
           onChange={(e) => onFormDataChange({ name: e.target.value })}
           required
+          sx={{
+            "& .MuiInputBase-root": {
+              fontSize: { xs: "0.875rem", sm: "1rem" },
+            },
+          }}
         />
       </Box>
 
       <Box
         sx={{
           display: "flex",
-          gap: 2,
+          gap: { xs: 1.5, sm: 2 },
           flexDirection: { xs: "column", md: "row" },
         }}
       >
@@ -69,7 +74,9 @@ const StoreItemBasicInfo: React.FC<StoreItemBasicInfoProps> = ({
             label="Price"
             InputProps={{
               startAdornment: (
-                <InputAdornment position="start">$</InputAdornment>
+                <InputAdornment position="start" sx={{ fontSize: { xs: "0.875rem", sm: "1rem" } }}>
+                  £
+                </InputAdornment>
               ),
             }}
             value={formData.price}
@@ -79,6 +86,11 @@ const StoreItemBasicInfo: React.FC<StoreItemBasicInfoProps> = ({
             min={0}
             placeholder="0.00"
             required
+            sx={{
+              "& .MuiInputBase-root": {
+                fontSize: { xs: "0.875rem", sm: "1rem" },
+              },
+            }}
           />
         </Box>
         <Box sx={{ flex: 1 }}>
@@ -92,6 +104,11 @@ const StoreItemBasicInfo: React.FC<StoreItemBasicInfoProps> = ({
             min={0}
             placeholder="0"
             required
+            sx={{
+              "& .MuiInputBase-root": {
+                fontSize: { xs: "0.875rem", sm: "1rem" },
+              },
+            }}
           />
         </Box>
       </Box>
@@ -105,20 +122,29 @@ const StoreItemBasicInfo: React.FC<StoreItemBasicInfoProps> = ({
           rows={3}
           value={formData.description}
           onChange={(e) => onFormDataChange({ description: e.target.value })}
+          sx={{
+            "& .MuiInputBase-root": {
+              fontSize: { xs: "0.875rem", sm: "1rem" },
+            },
+          }}
         />
       </Box>
 
       {/* Product Usage */}
       <Box>
         <Stack
-          direction="row"
+          direction={{ xs: "column", sm: "row" }}
           justifyContent="space-between"
-          alignItems="center"
-          sx={{ mb: 0.5 }}
+          alignItems={{ xs: "flex-start", sm: "center" }}
+          spacing={{ xs: 1, sm: 0 }}
+          sx={{ mb: { xs: 0.5, sm: 0.5 } }}
         >
           <Typography
             variant="subtitle1"
-            sx={{ fontFamily: '"League Spartan", sans-serif' }}
+            sx={{
+              fontFamily: '"League Spartan", sans-serif',
+              fontSize: { xs: "0.875rem", sm: "1rem" },
+            }}
           >
             Product Usage (optional)
           </Typography>
@@ -127,6 +153,10 @@ const StoreItemBasicInfo: React.FC<StoreItemBasicInfoProps> = ({
               size="small"
               variant={productUsageIsList ? "text" : "contained"}
               onClick={() => onProductUsageIsListChange(false)}
+              sx={{
+                fontSize: { xs: "0.75rem", sm: "0.875rem" },
+                px: { xs: 1, sm: 1.5 },
+              }}
             >
               Paragraph
             </Button>
@@ -134,6 +164,10 @@ const StoreItemBasicInfo: React.FC<StoreItemBasicInfoProps> = ({
               size="small"
               variant={productUsageIsList ? "contained" : "text"}
               onClick={() => onProductUsageIsListChange(true)}
+              sx={{
+                fontSize: { xs: "0.75rem", sm: "0.875rem" },
+                px: { xs: 1, sm: 1.5 },
+              }}
             >
               List
             </Button>
@@ -150,20 +184,29 @@ const StoreItemBasicInfo: React.FC<StoreItemBasicInfoProps> = ({
           rows={4}
           value={formData.productUsage}
           onChange={(e) => onFormDataChange({ productUsage: e.target.value })}
+          sx={{
+            "& .MuiInputBase-root": {
+              fontSize: { xs: "0.875rem", sm: "1rem" },
+            },
+          }}
         />
       </Box>
 
       {/* Product Benefits */}
       <Box>
         <Stack
-          direction="row"
+          direction={{ xs: "column", sm: "row" }}
           justifyContent="space-between"
-          alignItems="center"
-          sx={{ mb: 0.5 }}
+          alignItems={{ xs: "flex-start", sm: "center" }}
+          spacing={{ xs: 1, sm: 0 }}
+          sx={{ mb: { xs: 0.5, sm: 0.5 } }}
         >
           <Typography
             variant="subtitle1"
-            sx={{ fontFamily: '"League Spartan", sans-serif' }}
+            sx={{
+              fontFamily: '"League Spartan", sans-serif',
+              fontSize: { xs: "0.875rem", sm: "1rem" },
+            }}
           >
             Product Benefits (optional)
           </Typography>
@@ -172,6 +215,10 @@ const StoreItemBasicInfo: React.FC<StoreItemBasicInfoProps> = ({
               size="small"
               variant={productBenefitsIsList ? "text" : "contained"}
               onClick={() => onProductBenefitsIsListChange(false)}
+              sx={{
+                fontSize: { xs: "0.75rem", sm: "0.875rem" },
+                px: { xs: 1, sm: 1.5 },
+              }}
             >
               Paragraph
             </Button>
@@ -179,6 +226,10 @@ const StoreItemBasicInfo: React.FC<StoreItemBasicInfoProps> = ({
               size="small"
               variant={productBenefitsIsList ? "contained" : "text"}
               onClick={() => onProductBenefitsIsListChange(true)}
+              sx={{
+                fontSize: { xs: "0.75rem", sm: "0.875rem" },
+                px: { xs: 1, sm: 1.5 },
+              }}
             >
               List
             </Button>
@@ -195,6 +246,11 @@ const StoreItemBasicInfo: React.FC<StoreItemBasicInfoProps> = ({
           rows={4}
           value={formData.productBenefits}
           onChange={(e) => onFormDataChange({ productBenefits: e.target.value })}
+          sx={{
+            "& .MuiInputBase-root": {
+              fontSize: { xs: "0.875rem", sm: "1rem" },
+            },
+          }}
         />
       </Box>
 
@@ -202,7 +258,11 @@ const StoreItemBasicInfo: React.FC<StoreItemBasicInfoProps> = ({
       <Box>
         <Typography
           variant="subtitle1"
-          sx={{ mb: 1, fontFamily: '"League Spartan", sans-serif' }}
+          sx={{
+            mb: { xs: 0.75, sm: 1 },
+            fontFamily: '"League Spartan", sans-serif',
+            fontSize: { xs: "0.875rem", sm: "1rem" },
+          }}
         >
           Product Ingredients
         </Typography>
@@ -210,7 +270,7 @@ const StoreItemBasicInfo: React.FC<StoreItemBasicInfoProps> = ({
           direction={{ xs: "column", sm: "row" }}
           spacing={1}
           alignItems={{ xs: "stretch", sm: "center" }}
-          sx={{ mb: 1 }}
+          sx={{ mb: { xs: 0.75, sm: 1 } }}
         >
           <TextField
             fullWidth
@@ -225,29 +285,48 @@ const StoreItemBasicInfo: React.FC<StoreItemBasicInfoProps> = ({
                 onAddIngredient();
               }
             }}
+            sx={{
+              "& .MuiInputBase-root": {
+                fontSize: { xs: "0.875rem", sm: "1rem" },
+              },
+            }}
           />
           <Button
             variant="outlined"
             onClick={onAddIngredient}
             disabled={!ingredientInput.trim()}
-            sx={{ whiteSpace: "nowrap" }}
+            size="small"
+            sx={{
+              whiteSpace: "nowrap",
+              fontSize: { xs: "0.75rem", sm: "0.875rem" },
+              px: { xs: 1.5, sm: 2 },
+            }}
           >
             Add
           </Button>
         </Stack>
         {formData.productIngredients.length > 0 ? (
-          <Box sx={{ display: "flex", flexWrap: "wrap", gap: 1 }}>
+          <Box sx={{ display: "flex", flexWrap: "wrap", gap: { xs: 0.5, sm: 1 } }}>
             {formData.productIngredients.map((ingredient, idx) => (
               <Chip
                 key={`${ingredient}-${idx}`}
                 label={ingredient}
                 onDelete={() => onRemoveIngredient(idx)}
                 variant="outlined"
+                size="small"
+                sx={{
+                  height: { xs: 24, sm: 32 },
+                  fontSize: { xs: "0.7rem", sm: "0.75rem" },
+                }}
               />
             ))}
           </Box>
         ) : (
-          <Typography variant="body2" color="text.secondary">
+          <Typography
+            variant="body2"
+            color="text.secondary"
+            sx={{ fontSize: { xs: "0.75rem", sm: "0.875rem" } }}
+          >
             No ingredients added. Leave empty if this product doesn't need
             ingredient details.
           </Typography>
@@ -268,8 +347,11 @@ const StoreItemBasicInfo: React.FC<StoreItemBasicInfoProps> = ({
 
       {/* Options */}
       <Box>
-        <Divider sx={{ my: 1 }} />
-        <Stack direction="row" spacing={3}>
+        <Divider sx={{ my: { xs: 0.75, sm: 1 } }} />
+        <Stack
+          direction={{ xs: "column", sm: "row" }}
+          spacing={{ xs: 1, sm: 3 }}
+        >
           <FormControlLabel
             control={
               <Switch
@@ -277,9 +359,15 @@ const StoreItemBasicInfo: React.FC<StoreItemBasicInfoProps> = ({
                 onChange={(e) =>
                   onFormDataChange({ isFeatured: e.target.checked })
                 }
+                size="small"
               />
             }
             label="Featured Item"
+            sx={{
+              "& .MuiFormControlLabel-label": {
+                fontSize: { xs: "0.875rem", sm: "1rem" },
+              },
+            }}
           />
           <FormControlLabel
             control={
@@ -288,9 +376,15 @@ const StoreItemBasicInfo: React.FC<StoreItemBasicInfoProps> = ({
                 onChange={(e) =>
                   onFormDataChange({ isPublished: e.target.checked })
                 }
+                size="small"
               />
             }
             label="Published"
+            sx={{
+              "& .MuiFormControlLabel-label": {
+                fontSize: { xs: "0.875rem", sm: "1rem" },
+              },
+            }}
           />
         </Stack>
       </Box>

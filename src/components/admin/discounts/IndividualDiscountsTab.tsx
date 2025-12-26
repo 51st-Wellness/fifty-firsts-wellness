@@ -114,23 +114,36 @@ const IndividualDiscountsTab: React.FC<IndividualDiscountsTabProps> = ({
   return (
     <div>
       {/* Stats Cards */}
-      <div className="grid grid-cols-1 sm:grid-cols-4 gap-4 mb-6">
+      <div className="grid grid-cols-2 sm:grid-cols-4 gap-2 sm:gap-3 lg:gap-4 mb-3 sm:mb-4 lg:mb-6">
         <Card>
-          <CardContent>
-            <Typography variant="body2" color="text.secondary" gutterBottom>
+          <CardContent sx={{ p: { xs: 1.5, sm: 2, lg: 3 } }}>
+            <Typography
+              variant="body2"
+              color="text.secondary"
+              gutterBottom
+              sx={{ fontSize: { xs: "0.75rem", sm: "0.875rem" } }}
+            >
               Total Individual
             </Typography>
             <Typography
               variant="h5"
-              sx={{ fontFamily: '"League Spartan", sans-serif' }}
+              sx={{
+                fontFamily: '"League Spartan", sans-serif',
+                fontSize: { xs: "1.25rem", sm: "1.5rem", lg: "1.75rem" },
+              }}
             >
               {individualDiscounts.length}
             </Typography>
           </CardContent>
         </Card>
         <Card>
-          <CardContent>
-            <Typography variant="body2" color="text.secondary" gutterBottom>
+          <CardContent sx={{ p: { xs: 1.5, sm: 2, lg: 3 } }}>
+            <Typography
+              variant="body2"
+              color="text.secondary"
+              gutterBottom
+              sx={{ fontSize: { xs: "0.75rem", sm: "0.875rem" } }}
+            >
               Active
             </Typography>
             <Typography
@@ -138,6 +151,7 @@ const IndividualDiscountsTab: React.FC<IndividualDiscountsTabProps> = ({
               sx={{
                 fontFamily: '"League Spartan", sans-serif',
                 color: "success.main",
+                fontSize: { xs: "1.25rem", sm: "1.5rem", lg: "1.75rem" },
               }}
             >
               {stats.active}
@@ -145,8 +159,13 @@ const IndividualDiscountsTab: React.FC<IndividualDiscountsTabProps> = ({
           </CardContent>
         </Card>
         <Card>
-          <CardContent>
-            <Typography variant="body2" color="text.secondary" gutterBottom>
+          <CardContent sx={{ p: { xs: 1.5, sm: 2, lg: 3 } }}>
+            <Typography
+              variant="body2"
+              color="text.secondary"
+              gutterBottom
+              sx={{ fontSize: { xs: "0.75rem", sm: "0.875rem" } }}
+            >
               Scheduled
             </Typography>
             <Typography
@@ -154,6 +173,7 @@ const IndividualDiscountsTab: React.FC<IndividualDiscountsTabProps> = ({
               sx={{
                 fontFamily: '"League Spartan", sans-serif',
                 color: "info.main",
+                fontSize: { xs: "1.25rem", sm: "1.5rem", lg: "1.75rem" },
               }}
             >
               {stats.scheduled}
@@ -161,8 +181,13 @@ const IndividualDiscountsTab: React.FC<IndividualDiscountsTabProps> = ({
           </CardContent>
         </Card>
         <Card>
-          <CardContent>
-            <Typography variant="body2" color="text.secondary" gutterBottom>
+          <CardContent sx={{ p: { xs: 1.5, sm: 2, lg: 3 } }}>
+            <Typography
+              variant="body2"
+              color="text.secondary"
+              gutterBottom
+              sx={{ fontSize: { xs: "0.75rem", sm: "0.875rem" } }}
+            >
               Expired
             </Typography>
             <Typography
@@ -170,6 +195,7 @@ const IndividualDiscountsTab: React.FC<IndividualDiscountsTabProps> = ({
               sx={{
                 fontFamily: '"League Spartan", sans-serif',
                 color: "error.main",
+                fontSize: { xs: "1.25rem", sm: "1.5rem", lg: "1.75rem" },
               }}
             >
               {stats.expired}
@@ -179,9 +205,9 @@ const IndividualDiscountsTab: React.FC<IndividualDiscountsTabProps> = ({
       </div>
 
       {/* Filters */}
-      <Card sx={{ mb: 3 }}>
-        <CardContent>
-          <Stack direction={{ xs: "column", sm: "row" }} spacing={2}>
+      <Card sx={{ mb: { xs: 2, sm: 3 } }}>
+        <CardContent sx={{ p: { xs: 1.5, sm: 2, lg: 3 } }}>
+          <Stack direction={{ xs: "column", sm: "row" }} spacing={{ xs: 1.5, sm: 2 }}>
             <TextField
               size="small"
               placeholder="Search products..."
@@ -189,10 +215,15 @@ const IndividualDiscountsTab: React.FC<IndividualDiscountsTabProps> = ({
               onChange={(e) => onSearchChange(e.target.value)}
               InputProps={{
                 startAdornment: (
-                  <SearchIcon sx={{ mr: 1, color: "text.secondary" }} />
+                  <SearchIcon sx={{ mr: 1, color: "text.secondary", fontSize: { xs: "1rem", sm: "1.25rem" } }} />
                 ),
               }}
-              sx={{ flex: 1 }}
+              sx={{
+                flex: 1,
+                "& .MuiInputBase-root": {
+                  fontSize: { xs: "0.875rem", sm: "1rem" },
+                },
+              }}
             />
             <TextField
               select
@@ -204,12 +235,17 @@ const IndividualDiscountsTab: React.FC<IndividualDiscountsTabProps> = ({
                   e.target.value as "all" | "active" | "inactive" | "expired"
                 )
               }
-              sx={{ minWidth: 150 }}
+              sx={{
+                minWidth: { xs: "100%", sm: 150 },
+                "& .MuiInputBase-root": {
+                  fontSize: { xs: "0.875rem", sm: "1rem" },
+                },
+              }}
             >
-              <MenuItem value="all">All</MenuItem>
-              <MenuItem value="active">Active</MenuItem>
-              <MenuItem value="inactive">Inactive</MenuItem>
-              <MenuItem value="expired">Expired</MenuItem>
+              <MenuItem value="all" sx={{ fontSize: { xs: "0.875rem", sm: "1rem" } }}>All</MenuItem>
+              <MenuItem value="active" sx={{ fontSize: { xs: "0.875rem", sm: "1rem" } }}>Active</MenuItem>
+              <MenuItem value="inactive" sx={{ fontSize: { xs: "0.875rem", sm: "1rem" } }}>Inactive</MenuItem>
+              <MenuItem value="expired" sx={{ fontSize: { xs: "0.875rem", sm: "1rem" } }}>Expired</MenuItem>
             </TextField>
           </Stack>
         </CardContent>
@@ -217,14 +253,16 @@ const IndividualDiscountsTab: React.FC<IndividualDiscountsTabProps> = ({
 
       {/* Individual Discounts Table */}
       <Card>
-        <TableContainer>
-          <Table>
+        <TableContainer sx={{ overflowX: "auto" }}>
+          <Table size="small">
             <TableHead>
               <TableRow>
                 <TableCell
                   sx={{
                     fontFamily: '"League Spartan", sans-serif',
                     fontWeight: 600,
+                    fontSize: { xs: "0.7rem", sm: "0.75rem", lg: "0.875rem" },
+                    py: { xs: 1, sm: 1.5 },
                   }}
                 >
                   Product
@@ -233,6 +271,8 @@ const IndividualDiscountsTab: React.FC<IndividualDiscountsTabProps> = ({
                   sx={{
                     fontFamily: '"League Spartan", sans-serif',
                     fontWeight: 600,
+                    fontSize: { xs: "0.7rem", sm: "0.75rem", lg: "0.875rem" },
+                    py: { xs: 1, sm: 1.5 },
                   }}
                 >
                   Type
@@ -241,6 +281,8 @@ const IndividualDiscountsTab: React.FC<IndividualDiscountsTabProps> = ({
                   sx={{
                     fontFamily: '"League Spartan", sans-serif',
                     fontWeight: 600,
+                    fontSize: { xs: "0.7rem", sm: "0.75rem", lg: "0.875rem" },
+                    py: { xs: 1, sm: 1.5 },
                   }}
                 >
                   Value
@@ -249,6 +291,8 @@ const IndividualDiscountsTab: React.FC<IndividualDiscountsTabProps> = ({
                   sx={{
                     fontFamily: '"League Spartan", sans-serif',
                     fontWeight: 600,
+                    fontSize: { xs: "0.7rem", sm: "0.75rem", lg: "0.875rem" },
+                    py: { xs: 1, sm: 1.5 },
                   }}
                 >
                   Status
@@ -257,6 +301,9 @@ const IndividualDiscountsTab: React.FC<IndividualDiscountsTabProps> = ({
                   sx={{
                     fontFamily: '"League Spartan", sans-serif',
                     fontWeight: 600,
+                    fontSize: { xs: "0.7rem", sm: "0.75rem", lg: "0.875rem" },
+                    py: { xs: 1, sm: 1.5 },
+                    display: { xs: "none", lg: "table-cell" },
                   }}
                 >
                   Start Date
@@ -265,6 +312,9 @@ const IndividualDiscountsTab: React.FC<IndividualDiscountsTabProps> = ({
                   sx={{
                     fontFamily: '"League Spartan", sans-serif',
                     fontWeight: 600,
+                    fontSize: { xs: "0.7rem", sm: "0.75rem", lg: "0.875rem" },
+                    py: { xs: 1, sm: 1.5 },
+                    display: { xs: "none", lg: "table-cell" },
                   }}
                 >
                   End Date
@@ -274,6 +324,8 @@ const IndividualDiscountsTab: React.FC<IndividualDiscountsTabProps> = ({
                   sx={{
                     fontFamily: '"League Spartan", sans-serif',
                     fontWeight: 600,
+                    fontSize: { xs: "0.7rem", sm: "0.75rem", lg: "0.875rem" },
+                    py: { xs: 1, sm: 1.5 },
                   }}
                 >
                   Actions
@@ -283,20 +335,33 @@ const IndividualDiscountsTab: React.FC<IndividualDiscountsTabProps> = ({
             <TableBody>
               {loading && paginatedItems.length === 0 ? (
                 <TableRow>
-                  <TableCell colSpan={7} align="center">
-                    <Typography variant="body2" color="text.secondary">
+                  <TableCell colSpan={7} align="center" sx={{ py: { xs: 3, sm: 4 } }}>
+                    <Typography variant="body2" color="text.secondary" sx={{ fontSize: { xs: "0.75rem", sm: "0.875rem" } }}>
                       Loading discounts...
                     </Typography>
                   </TableCell>
                 </TableRow>
               ) : paginatedItems.length === 0 ? (
                 <TableRow>
-                  <TableCell colSpan={7} align="center">
-                    <Box sx={{ py: 4 }}>
+                  <TableCell colSpan={7} align="center" sx={{ py: { xs: 4, sm: 6 } }}>
+                    <Box sx={{ py: { xs: 2, sm: 4 } }}>
                       <LocalOfferIcon
-                        sx={{ fontSize: 48, color: "text.secondary", mb: 2 }}
+                        sx={{
+                          fontSize: { xs: 48, sm: 64 },
+                          color: "text.secondary",
+                          mb: 2,
+                        }}
                       />
-                      <Typography variant="body2" color="text.secondary">
+                      <Typography
+                        variant="body2"
+                        color="text.secondary"
+                        sx={{
+                          fontSize: { xs: "0.875rem", sm: "1rem" },
+                          fontFamily: '"League Spartan", sans-serif',
+                          fontWeight: 600,
+                          mb: 1,
+                        }}
+                      >
                         {searchQuery || filterStatus !== "all"
                           ? "No individual discounts match your filters"
                           : globalDiscount
@@ -311,17 +376,25 @@ const IndividualDiscountsTab: React.FC<IndividualDiscountsTabProps> = ({
                   const status = getDiscountStatus(item);
                   return (
                     <TableRow key={item.productId} hover>
-                      <TableCell>
+                      <TableCell sx={{ py: { xs: 1, sm: 1.5 } }}>
                         <Box>
-                          <Typography variant="body2" fontWeight={600}>
+                          <Typography
+                            variant="body2"
+                            fontWeight={600}
+                            sx={{ fontSize: { xs: "0.75rem", sm: "0.875rem" } }}
+                          >
                             {item.name}
                           </Typography>
-                          <Typography variant="caption" color="text.secondary">
+                          <Typography
+                            variant="caption"
+                            color="text.secondary"
+                            sx={{ fontSize: { xs: "0.65rem", sm: "0.75rem" } }}
+                          >
                             ID: {item.productId}
                           </Typography>
                         </Box>
                       </TableCell>
-                      <TableCell>
+                      <TableCell sx={{ py: { xs: 1, sm: 1.5 } }}>
                         <Chip
                           label={
                             item.discountType === "PERCENTAGE"
@@ -331,22 +404,34 @@ const IndividualDiscountsTab: React.FC<IndividualDiscountsTabProps> = ({
                           size="small"
                           color="primary"
                           variant="outlined"
+                          sx={{
+                            height: { xs: 20, sm: 24 },
+                            fontSize: { xs: "0.65rem", sm: "0.75rem" },
+                          }}
                         />
                       </TableCell>
-                      <TableCell>
-                        <Typography variant="body2" fontWeight={600}>
+                      <TableCell sx={{ py: { xs: 1, sm: 1.5 } }}>
+                        <Typography
+                          variant="body2"
+                          fontWeight={600}
+                          sx={{ fontSize: { xs: "0.75rem", sm: "0.875rem" } }}
+                        >
                           {formatDiscountValue(item)}
                         </Typography>
                       </TableCell>
-                      <TableCell>
+                      <TableCell sx={{ py: { xs: 1, sm: 1.5 } }}>
                         <Chip
                           label={status.label}
                           color={status.color}
                           size="small"
+                          sx={{
+                            height: { xs: 20, sm: 24 },
+                            fontSize: { xs: "0.65rem", sm: "0.75rem" },
+                          }}
                         />
                       </TableCell>
-                      <TableCell>
-                        <Typography variant="body2">
+                      <TableCell sx={{ py: { xs: 1, sm: 1.5 }, display: { xs: "none", lg: "table-cell" } }}>
+                        <Typography variant="body2" sx={{ fontSize: { xs: "0.75rem", sm: "0.875rem" } }}>
                           {item.discountStart
                             ? new Date(item.discountStart).toLocaleDateString(
                                 "en-GB",
@@ -361,8 +446,8 @@ const IndividualDiscountsTab: React.FC<IndividualDiscountsTabProps> = ({
                             : "-"}
                         </Typography>
                       </TableCell>
-                      <TableCell>
-                        <Typography variant="body2">
+                      <TableCell sx={{ py: { xs: 1, sm: 1.5 }, display: { xs: "none", lg: "table-cell" } }}>
+                        <Typography variant="body2" sx={{ fontSize: { xs: "0.75rem", sm: "0.875rem" } }}>
                           {item.discountEnd
                             ? new Date(item.discountEnd).toLocaleDateString(
                                 "en-GB",
@@ -377,12 +462,13 @@ const IndividualDiscountsTab: React.FC<IndividualDiscountsTabProps> = ({
                             : "-"}
                         </Typography>
                       </TableCell>
-                      <TableCell align="right">
+                      <TableCell align="right" sx={{ py: { xs: 1, sm: 1.5 } }}>
                         <IconButton
                           size="small"
                           onClick={(e) => onMenuOpen(e, item)}
+                          sx={{ fontSize: { xs: "1rem", sm: "1.25rem" } }}
                         >
-                          <MoreVertIcon />
+                          <MoreVertIcon fontSize="inherit" />
                         </IconButton>
                       </TableCell>
                     </TableRow>
@@ -400,6 +486,15 @@ const IndividualDiscountsTab: React.FC<IndividualDiscountsTabProps> = ({
           rowsPerPage={rowsPerPage}
           onRowsPerPageChange={onRowsPerPageChange}
           rowsPerPageOptions={[5, 10, 25, 50]}
+          sx={{
+            "& .MuiTablePagination-toolbar": {
+              px: { xs: 1, sm: 2 },
+              fontSize: { xs: "0.75rem", sm: "0.875rem" },
+            },
+            "& .MuiTablePagination-selectLabel, & .MuiTablePagination-displayedRows": {
+              fontSize: { xs: "0.75rem", sm: "0.875rem" },
+            },
+          }}
         />
       </Card>
 
@@ -410,13 +505,24 @@ const IndividualDiscountsTab: React.FC<IndividualDiscountsTabProps> = ({
         onClose={onMenuClose}
         anchorOrigin={{ vertical: "bottom", horizontal: "right" }}
         transformOrigin={{ vertical: "top", horizontal: "right" }}
+        PaperProps={{
+          sx: {
+            minWidth: { xs: 160, sm: 180 },
+          },
+        }}
       >
-        <MenuItem onClick={onEdit}>
-          <EditIcon sx={{ fontSize: 20, mr: 1 }} />
+        <MenuItem
+          onClick={onEdit}
+          sx={{ fontSize: { xs: "0.75rem", sm: "0.875rem" }, py: { xs: 0.75, sm: 1 } }}
+        >
+          <EditIcon sx={{ fontSize: { xs: 16, sm: 20 }, mr: 1 }} />
           Edit Discount
         </MenuItem>
-        <MenuItem onClick={onRemoveDiscount}>
-          <DeleteIcon sx={{ fontSize: 20, mr: 1 }} />
+        <MenuItem
+          onClick={onRemoveDiscount}
+          sx={{ fontSize: { xs: "0.75rem", sm: "0.875rem" }, py: { xs: 0.75, sm: 1 } }}
+        >
+          <DeleteIcon sx={{ fontSize: { xs: 16, sm: 20 }, mr: 1 }} />
           Remove Discount
         </MenuItem>
       </Menu>

@@ -25,10 +25,17 @@ const ShippingDefaultService: React.FC<ShippingDefaultServiceProps> = ({
         titleTypographyProps={{
           variant: "subtitle1",
           fontWeight: 600,
-          sx: { fontFamily: '"League Spartan", sans-serif' },
+          sx: {
+            fontFamily: '"League Spartan", sans-serif',
+            fontSize: { xs: "0.875rem", sm: "1rem" },
+          },
         }}
+        subheaderTypographyProps={{
+          sx: { fontSize: { xs: "0.75rem", sm: "0.875rem" } },
+        }}
+        sx={{ px: { xs: 1.5, sm: 2 }, py: { xs: 1, sm: 1.5 } }}
       />
-      <CardContent>
+      <CardContent sx={{ px: { xs: 1.5, sm: 2 }, py: { xs: 1, sm: 1.5 }, "&:last-child": { pb: { xs: 1, sm: 1.5 } } }}>
         <TextField
           select
           fullWidth
@@ -36,9 +43,14 @@ const ShippingDefaultService: React.FC<ShippingDefaultServiceProps> = ({
           label="Default Service"
           value={config.defaultService}
           onChange={(e) => onDefaultServiceChange(e.target.value)}
+          sx={{
+            "& .MuiInputBase-root": {
+              fontSize: { xs: "0.875rem", sm: "1rem" },
+            },
+          }}
         >
           {Object.entries(config.services).map(([key, service]) => (
-            <MenuItem key={key} value={key}>
+            <MenuItem key={key} value={key} sx={{ fontSize: { xs: "0.875rem", sm: "1rem" } }}>
               {service.label}
             </MenuItem>
           ))}

@@ -33,17 +33,20 @@ const StoreItemDiscounts: React.FC<StoreItemDiscountsProps> = ({
 }) => {
   return (
     <Box>
-      <Divider sx={{ my: 1 }} />
-      <Stack spacing={2}>
+      <Divider sx={{ my: { xs: 0.75, sm: 1 } }} />
+      <Stack spacing={{ xs: 1.5, sm: 2 }}>
         <Stack
           direction={{ xs: "column", sm: "row" }}
           justifyContent="space-between"
           alignItems={{ xs: "flex-start", sm: "center" }}
-          spacing={1}
+          spacing={{ xs: 1, sm: 1 }}
         >
           <Typography
             variant="subtitle2"
-            sx={{ fontFamily: '"League Spartan", sans-serif' }}
+            sx={{
+              fontFamily: '"League Spartan", sans-serif',
+              fontSize: { xs: "0.875rem", sm: "1rem" },
+            }}
           >
             Discount settings
           </Typography>
@@ -52,14 +55,20 @@ const StoreItemDiscounts: React.FC<StoreItemDiscountsProps> = ({
               <Switch
                 checked={formData.discountActive}
                 onChange={onDiscountToggle}
+                size="small"
               />
             }
             label="Enable discounts"
+            sx={{
+              "& .MuiFormControlLabel-label": {
+                fontSize: { xs: "0.875rem", sm: "1rem" },
+              },
+            }}
           />
         </Stack>
 
         <Collapse in={formData.discountActive} unmountOnExit>
-          <Stack spacing={2} sx={{ mt: 1 }}>
+          <Stack spacing={{ xs: 1.5, sm: 2 }} sx={{ mt: { xs: 0.5, sm: 1 } }}>
             <TextField
               select
               label="Discount type"
@@ -67,12 +76,21 @@ const StoreItemDiscounts: React.FC<StoreItemDiscountsProps> = ({
               value={formData.discountType}
               onChange={onDiscountTypeChange}
               fullWidth
+              sx={{
+                "& .MuiInputBase-root": {
+                  fontSize: { xs: "0.875rem", sm: "1rem" },
+                },
+              }}
             >
-              <MenuItem value="PERCENTAGE">Percentage</MenuItem>
-              <MenuItem value="FLAT">Flat amount</MenuItem>
+              <MenuItem value="PERCENTAGE" sx={{ fontSize: { xs: "0.875rem", sm: "1rem" } }}>
+                Percentage
+              </MenuItem>
+              <MenuItem value="FLAT" sx={{ fontSize: { xs: "0.875rem", sm: "1rem" } }}>
+                Flat amount
+              </MenuItem>
             </TextField>
 
-            <Stack direction={{ xs: "column", sm: "row" }} spacing={2}>
+            <Stack direction={{ xs: "column", sm: "row" }} spacing={{ xs: 1.5, sm: 2 }}>
               <NumberInput
                 label={
                   formData.discountType === "PERCENTAGE"
@@ -87,10 +105,15 @@ const StoreItemDiscounts: React.FC<StoreItemDiscountsProps> = ({
                 min={0}
                 placeholder="0"
                 fullWidth
+                sx={{
+                  "& .MuiInputBase-root": {
+                    fontSize: { xs: "0.875rem", sm: "1rem" },
+                  },
+                }}
               />
             </Stack>
 
-            <Stack direction={{ xs: "column", sm: "row" }} spacing={2}>
+            <Stack direction={{ xs: "column", sm: "row" }} spacing={{ xs: 1.5, sm: 2 }}>
               <TextField
                 label="Starts at"
                 type="date"
@@ -99,6 +122,11 @@ const StoreItemDiscounts: React.FC<StoreItemDiscountsProps> = ({
                 onChange={onDiscountDateChange("discountStart")}
                 fullWidth
                 InputLabelProps={{ shrink: true }}
+                sx={{
+                  "& .MuiInputBase-root": {
+                    fontSize: { xs: "0.875rem", sm: "1rem" },
+                  },
+                }}
               />
               <TextField
                 label="Ends at"
@@ -108,6 +136,11 @@ const StoreItemDiscounts: React.FC<StoreItemDiscountsProps> = ({
                 onChange={onDiscountDateChange("discountEnd")}
                 fullWidth
                 InputLabelProps={{ shrink: true }}
+                sx={{
+                  "& .MuiInputBase-root": {
+                    fontSize: { xs: "0.875rem", sm: "1rem" },
+                  },
+                }}
               />
             </Stack>
           </Stack>

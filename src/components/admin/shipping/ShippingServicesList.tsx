@@ -54,18 +54,27 @@ const ShippingServicesList: React.FC<ShippingServicesListProps> = ({
             onClick={onAddService}
             variant="outlined"
             size="small"
+            sx={{
+              fontSize: { xs: "0.75rem", sm: "0.875rem" },
+              px: { xs: 1, sm: 1.5 },
+            }}
           >
-            Add Service
+            <span className="hidden sm:inline">Add Service</span>
+            <span className="sm:hidden">Add</span>
           </Button>
         }
         titleTypographyProps={{
           variant: "h6",
           fontWeight: 600,
-          sx: { fontFamily: '"League Spartan", sans-serif' },
+          sx: {
+            fontFamily: '"League Spartan", sans-serif',
+            fontSize: { xs: "0.875rem", sm: "1rem", lg: "1.25rem" },
+          },
         }}
+        sx={{ px: { xs: 1.5, sm: 2 }, py: { xs: 1, sm: 1.5 } }}
       />
-      <CardContent>
-        <Stack spacing={2}>
+      <CardContent sx={{ px: { xs: 1.5, sm: 2 }, py: { xs: 1, sm: 1.5 }, "&:last-child": { pb: { xs: 1, sm: 1.5 } } }}>
+        <Stack spacing={{ xs: 1.5, sm: 2 }}>
           {Object.entries(config.services).map(([key, service]) => (
             <ShippingServiceCard
               key={key}

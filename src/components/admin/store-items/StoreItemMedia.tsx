@@ -38,16 +38,24 @@ const StoreItemMedia: React.FC<StoreItemMediaProps> = ({
     <Box>
       <Typography
         variant="subtitle1"
-        sx={{ mb: 2, fontFamily: '"League Spartan", sans-serif' }}
+        sx={{
+          mb: { xs: 1.5, sm: 2 },
+          fontFamily: '"League Spartan", sans-serif',
+          fontSize: { xs: "0.875rem", sm: "1rem", lg: "1.25rem" },
+        }}
       >
         Media Files
       </Typography>
 
       {/* Display File */}
-      <Box sx={{ mb: 3 }}>
+      <Box sx={{ mb: { xs: 2, sm: 3 } }}>
         <Typography
           variant="subtitle2"
-          sx={{ mb: 1, fontFamily: '"League Spartan", sans-serif' }}
+          sx={{
+            mb: { xs: 0.75, sm: 1 },
+            fontFamily: '"League Spartan", sans-serif',
+            fontSize: { xs: "0.875rem", sm: "1rem" },
+          }}
         >
           Display Image/Video (Required for new items)
         </Typography>
@@ -56,6 +64,11 @@ const StoreItemMedia: React.FC<StoreItemMediaProps> = ({
           component="label"
           startIcon={<UploadIcon />}
           fullWidth
+          size="small"
+          sx={{
+            fontSize: { xs: "0.75rem", sm: "0.875rem" },
+            py: { xs: 0.75, sm: 1 },
+          }}
         >
           Choose Display File
           <input
@@ -68,7 +81,7 @@ const StoreItemMedia: React.FC<StoreItemMediaProps> = ({
         {displayPreview && (
           <Box
             sx={{
-              mt: 1,
+              mt: { xs: 0.75, sm: 1 },
               position: "relative",
               display: "inline-block",
             }}
@@ -77,7 +90,8 @@ const StoreItemMedia: React.FC<StoreItemMediaProps> = ({
               <video
                 src={displayPreview}
                 style={{
-                  width: 140,
+                  width: "100%",
+                  maxWidth: 140,
                   height: 140,
                   objectFit: "cover",
                   borderRadius: 8,
@@ -88,7 +102,8 @@ const StoreItemMedia: React.FC<StoreItemMediaProps> = ({
                 src={displayPreview}
                 alt="Display preview"
                 style={{
-                  width: 140,
+                  width: "100%",
+                  maxWidth: 140,
                   height: 140,
                   objectFit: "cover",
                   borderRadius: 8,
@@ -103,7 +118,11 @@ const StoreItemMedia: React.FC<StoreItemMediaProps> = ({
       <Box>
         <Typography
           variant="subtitle2"
-          sx={{ mb: 1, fontFamily: '"League Spartan", sans-serif' }}
+          sx={{
+            mb: { xs: 0.75, sm: 1 },
+            fontFamily: '"League Spartan", sans-serif',
+            fontSize: { xs: "0.875rem", sm: "1rem" },
+          }}
         >
           Additional Images (Optional, max 5)
         </Typography>
@@ -112,6 +131,11 @@ const StoreItemMedia: React.FC<StoreItemMediaProps> = ({
           component="label"
           startIcon={<ImageIcon />}
           fullWidth
+          size="small"
+          sx={{
+            fontSize: { xs: "0.75rem", sm: "0.875rem" },
+            py: { xs: 0.75, sm: 1 },
+          }}
         >
           Choose Images
           <input
@@ -123,7 +147,14 @@ const StoreItemMedia: React.FC<StoreItemMediaProps> = ({
           />
         </Button>
         {imagePreviews.length > 0 && (
-          <Box sx={{ mt: 1, display: "flex", flexWrap: "wrap", gap: 1 }}>
+          <Box
+            sx={{
+              mt: { xs: 0.75, sm: 1 },
+              display: "flex",
+              flexWrap: "wrap",
+              gap: { xs: 0.5, sm: 1 },
+            }}
+          >
             {imagePreviews.map((preview, idx) => (
               <Box
                 key={idx}
@@ -151,15 +182,15 @@ const StoreItemMedia: React.FC<StoreItemMediaProps> = ({
                     right: -6,
                     bgcolor: "error.main",
                     color: "white",
-                    width: 24,
-                    height: 24,
+                    width: { xs: 20, sm: 24 },
+                    height: { xs: 20, sm: 24 },
                     boxShadow: "0 2px 4px rgba(0,0,0,0.2)",
                     "&:hover": {
                       bgcolor: "error.dark",
                     },
                   }}
                 >
-                  <CloseIcon sx={{ fontSize: 16 }} />
+                  <CloseIcon sx={{ fontSize: { xs: 12, sm: 16 } }} />
                 </IconButton>
               </Box>
             ))}

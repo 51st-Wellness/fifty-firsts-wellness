@@ -60,17 +60,28 @@ const ShippingSettingsDialog: React.FC<ShippingSettingsDialogProps> = ({
 
   if (loading) {
     return (
-      <Dialog open={open} onClose={onClose} maxWidth="md" fullWidth>
-        <DialogContent>
+      <Dialog
+        open={open}
+        onClose={onClose}
+        maxWidth="md"
+        fullWidth
+        sx={{
+          "& .MuiDialog-paper": {
+            margin: { xs: 1, sm: 2 },
+            width: { xs: "calc(100% - 16px)", sm: "auto" },
+          },
+        }}
+      >
+        <DialogContent sx={{ px: { xs: 2, sm: 3 }, py: { xs: 2, sm: 3 } }}>
           <Box
             sx={{
               display: "flex",
               justifyContent: "center",
               alignItems: "center",
-              py: 4,
+              py: { xs: 3, sm: 4 },
             }}
           >
-            <CircularProgress />
+            <CircularProgress size={20} sx={{ fontSize: { xs: 20, sm: 40 } }} />
           </Box>
         </DialogContent>
       </Dialog>
@@ -84,6 +95,12 @@ const ShippingSettingsDialog: React.FC<ShippingSettingsDialogProps> = ({
       maxWidth="md"
       fullWidth
       scroll="paper"
+      sx={{
+        "& .MuiDialog-paper": {
+          margin: { xs: 1, sm: 2 },
+          width: { xs: "calc(100% - 16px)", sm: "auto" },
+        },
+      }}
     >
       <DialogTitle
         sx={{
@@ -92,25 +109,43 @@ const ShippingSettingsDialog: React.FC<ShippingSettingsDialogProps> = ({
           display: "flex",
           alignItems: "center",
           justifyContent: "space-between",
+          fontSize: { xs: "1rem", sm: "1.25rem" },
+          px: { xs: 2, sm: 3 },
+          py: { xs: 1.5, sm: 2 },
         }}
       >
-        <Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
-          <LocalShippingIcon color="primary" />
-          Shipping Settings
+        <Box sx={{ display: "flex", alignItems: "center", gap: { xs: 0.5, sm: 1 } }}>
+          <LocalShippingIcon
+            color="primary"
+            sx={{ fontSize: { xs: "1rem", sm: "1.25rem" } }}
+          />
+          <span style={{ fontSize: "inherit" }}>Shipping Settings</span>
         </Box>
         <IconButton
           onClick={onClose}
           disabled={saving}
           size="small"
-          sx={{ ml: 2 }}
+          sx={{
+            ml: { xs: 1, sm: 2 },
+            fontSize: { xs: "1rem", sm: "1.25rem" },
+          }}
         >
-          <CloseIcon />
+          <CloseIcon fontSize="inherit" />
         </IconButton>
       </DialogTitle>
 
-      <DialogContent dividers>
-        <Stack spacing={3}>
-          <Alert severity="info" variant="outlined">
+      <DialogContent dividers sx={{ px: { xs: 2, sm: 3 }, py: { xs: 2, sm: 3 } }}>
+        <Stack spacing={{ xs: 2, sm: 3 }}>
+          <Alert
+            severity="info"
+            variant="outlined"
+            sx={{
+              fontSize: { xs: "0.75rem", sm: "0.875rem" },
+              "& .MuiAlert-message": {
+                fontSize: { xs: "0.75rem", sm: "0.875rem" },
+              },
+            }}
+          >
             Royal Mail Click &amp; Drop shipping configuration. The default service
             code is 'OLP2' for Royal Mail 2nd Class.
             <br />
@@ -162,17 +197,24 @@ const ShippingSettingsDialog: React.FC<ShippingSettingsDialogProps> = ({
         </Stack>
       </DialogContent>
 
-      <DialogActions>
-        <Button onClick={onClose} disabled={saving}>
+      <DialogActions sx={{ px: { xs: 2, sm: 3 }, py: { xs: 1.5, sm: 2 } }}>
+        <Button
+          onClick={onClose}
+          disabled={saving}
+          size="small"
+          sx={{ fontSize: { xs: "0.875rem", sm: "1rem" } }}
+        >
           Cancel
         </Button>
         <Button
           onClick={handleSaveClick}
           variant="contained"
           disabled={saving}
+          size="small"
           startIcon={
-            saving ? <CircularProgress size={16} color="inherit" /> : null
+            saving ? <CircularProgress size={14} color="inherit" sx={{ fontSize: { xs: 14, sm: 16 } }} /> : null
           }
+          sx={{ fontSize: { xs: "0.875rem", sm: "1rem" } }}
         >
           {saving ? "Saving..." : "Save Settings"}
         </Button>

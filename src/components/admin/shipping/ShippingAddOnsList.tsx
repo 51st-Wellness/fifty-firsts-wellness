@@ -35,19 +35,31 @@ const ShippingAddOnsList: React.FC<ShippingAddOnsListProps> = ({
             onClick={onAddAddOn}
             variant="outlined"
             size="small"
+            sx={{
+              fontSize: { xs: "0.75rem", sm: "0.875rem" },
+              px: { xs: 1, sm: 1.5 },
+            }}
           >
-            Add Add-on
+            <span className="hidden sm:inline">Add Add-on</span>
+            <span className="sm:hidden">Add</span>
           </Button>
         }
         titleTypographyProps={{
           variant: "h6",
           fontWeight: 600,
-          sx: { fontFamily: '"League Spartan", sans-serif' },
+          sx: {
+            fontFamily: '"League Spartan", sans-serif',
+            fontSize: { xs: "0.875rem", sm: "1rem", lg: "1.25rem" },
+          },
         }}
+        subheaderTypographyProps={{
+          sx: { fontSize: { xs: "0.75rem", sm: "0.875rem" } },
+        }}
+        sx={{ px: { xs: 1.5, sm: 2 }, py: { xs: 1, sm: 1.5 } }}
       />
-      <CardContent>
+      <CardContent sx={{ px: { xs: 1.5, sm: 2 }, py: { xs: 1, sm: 1.5 }, "&:last-child": { pb: { xs: 1, sm: 1.5 } } }}>
         {config.addOns && Object.keys(config.addOns).length > 0 ? (
-          <Stack spacing={2}>
+          <Stack spacing={{ xs: 1.5, sm: 2 }}>
             {Object.entries(config.addOns).map(([key, addOn]) => (
               <ShippingAddOnCard
                 key={key}
@@ -61,7 +73,10 @@ const ShippingAddOnsList: React.FC<ShippingAddOnsListProps> = ({
           <Typography
             variant="body2"
             color="text.secondary"
-            sx={{ fontFamily: '"League Spartan", sans-serif' }}
+            sx={{
+              fontFamily: '"League Spartan", sans-serif',
+              fontSize: { xs: "0.75rem", sm: "0.875rem" },
+            }}
           >
             No add-ons configured. Click "Add Add-on" to create one.
           </Typography>
