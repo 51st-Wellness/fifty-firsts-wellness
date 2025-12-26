@@ -189,63 +189,71 @@ const ManagementUsers: React.FC = () => {
   };
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-3 sm:space-y-4 lg:space-y-6 p-2 sm:p-4 lg:p-6">
       {/* Header */}
-      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2 sm:gap-4">
         <div>
-          <h1 className="text-3xl font-semibold text-gray-900" style={{ fontFamily: '"League Spartan", sans-serif' }}>User Management</h1>
-          <p className="text-gray-600">Manage users, roles, and permissions</p>
+          <h1 
+            className="text-lg sm:text-2xl lg:text-3xl font-semibold text-gray-900" 
+            style={{ fontFamily: '"League Spartan", sans-serif' }}
+          >
+            User Management
+          </h1>
+          <p className="text-xs sm:text-sm lg:text-base text-gray-600 hidden sm:block">
+            Manage users, roles, and permissions
+          </p>
         </div>
-        <div className="text-sm text-gray-500">Total Users: {totalUsers}</div>
+        <div className="text-xs sm:text-sm text-gray-500">Total Users: {totalUsers}</div>
       </div>
 
       {/* Filters */}
-      <div className="bg-white rounded-lg border border-gray-200 p-4">
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+      <div className="bg-white rounded-lg border border-gray-200 p-2 sm:p-3 lg:p-4">
+        <div className="flex flex-col sm:flex-row gap-2 sm:gap-3 lg:gap-4">
           {/* Search */}
-          <div className="relative">
+          <div className="relative flex-1 sm:flex-initial lg:flex-1">
             <Search
-              className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400"
-              size={16}
+              className="absolute left-2 sm:left-3 top-1/2 transform -translate-y-1/2 text-gray-400"
+              size={14}
             />
             <input
               type="text"
               placeholder="Search users..."
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
-              className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500"
+              className="w-full pl-8 sm:pl-10 pr-3 sm:pr-4 py-1.5 sm:py-2 text-sm sm:text-base border border-gray-300 rounded-md focus:ring-2 focus:ring-brand-green focus:border-brand-green"
             />
           </div>
 
-          {/* Role Filter */}
-          <div className="relative">
-            <Filter
-              className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400"
-              size={16}
-            />
-            <select
-              value={roleFilter}
-              onChange={(e) => setRoleFilter(e.target.value)}
-              className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500"
-            >
-              <option value="">All Roles</option>
-              <option value="USER">User</option>
-              <option value="MODERATOR">Moderator</option>
-              <option value="ADMIN">Admin</option>
-            </select>
-          </div>
+          {/* Role and Status Filters - Always side by side */}
+          <div className="flex gap-2 sm:gap-3">
+            <div className="relative flex-1 sm:flex-initial sm:w-[150px]">
+              <Filter
+                className="absolute left-2 sm:left-3 top-1/2 transform -translate-y-1/2 text-gray-400"
+                size={14}
+              />
+              <select
+                value={roleFilter}
+                onChange={(e) => setRoleFilter(e.target.value)}
+                className="w-full pl-8 sm:pl-10 pr-3 sm:pr-4 py-1.5 sm:py-2 text-sm sm:text-base border border-gray-300 rounded-md focus:ring-2 focus:ring-brand-green focus:border-brand-green"
+              >
+                <option value="">All Roles</option>
+                <option value="USER">User</option>
+                <option value="MODERATOR">Moderator</option>
+                <option value="ADMIN">Admin</option>
+              </select>
+            </div>
 
-          {/* Status Filter */}
-          <div>
-            <select
-              value={statusFilter}
-              onChange={(e) => setStatusFilter(e.target.value)}
-              className="w-full px-4 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500"
-            >
-              <option value="">All Status</option>
-              <option value="active">Active</option>
-              <option value="inactive">Inactive</option>
-            </select>
+            <div className="flex-1 sm:flex-initial sm:w-[150px]">
+              <select
+                value={statusFilter}
+                onChange={(e) => setStatusFilter(e.target.value)}
+                className="w-full px-3 sm:px-4 py-1.5 sm:py-2 text-sm sm:text-base border border-gray-300 rounded-md focus:ring-2 focus:ring-brand-green focus:border-brand-green"
+              >
+                <option value="">All Status</option>
+                <option value="active">Active</option>
+                <option value="inactive">Inactive</option>
+              </select>
+            </div>
           </div>
         </div>
       </div>
@@ -253,17 +261,20 @@ const ManagementUsers: React.FC = () => {
       {/* Users Table */}
       <div className="bg-white rounded-lg border border-gray-200 overflow-hidden">
         {loading ? (
-          <div className="p-8 text-center">
-            <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-indigo-600 mx-auto"></div>
-            <p className="mt-2 text-gray-600">Loading users...</p>
+          <div className="p-4 sm:p-6 lg:p-8 text-center">
+            <div className="animate-spin rounded-full h-6 w-6 sm:h-8 sm:w-8 border-b-2 border-brand-green mx-auto"></div>
+            <p className="mt-2 text-xs sm:text-sm text-gray-600">Loading users...</p>
           </div>
         ) : users.length === 0 ? (
-          <div className="p-8 text-center">
-            <User className="mx-auto h-12 w-12 text-gray-400" />
-            <h3 className="mt-2 text-sm font-medium text-gray-900">
+          <div className="p-6 sm:p-8 text-center">
+            <User className="mx-auto h-10 w-10 sm:h-12 sm:w-12 text-gray-400" />
+            <h3 
+              className="mt-2 text-sm sm:text-base font-medium text-gray-900"
+              style={{ fontFamily: '"League Spartan", sans-serif' }}
+            >
               No users found
             </h3>
-            <p className="mt-1 text-sm text-gray-500">
+            <p className="mt-1 text-xs sm:text-sm text-gray-500">
               Try adjusting your search or filter criteria.
             </p>
           </div>
@@ -272,19 +283,19 @@ const ManagementUsers: React.FC = () => {
             <table className="min-w-full divide-y divide-gray-200">
               <thead className="bg-gray-50">
                 <tr>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                  <th className="px-3 sm:px-4 lg:px-6 py-2 sm:py-3 text-left text-[0.65rem] sm:text-xs font-medium text-gray-500 uppercase tracking-wider">
                     User
                   </th>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                  <th className="px-3 sm:px-4 lg:px-6 py-2 sm:py-3 text-left text-[0.65rem] sm:text-xs font-medium text-gray-500 uppercase tracking-wider">
                     Role
                   </th>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                  <th className="px-3 sm:px-4 lg:px-6 py-2 sm:py-3 text-left text-[0.65rem] sm:text-xs font-medium text-gray-500 uppercase tracking-wider">
                     Status
                   </th>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                  <th className="px-3 sm:px-4 lg:px-6 py-2 sm:py-3 text-left text-[0.65rem] sm:text-xs font-medium text-gray-500 uppercase tracking-wider hidden md:table-cell">
                     Joined
                   </th>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                  <th className="px-3 sm:px-4 lg:px-6 py-2 sm:py-3 text-left text-[0.65rem] sm:text-xs font-medium text-gray-500 uppercase tracking-wider">
                     Actions
                   </th>
                 </tr>
@@ -292,36 +303,36 @@ const ManagementUsers: React.FC = () => {
               <tbody className="bg-white divide-y divide-gray-200">
                 {users.map((user) => (
                   <tr key={user.id} className="hover:bg-gray-50">
-                    <td className="px-6 py-4 whitespace-nowrap">
-                      <div className="flex items-center">
-                        <div className="flex-shrink-0 h-10 w-10">
+                    <td className="px-3 sm:px-4 lg:px-6 py-2 sm:py-3 lg:py-4">
+                      <div className="flex items-center min-w-0">
+                        <div className="flex-shrink-0 h-8 w-8 sm:h-10 sm:w-10">
                           {user.profilePicture ? (
                             <img
-                              className="h-10 w-10 rounded-full object-cover"
+                              className="h-8 w-8 sm:h-10 sm:w-10 rounded-full object-cover"
                               src={user.profilePicture}
                               alt={`${user.firstName} ${user.lastName}`}
                             />
                           ) : (
-                            <div className="h-10 w-10 rounded-full bg-indigo-100 flex items-center justify-center">
-                              <User className="h-5 w-5 text-indigo-600" />
+                            <div className="h-8 w-8 sm:h-10 sm:w-10 rounded-full bg-brand-green/10 flex items-center justify-center">
+                              <User className="h-4 w-4 sm:h-5 sm:w-5 text-brand-green" />
                             </div>
                           )}
                         </div>
-                        <div className="ml-4">
-                          <div className="text-sm font-medium text-gray-900">
+                        <div className="ml-2 sm:ml-3 lg:ml-4 min-w-0 flex-1">
+                          <div className="text-xs sm:text-sm font-medium text-gray-900 truncate">
                             {user.firstName} {user.lastName}
                           </div>
-                          <div className="text-sm text-gray-500">
+                          <div className="text-[0.65rem] sm:text-xs lg:text-sm text-gray-500 truncate">
                             {user.email}
                           </div>
                         </div>
                       </div>
                     </td>
-                    <td className="px-6 py-4 whitespace-nowrap">
-                      <div className="flex items-center gap-2">
-                        {getRoleIcon(user.role)}
+                    <td className="px-3 sm:px-4 lg:px-6 py-2 sm:py-3 lg:py-4">
+                      <div className="flex items-center gap-1.5 sm:gap-2">
+                        <span className="hidden sm:inline">{getRoleIcon(user.role)}</span>
                         <span
-                          className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium border ${getRoleBadge(
+                          className={`inline-flex items-center px-2 sm:px-2.5 py-0.5 rounded-full text-[0.65rem] sm:text-xs font-medium border ${getRoleBadge(
                             user.role
                           )}`}
                         >
@@ -329,9 +340,9 @@ const ManagementUsers: React.FC = () => {
                         </span>
                       </div>
                     </td>
-                    <td className="px-6 py-4 whitespace-nowrap">
+                    <td className="px-3 sm:px-4 lg:px-6 py-2 sm:py-3 lg:py-4">
                       <span
-                        className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${
+                        className={`inline-flex items-center px-2 sm:px-2.5 py-0.5 rounded-full text-[0.65rem] sm:text-xs font-medium border ${
                           user.isActive
                             ? "bg-green-100 text-green-800 border-green-200"
                             : "bg-red-100 text-red-800 border-red-200"
@@ -340,19 +351,19 @@ const ManagementUsers: React.FC = () => {
                         {user.isActive ? "Active" : "Inactive"}
                       </span>
                     </td>
-                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                    <td className="px-3 sm:px-4 lg:px-6 py-2 sm:py-3 lg:py-4 text-xs sm:text-sm text-gray-500 hidden md:table-cell">
                       {formatDate(user.createdAt as any)}
                     </td>
-                    <td className="px-6 py-4 whitespace-nowrap text-sm font-medium">
+                    <td className="px-3 sm:px-4 lg:px-6 py-2 sm:py-3 lg:py-4 text-sm font-medium">
                       <div className="relative">
                         <button
                           onClick={() =>
                             setOpenMenuId(openMenuId === user.id ? null : user.id)
                           }
                           disabled={actionLoading === user.id}
-                          className="inline-flex items-center p-2 text-gray-400 hover:text-gray-600 rounded-full hover:bg-gray-100 transition-colors disabled:opacity-50"
+                          className="inline-flex items-center p-1.5 sm:p-2 text-gray-400 hover:text-gray-600 rounded-full hover:bg-gray-100 transition-colors disabled:opacity-50"
                         >
-                          <MoreVertical size={18} />
+                          <MoreVertical size={16} className="sm:w-[18px] sm:h-[18px]" />
                         </button>
 
                         {/* Dropdown Menu */}
@@ -362,11 +373,11 @@ const ManagementUsers: React.FC = () => {
                               className="fixed inset-0 z-10"
                               onClick={() => setOpenMenuId(null)}
                             />
-                            <div className="absolute right-0 mt-2 w-56 rounded-md shadow-lg bg-white ring-1 ring-black ring-opacity-5 z-20">
+                            <div className="absolute right-0 mt-2 w-48 sm:w-56 rounded-md shadow-lg bg-white ring-1 ring-black ring-opacity-5 z-20">
                               <div className="py-1">
                                 {/* Change Role Section */}
-                                <div className="px-4 py-2 border-b border-gray-200">
-                                  <p className="text-xs font-semibold text-gray-700 mb-2" style={{ fontFamily: '"League Spartan", sans-serif' }}>
+                                <div className="px-3 sm:px-4 py-2 border-b border-gray-200">
+                                  <p className="text-[0.65rem] sm:text-xs font-semibold text-gray-700 mb-1.5 sm:mb-2" style={{ fontFamily: '"League Spartan", sans-serif' }}>
                                     Change Role
                                   </p>
                                   <select
@@ -381,7 +392,7 @@ const ManagementUsers: React.FC = () => {
                                       actionLoading === user.id ||
                                       user.id === currentUser?.id
                                     }
-                                    className="w-full text-xs border border-gray-300 rounded px-2 py-1.5 focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 disabled:opacity-50"
+                                    className="w-full text-[0.65rem] sm:text-xs border border-gray-300 rounded px-2 py-1 sm:py-1.5 focus:ring-2 focus:ring-brand-green focus:border-brand-green disabled:opacity-50"
                                   >
                                     <option value="USER">User</option>
                                     <option value="MODERATOR">Moderator</option>
@@ -399,7 +410,7 @@ const ManagementUsers: React.FC = () => {
                                     actionLoading === user.id ||
                                     user.id === currentUser?.id
                                   }
-                                  className={`w-full text-left px-4 py-2 text-sm flex items-center gap-2 transition-colors disabled:opacity-50 ${
+                                  className={`w-full text-left px-3 sm:px-4 py-1.5 sm:py-2 text-xs sm:text-sm flex items-center gap-1.5 sm:gap-2 transition-colors disabled:opacity-50 ${
                                     user.isActive
                                       ? "text-red-700 hover:bg-red-50"
                                       : "text-green-700 hover:bg-green-50"
@@ -407,17 +418,17 @@ const ManagementUsers: React.FC = () => {
                                 >
                                   {actionLoading === user.id ? (
                                     <>
-                                      <div className="animate-spin rounded-full h-4 w-4 border-b border-current"></div>
+                                      <div className="animate-spin rounded-full h-3 w-3 sm:h-4 sm:w-4 border-b border-current"></div>
                                       <span>Processing...</span>
                                     </>
                                   ) : user.isActive ? (
                                     <>
-                                      <UserX size={16} />
+                                      <UserX size={14} className="sm:w-4 sm:h-4" />
                                       <span>Deactivate</span>
                                     </>
                                   ) : (
                                     <>
-                                      <UserCheck size={16} />
+                                      <UserCheck size={14} className="sm:w-4 sm:h-4" />
                                       <span>Activate</span>
                                     </>
                                   )}
@@ -434,9 +445,9 @@ const ManagementUsers: React.FC = () => {
                                     actionLoading === user.id ||
                                     user.id === currentUser?.id
                                   }
-                                  className="w-full text-left px-4 py-2 text-sm text-red-700 hover:bg-red-50 flex items-center gap-2 transition-colors disabled:opacity-50"
+                                  className="w-full text-left px-3 sm:px-4 py-1.5 sm:py-2 text-xs sm:text-sm text-red-700 hover:bg-red-50 flex items-center gap-1.5 sm:gap-2 transition-colors disabled:opacity-50"
                                 >
-                                  <Trash2 size={16} />
+                                  <Trash2 size={14} className="sm:w-4 sm:h-4" />
                                   <span>Delete User</span>
                                 </button>
                               </div>
@@ -455,12 +466,12 @@ const ManagementUsers: React.FC = () => {
 
       {/* Pagination */}
       {totalPages > 1 && (
-        <div className="flex items-center justify-between bg-white px-4 py-3 border border-gray-200 rounded-lg">
+        <div className="flex items-center justify-between bg-white px-2 sm:px-4 py-2 sm:py-3 border border-gray-200 rounded-lg">
           <div className="flex-1 flex justify-between sm:hidden">
             <button
               onClick={() => setCurrentPage(Math.max(1, currentPage - 1))}
               disabled={currentPage === 1}
-              className="relative inline-flex items-center px-4 py-2 border border-gray-300 text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50 disabled:opacity-50"
+              className="relative inline-flex items-center px-3 py-1.5 border border-gray-300 text-xs font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50 disabled:opacity-50"
             >
               Previous
             </button>
@@ -469,14 +480,14 @@ const ManagementUsers: React.FC = () => {
                 setCurrentPage(Math.min(totalPages, currentPage + 1))
               }
               disabled={currentPage === totalPages}
-              className="ml-3 relative inline-flex items-center px-4 py-2 border border-gray-300 text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50 disabled:opacity-50"
+              className="ml-2 relative inline-flex items-center px-3 py-1.5 border border-gray-300 text-xs font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50 disabled:opacity-50"
             >
               Next
             </button>
           </div>
           <div className="hidden sm:flex-1 sm:flex sm:items-center sm:justify-between">
             <div>
-              <p className="text-sm text-gray-700">
+              <p className="text-xs sm:text-sm text-gray-700">
                 Showing{" "}
                 <span className="font-medium">
                   {(currentPage - 1) * pageSize + 1}
@@ -493,7 +504,7 @@ const ManagementUsers: React.FC = () => {
                 <button
                   onClick={() => setCurrentPage(Math.max(1, currentPage - 1))}
                   disabled={currentPage === 1}
-                  className="relative inline-flex items-center px-2 py-2 rounded-l-md border border-gray-300 bg-white text-sm font-medium text-gray-500 hover:bg-gray-50 disabled:opacity-50"
+                  className="relative inline-flex items-center px-2 py-1.5 sm:py-2 rounded-l-md border border-gray-300 bg-white text-xs sm:text-sm font-medium text-gray-500 hover:bg-gray-50 disabled:opacity-50"
                 >
                   Previous
                 </button>
@@ -503,9 +514,9 @@ const ManagementUsers: React.FC = () => {
                     <button
                       key={page}
                       onClick={() => setCurrentPage(page)}
-                      className={`relative inline-flex items-center px-4 py-2 border text-sm font-medium ${
+                      className={`relative inline-flex items-center px-3 sm:px-4 py-1.5 sm:py-2 border text-xs sm:text-sm font-medium ${
                         currentPage === page
-                          ? "z-10 bg-indigo-50 border-indigo-500 text-indigo-600"
+                          ? "z-10 bg-brand-green/10 border-brand-green text-brand-green"
                           : "bg-white border-gray-300 text-gray-500 hover:bg-gray-50"
                       }`}
                     >
@@ -518,7 +529,7 @@ const ManagementUsers: React.FC = () => {
                     setCurrentPage(Math.min(totalPages, currentPage + 1))
                   }
                   disabled={currentPage === totalPages}
-                  className="relative inline-flex items-center px-2 py-2 rounded-r-md border border-gray-300 bg-white text-sm font-medium text-gray-500 hover:bg-gray-50 disabled:opacity-50"
+                  className="relative inline-flex items-center px-2 py-1.5 sm:py-2 rounded-r-md border border-gray-300 bg-white text-xs sm:text-sm font-medium text-gray-500 hover:bg-gray-50 disabled:opacity-50"
                 >
                   Next
                 </button>
@@ -531,7 +542,7 @@ const ManagementUsers: React.FC = () => {
       {/* Delete Confirmation Dialog */}
       {deleteConfirmOpen && userToDelete && (
         <div className="fixed inset-0 z-50 overflow-y-auto">
-          <div className="flex items-center justify-center min-h-screen px-4 pt-4 pb-20 text-center sm:block sm:p-0">
+          <div className="flex items-center justify-center min-h-screen px-3 sm:px-4 pt-4 pb-20 text-center sm:block sm:p-0">
             <div
               className="fixed inset-0 transition-opacity bg-gray-500 bg-opacity-75"
               onClick={() => {
@@ -540,20 +551,20 @@ const ManagementUsers: React.FC = () => {
               }}
             />
             <div className="inline-block align-bottom bg-white rounded-lg text-left overflow-hidden shadow-xl transform transition-all sm:my-8 sm:align-middle sm:max-w-lg sm:w-full">
-              <div className="bg-white px-4 pt-5 pb-4 sm:p-6 sm:pb-4">
+              <div className="bg-white px-3 sm:px-4 lg:px-6 pt-4 sm:pt-5 pb-3 sm:pb-4">
                 <div className="sm:flex sm:items-start">
-                  <div className="mx-auto flex-shrink-0 flex items-center justify-center h-12 w-12 rounded-full bg-red-100 sm:mx-0 sm:h-10 sm:w-10">
-                    <Trash2 className="h-6 w-6 text-red-600" />
+                  <div className="mx-auto flex-shrink-0 flex items-center justify-center h-10 w-10 sm:h-12 sm:w-12 rounded-full bg-red-100 sm:mx-0">
+                    <Trash2 className="h-5 w-5 sm:h-6 sm:w-6 text-red-600" />
                   </div>
-                  <div className="mt-3 text-center sm:mt-0 sm:ml-4 sm:text-left">
+                  <div className="mt-2 sm:mt-3 text-center sm:text-left sm:ml-4">
                     <h3
-                      className="text-lg leading-6 font-medium text-gray-900"
+                      className="text-base sm:text-lg leading-6 font-medium text-gray-900"
                       style={{ fontFamily: '"League Spartan", sans-serif' }}
                     >
                       Delete User (Permanent)
                     </h3>
-                    <div className="mt-2">
-                      <p className="text-sm text-gray-500">
+                    <div className="mt-1.5 sm:mt-2">
+                      <p className="text-xs sm:text-sm text-gray-500">
                         Are you sure you want to delete{" "}
                         <span className="font-semibold">
                           {userToDelete.firstName} {userToDelete.lastName}
@@ -564,12 +575,12 @@ const ManagementUsers: React.FC = () => {
                   </div>
                 </div>
               </div>
-              <div className="bg-gray-50 px-4 py-3 sm:px-6 sm:flex sm:flex-row-reverse">
+              <div className="bg-gray-50 px-3 sm:px-4 lg:px-6 py-2.5 sm:py-3 sm:flex sm:flex-row-reverse gap-2 sm:gap-0">
                 <button
                   type="button"
                   onClick={handleDeleteUser}
                   disabled={actionLoading === userToDelete.id}
-                  className="w-full inline-flex justify-center rounded-md border border-transparent shadow-sm px-4 py-2 bg-red-600 text-base font-medium text-white hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-500 sm:ml-3 sm:w-auto sm:text-sm disabled:opacity-50"
+                  className="w-full inline-flex justify-center rounded-md border border-transparent shadow-sm px-3 sm:px-4 py-1.5 sm:py-2 bg-red-600 text-sm sm:text-base font-medium text-white hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-500 sm:ml-3 sm:w-auto disabled:opacity-50"
                 >
                   {actionLoading === userToDelete.id ? (
                     <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white"></div>
@@ -583,7 +594,7 @@ const ManagementUsers: React.FC = () => {
                     setDeleteConfirmOpen(false);
                     setUserToDelete(null);
                   }}
-                  className="mt-3 w-full inline-flex justify-center rounded-md border border-gray-300 shadow-sm px-4 py-2 bg-white text-base font-medium text-gray-700 hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 sm:mt-0 sm:ml-3 sm:w-auto sm:text-sm"
+                  className="w-full sm:w-auto inline-flex justify-center rounded-md border border-gray-300 shadow-sm px-3 sm:px-4 py-1.5 sm:py-2 bg-white text-sm sm:text-base font-medium text-gray-700 hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-brand-green sm:mt-0 sm:ml-3"
                 >
                   Cancel
                 </button>
