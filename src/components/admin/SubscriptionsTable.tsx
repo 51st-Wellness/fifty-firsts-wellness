@@ -25,6 +25,7 @@ import {
 import {
   Search as SearchIcon,
   FilterList as FilterIcon,
+  CreditCard as CreditCardIcon,
 } from "@mui/icons-material";
 import { format } from "date-fns";
 import {
@@ -132,9 +133,10 @@ const SubscriptionsTable: React.FC<SubscriptionsTableProps> = ({
         display="flex"
         justifyContent="center"
         alignItems="center"
-        minHeight="400px"
+        minHeight={{ xs: 200, sm: 400 }}
+        py={{ xs: 4, sm: 6 }}
       >
-        <CircularProgress />
+        <CircularProgress size={40} />
       </Box>
     );
   }
@@ -152,28 +154,38 @@ const SubscriptionsTable: React.FC<SubscriptionsTableProps> = ({
       {/* Filters and Search */}
       <Box
         sx={{
-          mb: 3,
+          mb: { xs: 2, sm: 3 },
           display: "flex",
-          gap: 2,
-          alignItems: "center",
-          flexWrap: "wrap",
+          flexDirection: { xs: "column", sm: "row" },
+          gap: { xs: 1.5, sm: 2 },
+          alignItems: { xs: "stretch", sm: "center" },
         }}
       >
         <TextField
           placeholder="Search by name, email, or plan..."
           value={searchTerm}
           onChange={(e) => setSearchTerm(e.target.value)}
+          size="small"
           InputProps={{
             startAdornment: (
               <InputAdornment position="start">
-                <SearchIcon />
+                <SearchIcon fontSize="small" />
               </InputAdornment>
             ),
           }}
-          sx={{ minWidth: 300 }}
+          sx={{ 
+            minWidth: { xs: "100%", sm: 300 },
+            flexGrow: { xs: 1, sm: 0 }
+          }}
         />
 
-        <FormControl sx={{ minWidth: 150 }}>
+        <FormControl 
+          size="small"
+          sx={{ 
+            minWidth: { xs: "100%", sm: 150 },
+            flexShrink: 0
+          }}
+        >
           <InputLabel>Status</InputLabel>
           <Select
             value={statusFilter}
@@ -191,20 +203,88 @@ const SubscriptionsTable: React.FC<SubscriptionsTableProps> = ({
       </Box>
 
       {/* Table */}
-      <TableContainer component={Paper} sx={{ borderRadius: 2, boxShadow: 1 }}>
-        <Table>
+      <TableContainer 
+        component={Paper} 
+        sx={{ 
+          borderRadius: { xs: 1, sm: 2 }, 
+          boxShadow: 1,
+          overflowX: "auto",
+          "&::-webkit-scrollbar": {
+            height: 8,
+          },
+          "&::-webkit-scrollbar-track": {
+            backgroundColor: "grey.100",
+          },
+          "&::-webkit-scrollbar-thumb": {
+            backgroundColor: "grey.400",
+            borderRadius: 4,
+          },
+        }}
+      >
+        <Table 
+          size="small" 
+          sx={{ 
+            minWidth: 650,
+            "& .MuiTableCell-root": {
+              whiteSpace: { xs: "normal", sm: "nowrap" },
+              wordBreak: { xs: "break-word", sm: "normal" },
+            },
+            "& .MuiTableCell-body": {
+              whiteSpace: "normal",
+              wordBreak: "break-word",
+            },
+          }}
+        >
           <TableHead>
             <TableRow sx={{ backgroundColor: "grey.50" }}>
-              <TableCell sx={{ fontWeight: 600 }}>User</TableCell>
-              <TableCell sx={{ fontWeight: 600 }}>Plan</TableCell>
-              <TableCell sx={{ fontWeight: 600 }}>Status</TableCell>
-              <TableCell sx={{ fontWeight: 600 }}>Amount</TableCell>
-              <TableCell sx={{ fontWeight: 600 }}>Start Date</TableCell>
-              <TableCell sx={{ fontWeight: 600 }}>End Date</TableCell>
+              <TableCell sx={{ fontWeight: 600, fontSize: { xs: "0.75rem", sm: "0.875rem" }, py: { xs: 1, sm: 1.5 } }}>User</TableCell>
+              <TableCell sx={{ fontWeight: 600, fontSize: { xs: "0.75rem", sm: "0.875rem" }, py: { xs: 1, sm: 1.5 } }}>Plan</TableCell>
+              <TableCell sx={{ fontWeight: 600, fontSize: { xs: "0.75rem", sm: "0.875rem" }, py: { xs: 1, sm: 1.5 } }}>Status</TableCell>
+              <TableCell sx={{ fontWeight: 600, fontSize: { xs: "0.75rem", sm: "0.875rem" }, py: { xs: 1, sm: 1.5 } }}>Amount</TableCell>
+              <TableCell sx={{ fontWeight: 600, fontSize: { xs: "0.75rem", sm: "0.875rem" }, py: { xs: 1, sm: 1.5 }, display: { xs: "none", md: "table-cell" } }}>Start Date</TableCell>
+              <TableCell sx={{ fontWeight: 600, fontSize: { xs: "0.75rem", sm: "0.875rem" }, py: { xs: 1, sm: 1.5 }, display: { xs: "none", md: "table-cell" } }}>End Date</TableCell>
             </TableRow>
           </TableHead>
           <TableBody>
-            {subscriptions.map((subscription) => (
+            {subscriptions.length === 0 ? (
+              <TableRow>
+                <TableCell colSpan={6} align="center" sx={{ py: { xs: 4, sm: 6 } }}>
+                  <Box sx={{ display: "flex", flexDirection: "column", alignItems: "center" }}>
+                    <CreditCardIcon
+                      sx={{ 
+                        fontSize: { xs: 48, sm: 64 }, 
+                        color: "text.secondary", 
+                        mb: 2 
+                      }}
+                    />
+                    <Typography 
+                      variant="body2" 
+                      color="text.secondary"
+                      sx={{ 
+                        fontSize: { xs: "0.875rem", sm: "1rem" },
+                        fontFamily: '"League Spartan", sans-serif',
+                        fontWeight: 600,
+                        mb: 1
+                      }}
+                    >
+                      {searchTerm || statusFilter
+                        ? "No subscriptions found"
+                        : "No subscriptions yet"}
+                    </Typography>
+                    <Typography 
+                      variant="caption" 
+                      color="text.secondary"
+                      sx={{ fontSize: { xs: "0.75rem", sm: "0.875rem" } }}
+                    >
+                      {searchTerm || statusFilter
+                        ? "Try adjusting your search or filter criteria"
+                        : "Subscriptions will appear here once users subscribe"}
+                    </Typography>
+                  </Box>
+                </TableCell>
+              </TableRow>
+            ) : (
+              subscriptions.map((subscription) => (
               <TableRow
                 key={subscription.id}
                 hover
@@ -217,66 +297,112 @@ const SubscriptionsTable: React.FC<SubscriptionsTableProps> = ({
                   },
                 }}
               >
-                <TableCell>
-                  <Box sx={{ display: "flex", alignItems: "center", gap: 2 }}>
+                <TableCell sx={{ py: { xs: 1, sm: 1.5 } }}>
+                  <Box sx={{ display: "flex", alignItems: "center", gap: { xs: 1, sm: 2 } }}>
                     <Avatar
-                      sx={{ width: 32, height: 32, bgcolor: "primary.main" }}
+                      sx={{ 
+                        width: { xs: 28, sm: 32 }, 
+                        height: { xs: 28, sm: 32 }, 
+                        bgcolor: "primary.main",
+                        fontSize: { xs: "0.75rem", sm: "0.875rem" }
+                      }}
                     >
                       {subscription.userFirstName.charAt(0)}
                       {subscription.userLastName.charAt(0)}
                     </Avatar>
-                    <Box>
-                      <Typography variant="body2" fontWeight={500}>
+                    <Box sx={{ minWidth: 0, flex: 1 }}>
+                      <Typography 
+                        variant="body2" 
+                        fontWeight={500}
+                        sx={{ 
+                          fontSize: { xs: "0.75rem", sm: "0.875rem" },
+                          lineHeight: 1.2,
+                          mb: 0.25
+                        }}
+                      >
                         {subscription.userFirstName} {subscription.userLastName}
                       </Typography>
-                      <Typography variant="caption" color="text.secondary">
+                      <Typography 
+                        variant="caption" 
+                        color="text.secondary"
+                        sx={{ 
+                          fontSize: { xs: "0.65rem", sm: "0.75rem" },
+                          display: "block",
+                          overflow: "hidden",
+                          textOverflow: "ellipsis",
+                          whiteSpace: "nowrap"
+                        }}
+                      >
                         {subscription.userEmail}
                       </Typography>
                     </Box>
                   </Box>
                 </TableCell>
-                <TableCell>
+                <TableCell sx={{ py: { xs: 1, sm: 1.5 } }}>
                   <Box>
-                    <Typography variant="body2" fontWeight={500}>
+                    <Typography 
+                      variant="body2" 
+                      fontWeight={500}
+                      sx={{ fontSize: { xs: "0.75rem", sm: "0.875rem" } }}
+                    >
                       {subscription.planName}
                     </Typography>
-                    <Typography variant="caption" color="text.secondary">
+                    <Typography 
+                      variant="caption" 
+                      color="text.secondary"
+                      sx={{ fontSize: { xs: "0.65rem", sm: "0.75rem" } }}
+                    >
                       {subscription.planDuration} days
                     </Typography>
                   </Box>
                 </TableCell>
-                <TableCell>
+                <TableCell sx={{ py: { xs: 1, sm: 1.5 } }}>
                   <Chip
                     label={subscription.status}
                     color={getStatusColor(subscription.status) as any}
                     size="small"
                     variant="outlined"
+                    sx={{ 
+                      fontSize: { xs: "0.65rem", sm: "0.75rem" },
+                      height: { xs: 20, sm: 24 }
+                    }}
                   />
                 </TableCell>
-                <TableCell>
-                  <Typography variant="body2" fontWeight={500}>
+                <TableCell sx={{ py: { xs: 1, sm: 1.5 } }}>
+                  <Typography 
+                    variant="body2" 
+                    fontWeight={500}
+                    sx={{ fontSize: { xs: "0.75rem", sm: "0.875rem" } }}
+                  >
                     {formatCurrency(subscription.planPrice)}
                   </Typography>
                 </TableCell>
-                <TableCell>
-                  <Typography variant="body2">
+                <TableCell sx={{ py: { xs: 1, sm: 1.5 }, display: { xs: "none", md: "table-cell" } }}>
+                  <Typography 
+                    variant="body2"
+                    sx={{ fontSize: { xs: "0.75rem", sm: "0.875rem" } }}
+                  >
                     {formatDate(subscription.startDate)}
                   </Typography>
                 </TableCell>
-                <TableCell>
-                  <Typography variant="body2">
+                <TableCell sx={{ py: { xs: 1, sm: 1.5 }, display: { xs: "none", md: "table-cell" } }}>
+                  <Typography 
+                    variant="body2"
+                    sx={{ fontSize: { xs: "0.75rem", sm: "0.875rem" } }}
+                  >
                     {formatDate(subscription.endDate)}
                   </Typography>
                 </TableCell>
               </TableRow>
-            ))}
+              ))
+            )}
           </TableBody>
         </Table>
       </TableContainer>
 
       {/* Pagination */}
       {totalPages > 1 && (
-        <Box sx={{ display: "flex", justifyContent: "center", mt: 3 }}>
+        <Box sx={{ display: "flex", justifyContent: "center", mt: { xs: 2, sm: 3 } }}>
           <Pagination
             count={totalPages}
             page={currentPage}
@@ -284,13 +410,25 @@ const SubscriptionsTable: React.FC<SubscriptionsTableProps> = ({
             color="primary"
             showFirstButton
             showLastButton
+            size="small"
+            sx={{
+              "& .MuiPaginationItem-root": {
+                fontSize: { xs: "0.75rem", sm: "0.875rem" },
+                minWidth: { xs: 32, sm: 40 },
+                height: { xs: 32, sm: 40 }
+              }
+            }}
           />
         </Box>
       )}
 
       {/* Results count */}
-      <Box sx={{ mt: 2, textAlign: "center" }}>
-        <Typography variant="body2" color="text.secondary">
+      <Box sx={{ mt: { xs: 1.5, sm: 2 }, textAlign: "center" }}>
+        <Typography 
+          variant="body2" 
+          color="text.secondary"
+          sx={{ fontSize: { xs: "0.75rem", sm: "0.875rem" } }}
+        >
           Showing {subscriptions.length} of {totalCount} subscriptions
         </Typography>
       </Box>

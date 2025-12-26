@@ -174,18 +174,23 @@ const ManagementProgrammes: React.FC = () => {
 
   if (loading) {
     return (
-      <div className="p-4 md:p-6 max-w-7xl mx-auto">
-        <div className="flex items-center justify-between mb-6">
-          <h1 className="text-3xl font-semibold text-gray-900" style={{ fontFamily: '"League Spartan", sans-serif' }}>Programmes</h1>
+      <div className="p-2 sm:p-4 lg:p-6 max-w-7xl mx-auto">
+        <div className="flex items-center justify-between mb-3 sm:mb-4 lg:mb-6">
+          <h1 
+            className="text-lg sm:text-2xl lg:text-3xl font-semibold text-gray-900" 
+            style={{ fontFamily: '"League Spartan", sans-serif' }}
+          >
+            Programmes
+          </h1>
         </div>
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3 sm:gap-4 lg:gap-6">
           {Array.from({ length: 6 }).map((_, i) => (
-            <div key={i} className="bg-white rounded-xl border animate-pulse">
-              <div className="aspect-video bg-gray-200 rounded-t-xl"></div>
-              <div className="p-4 space-y-3">
-                <div className="h-4 bg-gray-200 rounded w-3/4"></div>
-                <div className="h-3 bg-gray-200 rounded w-1/2"></div>
-                <div className="h-3 bg-gray-200 rounded w-full"></div>
+            <div key={i} className="bg-white rounded-lg sm:rounded-xl border animate-pulse">
+              <div className="aspect-video bg-gray-200 rounded-t-lg sm:rounded-t-xl"></div>
+              <div className="p-3 sm:p-4 space-y-2 sm:space-y-3">
+                <div className="h-3 sm:h-4 bg-gray-200 rounded w-3/4"></div>
+                <div className="h-2 sm:h-3 bg-gray-200 rounded w-1/2"></div>
+                <div className="h-2 sm:h-3 bg-gray-200 rounded w-full"></div>
               </div>
             </div>
           ))}
@@ -195,52 +200,54 @@ const ManagementProgrammes: React.FC = () => {
   }
 
   return (
-    <div className="p-4 md:p-6 max-w-7xl mx-auto font-primary">
-      <div className="flex items-start justify-between mb-6 gap-4">
+    <div className="p-2 sm:p-4 lg:p-6 max-w-7xl mx-auto font-primary">
+      <div className="flex items-start justify-between mb-3 sm:mb-4 lg:mb-6 gap-2 sm:gap-4">
         <div>
-          <h1 className="text-3xl font-semibold text-gray-900" style={{ fontFamily: '"League Spartan", sans-serif' }}>Programmes</h1>
-          <p className="text-gray-600 mt-1 font-primary">
+          <h1 
+            className="text-lg sm:text-2xl lg:text-3xl font-semibold text-gray-900" 
+            style={{ fontFamily: '"League Spartan", sans-serif' }}
+          >
+            Programmes
+          </h1>
+          <p className="text-xs sm:text-sm lg:text-base text-gray-600 mt-0.5 sm:mt-1 font-primary hidden sm:block">
             {programmes.length} programme{programmes.length !== 1 ? "s" : ""}
           </p>
         </div>
-        <div className="flex items-center">
+        <div className="flex items-center flex-shrink-0">
           {/* Plus icon always aligned right */}
           <button
             onClick={() => setCreateDialogOpen(true)}
-            className="flex items-center justify-center px-3 py-2 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 transition-colors sm:hidden"
+            className="flex items-center justify-center w-10 h-10 sm:w-auto sm:h-auto sm:px-4 sm:py-2 bg-brand-green text-white rounded-lg hover:bg-brand-green-dark transition-colors"
             aria-label="Create Programme"
           >
             <Plus className="h-5 w-5" />
-          </button>
-          <button
-            onClick={() => setCreateDialogOpen(true)}
-            className="hidden sm:flex items-center gap-2 px-4 py-2 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 transition-colors"
-          >
-            <Plus className="h-5 w-5" />
-            Create Programme
+            <span className="hidden sm:inline ml-2">Create Programme</span>
           </button>
         </div>
       </div>
 
       {programmes.length === 0 ? (
-        <div className="text-center py-12 bg-white rounded-xl border">
-          <Video className="h-16 w-16 text-gray-300 mx-auto mb-4" />
-          <h3 className="text-lg font-semibold text-gray-900 mb-2" style={{ fontFamily: '"League Spartan", sans-serif' }}>
+        <div className="text-center py-8 sm:py-12 bg-white rounded-lg sm:rounded-xl border">
+          <Video className="h-12 w-12 sm:h-16 sm:w-16 text-gray-300 mx-auto mb-3 sm:mb-4" />
+          <h3 
+            className="text-base sm:text-lg font-semibold text-gray-900 mb-1 sm:mb-2" 
+            style={{ fontFamily: '"League Spartan", sans-serif' }}
+          >
             No programmes yet
           </h3>
-          <p className="text-gray-500 mb-4 font-primary">
+          <p className="text-sm sm:text-base text-gray-500 mb-3 sm:mb-4 font-primary px-4">
             Create your first programme to get started
           </p>
           <button
             onClick={() => setCreateDialogOpen(true)}
-            className="inline-flex items-center gap-2 px-4 py-2 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 transition-colors"
+            className="inline-flex items-center gap-2 px-3 sm:px-4 py-2 bg-brand-green text-white rounded-lg hover:bg-brand-green-dark transition-colors text-sm sm:text-base"
           >
-            <Plus className="h-5 w-5" />
+            <Plus className="h-4 w-4 sm:h-5 sm:w-5" />
             Create Programme
           </button>
         </div>
       ) : (
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3 sm:gap-4 lg:gap-6">
           {programmes.map((programme) => (
             <AdminProgrammeCard
               key={programme.productId}

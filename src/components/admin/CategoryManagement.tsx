@@ -192,16 +192,16 @@ const CategoryManagement: React.FC<CategoryManagementProps> = ({
         sx={{
           display: "flex",
           alignItems: "center",
-          gap: 2,
-          mb: 4,
-          pb: 2,
+          gap: { xs: 1, sm: 2 },
+          mb: { xs: 2, sm: 3, lg: 4 },
+          pb: { xs: 1, sm: 2 },
           borderBottom: 1,
           borderColor: "divider",
         }}
       >
         <Box
           sx={{
-            p: 1.5,
+            p: { xs: 1, sm: 1.5 },
             borderRadius: 2,
             backgroundColor: "primary.50",
             display: "flex",
@@ -209,13 +209,28 @@ const CategoryManagement: React.FC<CategoryManagementProps> = ({
             justifyContent: "center",
           }}
         >
-          <CategoryIcon sx={{ color: "primary.main", fontSize: 28 }} />
+          <CategoryIcon sx={{ color: "primary.main", fontSize: { xs: 20, sm: 24, lg: 28 } }} />
         </Box>
         <Box>
-          <Typography variant="h4" fontWeight="700" sx={{ mb: 0.5, fontFamily: '"League Spartan", sans-serif' }}>
+          <Typography 
+            variant="h4" 
+            fontWeight="700" 
+            sx={{ 
+              mb: { xs: 0, sm: 0.5 },
+              fontSize: { xs: "1.125rem", sm: "1.5rem", lg: "2rem" },
+              fontFamily: '"League Spartan", sans-serif' 
+            }}
+          >
             {title || "Categories"}
           </Typography>
-          <Typography variant="body2" color="text.secondary">
+          <Typography 
+            variant="body2" 
+            color="text.secondary"
+            sx={{
+              fontSize: { xs: "0.75rem", sm: "0.875rem" },
+              display: { xs: "none", sm: "block" }
+            }}
+          >
             Manage and organize your content categories
           </Typography>
         </Box>
@@ -223,11 +238,28 @@ const CategoryManagement: React.FC<CategoryManagementProps> = ({
 
       {/* Service Filter Tabs */}
       {showServiceFilter && (
-        <Box sx={{ borderBottom: 1, borderColor: "divider", mb: 3 }}>
+        <Box sx={{ borderBottom: 1, borderColor: "divider", mb: { xs: 2, sm: 3 } }}>
           <Tabs
             value={serviceTab}
             onChange={handleServiceTabChange}
             aria-label="service filter tabs"
+            variant="scrollable"
+            scrollButtons="auto"
+            sx={{
+              minHeight: { xs: 36, sm: 48 },
+              "& .MuiTab-root": {
+                textTransform: "none",
+                fontWeight: 600,
+                minHeight: { xs: 36, sm: 48 },
+                px: { xs: 0.75, sm: 1.5 },
+                py: { xs: 0.5, sm: 1 },
+                fontSize: { xs: "0.75rem", sm: "0.875rem" },
+                fontFamily: '"League Spartan", sans-serif',
+              },
+              "& .MuiTabs-scrollButtons": {
+                width: { xs: 28, sm: 40 },
+              },
+            }}
           >
             <Tab label="All Services" />
             <Tab label="Store" />
@@ -241,52 +273,52 @@ const CategoryManagement: React.FC<CategoryManagementProps> = ({
       <Box
         sx={{
           display: "flex",
-          flexDirection: { xs: "column", sm: "row" },
-          gap: 2,
-          mb: 4,
-          alignItems: { xs: "stretch", sm: "center" },
+          flexDirection: "row",
+          gap: { xs: 1, sm: 2 },
+          mb: { xs: 3, sm: 4 },
+          alignItems: "center",
         }}
       >
         <TextField
           placeholder="Search categories..."
           value={searchTerm}
           onChange={(e) => setSearchTerm(e.target.value)}
-          size="medium"
+          size="small"
           sx={{
             flexGrow: 1,
             "& .MuiOutlinedInput-root": {
               borderRadius: 2,
               backgroundColor: "background.paper",
+              height: { xs: 40, sm: 48 },
             },
           }}
           InputProps={{
             startAdornment: (
               <InputAdornment position="start">
-                <SearchIcon color="action" />
+                <SearchIcon color="action" fontSize="small" />
               </InputAdornment>
             ),
           }}
         />
-        <Button
-          variant="contained"
-          startIcon={<AddIcon />}
+        <IconButton
           onClick={handleCreate}
-          size="large"
           sx={{
-            whiteSpace: "nowrap",
+            backgroundColor: "primary.main",
+            color: "white",
             borderRadius: 2,
-            px: 3,
-            py: 1.5,
-            fontWeight: 600,
-            textTransform: "none",
+            width: { xs: 40, sm: 48 },
+            height: { xs: 40, sm: 48 },
             boxShadow: 2,
+            flexShrink: 0,
             "&:hover": {
+              backgroundColor: "primary.dark",
               boxShadow: 4,
             },
           }}
+          title="Add Category"
         >
-          Add Category
-        </Button>
+          <AddIcon fontSize="small" />
+        </IconButton>
       </Box>
 
       {/* Categories List */}
