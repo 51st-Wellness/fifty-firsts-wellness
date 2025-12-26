@@ -15,10 +15,10 @@ const ManagementMarketplace: React.FC = () => {
   };
 
   return (
-    <div className="p-6 font-primary">
+    <div className="p-2 sm:p-4 lg:p-6 font-primary">
       {/* Header */}
       <h1
-        className="text-3xl font-semibold text-gray-900 mb-6"
+        className="text-lg sm:text-2xl lg:text-3xl font-semibold text-gray-900 mb-3 sm:mb-4 lg:mb-6"
         style={{ fontFamily: '"League Spartan", sans-serif' }}
       >
         Marketplace Management

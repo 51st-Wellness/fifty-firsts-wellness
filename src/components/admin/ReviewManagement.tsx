@@ -387,17 +387,17 @@ const ReviewManagement: React.FC = () => {
   };
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-3 sm:space-y-4 lg:space-y-6 p-2 sm:p-4 lg:p-0">
       {/* Header and Filters */}
-      <div className="flex flex-col sm:flex-row gap-4 items-start sm:items-center justify-between">
+      <div className="flex flex-col sm:flex-row gap-2 sm:gap-4 items-start sm:items-center justify-between">
         <div>
           <h2
-            className="text-2xl font-semibold text-gray-900"
+            className="text-lg sm:text-xl lg:text-2xl font-semibold text-gray-900"
             style={{ fontFamily: '"League Spartan", sans-serif' }}
           >
             Product Reviews
           </h2>
-          <p className="text-sm text-gray-600 mt-1">
+          <p className="text-xs sm:text-sm text-gray-600 mt-1 hidden sm:block">
             Manage and moderate product reviews submitted by users
           </p>
         </div>
@@ -405,8 +405,8 @@ const ReviewManagement: React.FC = () => {
 
       {/* Filters */}
       <Card>
-        <CardContent>
-          <Box sx={{ display: "flex", gap: 2, flexWrap: "wrap" }}>
+        <CardContent sx={{ p: { xs: 1.5, sm: 2, lg: 3 } }}>
+          <Box sx={{ display: "flex", flexDirection: { xs: "column", sm: "row" }, gap: { xs: 1.5, sm: 2 }, flexWrap: "wrap" }}>
             <TextField
               size="small"
               placeholder="Search by product or user..."
@@ -414,13 +414,19 @@ const ReviewManagement: React.FC = () => {
               onChange={(e) => setSearchQuery(e.target.value)}
               InputProps={{
                 startAdornment: (
-                  <SearchIcon sx={{ mr: 1, color: "text.secondary" }} />
+                  <SearchIcon sx={{ mr: 1, color: "text.secondary", fontSize: { xs: "1rem", sm: "1.25rem" } }} />
                 ),
               }}
-              sx={{ flex: 1, minWidth: 200 }}
+              sx={{
+                flex: { xs: 1, sm: 1 },
+                minWidth: { xs: "100%", sm: 200 },
+                "& .MuiInputBase-root": {
+                  fontSize: { xs: "0.875rem", sm: "1rem" },
+                },
+              }}
             />
-            <FormControl size="small" sx={{ minWidth: 150 }}>
-              <InputLabel>Status</InputLabel>
+            <FormControl size="small" sx={{ minWidth: { xs: "100%", sm: 150 } }}>
+              <InputLabel sx={{ fontSize: { xs: "0.875rem", sm: "1rem" } }}>Status</InputLabel>
               <Select
                 value={statusFilter}
                 label="Status"
@@ -429,11 +435,12 @@ const ReviewManagement: React.FC = () => {
                     e.target.value as "PENDING" | "APPROVED" | "REJECTED" | ""
                   )
                 }
+                sx={{ fontSize: { xs: "0.875rem", sm: "1rem" } }}
               >
-                <MenuItem value="">All</MenuItem>
-                <MenuItem value="PENDING">Pending</MenuItem>
-                <MenuItem value="APPROVED">Approved</MenuItem>
-                <MenuItem value="REJECTED">Rejected</MenuItem>
+                <MenuItem value="" sx={{ fontSize: { xs: "0.875rem", sm: "1rem" } }}>All</MenuItem>
+                <MenuItem value="PENDING" sx={{ fontSize: { xs: "0.875rem", sm: "1rem" } }}>Pending</MenuItem>
+                <MenuItem value="APPROVED" sx={{ fontSize: { xs: "0.875rem", sm: "1rem" } }}>Approved</MenuItem>
+                <MenuItem value="REJECTED" sx={{ fontSize: { xs: "0.875rem", sm: "1rem" } }}>Rejected</MenuItem>
               </Select>
             </FormControl>
           </Box>
@@ -442,47 +449,76 @@ const ReviewManagement: React.FC = () => {
 
       {/* Reviews Table */}
       <Card>
-        <TableContainer>
-          <Table>
+        <TableContainer sx={{ overflowX: "auto" }}>
+          <Table size="small">
             <TableHead>
               <TableRow>
-                <TableCell>User</TableCell>
-                <TableCell>Product</TableCell>
-                <TableCell>Rating</TableCell>
-                <TableCell>Comment</TableCell>
-                <TableCell>Status</TableCell>
-                <TableCell>Date</TableCell>
-                <TableCell align="right">Actions</TableCell>
+                <TableCell sx={{ fontSize: { xs: "0.7rem", sm: "0.75rem", lg: "0.875rem" }, py: { xs: 1, sm: 1.5 } }}>User</TableCell>
+                <TableCell sx={{ fontSize: { xs: "0.7rem", sm: "0.75rem", lg: "0.875rem" }, py: { xs: 1, sm: 1.5 }, display: { xs: "none", md: "table-cell" } }}>Product</TableCell>
+                <TableCell sx={{ fontSize: { xs: "0.7rem", sm: "0.75rem", lg: "0.875rem" }, py: { xs: 1, sm: 1.5 } }}>Rating</TableCell>
+                <TableCell sx={{ fontSize: { xs: "0.7rem", sm: "0.75rem", lg: "0.875rem" }, py: { xs: 1, sm: 1.5 }, display: { xs: "none", lg: "table-cell" } }}>Comment</TableCell>
+                <TableCell sx={{ fontSize: { xs: "0.7rem", sm: "0.75rem", lg: "0.875rem" }, py: { xs: 1, sm: 1.5 } }}>Status</TableCell>
+                <TableCell sx={{ fontSize: { xs: "0.7rem", sm: "0.75rem", lg: "0.875rem" }, py: { xs: 1, sm: 1.5 }, display: { xs: "none", lg: "table-cell" } }}>Date</TableCell>
+                <TableCell align="right" sx={{ fontSize: { xs: "0.7rem", sm: "0.75rem", lg: "0.875rem" }, py: { xs: 1, sm: 1.5 } }}>Actions</TableCell>
               </TableRow>
             </TableHead>
             <TableBody>
               {loading ? (
                 <TableRow>
-                  <TableCell colSpan={7} align="center" sx={{ py: 4 }}>
-                    <CircularProgress size={24} />
+                  <TableCell colSpan={7} align="center" sx={{ py: { xs: 3, sm: 4 } }}>
+                    <CircularProgress size={20} sx={{ fontSize: { xs: 20, sm: 24 } }} />
                   </TableCell>
                 </TableRow>
               ) : paginatedReviews.length === 0 ? (
                 <TableRow>
-                  <TableCell colSpan={7} align="center" sx={{ py: 4 }}>
-                    <Typography variant="body1" color="text.secondary">
-                      No reviews found
-                    </Typography>
+                  <TableCell colSpan={7} align="center" sx={{ py: { xs: 4, sm: 6 } }}>
+                    <Box sx={{ display: "flex", flexDirection: "column", alignItems: "center" }}>
+                      <StarIcon
+                        sx={{
+                          fontSize: { xs: 48, sm: 64 },
+                          color: "text.secondary",
+                          mb: 2,
+                        }}
+                      />
+                      <Typography
+                        variant="body2"
+                        color="text.secondary"
+                        sx={{
+                          fontSize: { xs: "0.875rem", sm: "1rem" },
+                          fontFamily: '"League Spartan", sans-serif',
+                          fontWeight: 600,
+                          mb: 1,
+                        }}
+                      >
+                        {searchQuery || statusFilter
+                          ? "No reviews found"
+                          : "No reviews yet"}
+                      </Typography>
+                      <Typography
+                        variant="caption"
+                        color="text.secondary"
+                        sx={{ fontSize: { xs: "0.75rem", sm: "0.875rem" } }}
+                      >
+                        {searchQuery || statusFilter
+                          ? "Try adjusting your search or filter criteria"
+                          : "Reviews will appear here once customers submit them"}
+                      </Typography>
+                    </Box>
                   </TableCell>
                 </TableRow>
               ) : (
                 paginatedReviews.map((review) => (
                   <TableRow key={review.id} hover>
-                    <TableCell>
+                    <TableCell sx={{ py: { xs: 1, sm: 1.5 } }}>
                       <Box
-                        sx={{ display: "flex", alignItems: "center", gap: 1.5 }}
+                        sx={{ display: "flex", alignItems: "center", gap: { xs: 1, sm: 1.5 } }}
                       >
                         <Avatar
                           sx={{
                             bgcolor: "#00969b",
-                            width: 32,
-                            height: 32,
-                            fontSize: "0.875rem",
+                            width: { xs: 28, sm: 32 },
+                            height: { xs: 28, sm: 32 },
+                            fontSize: { xs: "0.75rem", sm: "0.875rem" },
                           }}
                         >
                           {review.author.name?.[0]?.toUpperCase() ||
@@ -490,26 +526,26 @@ const ReviewManagement: React.FC = () => {
                             "U"}
                         </Avatar>
                         <Box>
-                          <Typography variant="body2" fontWeight={500}>
+                          <Typography variant="body2" fontWeight={500} sx={{ fontSize: { xs: "0.75rem", sm: "0.875rem" } }}>
                             {review.author.name || "Anonymous User"}
                           </Typography>
-                          <Typography variant="caption" color="text.secondary">
+                          <Typography variant="caption" color="text.secondary" sx={{ fontSize: { xs: "0.65rem", sm: "0.75rem" } }}>
                             {review.author.email || "No email"}
                           </Typography>
                         </Box>
                       </Box>
                     </TableCell>
-                    <TableCell>
-                      <Typography variant="body2">
+                    <TableCell sx={{ py: { xs: 1, sm: 1.5 }, display: { xs: "none", md: "table-cell" } }}>
+                      <Typography variant="body2" sx={{ fontSize: { xs: "0.75rem", sm: "0.875rem" } }}>
                         {`Product ${review.productId}`}
                       </Typography>
                     </TableCell>
-                    <TableCell>
-                      <Typography variant="body2" fontWeight={500}>
+                    <TableCell sx={{ py: { xs: 1, sm: 1.5 } }}>
+                      <Typography variant="body2" fontWeight={500} sx={{ fontSize: { xs: "0.75rem", sm: "0.875rem" } }}>
                         {review.rating}/5
                       </Typography>
                     </TableCell>
-                    <TableCell>
+                    <TableCell sx={{ py: { xs: 1, sm: 1.5 }, display: { xs: "none", lg: "table-cell" } }}>
                       <Tooltip title={review.comment || ""}>
                         <Typography
                           variant="body2"
@@ -518,21 +554,26 @@ const ReviewManagement: React.FC = () => {
                             overflow: "hidden",
                             textOverflow: "ellipsis",
                             whiteSpace: "nowrap",
+                            fontSize: { xs: "0.75rem", sm: "0.875rem" },
                           }}
                         >
                           {review.comment || "No comment"}
                         </Typography>
                       </Tooltip>
                     </TableCell>
-                    <TableCell>
+                    <TableCell sx={{ py: { xs: 1, sm: 1.5 } }}>
                       <Chip
                         label={review.status}
                         color={getStatusColor(review.status)}
                         size="small"
+                        sx={{
+                          height: { xs: 20, sm: 24 },
+                          fontSize: { xs: "0.65rem", sm: "0.75rem" },
+                        }}
                       />
                     </TableCell>
-                    <TableCell>
-                      <Typography variant="caption" color="text.secondary">
+                    <TableCell sx={{ py: { xs: 1, sm: 1.5 }, display: { xs: "none", lg: "table-cell" } }}>
+                      <Typography variant="caption" color="text.secondary" sx={{ fontSize: { xs: "0.65rem", sm: "0.75rem" } }}>
                         {new Date(review.createdAt).toLocaleDateString(
                           "en-GB",
                           {
@@ -543,7 +584,7 @@ const ReviewManagement: React.FC = () => {
                         )}
                       </Typography>
                     </TableCell>
-                    <TableCell align="right">
+                    <TableCell align="right" sx={{ py: { xs: 1, sm: 1.5 } }}>
                       <Box
                         sx={{
                           display: "flex",
@@ -557,14 +598,16 @@ const ReviewManagement: React.FC = () => {
                             setSelectedReview(review);
                             setDetailsOpen(true);
                           }}
+                          sx={{ fontSize: { xs: "1rem", sm: "1.25rem" } }}
                         >
-                          <VisibilityIcon fontSize="small" />
+                          <VisibilityIcon fontSize="inherit" />
                         </IconButton>
                         <IconButton
                           size="small"
                           onClick={(e) => handleMenuOpen(e, review)}
+                          sx={{ fontSize: { xs: "1rem", sm: "1.25rem" } }}
                         >
-                          <MoreVertIcon />
+                          <MoreVertIcon fontSize="inherit" />
                         </IconButton>
                       </Box>
                     </TableCell>
@@ -582,6 +625,15 @@ const ReviewManagement: React.FC = () => {
           rowsPerPage={rowsPerPage}
           onRowsPerPageChange={handleChangeRowsPerPage}
           rowsPerPageOptions={[5, 10, 25, 50]}
+          sx={{
+            "& .MuiTablePagination-toolbar": {
+              px: { xs: 1, sm: 2 },
+              fontSize: { xs: "0.75rem", sm: "0.875rem" },
+            },
+            "& .MuiTablePagination-selectLabel, & .MuiTablePagination-displayedRows": {
+              fontSize: { xs: "0.75rem", sm: "0.875rem" },
+            },
+          }}
         />
       </Card>
 
@@ -598,46 +650,72 @@ const ReviewManagement: React.FC = () => {
           vertical: "top",
           horizontal: "right",
         }}
+        PaperProps={{
+          sx: {
+            minWidth: { xs: 140, sm: 160 },
+          },
+        }}
       >
         {selectedReview?.status === "PENDING" && (
-          <MenuItem onClick={() => handleMenuAction("approve")}>
-            <CheckCircleIcon sx={{ mr: 1, fontSize: 20 }} />
+          <MenuItem
+            onClick={() => handleMenuAction("approve")}
+            sx={{ fontSize: { xs: "0.75rem", sm: "0.875rem" }, py: { xs: 0.75, sm: 1 } }}
+          >
+            <CheckCircleIcon sx={{ mr: 1, fontSize: { xs: 16, sm: 20 } }} />
             Approve
           </MenuItem>
         )}
         {selectedReview?.status === "PENDING" && (
-          <MenuItem onClick={() => handleMenuAction("reject")}>
-            <CancelIcon sx={{ mr: 1, fontSize: 20 }} />
+          <MenuItem
+            onClick={() => handleMenuAction("reject")}
+            sx={{ fontSize: { xs: "0.75rem", sm: "0.875rem" }, py: { xs: 0.75, sm: 1 } }}
+          >
+            <CancelIcon sx={{ mr: 1, fontSize: { xs: 16, sm: 20 } }} />
             Reject
           </MenuItem>
         )}
         {selectedReview?.status === "PENDING" && (
-          <MenuItem onClick={() => handleMenuAction("delete")}>
-            <DeleteIcon sx={{ mr: 1, fontSize: 20 }} />
+          <MenuItem
+            onClick={() => handleMenuAction("delete")}
+            sx={{ fontSize: { xs: "0.75rem", sm: "0.875rem" }, py: { xs: 0.75, sm: 1 } }}
+          >
+            <DeleteIcon sx={{ mr: 1, fontSize: { xs: 16, sm: 20 } }} />
             Delete
           </MenuItem>
         )}
         {selectedReview?.status === "APPROVED" && (
-          <MenuItem onClick={() => handleMenuAction("reject")}>
-            <CancelIcon sx={{ mr: 1, fontSize: 20 }} />
+          <MenuItem
+            onClick={() => handleMenuAction("reject")}
+            sx={{ fontSize: { xs: "0.75rem", sm: "0.875rem" }, py: { xs: 0.75, sm: 1 } }}
+          >
+            <CancelIcon sx={{ mr: 1, fontSize: { xs: 16, sm: 20 } }} />
             Reject
           </MenuItem>
         )}
         {selectedReview?.status === "APPROVED" && (
-          <MenuItem onClick={() => handleMenuAction("delete")}>
-            <DeleteIcon sx={{ mr: 1, fontSize: 20 }} />
+          <MenuItem
+            onClick={() => handleMenuAction("delete")}
+            sx={{ fontSize: { xs: "0.75rem", sm: "0.875rem" }, py: { xs: 0.75, sm: 1 } }}
+          >
+            <DeleteIcon sx={{ mr: 1, fontSize: { xs: 16, sm: 20 } }} />
             Delete
           </MenuItem>
         )}
         {selectedReview?.status === "REJECTED" && (
-          <MenuItem onClick={() => handleMenuAction("approve")}>
-            <CheckCircleIcon sx={{ mr: 1, fontSize: 20 }} />
+          <MenuItem
+            onClick={() => handleMenuAction("approve")}
+            sx={{ fontSize: { xs: "0.75rem", sm: "0.875rem" }, py: { xs: 0.75, sm: 1 } }}
+          >
+            <CheckCircleIcon sx={{ mr: 1, fontSize: { xs: 16, sm: 20 } }} />
             Approve
           </MenuItem>
         )}
         {selectedReview?.status === "REJECTED" && (
-          <MenuItem onClick={() => handleMenuAction("delete")}>
-            <DeleteIcon sx={{ mr: 1, fontSize: 20 }} />
+          <MenuItem
+            onClick={() => handleMenuAction("delete")}
+            sx={{ fontSize: { xs: "0.75rem", sm: "0.875rem" }, py: { xs: 0.75, sm: 1 } }}
+          >
+            <DeleteIcon sx={{ mr: 1, fontSize: { xs: 16, sm: 20 } }} />
             Delete
           </MenuItem>
         )}

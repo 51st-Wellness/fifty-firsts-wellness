@@ -227,40 +227,64 @@ const DiscountManagement: React.FC = () => {
   }, [items]);
 
   return (
-    <div>
+    <div className="p-2 sm:p-4 lg:p-0">
       {/* Header */}
-      <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between mb-6">
-        <div>
-          <Typography
-            variant="h4"
-            sx={{ fontFamily: '"League Spartan", sans-serif', fontWeight: 600, mb: 1 }}
-          >
-            Discount Management
-          </Typography>
-          <Typography variant="body2" color="text.secondary">
+      <div className="flex flex-col gap-2 sm:gap-4 sm:flex-row sm:items-center sm:justify-between mb-3 sm:mb-4 lg:mb-6">
+        <div className="flex-1">
+          <div className="flex items-center justify-between">
+            <Typography
+              variant="h4"
+              sx={{
+                fontFamily: '"League Spartan", sans-serif',
+                fontWeight: 600,
+                mb: 1,
+                fontSize: { xs: "1.25rem", sm: "1.5rem", lg: "2.125rem" },
+              }}
+            >
+              Discount Management
+            </Typography>
+            <Button
+              variant="outlined"
+              startIcon={<SearchIcon />}
+              onClick={loadItems}
+              disabled={loading}
+              size="small"
+              sx={{
+                fontSize: { xs: "0.75rem", sm: "0.875rem" },
+                px: { xs: 1.5, sm: 2 },
+                ml: { xs: 2, sm: 4 },
+              }}
+            >
+              Refresh
+            </Button>
+          </div>
+          <Typography variant="body2" color="text.secondary" sx={{ fontSize: { xs: "0.75rem", sm: "0.875rem" }, display: { xs: "none", sm: "block" } }}>
             View and manage global and individual product discounts
           </Typography>
         </div>
-        <Button
-          variant="outlined"
-          startIcon={<SearchIcon />}
-          onClick={loadItems}
-          disabled={loading}
-        >
-          Refresh
-        </Button>
       </div>
 
       {/* Tabs */}
-      <Card sx={{ mb: 3 }}>
+      <Card sx={{ mb: { xs: 2, sm: 3 } }}>
         <Tabs
           value={activeTab}
           onChange={handleTabChange}
+          variant="scrollable"
+          scrollButtons="auto"
           sx={{
             "& .MuiTab-root": {
               textTransform: "none",
               fontWeight: 600,
               fontFamily: '"League Spartan", sans-serif',
+              minHeight: { xs: 48, lg: 64 },
+              px: { xs: 1.5, sm: 2, lg: 3 },
+              fontSize: { xs: "0.75rem", sm: "0.875rem", lg: "1rem" },
+            },
+            "& .MuiTabs-scrollButtons": {
+              width: { xs: 32, lg: 40 },
+              "& .MuiSvgIcon-root": {
+                fontSize: { xs: "1rem", lg: "1.25rem" },
+              },
             },
           }}
         >

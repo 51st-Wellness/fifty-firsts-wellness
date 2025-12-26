@@ -15,19 +15,28 @@ interface MarketplaceTabsProps {
 
 const MarketplaceTabs: React.FC<MarketplaceTabsProps> = ({ value, onChange }) => {
   return (
-    <div className="bg-white rounded-xl border border-gray-200 mb-6 overflow-hidden">
+    <div className="bg-white rounded-xl border border-gray-200 mb-3 sm:mb-4 lg:mb-6 overflow-hidden">
       <Tabs
         value={value}
         onChange={onChange}
         aria-label="marketplace management tabs"
-        className="px-4"
+        variant="scrollable"
+        scrollButtons="auto"
+        className="px-2 sm:px-4"
         sx={{
           "& .MuiTab-root": {
             textTransform: "none",
             fontWeight: 600,
-            minHeight: 64,
-            px: 3,
+            minHeight: { xs: 48, lg: 64 },
+            px: { xs: 1.5, sm: 2, lg: 3 },
+            fontSize: { xs: "0.75rem", sm: "0.875rem", lg: "1rem" },
             fontFamily: '"League Spartan", sans-serif',
+          },
+          "& .MuiTabs-scrollButtons": {
+            width: { xs: 32, lg: 40 },
+            "& .MuiSvgIcon-root": {
+              fontSize: { xs: "1rem", lg: "1.25rem" },
+            },
           },
         }}
       >

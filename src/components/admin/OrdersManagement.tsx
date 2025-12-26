@@ -277,37 +277,44 @@ const OrdersManagement: React.FC = () => {
       : null;
 
   return (
-    <div className="space-y-6">
-      <div className="flex flex-col sm:flex-row gap-4 items-start sm:items-center justify-between">
-        <div>
-          <h2
-            className="text-2xl font-semibold text-gray-900"
-            style={{ fontFamily: '"League Spartan", sans-serif' }}
-          >
-            Orders
-          </h2>
-          <p className="text-sm text-gray-600 mt-1">
+    <div className="space-y-3 sm:space-y-4 lg:space-y-6 p-2 sm:p-4 lg:p-0">
+      <div className="flex flex-col sm:flex-row gap-2 sm:gap-4 items-start sm:items-center justify-between">
+        <div className="flex-1 w-full">
+          <div className="flex items-center justify-between w-full">
+            <h2
+              className="text-lg sm:text-xl lg:text-2xl font-semibold text-gray-900"
+              style={{ fontFamily: '"League Spartan", sans-serif' }}
+            >
+              Orders
+            </h2>
+            <Button
+              variant="outlined"
+              startIcon={<LocalShippingIcon />}
+              onClick={loadOrders}
+              size="small"
+              sx={{
+                borderRadius: 999,
+                textTransform: "none",
+                fontWeight: 600,
+                fontFamily: '"League Spartan", sans-serif',
+                fontSize: { xs: "0.75rem", sm: "0.875rem" },
+                px: { xs: 1.5, sm: 2 },
+                ml: { xs: 2, sm: 4 },
+              }}
+            >
+              <span className="hidden sm:inline">Refresh Orders</span>
+              <span className="sm:hidden">Refresh</span>
+            </Button>
+          </div>
+          <p className="text-xs sm:text-sm text-gray-600 mt-1 hidden sm:block">
             Track orders placed on the marketplace and update fulfillment status
           </p>
         </div>
-        <Button
-          variant="outlined"
-          startIcon={<LocalShippingIcon />}
-          onClick={loadOrders}
-          sx={{
-            borderRadius: 999,
-            textTransform: "none",
-            fontWeight: 600,
-            fontFamily: '"League Spartan", sans-serif',
-          }}
-        >
-          Refresh Orders
-        </Button>
       </div>
 
       <Card>
-        <CardContent>
-          <Box sx={{ display: "flex", flexWrap: "wrap", gap: 2 }}>
+        <CardContent sx={{ p: { xs: 1.5, sm: 2, lg: 3 } }}>
+          <Box sx={{ display: "flex", flexDirection: { xs: "column", sm: "row" }, gap: { xs: 1.5, sm: 2 }, flexWrap: "wrap" }}>
             <TextField
               size="small"
               placeholder="Search by customer, order ID, or product..."
@@ -318,13 +325,19 @@ const OrdersManagement: React.FC = () => {
               }}
               InputProps={{
                 startAdornment: (
-                  <SearchIcon sx={{ mr: 1, color: "text.secondary" }} />
+                  <SearchIcon sx={{ mr: 1, color: "text.secondary", fontSize: { xs: "1rem", sm: "1.25rem" } }} />
                 ),
               }}
-              sx={{ flex: 1, minWidth: 220 }}
+              sx={{
+                flex: { xs: 1, sm: 1 },
+                minWidth: { xs: "100%", sm: 220 },
+                "& .MuiInputBase-root": {
+                  fontSize: { xs: "0.875rem", sm: "1rem" },
+                },
+              }}
             />
-            <FormControl size="small" sx={{ minWidth: 160 }}>
-              <InputLabel>Status</InputLabel>
+            <FormControl size="small" sx={{ minWidth: { xs: "100%", sm: 160 } }}>
+              <InputLabel sx={{ fontSize: { xs: "0.875rem", sm: "1rem" } }}>Status</InputLabel>
               <Select
                 value={statusFilter}
                 label="Status"
@@ -332,18 +345,19 @@ const OrdersManagement: React.FC = () => {
                   setStatusFilter(e.target.value as AdminOrderStatus | "");
                   setPage(0);
                 }}
+                sx={{ fontSize: { xs: "0.875rem", sm: "1rem" } }}
               >
-                <MenuItem value="">All</MenuItem>
-                <MenuItem value="PENDING">Pending</MenuItem>
-                <MenuItem value="PROCESSING">Processing</MenuItem>
-                <MenuItem value="PACKAGING">Packaging</MenuItem>
-                <MenuItem value="IN_TRANSIT">In-Transit</MenuItem>
-                <MenuItem value="FULFILLED">Fulfilled</MenuItem>
-                <MenuItem value="DISPATCHED">Dispatched</MenuItem>
-                <MenuItem value="TRANSIT">In Transit</MenuItem>
-                <MenuItem value="DELIVERED">Delivered</MenuItem>
-                <MenuItem value="UNDELIVERED">Undelivered</MenuItem>
-                <MenuItem value="EXCEPTION">Exception</MenuItem>
+                <MenuItem value="" sx={{ fontSize: { xs: "0.875rem", sm: "1rem" } }}>All</MenuItem>
+                <MenuItem value="PENDING" sx={{ fontSize: { xs: "0.875rem", sm: "1rem" } }}>Pending</MenuItem>
+                <MenuItem value="PROCESSING" sx={{ fontSize: { xs: "0.875rem", sm: "1rem" } }}>Processing</MenuItem>
+                <MenuItem value="PACKAGING" sx={{ fontSize: { xs: "0.875rem", sm: "1rem" } }}>Packaging</MenuItem>
+                <MenuItem value="IN_TRANSIT" sx={{ fontSize: { xs: "0.875rem", sm: "1rem" } }}>In-Transit</MenuItem>
+                <MenuItem value="FULFILLED" sx={{ fontSize: { xs: "0.875rem", sm: "1rem" } }}>Fulfilled</MenuItem>
+                <MenuItem value="DISPATCHED" sx={{ fontSize: { xs: "0.875rem", sm: "1rem" } }}>Dispatched</MenuItem>
+                <MenuItem value="TRANSIT" sx={{ fontSize: { xs: "0.875rem", sm: "1rem" } }}>In Transit</MenuItem>
+                <MenuItem value="DELIVERED" sx={{ fontSize: { xs: "0.875rem", sm: "1rem" } }}>Delivered</MenuItem>
+                <MenuItem value="UNDELIVERED" sx={{ fontSize: { xs: "0.875rem", sm: "1rem" } }}>Undelivered</MenuItem>
+                <MenuItem value="EXCEPTION" sx={{ fontSize: { xs: "0.875rem", sm: "1rem" } }}>Exception</MenuItem>
               </Select>
             </FormControl>
           </Box>
@@ -351,35 +365,64 @@ const OrdersManagement: React.FC = () => {
       </Card>
 
       <Card>
-        <TableContainer>
-          <Table>
+        <TableContainer sx={{ overflowX: "auto" }}>
+          <Table size="small">
             <TableHead>
               <TableRow>
-                <TableCell>Order</TableCell>
-                <TableCell>Customer</TableCell>
-                <TableCell>Items</TableCell>
-                <TableCell>Total</TableCell>
-                <TableCell>Status</TableCell>
-                <TableCell>Placed</TableCell>
-                <TableCell align="right">Actions</TableCell>
+                <TableCell sx={{ fontSize: { xs: "0.7rem", sm: "0.75rem", lg: "0.875rem" }, py: { xs: 1, sm: 1.5 } }}>Order</TableCell>
+                <TableCell sx={{ fontSize: { xs: "0.7rem", sm: "0.75rem", lg: "0.875rem" }, py: { xs: 1, sm: 1.5 } }}>Customer</TableCell>
+                <TableCell sx={{ fontSize: { xs: "0.7rem", sm: "0.75rem", lg: "0.875rem" }, py: { xs: 1, sm: 1.5 }, display: { xs: "none", md: "table-cell" } }}>Items</TableCell>
+                <TableCell sx={{ fontSize: { xs: "0.7rem", sm: "0.75rem", lg: "0.875rem" }, py: { xs: 1, sm: 1.5 } }}>Total</TableCell>
+                <TableCell sx={{ fontSize: { xs: "0.7rem", sm: "0.75rem", lg: "0.875rem" }, py: { xs: 1, sm: 1.5 } }}>Status</TableCell>
+                <TableCell sx={{ fontSize: { xs: "0.7rem", sm: "0.75rem", lg: "0.875rem" }, py: { xs: 1, sm: 1.5 }, display: { xs: "none", lg: "table-cell" } }}>Placed</TableCell>
+                <TableCell align="right" sx={{ fontSize: { xs: "0.7rem", sm: "0.75rem", lg: "0.875rem" }, py: { xs: 1, sm: 1.5 } }}>Actions</TableCell>
               </TableRow>
             </TableHead>
             <TableBody>
               {loading ? (
                 <TableRow>
-                  <TableCell colSpan={7} align="center" sx={{ py: 4 }}>
-                    <CircularProgress size={24} />
-                    <Typography variant="body2" sx={{ mt: 1 }}>
+                  <TableCell colSpan={7} align="center" sx={{ py: { xs: 3, sm: 4 } }}>
+                    <CircularProgress size={20} sx={{ fontSize: { xs: 20, sm: 24 } }} />
+                    <Typography variant="body2" sx={{ mt: 1, fontSize: { xs: "0.75rem", sm: "0.875rem" } }}>
                       Loading orders...
                     </Typography>
                   </TableCell>
                 </TableRow>
               ) : orders.length === 0 ? (
                 <TableRow>
-                  <TableCell colSpan={7} align="center" sx={{ py: 4 }}>
-                    <Typography variant="body1" color="text.secondary">
-                      No orders found
-                    </Typography>
+                  <TableCell colSpan={7} align="center" sx={{ py: { xs: 4, sm: 6 } }}>
+                    <Box sx={{ display: "flex", flexDirection: "column", alignItems: "center" }}>
+                      <LocalShippingIcon
+                        sx={{
+                          fontSize: { xs: 48, sm: 64 },
+                          color: "text.secondary",
+                          mb: 2,
+                        }}
+                      />
+                      <Typography
+                        variant="body2"
+                        color="text.secondary"
+                        sx={{
+                          fontSize: { xs: "0.875rem", sm: "1rem" },
+                          fontFamily: '"League Spartan", sans-serif',
+                          fontWeight: 600,
+                          mb: 1,
+                        }}
+                      >
+                        {searchQuery || statusFilter
+                          ? "No orders found"
+                          : "No orders yet"}
+                      </Typography>
+                      <Typography
+                        variant="caption"
+                        color="text.secondary"
+                        sx={{ fontSize: { xs: "0.75rem", sm: "0.875rem" } }}
+                      >
+                        {searchQuery || statusFilter
+                          ? "Try adjusting your search or filter criteria"
+                          : "Orders will appear here once customers place them"}
+                      </Typography>
+                    </Box>
                   </TableCell>
                 </TableRow>
               ) : (
@@ -402,23 +445,23 @@ const OrdersManagement: React.FC = () => {
                       sx={{ cursor: "pointer" }}
                       onClick={() => handleRowClick(order)}
                     >
-                      <TableCell>
-                        <Typography variant="body2" fontWeight={600}>
+                      <TableCell sx={{ py: { xs: 1, sm: 1.5 } }}>
+                        <Typography variant="body2" fontWeight={600} sx={{ fontSize: { xs: "0.75rem", sm: "0.875rem" } }}>
                           {order.id}
                         </Typography>
-                        <Typography variant="caption" color="text.secondary">
+                        <Typography variant="caption" color="text.secondary" sx={{ fontSize: { xs: "0.65rem", sm: "0.75rem" } }}>
                           {paymentMethod} • {shippingMethod}
                         </Typography>
                       </TableCell>
-                      <TableCell>
-                        <Typography variant="body2" fontWeight={500}>
+                      <TableCell sx={{ py: { xs: 1, sm: 1.5 } }}>
+                        <Typography variant="body2" fontWeight={500} sx={{ fontSize: { xs: "0.75rem", sm: "0.875rem" } }}>
                           {customerName}
                         </Typography>
-                        <Typography variant="caption" color="text.secondary">
+                        <Typography variant="caption" color="text.secondary" sx={{ fontSize: { xs: "0.65rem", sm: "0.75rem" } }}>
                           {order.customer.email}
                         </Typography>
                       </TableCell>
-                      <TableCell>
+                      <TableCell sx={{ py: { xs: 1, sm: 1.5 }, display: { xs: "none", md: "table-cell" } }}>
                         <Typography
                           variant="body2"
                           sx={{
@@ -426,6 +469,7 @@ const OrdersManagement: React.FC = () => {
                             whiteSpace: "nowrap",
                             overflow: "hidden",
                             textOverflow: "ellipsis",
+                            fontSize: { xs: "0.75rem", sm: "0.875rem" },
                           }}
                         >
                           {order.items && order.items.length > 0
@@ -440,22 +484,26 @@ const OrdersManagement: React.FC = () => {
                             : "No items"}
                         </Typography>
                       </TableCell>
-                      <TableCell>
-                        <Typography variant="body2" fontWeight={600}>
+                      <TableCell sx={{ py: { xs: 1, sm: 1.5 } }}>
+                        <Typography variant="body2" fontWeight={600} sx={{ fontSize: { xs: "0.75rem", sm: "0.875rem" } }}>
                           {currency(order.totalAmount)}
                         </Typography>
                       </TableCell>
-                      <TableCell>
+                      <TableCell sx={{ py: { xs: 1, sm: 1.5 } }}>
                         <Chip
                           label={statusInfo.label}
                           color={statusInfo.color}
                           size="small"
                           onClick={(e) => handleStatusClick(e, order)}
-                          sx={{ cursor: "pointer" }}
+                          sx={{
+                            cursor: "pointer",
+                            height: { xs: 20, sm: 24 },
+                            fontSize: { xs: "0.65rem", sm: "0.75rem" },
+                          }}
                         />
                       </TableCell>
-                      <TableCell>
-                        <Typography variant="caption" color="text.secondary">
+                      <TableCell sx={{ py: { xs: 1, sm: 1.5 }, display: { xs: "none", lg: "table-cell" } }}>
+                        <Typography variant="caption" color="text.secondary" sx={{ fontSize: { xs: "0.65rem", sm: "0.75rem" } }}>
                           {new Date(order.createdAt).toLocaleDateString(
                             "en-GB",
                             {
@@ -469,12 +517,14 @@ const OrdersManagement: React.FC = () => {
                       <TableCell
                         align="right"
                         onClick={(e) => e.stopPropagation()}
+                        sx={{ py: { xs: 1, sm: 1.5 } }}
                       >
                         <IconButton
                           size="small"
                           onClick={(e) => handleMenuOpen(e, order)}
+                          sx={{ fontSize: { xs: "1rem", sm: "1.25rem" } }}
                         >
-                          <MoreVertIcon />
+                          <MoreVertIcon fontSize="inherit" />
                         </IconButton>
                       </TableCell>
                     </TableRow>
@@ -492,6 +542,15 @@ const OrdersManagement: React.FC = () => {
           rowsPerPage={rowsPerPage}
           onRowsPerPageChange={handleChangeRowsPerPage}
           rowsPerPageOptions={[5, 10, 25, 50]}
+          sx={{
+            "& .MuiTablePagination-toolbar": {
+              px: { xs: 1, sm: 2 },
+              fontSize: { xs: "0.75rem", sm: "0.875rem" },
+            },
+            "& .MuiTablePagination-selectLabel, & .MuiTablePagination-displayedRows": {
+              fontSize: { xs: "0.75rem", sm: "0.875rem" },
+            },
+          }}
         />
       </Card>
 
@@ -501,22 +560,33 @@ const OrdersManagement: React.FC = () => {
         onClose={handleMenuClose}
         anchorOrigin={{ vertical: "bottom", horizontal: "right" }}
         transformOrigin={{ vertical: "top", horizontal: "right" }}
+        PaperProps={{
+          sx: {
+            minWidth: { xs: 180, sm: 200 },
+          },
+        }}
       >
         {nextStatus && (
-          <MenuItem onClick={() => handleStatusUpdate(nextStatus)}>
-            <LocalShippingIcon sx={{ fontSize: 20, mr: 1 }} />
+          <MenuItem
+            onClick={() => handleStatusUpdate(nextStatus)}
+            sx={{ fontSize: { xs: "0.75rem", sm: "0.875rem" }, py: { xs: 0.75, sm: 1 } }}
+          >
+            <LocalShippingIcon sx={{ fontSize: { xs: 16, sm: 20 }, mr: 1 }} />
             Move to {statusConfig[nextStatus].label}
           </MenuItem>
         )}
         {previousStatus && (
-          <MenuItem onClick={() => handleStatusUpdate(previousStatus)}>
-            <LocalShippingOutlinedIcon sx={{ fontSize: 20, mr: 1 }} />
+          <MenuItem
+            onClick={() => handleStatusUpdate(previousStatus)}
+            sx={{ fontSize: { xs: "0.75rem", sm: "0.875rem" }, py: { xs: 0.75, sm: 1 } }}
+          >
+            <LocalShippingOutlinedIcon sx={{ fontSize: { xs: 16, sm: 20 }, mr: 1 }} />
             Move back to {statusConfig[previousStatus].label}
           </MenuItem>
         )}
         {!nextStatus && !previousStatus && !activeOrder && (
-          <MenuItem disabled>
-            <Typography variant="body2" color="text.secondary">
+          <MenuItem disabled sx={{ fontSize: { xs: "0.75rem", sm: "0.875rem" }, py: { xs: 0.75, sm: 1 } }}>
+            <Typography variant="body2" color="text.secondary" sx={{ fontSize: { xs: "0.75rem", sm: "0.875rem" } }}>
               No status transitions available
             </Typography>
           </MenuItem>

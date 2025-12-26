@@ -76,7 +76,14 @@ const StoreItemsTab: React.FC<StoreItemsTabProps> = ({ query, onQueryChange }) =
         onOpenDiscountSettings={() => setDiscountSettingsOpen(true)}
       />
 
-      <Box sx={{ display: "flex", gap: 3, height: "calc(100vh - 200px)" }}>
+      <Box
+        sx={{
+          display: "flex",
+          flexDirection: { xs: "column", md: "row" },
+          gap: { xs: 2, sm: 3 },
+          height: { xs: "auto", md: "calc(100vh - 200px)" },
+        }}
+      >
         <StoreItemsList
           items={items}
           loading={loading}
@@ -117,6 +124,12 @@ const StoreItemsTab: React.FC<StoreItemsTabProps> = ({ query, onQueryChange }) =
         onClose={() => setDiscountSettingsOpen(false)}
         maxWidth="sm"
         fullWidth
+        sx={{
+          "& .MuiDialog-paper": {
+            margin: { xs: 1, sm: 2 },
+            width: { xs: "calc(100% - 16px)", sm: "auto" },
+          },
+        }}
       >
         <DialogTitle
           sx={{
@@ -125,6 +138,9 @@ const StoreItemsTab: React.FC<StoreItemsTabProps> = ({ query, onQueryChange }) =
             display: "flex",
             alignItems: "center",
             justifyContent: "space-between",
+            fontSize: { xs: "1rem", sm: "1.25rem" },
+            px: { xs: 2, sm: 3 },
+            py: { xs: 1.5, sm: 2 },
           }}
         >
           Global Discount
@@ -132,11 +148,13 @@ const StoreItemsTab: React.FC<StoreItemsTabProps> = ({ query, onQueryChange }) =
             aria-label="close"
             onClick={() => setDiscountSettingsOpen(false)}
             edge="end"
+            size="small"
+            sx={{ fontSize: { xs: "1rem", sm: "1.25rem" } }}
           >
-            <CloseIcon />
+            <CloseIcon fontSize="inherit" />
           </IconButton>
         </DialogTitle>
-        <DialogContent dividers>
+        <DialogContent dividers sx={{ px: { xs: 2, sm: 3 }, py: { xs: 2, sm: 3 } }}>
           <GlobalDiscountSettings
             variant="plain"
             onSaved={() => {
@@ -145,8 +163,14 @@ const StoreItemsTab: React.FC<StoreItemsTabProps> = ({ query, onQueryChange }) =
             }}
           />
         </DialogContent>
-        <DialogActions sx={{ px: 3, py: 2 }}>
-          <Button onClick={() => setDiscountSettingsOpen(false)}>Close</Button>
+        <DialogActions sx={{ px: { xs: 2, sm: 3 }, py: { xs: 1.5, sm: 2 } }}>
+          <Button
+            onClick={() => setDiscountSettingsOpen(false)}
+            size="small"
+            sx={{ fontSize: { xs: "0.875rem", sm: "1rem" } }}
+          >
+            Close
+          </Button>
         </DialogActions>
       </Dialog>
 

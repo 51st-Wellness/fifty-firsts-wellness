@@ -205,61 +205,75 @@ const PreOrdersManagement: React.FC = () => {
   };
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-3 sm:space-y-4 lg:space-y-6">
       {/* Header */}
-      <div className="flex items-center justify-between">
-        <div>
-          <h2
-            className="text-2xl font-semibold text-gray-900"
-            style={{ fontFamily: '"League Spartan", sans-serif' }}
-          >
-            Pre-Orders
-          </h2>
-          <p className="text-sm text-gray-600 mt-1">
+      <div className="flex flex-col sm:flex-row gap-2 sm:gap-4 items-start sm:items-center justify-between">
+        <div className="flex-1 w-full">
+          <div className="flex items-center justify-between w-full">
+            <h2
+              className="text-lg sm:text-xl lg:text-2xl font-semibold text-gray-900"
+              style={{ fontFamily: '"League Spartan", sans-serif' }}
+            >
+              Pre-Orders
+            </h2>
+            <Button
+              variant="contained"
+              startIcon={<EmailIcon />}
+              onClick={() => setBulkEmailOpen(true)}
+              size="small"
+              sx={{
+                bgcolor: "#00969b",
+                "&:hover": { bgcolor: "#007a7f" },
+                fontFamily: '"League Spartan", sans-serif',
+                textTransform: "none",
+                fontWeight: 600,
+                fontSize: { xs: "0.75rem", sm: "0.875rem" },
+                px: { xs: 1.5, sm: 2 },
+                ml: { xs: 2, sm: 4 },
+              }}
+            >
+              <span className="hidden sm:inline">Send Bulk Email</span>
+              <span className="sm:hidden">Send Email</span>
+            </Button>
+          </div>
+          <p className="text-xs sm:text-sm text-gray-600 mt-1 hidden sm:block">
             Manage pre-orders and notify customers
           </p>
         </div>
-        <Button
-          variant="contained"
-          startIcon={<EmailIcon />}
-          onClick={() => setBulkEmailOpen(true)}
-          sx={{
-            bgcolor: "#00969b",
-            "&:hover": { bgcolor: "#007a7f" },
-            fontFamily: '"League Spartan", sans-serif',
-            textTransform: "none",
-            fontWeight: 600,
-          }}
-        >
-          Send Bulk Email
-        </Button>
       </div>
 
       {/* Summary Stats */}
       <Card>
-        <CardContent>
-          <Box sx={{ display: "flex", alignItems: "center", gap: 2 }}>
+        <CardContent sx={{ p: { xs: 1.5, sm: 2, lg: 3 } }}>
+          <Box sx={{ display: "flex", alignItems: "center", gap: { xs: 1.5, sm: 2 } }}>
             <Box
               sx={{
                 bgcolor: "#00969b",
-                borderRadius: 2,
-                p: 2,
+                borderRadius: { xs: 1, sm: 2 },
+                p: { xs: 1.5, sm: 2 },
                 display: "flex",
                 alignItems: "center",
                 justifyContent: "center",
               }}
             >
-              <ShoppingBagIcon sx={{ color: "white", fontSize: 28 }} />
+              <ShoppingBagIcon sx={{ color: "white", fontSize: { xs: 20, sm: 28 } }} />
             </Box>
             <Box sx={{ flex: 1 }}>
               <Typography
                 variant="h6"
                 fontWeight={600}
-                sx={{ fontFamily: '"League Spartan", sans-serif' }}
+                sx={{
+                  fontFamily: '"League Spartan", sans-serif',
+                  fontSize: { xs: "0.875rem", sm: "1rem", lg: "1.25rem" },
+                }}
               >
                 Pre-Orders Summary
               </Typography>
-              <Typography variant="body2" color="text.secondary">
+              <Typography
+                variant="body2"
+                color="text.secondary"
+                sx={{ fontSize: { xs: "0.75rem", sm: "0.875rem" } }}
+              >
                 Total: {preOrderStats.total} • Placed: {preOrderStats.placed} •
                 Confirmed: {preOrderStats.confirmed} • Fulfilled:{" "}
                 {preOrderStats.fulfilled} • Cancelled: {preOrderStats.cancelled}
@@ -271,8 +285,8 @@ const PreOrdersManagement: React.FC = () => {
 
       {/* Filters */}
       <Card>
-        <CardContent>
-          <Box sx={{ display: "flex", gap: 2, flexWrap: "wrap" }}>
+        <CardContent sx={{ p: { xs: 1.5, sm: 2, lg: 3 } }}>
+          <Box sx={{ display: "flex", flexDirection: { xs: "column", sm: "row" }, gap: { xs: 1.5, sm: 2 }, flexWrap: "wrap" }}>
             <TextField
               size="small"
               placeholder="Search by order ID, customer, or product..."
@@ -280,23 +294,30 @@ const PreOrdersManagement: React.FC = () => {
               onChange={(e) => setSearchQuery(e.target.value)}
               InputProps={{
                 startAdornment: (
-                  <SearchIcon sx={{ mr: 1, color: "text.secondary" }} />
+                  <SearchIcon sx={{ mr: 1, color: "text.secondary", fontSize: { xs: "1rem", sm: "1.25rem" } }} />
                 ),
               }}
-              sx={{ flex: 1, minWidth: 200 }}
+              sx={{
+                flex: { xs: 1, sm: 1 },
+                minWidth: { xs: "100%", sm: 200 },
+                "& .MuiInputBase-root": {
+                  fontSize: { xs: "0.875rem", sm: "1rem" },
+                },
+              }}
             />
-            <FormControl size="small" sx={{ minWidth: 150 }}>
-              <InputLabel>Pre-Order Status</InputLabel>
+            <FormControl size="small" sx={{ minWidth: { xs: "100%", sm: 150 } }}>
+              <InputLabel sx={{ fontSize: { xs: "0.875rem", sm: "1rem" } }}>Pre-Order Status</InputLabel>
               <Select
                 value={preOrderStatusFilter}
                 label="Pre-Order Status"
                 onChange={(e) => setPreOrderStatusFilter(e.target.value)}
+                sx={{ fontSize: { xs: "0.875rem", sm: "1rem" } }}
               >
-                <MenuItem value="">All</MenuItem>
-                <MenuItem value="PLACED">Placed</MenuItem>
-                <MenuItem value="CONFIRMED">Confirmed</MenuItem>
-                <MenuItem value="FULFILLED">Fulfilled</MenuItem>
-                <MenuItem value="CANCELLED">Cancelled</MenuItem>
+                <MenuItem value="" sx={{ fontSize: { xs: "0.875rem", sm: "1rem" } }}>All</MenuItem>
+                <MenuItem value="PLACED" sx={{ fontSize: { xs: "0.875rem", sm: "1rem" } }}>Placed</MenuItem>
+                <MenuItem value="CONFIRMED" sx={{ fontSize: { xs: "0.875rem", sm: "1rem" } }}>Confirmed</MenuItem>
+                <MenuItem value="FULFILLED" sx={{ fontSize: { xs: "0.875rem", sm: "1rem" } }}>Fulfilled</MenuItem>
+                <MenuItem value="CANCELLED" sx={{ fontSize: { xs: "0.875rem", sm: "1rem" } }}>Cancelled</MenuItem>
               </Select>
             </FormControl>
           </Box>
@@ -305,32 +326,61 @@ const PreOrdersManagement: React.FC = () => {
 
       {/* Pre-Orders Table */}
       <Card>
-        <TableContainer>
-          <Table>
+        <TableContainer sx={{ overflowX: "auto" }}>
+          <Table size="small">
             <TableHead>
               <TableRow>
-                <TableCell>Order ID</TableCell>
-                <TableCell>Customer</TableCell>
-                <TableCell>Items</TableCell>
-                <TableCell>Total Amount</TableCell>
-                <TableCell>Pre-Order Status</TableCell>
-                <TableCell>Order Status</TableCell>
-                <TableCell>Order Date</TableCell>
+                <TableCell sx={{ fontSize: { xs: "0.7rem", sm: "0.75rem", lg: "0.875rem" }, py: { xs: 1, sm: 1.5 } }}>Order ID</TableCell>
+                <TableCell sx={{ fontSize: { xs: "0.7rem", sm: "0.75rem", lg: "0.875rem" }, py: { xs: 1, sm: 1.5 } }}>Customer</TableCell>
+                <TableCell sx={{ fontSize: { xs: "0.7rem", sm: "0.75rem", lg: "0.875rem" }, py: { xs: 1, sm: 1.5 }, display: { xs: "none", md: "table-cell" } }}>Items</TableCell>
+                <TableCell sx={{ fontSize: { xs: "0.7rem", sm: "0.75rem", lg: "0.875rem" }, py: { xs: 1, sm: 1.5 } }}>Total Amount</TableCell>
+                <TableCell sx={{ fontSize: { xs: "0.7rem", sm: "0.75rem", lg: "0.875rem" }, py: { xs: 1, sm: 1.5 } }}>Pre-Order Status</TableCell>
+                <TableCell sx={{ fontSize: { xs: "0.7rem", sm: "0.75rem", lg: "0.875rem" }, py: { xs: 1, sm: 1.5 }, display: { xs: "none", lg: "table-cell" } }}>Order Status</TableCell>
+                <TableCell sx={{ fontSize: { xs: "0.7rem", sm: "0.75rem", lg: "0.875rem" }, py: { xs: 1, sm: 1.5 }, display: { xs: "none", lg: "table-cell" } }}>Order Date</TableCell>
               </TableRow>
             </TableHead>
             <TableBody>
               {loading ? (
                 <TableRow>
-                  <TableCell colSpan={7} align="center" sx={{ py: 4 }}>
-                    <CircularProgress size={32} />
+                  <TableCell colSpan={7} align="center" sx={{ py: { xs: 3, sm: 4 } }}>
+                    <CircularProgress size={20} sx={{ fontSize: { xs: 20, sm: 32 } }} />
                   </TableCell>
                 </TableRow>
               ) : filteredPreOrders.length === 0 ? (
                 <TableRow>
-                  <TableCell colSpan={7} align="center" sx={{ py: 4 }}>
-                    <Typography variant="body1" color="text.secondary">
-                      No pre-orders found
-                    </Typography>
+                  <TableCell colSpan={7} align="center" sx={{ py: { xs: 4, sm: 6 } }}>
+                    <Box sx={{ display: "flex", flexDirection: "column", alignItems: "center" }}>
+                      <ShoppingBagIcon
+                        sx={{
+                          fontSize: { xs: 48, sm: 64 },
+                          color: "text.secondary",
+                          mb: 2,
+                        }}
+                      />
+                      <Typography
+                        variant="body2"
+                        color="text.secondary"
+                        sx={{
+                          fontSize: { xs: "0.875rem", sm: "1rem" },
+                          fontFamily: '"League Spartan", sans-serif',
+                          fontWeight: 600,
+                          mb: 1,
+                        }}
+                      >
+                        {searchQuery || preOrderStatusFilter
+                          ? "No pre-orders found"
+                          : "No pre-orders yet"}
+                      </Typography>
+                      <Typography
+                        variant="caption"
+                        color="text.secondary"
+                        sx={{ fontSize: { xs: "0.75rem", sm: "0.875rem" } }}
+                      >
+                        {searchQuery || preOrderStatusFilter
+                          ? "Try adjusting your search or filter criteria"
+                          : "Pre-orders will appear here once customers place them"}
+                      </Typography>
+                    </Box>
                   </TableCell>
                 </TableRow>
               ) : (
@@ -341,21 +391,21 @@ const PreOrdersManagement: React.FC = () => {
                     sx={{ cursor: "pointer" }}
                     onClick={() => handleRowClick(order)}
                   >
-                    <TableCell>
-                      <Typography variant="body2" fontWeight={500}>
+                    <TableCell sx={{ py: { xs: 1, sm: 1.5 } }}>
+                      <Typography variant="body2" fontWeight={500} sx={{ fontSize: { xs: "0.75rem", sm: "0.875rem" } }}>
                         {order.id.slice(0, 8)}...
                       </Typography>
                     </TableCell>
-                    <TableCell>
+                    <TableCell sx={{ py: { xs: 1, sm: 1.5 } }}>
                       <Box
-                        sx={{ display: "flex", alignItems: "center", gap: 1.5 }}
+                        sx={{ display: "flex", alignItems: "center", gap: { xs: 1, sm: 1.5 } }}
                       >
                         <Avatar
                           sx={{
                             bgcolor: "#00969b",
-                            width: 32,
-                            height: 32,
-                            fontSize: "0.875rem",
+                            width: { xs: 28, sm: 32 },
+                            height: { xs: 28, sm: 32 },
+                            fontSize: { xs: "0.75rem", sm: "0.875rem" },
                           }}
                         >
                           {order.customer.firstName?.[0]?.toUpperCase() ||
@@ -363,47 +413,55 @@ const PreOrdersManagement: React.FC = () => {
                             "U"}
                         </Avatar>
                         <Box>
-                          <Typography variant="body2" fontWeight={500}>
+                          <Typography variant="body2" fontWeight={500} sx={{ fontSize: { xs: "0.75rem", sm: "0.875rem" } }}>
                             {order.customer.firstName} {order.customer.lastName}
                           </Typography>
-                          <Typography variant="caption" color="text.secondary">
+                          <Typography variant="caption" color="text.secondary" sx={{ fontSize: { xs: "0.65rem", sm: "0.75rem" } }}>
                             {order.customer.email}
                           </Typography>
                         </Box>
                       </Box>
                     </TableCell>
-                    <TableCell>
-                      <Typography variant="body2">
+                    <TableCell sx={{ py: { xs: 1, sm: 1.5 }, display: { xs: "none", md: "table-cell" } }}>
+                      <Typography variant="body2" sx={{ fontSize: { xs: "0.75rem", sm: "0.875rem" } }}>
                         {order.items.length} item(s)
                       </Typography>
-                      <Typography variant="caption" color="text.secondary">
+                      <Typography variant="caption" color="text.secondary" sx={{ fontSize: { xs: "0.65rem", sm: "0.75rem" } }}>
                         {order.items
                           .map((item) => `${item.name} (x${item.quantity})`)
                           .join(", ")}
                       </Typography>
                     </TableCell>
-                    <TableCell>
-                      <Typography variant="body2" fontWeight={500}>
+                    <TableCell sx={{ py: { xs: 1, sm: 1.5 } }}>
+                      <Typography variant="body2" fontWeight={500} sx={{ fontSize: { xs: "0.75rem", sm: "0.875rem" } }}>
                         {formatCurrency(order.totalAmount)}
                       </Typography>
                     </TableCell>
-                    <TableCell>
+                    <TableCell sx={{ py: { xs: 1, sm: 1.5 } }}>
                       <Chip
                         label={(order as any).preOrderStatus || "N/A"}
                         color={getStatusColor((order as any).preOrderStatus)}
                         size="small"
+                        sx={{
+                          height: { xs: 20, sm: 24 },
+                          fontSize: { xs: "0.65rem", sm: "0.75rem" },
+                        }}
                       />
                     </TableCell>
-                    <TableCell>
+                    <TableCell sx={{ py: { xs: 1, sm: 1.5 }, display: { xs: "none", lg: "table-cell" } }}>
                       <Chip
                         label={order.status}
                         size="small"
                         variant="outlined"
                         color="default"
+                        sx={{
+                          height: { xs: 20, sm: 24 },
+                          fontSize: { xs: "0.65rem", sm: "0.75rem" },
+                        }}
                       />
                     </TableCell>
-                    <TableCell>
-                      <Typography variant="caption" color="text.secondary">
+                    <TableCell sx={{ py: { xs: 1, sm: 1.5 }, display: { xs: "none", lg: "table-cell" } }}>
+                      <Typography variant="caption" color="text.secondary" sx={{ fontSize: { xs: "0.65rem", sm: "0.75rem" } }}>
                         {formatDate(order.createdAt)}
                       </Typography>
                     </TableCell>
@@ -421,6 +479,15 @@ const PreOrdersManagement: React.FC = () => {
           rowsPerPage={rowsPerPage}
           onRowsPerPageChange={handleChangeRowsPerPage}
           rowsPerPageOptions={[5, 10, 25, 50]}
+          sx={{
+            "& .MuiTablePagination-toolbar": {
+              px: { xs: 1, sm: 2 },
+              fontSize: { xs: "0.75rem", sm: "0.875rem" },
+            },
+            "& .MuiTablePagination-selectLabel, & .MuiTablePagination-displayedRows": {
+              fontSize: { xs: "0.75rem", sm: "0.875rem" },
+            },
+          }}
         />
       </Card>
 
@@ -430,6 +497,12 @@ const PreOrdersManagement: React.FC = () => {
         onClose={() => setDetailOpen(false)}
         maxWidth="md"
         fullWidth
+        sx={{
+          "& .MuiDialog-paper": {
+            margin: { xs: 1, sm: 2 },
+            width: { xs: "calc(100% - 16px)", sm: "auto" },
+          },
+        }}
       >
         <DialogTitle
           sx={{
@@ -438,6 +511,9 @@ const PreOrdersManagement: React.FC = () => {
             display: "flex",
             alignItems: "center",
             justifyContent: "space-between",
+            fontSize: { xs: "1rem", sm: "1.25rem" },
+            px: { xs: 2, sm: 3 },
+            py: { xs: 1.5, sm: 2 },
           }}
         >
           Order Details
@@ -445,11 +521,13 @@ const PreOrdersManagement: React.FC = () => {
             aria-label="close"
             onClick={() => setDetailOpen(false)}
             edge="end"
+            size="small"
+            sx={{ fontSize: { xs: "1rem", sm: "1.25rem" } }}
           >
-            <CloseIcon />
+            <CloseIcon fontSize="inherit" />
           </IconButton>
         </DialogTitle>
-        <DialogContent dividers>
+        <DialogContent dividers sx={{ px: { xs: 2, sm: 3 }, py: { xs: 2, sm: 3 } }}>
           {loadingDetail ? (
             <Box sx={{ display: "flex", justifyContent: "center", py: 4 }}>
               <CircularProgress />
@@ -608,8 +686,14 @@ const PreOrdersManagement: React.FC = () => {
             <Typography>No order details available</Typography>
           )}
         </DialogContent>
-        <DialogActions sx={{ px: 3, py: 2 }}>
-          <Button onClick={() => setDetailOpen(false)}>Close</Button>
+        <DialogActions sx={{ px: { xs: 2, sm: 3 }, py: { xs: 1.5, sm: 2 } }}>
+          <Button
+            onClick={() => setDetailOpen(false)}
+            size="small"
+            sx={{ fontSize: { xs: "0.875rem", sm: "1rem" } }}
+          >
+            Close
+          </Button>
         </DialogActions>
       </Dialog>
 
