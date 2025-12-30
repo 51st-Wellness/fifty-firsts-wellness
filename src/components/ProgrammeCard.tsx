@@ -1,10 +1,11 @@
-import React, { useState } from "react";
+import React, { useState, useCallback, useMemo, memo } from "react";
 import { Clock, Play, Eye, Calendar, Star } from "lucide-react";
 import { Programme } from "../api/programme.api";
 import { useNavigate } from "react-router-dom";
 import { getUserActiveSubscription } from "../api/subscription.api";
 import { getAuthToken } from "../lib/utils";
 import SubscriptionRequiredModal from "./SubscriptionRequiredModal";
+import LazyImage from "./ui/LazyImage";
 
 interface ProgrammeCardProps {
   programme: Programme;
@@ -14,7 +15,7 @@ const ProgrammeCard: React.FC<ProgrammeCardProps> = ({ programme }) => {
   const navigate = useNavigate();
   const [showSubscriptionModal, setShowSubscriptionModal] = useState(false);
 
-  const formatDuration = (seconds?: number) => {
+  const formatDuration = useCallback((seconds?: number) => {
     if (!seconds) return "N/A";
     const minutes = Math.floor(seconds / 60);
     const hours = Math.floor(minutes / 60);
@@ -23,9 +24,9 @@ const ProgrammeCard: React.FC<ProgrammeCardProps> = ({ programme }) => {
       return `${hours}h ${minutes % 60}m`;
     }
     return `${minutes}m`;
-  };
+  }, []);
 
-  const handleCardClick = async () => {
+  const handleCardClick = useCallback(async () => {
     // If user is not logged in, show subscription modal
     if (!getAuthToken()) {
       setShowSubscriptionModal(true);
@@ -48,7 +49,15 @@ const ProgrammeCard: React.FC<ProgrammeCardProps> = ({ programme }) => {
       // On error, show subscription modal to be safe
       setShowSubscriptionModal(true);
     }
-  };
+  }, [programme.productId, navigate]);
+
+  const formattedDate = useMemo(
+    () =>
+      programme.createdAt
+        ? new Date(programme.createdAt).toLocaleDateString()
+        : null,
+    [programme.createdAt]
+  );
 
   return (
     <>
@@ -62,7 +71,7 @@ const ProgrammeCard: React.FC<ProgrammeCardProps> = ({ programme }) => {
         {/* Thumbnail Container */}
         <div className="relative z-10 overflow-hidden rounded-2xl mb-4">
           {programme.thumbnail ? (
-            <img
+            <LazyImage
               src={programme.thumbnail}
               alt={programme.title}
               className="w-full h-48 object-cover group-hover:scale-105 transition-transform duration-300 shadow-md group-hover:shadow-xl"
@@ -101,12 +110,10 @@ const ProgrammeCard: React.FC<ProgrammeCardProps> = ({ programme }) => {
         <div className="relative z-10 flex flex-col gap-3 flex-1">
           {/* Metadata */}
           <div className="flex items-center gap-3 text-xs text-gray-500">
-            {programme.createdAt && (
+            {formattedDate && (
               <div className="flex items-center gap-1.5">
                 <Calendar className="w-3.5 h-3.5 text-indigo-500" />
-                <span>
-                  {new Date(programme.createdAt).toLocaleDateString()}
-                </span>
+                <span>{formattedDate}</span>
               </div>
             )}
           </div>
@@ -152,4 +159,4 @@ const ProgrammeCard: React.FC<ProgrammeCardProps> = ({ programme }) => {
   );
 };
 
-export default ProgrammeCard;
+export default memo(ProgrammeCard);

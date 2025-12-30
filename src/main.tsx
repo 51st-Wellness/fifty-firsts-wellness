@@ -6,6 +6,10 @@ import { BrowserRouter as Router } from "react-router-dom";
 import { AuthProvider } from "./context/AuthContextProvider";
 import { CartProvider } from "./context/CartContext";
 import { GlobalDiscountProvider } from "./context/GlobalDiscountContext";
+import { initPerformanceMonitoring } from "./utils/performance";
+
+// Initialize performance monitoring
+initPerformanceMonitoring();
 
 createRoot(document.getElementById("root")!).render(
   <StrictMode>

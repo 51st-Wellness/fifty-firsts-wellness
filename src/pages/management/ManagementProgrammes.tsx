@@ -10,6 +10,7 @@ import {
 import CreateProgrammeDialog from "@/components/admin/programmes";
 import AdminProgrammeCard from "@/components/admin/AdminProgrammeCard";
 import ConfirmationDialog from "@/components/admin/ConfirmationDialog";
+import { loadMuxPlayerScript } from "@/utils/loadScript";
 
 // Mux Player Modal Component
 const MuxPlayerModal: React.FC<{
@@ -20,6 +21,11 @@ const MuxPlayerModal: React.FC<{
   const [loadingToken, setLoadingToken] = useState(true);
 
   useEffect(() => {
+    // Load Mux Player script dynamically
+    loadMuxPlayerScript().catch((error) => {
+      console.error("Failed to load Mux Player script:", error);
+    });
+
     const fetchToken = async () => {
       if (programme?.productId) {
         setLoadingToken(true);

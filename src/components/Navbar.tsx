@@ -1,9 +1,10 @@
-import React, { useState, useEffect, useRef } from "react";
+import React, { useState, useEffect, useRef, useCallback, useMemo } from "react";
 import { Link } from "react-router-dom";
 import { Menu, X, ChevronDown } from "lucide-react";
 import { UserAvatar } from "./UserAvatar";
 import { useAuth } from "../context/AuthContextProvider";
 import CartIcon from "./CartIcon";
+import { prefetchOnHover } from "../utils/routePrefetch";
 
 const Navbar: React.FC = () => {
   const [menuOpen, setMenuOpen] = useState(false);
@@ -21,7 +22,7 @@ const Navbar: React.FC = () => {
   const navRef = useRef<HTMLElement>(null);
 
   // Helper functions for dropdown management with delay
-  const handleServicesMouseEnter = () => {
+  const handleServicesMouseEnter = useCallback(() => {
     // Clear any pending close timeout
     if (servicesTimeoutRef.current) {
       clearTimeout(servicesTimeoutRef.current);
@@ -29,16 +30,16 @@ const Navbar: React.FC = () => {
     }
     setServicesOpen(true);
     setResourcesOpen(false);
-  };
+  }, []);
 
-  const handleServicesMouseLeave = () => {
+  const handleServicesMouseLeave = useCallback(() => {
     // Set a delay before closing
     servicesTimeoutRef.current = setTimeout(() => {
       setServicesOpen(false);
     }, 300); // 300ms delay
-  };
+  }, []);
 
-  const handleResourcesMouseEnter = () => {
+  const handleResourcesMouseEnter = useCallback(() => {
     // Clear any pending close timeout
     if (resourcesTimeoutRef.current) {
       clearTimeout(resourcesTimeoutRef.current);
@@ -46,14 +47,14 @@ const Navbar: React.FC = () => {
     }
     setResourcesOpen(true);
     setServicesOpen(false);
-  };
+  }, []);
 
-  const handleResourcesMouseLeave = () => {
+  const handleResourcesMouseLeave = useCallback(() => {
     // Set a delay before closing
     resourcesTimeoutRef.current = setTimeout(() => {
       setResourcesOpen(false);
     }, 300); // 300ms delay
-  };
+  }, []);
 
   // Close menus when clicking/tapping outside the navbar
   useEffect(() => {
@@ -118,6 +119,9 @@ const Navbar: React.FC = () => {
               <Link
                 to="/about"
                 className="text-gray-700 hover:text-brand-green font-medium transition-colors px-3 py-2 rounded-lg font-primary"
+                ref={(el) => {
+                  if (el) prefetchOnHover(el, "/about");
+                }}
               >
                 About
               </Link>
@@ -180,6 +184,9 @@ const Navbar: React.FC = () => {
               <Link
                 to="/marketplace"
                 className="text-gray-700 hover:text-brand-green font-medium transition-colors px-3 py-2 rounded-lg font-primary"
+                ref={(el) => {
+                  if (el) prefetchOnHover(el, "/marketplace");
+                }}
               >
                 Shop
               </Link>

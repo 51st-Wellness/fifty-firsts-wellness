@@ -1,4 +1,5 @@
 import { useEffect } from "react";
+import { loadRoyalMailScripts } from "../utils/loadScript";
 
 interface UseAddressNowOptions {
   enabled: boolean;
@@ -18,6 +19,11 @@ export const useAddressNow = ({
 }: UseAddressNowOptions) => {
   useEffect(() => {
     if (!enabled) return;
+
+    // Load Royal Mail scripts dynamically
+    loadRoyalMailScripts().catch((error) => {
+      console.error("Failed to load Royal Mail scripts:", error);
+    });
 
     const initAddressNow = () => {
       const AN = (window as any).addressNow || (window as any).AddressNow;

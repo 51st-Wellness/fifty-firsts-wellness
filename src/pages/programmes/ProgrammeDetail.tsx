@@ -14,6 +14,7 @@ import { useAuth } from "../../context/AuthContextProvider";
 import Loader from "../../components/Loader";
 import SubscriptionRequiredModal from "../../components/SubscriptionRequiredModal";
 import toast from "react-hot-toast";
+import { loadMuxPlayerScript } from "../../utils/loadScript";
 
 type ProgrammeResponse = {
   programme: Programme;
@@ -34,6 +35,11 @@ const ProgrammeDetail: React.FC = () => {
   const [accessError, setAccessError] = useState<string | null>(null);
 
   useEffect(() => {
+    // Load Mux Player script dynamically
+    loadMuxPlayerScript().catch((error) => {
+      console.error("Failed to load Mux Player script:", error);
+    });
+
     if (!productId) {
       setError("Programme ID is required");
       setLoading(false);

@@ -1,4 +1,4 @@
-import React, { useMemo, useState } from "react";
+import React, { useMemo, useState, useCallback, memo } from "react";
 import { ShoppingCart, Heart, Bell, Package, Star } from "lucide-react";
 import type { StoreItem } from "../types/marketplace.types";
 import type { ReviewSummary } from "../types/review.types";
@@ -10,6 +10,7 @@ import Price from "./Price";
 import { getStoreItemPricing } from "../utils/discounts";
 import { useGlobalDiscount } from "../context/GlobalDiscountContext";
 import toast from "react-hot-toast";
+import LazyImage from "./ui/LazyImage";
 
 interface StoreItemCardProps {
   item: StoreItem;
@@ -23,14 +24,24 @@ const StoreItemCard: React.FC<StoreItemCardProps> = ({
   reviewSummary,
   onAddToCart,
 }) => {
-  const imageUrl = item.display?.url || item.images?.[0] || ""; // pick cover image
-  const title = item.name || "Product";
+  const imageUrl = useMemo(
+    () => item.display?.url || item.images?.[0] || "",
+    [item.display?.url, item.images]
+  );
+  const title = useMemo(() => item.name || "Product", [item.name]);
   const { globalDiscount } = useGlobalDiscount();
-  const pricing = getStoreItemPricing(item, { globalDiscount });
-  const displayPrice = pricing.currentPrice ?? item.price ?? 0;
-  const strikeThroughPrice = pricing.hasDiscount
-    ? pricing.basePrice
-    : item.oldPrice;
+  const pricing = useMemo(
+    () => getStoreItemPricing(item, { globalDiscount }),
+    [item, globalDiscount]
+  );
+  const displayPrice = useMemo(
+    () => pricing.currentPrice ?? item.price ?? 0,
+    [pricing.currentPrice, item.price]
+  );
+  const strikeThroughPrice = useMemo(
+    () => (pricing.hasDiscount ? pricing.basePrice : item.oldPrice),
+    [pricing.hasDiscount, pricing.basePrice, item.oldPrice]
+  );
 
   const { isAuthenticated } = useAuth();
   const { addToCart, getItemQuantity, isInCart } = useCart();
@@ -38,13 +49,25 @@ const StoreItemCard: React.FC<StoreItemCardProps> = ({
   const navigate = useNavigate();
   const [notifyOpen, setNotifyOpen] = useState(false);
 
-  const preOrderEnabled = Boolean((item as any).preOrderEnabled);
-  const canPreOrder = preOrderEnabled && (item.stock ?? 0) <= 0;
+  const preOrderEnabled = useMemo(
+    () => Boolean((item as any).preOrderEnabled),
+    [item]
+  );
+  const canPreOrder = useMemo(
+    () => preOrderEnabled && (item.stock ?? 0) <= 0,
+    [preOrderEnabled, item.stock]
+  );
 
-  const currentQuantity = getItemQuantity(item.productId);
-  const inCart = isInCart(item.productId);
+  const currentQuantity = useMemo(
+    () => getItemQuantity(item.productId),
+    [getItemQuantity, item.productId]
+  );
+  const inCart = useMemo(
+    () => isInCart(item.productId),
+    [isInCart, item.productId]
+  );
 
-  const handleAddToCart = async () => {
+  const handleAddToCart = useCallback(async () => {
     try {
       setItemLoading(true);
       await addToCart(item.productId, 1);
@@ -58,14 +81,9 @@ const StoreItemCard: React.FC<StoreItemCardProps> = ({
     } finally {
       setItemLoading(false);
     }
-  };
+  }, [addToCart, item.productId, item, onAddToCart]);
 
-  const isComingSoon = (item as any)?.status === "coming_soon";
-  const isOutOfStock = (item.stock ?? 0) === 0;
-  const showAddToCart = !canPreOrder && !isComingSoon && !isOutOfStock;
-  const showNotifyOnly = !canPreOrder && (isComingSoon || isOutOfStock);
-
-  const handlePreOrder = async () => {
+  const handlePreOrder = useCallback(async () => {
     if (!canPreOrder) return;
 
     try {
@@ -78,9 +96,9 @@ const StoreItemCard: React.FC<StoreItemCardProps> = ({
     } finally {
       setItemLoading(false);
     }
-  };
+  }, [canPreOrder, addToCart, item.productId]);
 
-  const handleCardClick = (e: React.MouseEvent) => {
+  const handleCardClick = useCallback((e: React.MouseEvent) => {
     // Prevent opening dialog when clicking on cart buttons
     if ((e.target as HTMLElement).closest(".cart-controls")) {
       return;
@@ -88,7 +106,21 @@ const StoreItemCard: React.FC<StoreItemCardProps> = ({
     navigate(`/products/${item.productId}`, {
       state: { cover: imageUrl, images: item.images },
     });
-  };
+  }, [navigate, item.productId, imageUrl, item.images]);
+
+  const isComingSoon = useMemo(
+    () => (item as any)?.status === "coming_soon",
+    [item]
+  );
+  const isOutOfStock = useMemo(() => (item.stock ?? 0) === 0, [item.stock]);
+  const showAddToCart = useMemo(
+    () => !canPreOrder && !isComingSoon && !isOutOfStock,
+    [canPreOrder, isComingSoon, isOutOfStock]
+  );
+  const showNotifyOnly = useMemo(
+    () => !canPreOrder && (isComingSoon || isOutOfStock),
+    [canPreOrder, isComingSoon, isOutOfStock]
+  );
 
   return (
     <>
@@ -98,7 +130,7 @@ const StoreItemCard: React.FC<StoreItemCardProps> = ({
       >
         <div className="relative w-full h-40 sm:h-44 bg-gray-100 rounded-xl overflow-hidden border border-gray-200 flex-shrink-0">
           {imageUrl ? (
-            <img
+            <LazyImage
               src={imageUrl}
               alt={title}
               className="w-full h-full object-cover"
@@ -289,4 +321,4 @@ const StoreItemCard: React.FC<StoreItemCardProps> = ({
   );
 };
 
-export default StoreItemCard;
+export default memo(StoreItemCard);

@@ -5,6 +5,7 @@ import type { StoreItem } from "../../types/marketplace.types";
 import { useNavigate } from "react-router-dom";
 import { getStoreItemPricing } from "../../utils/discounts";
 import Price from "../Price";
+import LazyImage from "../ui/LazyImage";
 
 const FeaturedSection: React.FC = () => {
   const [featuredItems, setFeaturedItems] = useState<StoreItem[]>([]);
@@ -93,7 +94,7 @@ const FeaturedSection: React.FC = () => {
                 >
                   <div className="relative w-full h-40 sm:h-44 bg-gray-100 rounded-xl overflow-hidden">
                     {imageUrl ? (
-                      <img
+                      <LazyImage
                         src={imageUrl}
                         alt={item.name}
                         className="w-full h-full object-cover"

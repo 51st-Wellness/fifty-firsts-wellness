@@ -6,53 +6,57 @@ import {
   Navigate,
   useLocation,
 } from "react-router-dom";
-import Navbar from "./components/Navbar";
-import Home from "./pages/Home";
-import About from "./pages/About";
-import MarketPlace from "./pages/marketplace/MarketPlace";
-import ProductDetail from "./pages/marketplace/ProductDetail";
-import Blog from "./pages/blog/Blog";
-import AIWellness from "./pages/AIWellness";
-import Membership from "./pages/Membership";
-import Subscriptions from "./pages/Subscriptions";
-import ContactUs from "./pages/ContactUs";
-import Login from "./pages/auth/Login";
-import Signup from "./pages/auth/Signup";
-import DashboardLayout from "./pages/dashboard/DashboardLayout";
-import MyAccount from "./pages/dashboard/MyAccount";
-import OrdersHistory from "./pages/dashboard/OrdersHistory";
-import OrderDetails from "./pages/dashboard/OrderDetails";
-import MyCart from "./pages/dashboard/MyCart";
-import DeliveryAddresses from "./pages/dashboard/DeliveryAddresses";
-import PersonalWellnessProgrammes from "./pages/service/PersonalWellnessProgrammes";
-import WellnessProgramDetails from "./pages/service/WellnessProgramDetails";
-import ProgrammeDetail from "./pages/programmes/ProgrammeDetail";
-import Podcasts from "./pages/ResourcesHub/Podcasts";
-import PodcastDetail from "./pages/ResourcesHub/PodcastDetail";
-import Webinars from "./pages/ResourcesHub/Webinars";
-import BusinessWellnessProgrammes from "./pages/service/BusinessWellnessProgrammes";
-import CookiePolicy from "./pages/legal/CookiePolicy";
-import TermsAndConditions from "./pages/legal/TermsAndConditions";
-import PrivacyPolicy from "./pages/legal/PrivacyPolicy";
-import ForgotPassword from "./pages/auth/ForgotPassword";
 import { Toaster } from "react-hot-toast";
-import ResetPassword from "./pages/auth/ResetPassword";
-import CheckEmail from "./pages/auth/CheckEmail";
-import EmailVerification from "./pages/auth/EmailVerification";
 import EmailVerificationGuard from "./components/EmailVerificationGuard";
 import ManagementGuard from "./components/ManagementGuard";
 import ProtectedRoute from "./components/ProtectedRoute";
 import Loader from "./components/Loader";
-import Footer from "./components/Footer";
-import BlogPost from "./pages/blog/BlogPost";
 import CookieConsent from "./components/CookieConsent";
+import { prefetchCriticalRoutes } from "./utils/routePrefetch";
 
-import PaymentCancel from "./pages/payment/PaymentCancel";
-import PaymentSuccess from "./pages/payment/PaymentSuccess";
-import PaymentError from "./pages/payment/PaymentError";
-import NotFound from "./pages/NotFound";
-import AuthSuccess from "./pages/auth/AuthSuccess";
-import Checkout from "./pages/payment/Checkout";
+// Lazy load common layout components
+const Navbar = lazy(() => import("./components/Navbar"));
+const Footer = lazy(() => import("./components/Footer"));
+
+// Lazy load all page components
+const Home = lazy(() => import("./pages/Home"));
+const About = lazy(() => import("./pages/About"));
+const MarketPlace = lazy(() => import("./pages/marketplace/MarketPlace"));
+const ProductDetail = lazy(() => import("./pages/marketplace/ProductDetail"));
+const Blog = lazy(() => import("./pages/blog/Blog"));
+const BlogPost = lazy(() => import("./pages/blog/BlogPost"));
+const AIWellness = lazy(() => import("./pages/AIWellness"));
+const Membership = lazy(() => import("./pages/Membership"));
+const Subscriptions = lazy(() => import("./pages/Subscriptions"));
+const ContactUs = lazy(() => import("./pages/ContactUs"));
+const Login = lazy(() => import("./pages/auth/Login"));
+const Signup = lazy(() => import("./pages/auth/Signup"));
+const DashboardLayout = lazy(() => import("./pages/dashboard/DashboardLayout"));
+const MyAccount = lazy(() => import("./pages/dashboard/MyAccount"));
+const OrdersHistory = lazy(() => import("./pages/dashboard/OrdersHistory"));
+const OrderDetails = lazy(() => import("./pages/dashboard/OrderDetails"));
+const MyCart = lazy(() => import("./pages/dashboard/MyCart"));
+const DeliveryAddresses = lazy(() => import("./pages/dashboard/DeliveryAddresses"));
+const PersonalWellnessProgrammes = lazy(() => import("./pages/service/PersonalWellnessProgrammes"));
+const WellnessProgramDetails = lazy(() => import("./pages/service/WellnessProgramDetails"));
+const ProgrammeDetail = lazy(() => import("./pages/programmes/ProgrammeDetail"));
+const Podcasts = lazy(() => import("./pages/ResourcesHub/Podcasts"));
+const PodcastDetail = lazy(() => import("./pages/ResourcesHub/PodcastDetail"));
+const Webinars = lazy(() => import("./pages/ResourcesHub/Webinars"));
+const BusinessWellnessProgrammes = lazy(() => import("./pages/service/BusinessWellnessProgrammes"));
+const CookiePolicy = lazy(() => import("./pages/legal/CookiePolicy"));
+const TermsAndConditions = lazy(() => import("./pages/legal/TermsAndConditions"));
+const PrivacyPolicy = lazy(() => import("./pages/legal/PrivacyPolicy"));
+const ForgotPassword = lazy(() => import("./pages/auth/ForgotPassword"));
+const ResetPassword = lazy(() => import("./pages/auth/ResetPassword"));
+const CheckEmail = lazy(() => import("./pages/auth/CheckEmail"));
+const EmailVerification = lazy(() => import("./pages/auth/EmailVerification"));
+const PaymentCancel = lazy(() => import("./pages/payment/PaymentCancel"));
+const PaymentSuccess = lazy(() => import("./pages/payment/PaymentSuccess"));
+const PaymentError = lazy(() => import("./pages/payment/PaymentError"));
+const NotFound = lazy(() => import("./pages/NotFound"));
+const AuthSuccess = lazy(() => import("./pages/auth/AuthSuccess"));
+const Checkout = lazy(() => import("./pages/payment/Checkout"));
 
 // Management routes (lazy loaded)
 const ManagementLayout = lazy(
@@ -77,6 +81,24 @@ const ManagementUsers = lazy(
   () => import("./pages/management/ManagementUsers")
 );
 
+// Wrapper component for routes with Navbar and Footer
+const RouteWithLayout: React.FC<{
+  children: React.ReactNode;
+  showFooter?: boolean;
+}> = ({ children, showFooter = true }) => (
+  <>
+    <Suspense fallback={<Loader />}>
+      <Navbar />
+    </Suspense>
+    <Suspense fallback={<Loader />}>{children}</Suspense>
+    {showFooter && (
+      <Suspense fallback={null}>
+        <Footer />
+      </Suspense>
+    )}
+  </>
+);
+
 // Scroll to top component
 const ScrollToTop: React.FC = () => {
   const { pathname } = useLocation();
@@ -93,6 +115,11 @@ const ScrollToTop: React.FC = () => {
 };
 
 const App: React.FC = () => {
+  // Prefetch critical routes on mount
+  useEffect(() => {
+    prefetchCriticalRoutes();
+  }, []);
+
   return (
     <div className="min-h-screen">
       {/* {location.pathname.startsWith("/admin") ? null : } */}
@@ -104,245 +131,358 @@ const App: React.FC = () => {
           <Route
             path="/"
             element={
-              <>
-                <Navbar />
-                <Home />
-                <Footer />
-              </>
+              <RouteWithLayout>
+                <Suspense fallback={<Loader />}>
+                  <Home />
+                </Suspense>
+              </RouteWithLayout>
             }
           />
           {/** Removed legacy /homepage route that referenced HomePage.jsx */}
           <Route
             path="/about"
             element={
-              <>
-                <Navbar />
-                <About />
-                <Footer />
-              </>
+              <RouteWithLayout>
+                <Suspense fallback={<Loader />}>
+                  <About />
+                </Suspense>
+              </RouteWithLayout>
             }
           />
           <Route
             path="/services/personal-wellness"
             element={
-              <>
-                <Navbar />
-                <PersonalWellnessProgrammes />
-                <Footer />
-              </>
+              <RouteWithLayout>
+                <Suspense fallback={<Loader />}>
+                  <PersonalWellnessProgrammes />
+                </Suspense>
+              </RouteWithLayout>
             }
           />
           <Route
             path="/services/business-wellness"
             element={
-              <>
-                <Navbar />
-                <BusinessWellnessProgrammes />
-                <Footer />
-              </>
+              <RouteWithLayout>
+                <Suspense fallback={<Loader />}>
+                  <BusinessWellnessProgrammes />
+                </Suspense>
+              </RouteWithLayout>
             }
           />
           <Route
             path="/services/program-details"
             element={
-              <>
-                <Navbar />
-                <WellnessProgramDetails />
-                <Footer />
-              </>
+              <RouteWithLayout>
+                <Suspense fallback={<Loader />}>
+                  <WellnessProgramDetails />
+                </Suspense>
+              </RouteWithLayout>
             }
           />
           <Route
             path="/marketplace"
             element={
-              <>
-                <Navbar />
-                <MarketPlace />
-              </>
+              <RouteWithLayout showFooter={false}>
+                <Suspense fallback={<Loader />}>
+                  <MarketPlace />
+                </Suspense>
+              </RouteWithLayout>
             }
           />
           <Route
             path="/products/:productId"
             element={
-              <>
-                <Navbar />
-                <ProductDetail />
-              </>
+              <RouteWithLayout showFooter={false}>
+                <Suspense fallback={<Loader />}>
+                  <ProductDetail />
+                </Suspense>
+              </RouteWithLayout>
             }
           />
           <Route
             path="/programmes"
             element={
-              <>
-                <Navbar />
-                <PersonalWellnessProgrammes />
-                <Footer />
-              </>
+              <RouteWithLayout>
+                <Suspense fallback={<Loader />}>
+                  <PersonalWellnessProgrammes />
+                </Suspense>
+              </RouteWithLayout>
             }
           />
           <Route
             path="/programmes/:productId"
             element={
-              <>
-                <Navbar />
-                <ProgrammeDetail />
-              </>
+              <RouteWithLayout showFooter={false}>
+                <Suspense fallback={<Loader />}>
+                  <ProgrammeDetail />
+                </Suspense>
+              </RouteWithLayout>
             }
           />
           <Route
             path="/podcasts"
             element={
-              <>
-                <Navbar />
-                <Podcasts />
-                {/* <Footer /> */}
-              </>
+              <RouteWithLayout showFooter={false}>
+                <Suspense fallback={<Loader />}>
+                  <Podcasts />
+                </Suspense>
+              </RouteWithLayout>
             }
           />
           <Route
             path="/podcasts/:id"
             element={
-              <>
-                <Navbar />
-                <PodcastDetail />
-                <Footer />
-              </>
+              <RouteWithLayout>
+                <Suspense fallback={<Loader />}>
+                  <PodcastDetail />
+                </Suspense>
+              </RouteWithLayout>
             }
           />
           <Route
             path="/resources/webinars"
             element={
-              <>
-                <Navbar />
-                <Webinars />
-              </>
+              <RouteWithLayout showFooter={false}>
+                <Suspense fallback={<Loader />}>
+                  <Webinars />
+                </Suspense>
+              </RouteWithLayout>
             }
           />
           <Route
             path="/blog"
             element={
-              <>
-                <Navbar />
-                <Blog />
-                <Footer />
-              </>
+              <RouteWithLayout>
+                <Suspense fallback={<Loader />}>
+                  <Blog />
+                </Suspense>
+              </RouteWithLayout>
             }
           />
           <Route
             path="/blog/:slug"
             element={
-              <>
-                <Navbar />
-                <BlogPost />
-                <Footer />
-              </>
+              <RouteWithLayout>
+                <Suspense fallback={<Loader />}>
+                  <BlogPost />
+                </Suspense>
+              </RouteWithLayout>
             }
           />
           <Route
             path="/ai-wellness"
             element={
-              <>
-                <Navbar />
-                <AIWellness />
-              </>
+              <RouteWithLayout showFooter={false}>
+                <Suspense fallback={<Loader />}>
+                  <AIWellness />
+                </Suspense>
+              </RouteWithLayout>
             }
           />
-          <Route path="/membership" element={<Membership />} />
+          <Route
+            path="/membership"
+            element={
+              <Suspense fallback={<Loader />}>
+                <Membership />
+              </Suspense>
+            }
+          />
           <Route
             path="/subscriptions"
             element={
-              <>
-                <Navbar />
-                <Subscriptions />
-              </>
+              <RouteWithLayout showFooter={false}>
+                <Suspense fallback={<Loader />}>
+                  <Subscriptions />
+                </Suspense>
+              </RouteWithLayout>
             }
           />
-          <Route path="/contact" element={<ContactUs />} />
+          <Route
+            path="/contact"
+            element={
+              <RouteWithLayout showFooter={false}>
+                <Suspense fallback={<Loader />}>
+                  <ContactUs />
+                </Suspense>
+              </RouteWithLayout>
+            }
+          />
           <Route
             path="/cookie-policy"
             element={
-              <>
-                <Navbar />
-                <CookiePolicy />
-              </>
+              <RouteWithLayout showFooter={false}>
+                <Suspense fallback={<Loader />}>
+                  <CookiePolicy />
+                </Suspense>
+              </RouteWithLayout>
             }
           />
           <Route
             path="/terms-and-conditions"
             element={
-              <>
-                <Navbar />
-                <TermsAndConditions />
-              </>
+              <RouteWithLayout showFooter={false}>
+                <Suspense fallback={<Loader />}>
+                  <TermsAndConditions />
+                </Suspense>
+              </RouteWithLayout>
             }
           />
           <Route
             path="/privacy-policy"
             element={
-              <>
-                <Navbar />
-                <PrivacyPolicy />
-              </>
+              <RouteWithLayout showFooter={false}>
+                <Suspense fallback={<Loader />}>
+                  <PrivacyPolicy />
+                </Suspense>
+              </RouteWithLayout>
             }
           />
-          <Route path="/login" element={<Login />} />
-          <Route path="/signup" element={<Signup />} />
-          <Route path="/auth/success" element={<AuthSuccess />} />
+          <Route
+            path="/login"
+            element={
+              <Suspense fallback={<Loader />}>
+                <Login />
+              </Suspense>
+            }
+          />
+          <Route
+            path="/signup"
+            element={
+              <Suspense fallback={<Loader />}>
+                <Signup />
+              </Suspense>
+            }
+          />
+          <Route
+            path="/auth/success"
+            element={
+              <Suspense fallback={<Loader />}>
+                <AuthSuccess />
+              </Suspense>
+            }
+          />
           <Route
             path="/dashboard"
             element={
               <EmailVerificationGuard>
-                <DashboardLayout />
+                <Suspense fallback={<Loader />}>
+                  <DashboardLayout />
+                </Suspense>
               </EmailVerificationGuard>
             }
           >
-            <Route index element={<MyAccount />} />
-            <Route path="orders" element={<OrdersHistory />} />
-            <Route path="orders/:orderId" element={<OrderDetails />} />
-            <Route path="addresses" element={<DeliveryAddresses />} />
-            <Route path="cart" element={<MyCart />} />
+            <Route
+              index
+              element={
+                <Suspense fallback={<Loader />}>
+                  <MyAccount />
+                </Suspense>
+              }
+            />
+            <Route
+              path="orders"
+              element={
+                <Suspense fallback={<Loader />}>
+                  <OrdersHistory />
+                </Suspense>
+              }
+            />
+            <Route
+              path="orders/:orderId"
+              element={
+                <Suspense fallback={<Loader />}>
+                  <OrderDetails />
+                </Suspense>
+              }
+            />
+            <Route
+              path="addresses"
+              element={
+                <Suspense fallback={<Loader />}>
+                  <DeliveryAddresses />
+                </Suspense>
+              }
+            />
+            <Route
+              path="cart"
+              element={
+                <Suspense fallback={<Loader />}>
+                  <MyCart />
+                </Suspense>
+              }
+            />
           </Route>
-          <Route path="/forgot-password" element={<ForgotPassword />} />
-          <Route path="/reset-password" element={<ResetPassword />} />
-          <Route path="/check-email" element={<CheckEmail />} />
-          <Route path="/email-verification" element={<EmailVerification />} />
+          <Route
+            path="/forgot-password"
+            element={
+              <Suspense fallback={<Loader />}>
+                <ForgotPassword />
+              </Suspense>
+            }
+          />
+          <Route
+            path="/reset-password"
+            element={
+              <Suspense fallback={<Loader />}>
+                <ResetPassword />
+              </Suspense>
+            }
+          />
+          <Route
+            path="/check-email"
+            element={
+              <Suspense fallback={<Loader />}>
+                <CheckEmail />
+              </Suspense>
+            }
+          />
+          <Route
+            path="/email-verification"
+            element={
+              <Suspense fallback={<Loader />}>
+                <EmailVerification />
+              </Suspense>
+            }
+          />
           <Route
             path="/payment/cancel"
             element={
-              <>
-                <Navbar />
-                <PaymentCancel />
-                <Footer />
-              </>
+              <RouteWithLayout>
+                <Suspense fallback={<Loader />}>
+                  <PaymentCancel />
+                </Suspense>
+              </RouteWithLayout>
             }
           />
           <Route
             path="/payment/success"
             element={
-              <>
-                <Navbar />
-                <PaymentSuccess />
-                <Footer />
-              </>
+              <RouteWithLayout>
+                <Suspense fallback={<Loader />}>
+                  <PaymentSuccess />
+                </Suspense>
+              </RouteWithLayout>
             }
           />
           <Route
             path="/payment/error"
             element={
-              <>
-                <Navbar />
-                <PaymentError />
-                <Footer />
-              </>
+              <RouteWithLayout>
+                <Suspense fallback={<Loader />}>
+                  <PaymentError />
+                </Suspense>
+              </RouteWithLayout>
             }
           />
           <Route
             path="/checkout"
             element={
               <ProtectedRoute>
-                <Navbar />
-                <Checkout />
-                <Footer />
+                <RouteWithLayout>
+                  <Suspense fallback={<Loader />}>
+                    <Checkout />
+                  </Suspense>
+                </RouteWithLayout>
               </ProtectedRoute>
             }
           />
@@ -411,7 +551,14 @@ const App: React.FC = () => {
           </Route>
 
           {/* 404 Catch-all route - must be last */}
-          <Route path="*" element={<NotFound />} />
+          <Route
+            path="*"
+            element={
+              <Suspense fallback={<Loader />}>
+                <NotFound />
+              </Suspense>
+            }
+          />
         </Routes>
       </div>
     </div>

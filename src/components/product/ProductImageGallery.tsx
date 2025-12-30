@@ -1,5 +1,6 @@
 import React from "react";
 import { ShoppingCart } from "lucide-react";
+import LazyImage from "../ui/LazyImage";
 
 interface ProductImageGalleryProps {
   images: string[];
@@ -40,7 +41,7 @@ const ProductImageGallery: React.FC<ProductImageGalleryProps> = ({
             }}
           >
             {mainImage ? (
-              <img
+              <LazyImage
                 src={mainImage}
                 alt={productName}
                 className="w-full h-full object-cover"
@@ -78,7 +79,7 @@ const ProductImageGallery: React.FC<ProductImageGalleryProps> = ({
                       : "border-transparent hover:border-gray-300"
                   }`}
                 >
-                  <img
+                  <LazyImage
                     src={img}
                     alt={`${productName} view ${idx + 1}`}
                     className="w-full h-full object-cover"

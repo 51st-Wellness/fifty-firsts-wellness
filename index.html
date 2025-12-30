@@ -5,33 +5,61 @@
     <link rel="icon" type="image/png" href="/src/assets/images/logo.png" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Fifty Firsts Wellness</title>
-    <!-- Google Fonts -->
+    
+    <!-- DNS Prefetch for external resources -->
+    <link rel="dns-prefetch" href="https://fonts.googleapis.com" />
+    <link rel="dns-prefetch" href="https://fonts.gstatic.com" />
+    <link rel="dns-prefetch" href="https://api.addressnow.co.uk" />
+    <link rel="dns-prefetch" href="https://cdn.jsdelivr.net" />
+    
+    <!-- Preconnect to critical origins -->
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    
+    <!-- Google Fonts with font-display: swap -->
     <link
       href="https://fonts.googleapis.com/css2?family=Quicksand:wght@300;400;500;600;700&family=Poppins:wght@300;400;500;600;700&family=Darker+Grotesque:wght@300..900&family=Lilita+One&display=swap"
       rel="stylesheet"
+      media="print"
+      onload="this.media='all'"
     />
+    <noscript>
+      <link
+        href="https://fonts.googleapis.com/css2?family=Quicksand:wght@300;400;500;600;700&family=Poppins:wght@300;400;500;600;700&family=Darker+Grotesque:wght@300..900&family=Lilita+One&display=swap"
+        rel="stylesheet"
+      />
+    </noscript>
     <link
       href="https://fonts.googleapis.com/css2?family=League+Spartan:wght@100..900&display=swap"
       rel="stylesheet"
+      media="print"
+      onload="this.media='all'"
     />
-    <!-- Royal Mail AddressNow (key injected via Vite env: VITE_ROYAL_MAIL_KEY) -->
+    <noscript>
+      <link
+        href="https://fonts.googleapis.com/css2?family=League+Spartan:wght@100..900&display=swap"
+        rel="stylesheet"
+      />
+    </noscript>
+    
+    <!-- Royal Mail AddressNow - Defer loading (only needed on checkout/address pages) -->
     <link
-      rel="stylesheet"
-      type="text/css"
+      rel="preload"
       href="https://api.addressnow.co.uk/css/addressnow-2.30.min.css?key=%VITE_ROYAL_MAIL_KEY%"
+      as="style"
+      onload="this.onload=null;this.rel='stylesheet'"
     />
-    <script
-      type="text/javascript"
-      src="https://api.addressnow.co.uk/js/addressnow-2.30.min.js?key=%VITE_ROYAL_MAIL_KEY%"
-    ></script>
-
-    <!-- Mux Player Web Component -->
-    <script
-      type="module"
-      src="https://cdn.jsdelivr.net/npm/@mux/mux-player"
-    ></script>
+    <noscript>
+      <link
+        rel="stylesheet"
+        type="text/css"
+        href="https://api.addressnow.co.uk/css/addressnow-2.30.min.css?key=%VITE_ROYAL_MAIL_KEY%"
+      />
+    </noscript>
+    <!-- Royal Mail script will be loaded dynamically when needed -->
+    
+    <!-- Mux Player - Defer loading (only needed on podcast/video pages) -->
+    <!-- Mux Player script will be loaded dynamically when needed -->
   </head>
   <body>
     <div id="root"></div>

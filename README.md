@@ -114,7 +114,7 @@ A comprehensive wellness platform and e-commerce marketplace built with React an
 
 1. Clone the repository:
 ```bash
-git clone <repository-url>
+git clone https://github.com/51st-Wellness/fifty-firsts-wellness.git
 cd fifty-firsts-wellness
 ```
 
@@ -274,20 +274,6 @@ Run linting:
 npm run lint
 ```
 
-## 🤝 Contributing
-
-1. Create a feature branch from `main`
-2. Make your changes
-3. Ensure all tests pass and linting is clean
-4. Submit a pull request
-
-### Code Style
-
-- Follow ESLint configuration
-- Use TypeScript for type safety
-- Follow React best practices
-- Maintain responsive design principles
-- Use Tailwind CSS utility classes for styling
 
 ## 📝 Environment Variables
 
@@ -314,18 +300,4 @@ The project is configured for deployment on Vercel. The `vercel.json` configurat
 
 This project is private and proprietary.
 
-## 👥 Support
-
-For support, please contact the development team or open an issue in the repository.
-
-## 🙏 Acknowledgments
-
-- Material-UI for the component library
-- Tailwind CSS for utility-first styling
-- React Router for navigation
-- All open-source contributors whose packages make this project possible
-
----
-
-**Built with ❤️ for wellness and health**
 
