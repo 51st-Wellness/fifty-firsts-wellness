@@ -2,10 +2,13 @@ import http from "./http";
 import type { ResponseDto } from "../types/response.types";
 import type { User, StoreItem } from "../types";
 
+export type CartType = "standard" | "preorder";
+
 // Cart-specific DTOs
 export interface AddToCartDto {
   productId: string;
   quantity: number;
+  cartType?: CartType;
 }
 
 export interface UpdateCartItemDto {
@@ -68,40 +71,45 @@ class CartAPI {
   }
 
   // Get user's cart
-  async getCart(): Promise<ResponseDto<{ items: CartItemWithRelations[] }>> {
+  async getCart(cartType?: CartType): Promise<ResponseDto<{ items: CartItemWithRelations[] }>> {
     const response = await http.get<
       ResponseDto<{ items: CartItemWithRelations[] }>
-    >(`${this.baseURL}/me`);
+    >(`${this.baseURL}/me`, { params: { cartType } });
     return response.data;
   }
 
   // Update cart item quantity
   async updateCartItem(
     productId: string,
-    data: UpdateCartItemDto
+    data: UpdateCartItemDto,
+    cartType?: CartType
   ): Promise<ResponseDto<CartItemWithRelations>> {
     const response = await http.patch<ResponseDto<CartItemWithRelations>>(
       `${this.baseURL}/${productId}`,
-      data
+      data,
+      { params: { cartType } }
     );
     return response.data;
   }
 
   // Remove item from cart
-  async removeFromCart(productId: string): Promise<ResponseDto<CartItem>> {
+  async removeFromCart(productId: string, cartType?: CartType): Promise<ResponseDto<CartItem>> {
     const response = await http.delete<ResponseDto<CartItem>>(
-      `${this.baseURL}/${productId}`
+      `${this.baseURL}/${productId}`,
+      { params: { cartType } }
     );
     return response.data;
   }
 
   // Clear entire cart
-  async clearCart(): Promise<ResponseDto<{ deletedCount: number }>> {
+  async clearCart(cartType?: CartType): Promise<ResponseDto<{ deletedCount: number }>> {
     const response = await http.delete<ResponseDto<{ deletedCount: number }>>(
-      `${this.baseURL}/clear`
+      `${this.baseURL}/clear`,
+      { params: { cartType } }
     );
     return response.data;
   }
 }
 
 export const cartAPI = new CartAPI();
+

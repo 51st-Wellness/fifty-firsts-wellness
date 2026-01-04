@@ -59,12 +59,12 @@ const StoreItemCard: React.FC<StoreItemCardProps> = ({
   );
 
   const currentQuantity = useMemo(
-    () => getItemQuantity(item.productId),
-    [getItemQuantity, item.productId]
+    () => getItemQuantity(item.productId, canPreOrder ? "preorder" : "standard"),
+    [getItemQuantity, item.productId, canPreOrder]
   );
   const inCart = useMemo(
-    () => isInCart(item.productId),
-    [isInCart, item.productId]
+    () => isInCart(item.productId, canPreOrder ? "preorder" : "standard"),
+    [isInCart, item.productId, canPreOrder]
   );
 
   const handleAddToCart = useCallback(async () => {
@@ -122,6 +122,11 @@ const StoreItemCard: React.FC<StoreItemCardProps> = ({
     [canPreOrder, isComingSoon, isOutOfStock]
   );
 
+  const discountPercent = useMemo(() => {
+    if (!pricing.hasDiscount || !pricing.basePrice) return 0;
+    return Math.round(((pricing.basePrice - pricing.currentPrice) / pricing.basePrice) * 100);
+  }, [pricing.hasDiscount, pricing.basePrice, pricing.currentPrice]);
+
   return (
     <>
       <div
@@ -140,6 +145,14 @@ const StoreItemCard: React.FC<StoreItemCardProps> = ({
               <ShoppingCart className="w-12 h-12 text-gray-400" />
             </div>
           )}
+
+          {/* Discount Badge - Mobile Only (Bottom Right of Image) */}
+          {pricing.hasDiscount && (
+            <span className="absolute bottom-2 right-2 md:hidden inline-flex items-center rounded-lg bg-blue-100 px-2 py-1 text-[10px] font-bold text-blue-700 shadow-sm border border-blue-200/50">
+              -{discountPercent}%
+            </span>
+          )}
+
           {canPreOrder && (
             <span className="absolute top-2 left-2 inline-flex items-center gap-1 rounded-full bg-white/90 px-3 py-1 text-[10px] font-semibold uppercase text-brand-green shadow-sm">
               <Package className="w-3 h-3" />
@@ -168,18 +181,17 @@ const StoreItemCard: React.FC<StoreItemCardProps> = ({
               oldPrice={strikeThroughPrice}
               priceClassName="text-lg md:text-xl font-semibold"
               oldPriceClassName="text-xs md:text-sm"
-              badgeClassName="text-[10px] md:text-xs px-1.5 py-0.5"
+              badgeClassName="hidden md:inline-flex text-[10px] md:text-xs px-1.5 py-0.5"
             />
           </div>
 
           {item.stock !== undefined && (
-            <div className={`mt-0.5 text-[10px] md:text-xs ${
-              (item.stock ?? 0) <= 0 
-                ? "text-red-500 font-medium" 
-                : "text-gray-500"
-            }`}>
-              {(item.stock ?? 0) <= 0 
-                ? "Out of stock" 
+            <div className={`mt-0.5 text-[10px] md:text-xs ${(item.stock ?? 0) <= 0
+              ? "text-red-500 font-medium"
+              : "text-gray-500"
+              }`}>
+              {(item.stock ?? 0) <= 0
+                ? "Out of stock"
                 : `${item.stock} ${item.stock === 1 ? "item" : "items"} in stock`}
             </div>
           )}
@@ -192,11 +204,10 @@ const StoreItemCard: React.FC<StoreItemCardProps> = ({
                 return (
                   <Star
                     key={i}
-                    className={`w-3 h-3 md:w-4 md:h-4 ${
-                      hasRating
-                        ? "fill-yellow-400 text-yellow-400"
-                        : "text-gray-300"
-                    }`}
+                    className={`w-3 h-3 md:w-4 md:h-4 ${hasRating
+                      ? "fill-yellow-400 text-yellow-400"
+                      : "text-gray-300"
+                      }`}
                   />
                 );
               })}

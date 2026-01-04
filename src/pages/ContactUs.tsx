@@ -11,8 +11,6 @@ import {
   AlertCircle,
 } from "lucide-react";
 import { FaTiktok } from "react-icons/fa";
-import Footer from "../components/Footer";
-import Navbar from "../components/Navbar";
 import { submitContactForm } from "../api/contact-subscription.api";
 import toast from "react-hot-toast";
 import { useSearchParams } from "react-router-dom";
@@ -120,7 +118,7 @@ const ContactUs: React.FC = () => {
         backgroundPosition: "center",
       }}
     >
-      <Navbar />
+
       <div className="py-16 px-4">
         {/* Two white cards layout */}
         <div className="max-w-7xl mx-auto grid grid-cols-1 lg:grid-cols-2 gap-8">
@@ -363,7 +361,7 @@ const ContactUs: React.FC = () => {
           </div>
         </div>
       </div>
-      <Footer />
+
     </div>
   );
 };

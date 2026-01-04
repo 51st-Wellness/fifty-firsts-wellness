@@ -9,7 +9,7 @@ import {
 } from "@mui/material";
 import { Button } from "./ui/button";
 import { useCart } from "../context/CartContext";
-import { Minus, Plus, Trash2, ShoppingCart, X } from "lucide-react";
+import { Minus, Plus, Trash2, ShoppingCart, X, Package, Info } from "lucide-react";
 import { CartItemWithRelations } from "../api/cart.api";
 import { useGlobalDiscount } from "../context/GlobalDiscountContext";
 
@@ -20,7 +20,11 @@ interface CartSliderProps {
 
 const CartSlider: React.FC<CartSliderProps> = ({ isOpen, onClose }) => {
   const {
-    items,
+    activeItems,
+    activeTab,
+    setActiveTab,
+    standardItems,
+    preorderItems,
     isLoading,
     totalItems,
     totalPrice,
@@ -34,13 +38,6 @@ const CartSlider: React.FC<CartSliderProps> = ({ isOpen, onClose }) => {
   const isMobile = useMediaQuery(theme.breakpoints.down("sm"));
   const { globalDiscount } = useGlobalDiscount();
 
-  const hasPreOrderItem = items.some((ci) => {
-    const storeItem = ci.product.storeItem;
-    if (!storeItem) return false;
-    const stock = storeItem.stock ?? 0;
-    return Boolean(storeItem.preOrderEnabled) && stock < 1;
-  });
-
   // iOS needs these flags for smoother swipe behavior
   const iOS =
     typeof navigator !== "undefined" &&
@@ -51,9 +48,9 @@ const CartSlider: React.FC<CartSliderProps> = ({ isOpen, onClose }) => {
     newQuantity: number
   ) => {
     if (newQuantity <= 0) {
-      await removeFromCart(productId);
+      await removeFromCart(productId, activeTab);
     } else {
-      await updateCartItem(productId, newQuantity);
+      await updateCartItem(productId, newQuantity, activeTab);
     }
   };
 
@@ -65,30 +62,27 @@ const CartSlider: React.FC<CartSliderProps> = ({ isOpen, onClose }) => {
     }).format(price);
   };
 
-  // Directs user to the dedicated checkout page.
   const handleCheckoutRedirect = () => {
     onClose();
-    navigate("/checkout");
+    navigate("/checkout", { state: { cartType: activeTab } });
   };
 
+  // Mock shipping logic for pre-orders as specified in requirements
+  const PREORDER_SHIPPING_FEE = 4.19;
+  const estimatedPreorderShipping = preorderItems.reduce((acc, item) => acc + (PREORDER_SHIPPING_FEE * item.quantity), 0);
+
   const CartItem: React.FC<{ item: CartItemWithRelations }> = ({ item }) => {
-    // Correctly access nested storeItem data
     const { product, quantity } = item;
     const storeItem = product.storeItem;
 
-    // Return null if storeItem is missing to prevent crashes
-    if (!storeItem) {
-      return null;
-    }
+    if (!storeItem) return null;
 
     const category = storeItem.categories?.[0] || "Uncategorized";
-
-    // Use base price for individual items (discount will be shown on total)
     const unitPrice = storeItem.price ?? 0;
     const lineTotal = unitPrice * quantity;
+
     return (
       <div className="relative bg-white rounded-xl p-4 sm:p-5 flex items-start gap-3 sm:gap-4">
-        {/* Image left */}
         <div className="w-16 h-16 sm:w-20 sm:h-20 bg-gray-100 rounded-lg flex-shrink-0 overflow-hidden">
           {storeItem.display?.url ? (
             <img
@@ -103,7 +97,6 @@ const CartSlider: React.FC<CartSliderProps> = ({ isOpen, onClose }) => {
           )}
         </div>
 
-        {/* Middle section: product name, category, quantity controls */}
         <div className="flex-1 min-w-0 pr-20 sm:pr-24">
           <h4
             className="font-semibold text-gray-900 text-sm sm:text-base line-clamp-2 leading-tight"
@@ -115,7 +108,6 @@ const CartSlider: React.FC<CartSliderProps> = ({ isOpen, onClose }) => {
             Category: {category}
           </p>
 
-          {/* Quantity controls */}
           <div className="flex items-center gap-2 mt-3">
             <button
               onClick={() => handleQuantityChange(item.productId, quantity - 1)}
@@ -137,23 +129,19 @@ const CartSlider: React.FC<CartSliderProps> = ({ isOpen, onClose }) => {
           </div>
         </div>
 
-        {/* Top right of card: price */}
         <div className="absolute top-4 right-4 text-right space-y-0.5 sm:space-y-1 min-w-[80px] sm:min-w-[100px]">
           <div className="text-xs sm:text-sm font-semibold text-gray-900 leading-tight">
             {formatPrice(unitPrice)}
-            <span className="ml-1 text-[10px] sm:text-xs text-gray-500">
-              ea
-            </span>
+            <span className="ml-1 text-[10px] sm:text-xs text-gray-500">ea</span>
           </div>
           <div className="text-[10px] sm:text-xs text-gray-500 leading-tight">
             Subtotal: {formatPrice(lineTotal)}
           </div>
         </div>
 
-        {/* Bottom right of card: delete icon */}
         <div className="absolute bottom-4 right-4">
           <button
-            onClick={() => removeFromCart(item.productId)}
+            onClick={() => removeFromCart(item.productId, activeTab)}
             disabled={isLoading}
             className="text-red-600 hover:text-red-700 p-1.5 sm:p-2 rounded-full hover:bg-red-50 disabled:opacity-50 transition-colors"
             aria-label="Remove item"
@@ -170,15 +158,15 @@ const CartSlider: React.FC<CartSliderProps> = ({ isOpen, onClose }) => {
       anchor="right"
       open={isOpen}
       onClose={onClose}
-      onOpen={() => {}} // We don't need to handle open since we control it via cart context
+      onOpen={() => { }}
       disableBackdropTransition={!iOS}
       disableDiscovery={iOS}
       keepMounted
       PaperProps={{
         sx: {
           width: isMobile ? "100vw" : 480,
-          height: isMobile ? "100dvh" : "100vh", // Use dynamic viewport height for mobile browsers
-          pb: 0, // Remove padding, let footer handle safe area
+          height: isMobile ? "100dvh" : "100vh",
+          pb: 0,
           backdropFilter: isMobile ? "saturate(180%) blur(8px)" : "none",
           boxShadow: "none",
         },
@@ -192,7 +180,7 @@ const CartSlider: React.FC<CartSliderProps> = ({ isOpen, onClose }) => {
           position: "relative",
         }}
       >
-        {/* Header (sticky) */}
+        {/* Header */}
         <Box
           sx={{
             position: "sticky",
@@ -202,66 +190,94 @@ const CartSlider: React.FC<CartSliderProps> = ({ isOpen, onClose }) => {
             borderBottom: "1px solid",
             borderColor: "divider",
             px: 2,
-            py: 1.5,
+            pt: 1.5,
           }}
-          className="flex items-center justify-between"
         >
-          <div className="flex items-center gap-2">
-            <ShoppingCart className="w-6 h-6 text-gray-700" />
-            <span className="font-semibold text-lg text-gray-900">
-              Cart ({totalItems})
-            </span>
+          <div className="flex items-center justify-between mb-2">
+            <div className="flex items-center gap-2">
+              <ShoppingCart className="w-6 h-6 text-gray-700" />
+              <span
+                className="font-semibold text-lg text-gray-900"
+                style={{ fontFamily: '"League Spartan", sans-serif' }}
+              >
+                Cart
+              </span>
+            </div>
+            <IconButton onClick={onClose} size="large">
+              <X className="w-5 h-5" />
+            </IconButton>
           </div>
-          <IconButton
-            aria-label="Close cart"
-            onClick={onClose}
-            size="large"
-            className="hover:opacity-80"
-          >
-            <X className="w-5 h-5" />
-          </IconButton>
+
+          {/* Tabs */}
+          <div className="flex gap-2 pb-2">
+            <button
+              onClick={() => setActiveTab("standard")}
+              className={`flex-1 py-1.5 rounded-full text-xs font-semibold transition-all ${activeTab === "standard"
+                ? "bg-brand-green text-white shadow-sm"
+                : "bg-gray-100 text-gray-500 hover:bg-gray-200"
+                }`}
+              style={{ fontFamily: '"League Spartan", sans-serif' }}
+            >
+              Standard ({standardItems.length})
+            </button>
+            <button
+              onClick={() => setActiveTab("preorder")}
+              className={`flex-1 py-1.5 rounded-full text-xs font-semibold transition-all ${activeTab === "preorder"
+                ? "bg-brand-green text-white shadow-sm"
+                : "bg-gray-100 text-gray-500 hover:bg-gray-200"
+                }`}
+              style={{ fontFamily: '"League Spartan", sans-serif' }}
+            >
+              Pre-orders ({preorderItems.length})
+            </button>
+          </div>
         </Box>
 
-        {/* Body (scrollable) */}
+        {/* Body */}
         <Box
           sx={{
             flex: 1,
             overflowY: "auto",
-            bgcolor: "#F9FAFB", // A light grey background
+            bgcolor: "#F9FAFB",
             p: 2,
-            pb: 2, // Remove fixed padding, let footer handle its own space
-            minHeight: 0, // Allow flex shrinking
+            minHeight: 0,
           }}
         >
-          {items.length === 0 ? (
-            // Empty Cart
+          {activeItems.length === 0 ? (
             <div className="flex flex-col items-center justify-center h-full px-6 py-12">
               <ShoppingCart className="w-16 h-16 text-gray-300 mb-4" />
               <h3
                 className="text-lg font-medium text-gray-900 mb-2"
                 style={{ fontFamily: '"League Spartan", sans-serif' }}
               >
-                Your cart is empty
+                {activeTab === "standard" ? "Standard cart is empty" : "No pre-orders yet"}
               </h3>
               <p className="text-gray-500 text-center text-sm">
-                Add some items to your cart to get started
+                Add some items to get started
               </p>
             </div>
           ) : (
-            // Cart Items with separators, no shadows
             <>
-              {hasPreOrderItem && (
-                <div className="mb-3 rounded-xl bg-brand-green/5 border border-brand-green/40 px-3 py-2.5 text-xs sm:text-sm text-brand-green">
-                  <p className="font-semibold mb-0.5">Pre-order item</p>
-                  <p>Checked out separately from other items.</p>
+              {activeTab === "preorder" && (
+                <div className="mb-3 rounded-xl bg-orange-50 border border-orange-200 px-3 py-2.5 text-[11px] sm:text-xs text-orange-800">
+                  <div className="flex gap-2">
+                    <Info className="flex-shrink-0 w-4 h-4 text-orange-600" />
+                    <div>
+                      <p
+                        className="font-semibold mb-0.5 uppercase tracking-wider"
+                        style={{ fontFamily: '"League Spartan", sans-serif' }}
+                      >
+                        Pre-order Notice
+                      </p>
+                      <p>These items ship separately as they become available. Shipping is calculated per individual item.</p>
+                    </div>
+                  </div>
                 </div>
               )}
 
               <div className="bg-white rounded-xl divide-y divide-gray-200">
-                {items.map((item) => (
-                  <div key={item.id}>
-                    <CartItem item={item} />
-                  </div>
+                {activeItems.map((item) => (
+                  <CartItem key={item.id} item={item} />
                 ))}
               </div>
             </>
@@ -269,116 +285,81 @@ const CartSlider: React.FC<CartSliderProps> = ({ isOpen, onClose }) => {
         </Box>
 
         {/* Footer */}
-        {items.length > 0 &&
-          (() => {
-            // Calculate base total (without any discounts)
-            const baseTotal = items.reduce((total, item) => {
-              const storeItem = item.product.storeItem;
-              if (!storeItem) return total;
-              return total + (storeItem.price ?? 0) * item.quantity;
-            }, 0);
-
-            // Check if global discount should apply
-            const canApplyGlobal =
-              globalDiscount &&
-              globalDiscount.isActive &&
-              globalDiscount.type !== "NONE" &&
-              globalDiscount.value &&
-              (!globalDiscount.minOrderTotal ||
-                baseTotal >= globalDiscount.minOrderTotal);
-
-            // Use totalPrice from context (already has discount applied)
-            const discountedTotal = totalPrice;
-            const hasDiscount =
-              canApplyGlobal && Math.abs(baseTotal - discountedTotal) > 0.01;
-
-            // Calculate discount percent for display
-            let discountPercent = 0;
-            if (hasDiscount && globalDiscount) {
-              if (globalDiscount.type === "PERCENTAGE") {
-                discountPercent = Math.min(globalDiscount.value, 100);
-              } else {
-                discountPercent =
-                  baseTotal === 0
-                    ? 0
-                    : Math.round(
-                        ((baseTotal - discountedTotal) / baseTotal) * 100
-                      );
-              }
-            }
-
-            return (
-              <Box
-                sx={{
-                  borderTop: "1px solid",
-                  borderColor: "divider",
-                  px: 2,
-                  py: 2,
-                  pb: isMobile ? "calc(16px + env(safe-area-inset-bottom))" : 2, // Add safe area inset for iOS notch
-                  bgcolor: "background.paper", // Use white background
-                  position: "sticky",
-                  bottom: 0,
-                  zIndex: 10,
-                  boxShadow: isMobile ? "0 -2px 8px rgba(0,0,0,0.1)" : "none", // Add shadow on mobile for visibility
-                }}
-              >
-                {/* Total */}
-                <div className="flex justify-between items-center mb-2">
-                  <span className="text-lg font-semibold text-gray-900">
-                    Total:
+        {activeItems.length > 0 && (
+          <Box
+            sx={{
+              borderTop: "1px solid",
+              borderColor: "divider",
+              px: 2,
+              py: 2,
+              pb: isMobile ? "calc(16px + env(safe-area-inset-bottom))" : 2,
+              bgcolor: "background.paper",
+              position: "sticky",
+              bottom: 0,
+              zIndex: 10,
+              boxShadow: isMobile ? "0 -2px 8px rgba(0,0,0,0.1)" : "none",
+            }}
+          >
+            {/* Breakdown for Pre-orders */}
+            {activeTab === "preorder" && (
+              <div className="space-y-1 mb-3 pt-1">
+                <div className="flex justify-between text-xs text-gray-500">
+                  <span>Items total</span>
+                  <span>{formatPrice(totalPrice)}</span>
+                </div>
+                <div className="flex justify-between text-xs text-gray-500">
+                  <span className="flex items-center gap-1">
+                    Shipping <span className="italic text-[10px] bg-gray-100 px-1 rounded">({activeTab === "preorder" ? `${totalItems} items × ${formatPrice(PREORDER_SHIPPING_FEE)}` : 'Consolidated'})</span>
                   </span>
-                  <div className="text-right">
-                    {hasDiscount ? (
-                      <>
-                        <div className="text-sm text-gray-500 line-through">
-                          {formatPrice(baseTotal)}
-                        </div>
-                        <span className="text-xl font-bold text-brand-green">
-                          {formatPrice(discountedTotal)}
-                        </span>
-                      </>
-                    ) : (
-                      <span className="text-xl font-bold text-brand-green">
-                        {formatPrice(baseTotal)}
-                      </span>
-                    )}
-                  </div>
+                  <span>{formatPrice(estimatedPreorderShipping)}</span>
                 </div>
+              </div>
+            )}
 
-                {/* Discount indicator */}
-                {hasDiscount && (
-                  <div className="flex justify-end mb-4">
-                    <span className="text-[10px] sm:text-xs font-semibold uppercase tracking-wide text-brand-green">
-                      {globalDiscount?.label || `GLOBAL -${discountPercent}%`}
-                    </span>
-                  </div>
+            <div className="flex justify-between items-center mb-4">
+              <span
+                className="text-lg font-semibold text-gray-900"
+                style={{ fontFamily: '"League Spartan", sans-serif' }}
+              >
+                {activeTab === "preorder" ? "Total + Est. Shipping:" : "Subtotal:"}
+              </span>
+              <div className="text-right">
+                <span
+                  className="text-xl font-bold text-brand-green"
+                  style={{ fontFamily: '"League Spartan", sans-serif' }}
+                >
+                  {formatPrice(activeTab === "preorder" ? totalPrice + estimatedPreorderShipping : totalPrice)}
+                </span>
+                {activeTab === "preorder" && (
+                  <p className="text-[10px] text-gray-400 mt-1 italic">Individual shipping applied</p>
                 )}
+              </div>
+            </div>
 
-                {/* Action Buttons */}
-                <div className="flex items-center gap-2">
-                  <Button
-                    className="flex-1 bg-brand-green hover:bg-brand-green-dark text-white font-semibold rounded-full py-2 sm:py-3 text-sm"
-                    disabled={isLoading}
-                    onClick={handleCheckoutRedirect}
-                  >
-                    Checkout
-                  </Button>
-                  <Button
-                    variant="outline"
-                    className="flex-1 border-red-500 text-red-600 hover:bg-red-50 font-semibold rounded-full py-2 sm:py-3 text-sm"
-                    disabled={isLoading}
-                    onClick={clearCart}
-                  >
-                    Clear Cart
-                  </Button>
-                </div>
-              </Box>
-            );
-          })()}
+            <div className="flex items-center gap-2">
+              <Button
+                className="flex-1 bg-brand-green hover:bg-brand-green-dark text-white font-semibold rounded-full py-2 sm:py-3 text-sm"
+                disabled={isLoading}
+                onClick={handleCheckoutRedirect}
+              >
+                Checkout {activeTab === "preorder" ? "Pre-order" : "Standard"}
+              </Button>
+              <Button
+                variant="outline"
+                className="flex-shrink-0 border-gray-300 text-gray-500 hover:bg-gray-50 font-semibold rounded-full p-2.5 sm:p-3"
+                disabled={isLoading}
+                onClick={() => clearCart(activeTab)}
+                aria-label="Clear Cart"
+              >
+                <Trash2 className="w-4 h-4" />
+              </Button>
+            </div>
+          </Box>
+        )}
 
         {/* Loading Overlay */}
         {isLoading && (
-          <div className="absolute inset-0 bg-white/80 flex items-center justify-center">
+          <div className="absolute inset-0 bg-white/80 flex items-center justify-center z-[100]">
             <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-brand-green"></div>
           </div>
         )}
@@ -388,3 +369,4 @@ const CartSlider: React.FC<CartSliderProps> = ({ isOpen, onClose }) => {
 };
 
 export default CartSlider;
+

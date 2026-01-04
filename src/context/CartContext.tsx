@@ -26,13 +26,16 @@ import {
   getGuestCartItemQuantity,
   isInGuestCart,
   type GuestCartItem,
+  type CartType,
 } from "../utils/guestCart";
 import { fetchStoreItemById } from "../api/marketplace.api";
 import { ResponseStatus } from "../types/response.types";
 
 // Cart state interface
 interface CartState {
-  items: CartItemWithRelations[];
+  standardItems: CartItemWithRelations[];
+  preorderItems: CartItemWithRelations[];
+  activeTab: CartType;
   isLoading: boolean;
   error: string | null;
   isCartOpen: boolean;
@@ -42,42 +45,54 @@ interface CartState {
 type CartAction =
   | { type: "SET_LOADING"; payload: boolean }
   | { type: "SET_ERROR"; payload: string | null }
-  | { type: "SET_ITEMS"; payload: CartItemWithRelations[] }
-  | { type: "ADD_ITEM"; payload: CartItemWithRelations }
-  | { type: "UPDATE_ITEM"; payload: CartItemWithRelations }
-  | { type: "REMOVE_ITEM"; payload: string }
-  | { type: "CLEAR_CART" }
+  | { type: "SET_STANDARD_ITEMS"; payload: CartItemWithRelations[] }
+  | { type: "SET_PREORDER_ITEMS"; payload: CartItemWithRelations[] }
+  | { type: "ADD_ITEM"; payload: { item: CartItemWithRelations; type: CartType } }
+  | { type: "UPDATE_ITEM"; payload: { item: CartItemWithRelations; type: CartType } }
+  | { type: "REMOVE_ITEM"; payload: { productId: string; type: CartType } }
+  | { type: "CLEAR_CART"; payload: CartType }
   | { type: "TOGGLE_CART" }
-  | { type: "SET_CART_OPEN"; payload: boolean };
+  | { type: "SET_CART_OPEN"; payload: boolean }
+  | { type: "SET_ACTIVE_TAB"; payload: CartType };
 
 // Cart context interface
 interface CartContextType {
   // State
-  items: CartItemWithRelations[];
+  standardItems: CartItemWithRelations[];
+  preorderItems: CartItemWithRelations[];
+  activeItems: CartItemWithRelations[]; // Helper for currently active tab
+  activeTab: CartType;
   isLoading: boolean;
   error: string | null;
   isCartOpen: boolean;
 
-  // Computed values
+  // Computed values (for active tab)
   totalItems: number;
   totalPrice: number;
 
+  // Specific totals
+  standardTotal: number;
+  preorderTotal: number;
+
   // Actions
   addToCart: (productId: string, quantity?: number) => Promise<void>;
-  updateCartItem: (productId: string, quantity: number) => Promise<void>;
-  removeFromCart: (productId: string) => Promise<void>;
-  clearCart: () => Promise<void>;
+  updateCartItem: (productId: string, quantity: number, type?: CartType) => Promise<void>;
+  removeFromCart: (productId: string, type?: CartType) => Promise<void>;
+  clearCart: (type?: CartType) => Promise<void>;
   refreshCart: () => Promise<void>;
   toggleCart: () => void;
   openCart: () => void;
   closeCart: () => void;
-  getItemQuantity: (productId: string) => number;
-  isInCart: (productId: string) => boolean;
+  setActiveTab: (tab: CartType) => void;
+  getItemQuantity: (productId: string, type?: CartType) => number;
+  isInCart: (productId: string, type?: CartType) => boolean;
 }
 
 // Initial state
 const initialState: CartState = {
-  items: [],
+  standardItems: [],
+  preorderItems: [],
+  activeTab: "standard",
   isLoading: false,
   error: null,
   isCartOpen: false,
@@ -92,47 +107,64 @@ const cartReducer = (state: CartState, action: CartAction): CartState => {
     case "SET_ERROR":
       return { ...state, error: action.payload };
 
-    case "SET_ITEMS":
-      return { ...state, items: action.payload };
+    case "SET_STANDARD_ITEMS":
+      return { ...state, standardItems: action.payload };
 
-    case "ADD_ITEM":
-      // Check if item already exists
-      const existingItemIndex = state.items.findIndex(
-        (item) => item.productId === action.payload.productId
+    case "SET_PREORDER_ITEMS":
+      return { ...state, preorderItems: action.payload };
+
+    case "ADD_ITEM": {
+      const { item, type } = action.payload;
+      const key = type === "standard" ? "standardItems" : "preorderItems";
+      const existingItems = state[key];
+
+      const existingItemIndex = existingItems.findIndex(
+        (i) => i.productId === item.productId
       );
 
       if (existingItemIndex !== -1) {
-        // Update existing item
-        const updatedItems = [...state.items];
-        updatedItems[existingItemIndex] = action.payload;
-        return { ...state, items: updatedItems };
+        const updatedItems = [...existingItems];
+        updatedItems[existingItemIndex] = item;
+        return { ...state, [key]: updatedItems };
       } else {
-        // Add new item
-        return { ...state, items: [...state.items, action.payload] };
+        return { ...state, [key]: [...existingItems, item] };
       }
+    }
 
-    case "UPDATE_ITEM":
+    case "UPDATE_ITEM": {
+      const { item, type } = action.payload;
+      const key = type === "standard" ? "standardItems" : "preorderItems";
       return {
         ...state,
-        items: state.items.map((item) =>
-          item.productId === action.payload.productId ? action.payload : item
+        [key]: state[key].map((i) =>
+          i.productId === item.productId ? item : i
         ),
       };
+    }
 
-    case "REMOVE_ITEM":
+    case "REMOVE_ITEM": {
+      const { productId, type } = action.payload;
+      const key = type === "standard" ? "standardItems" : "preorderItems";
       return {
         ...state,
-        items: state.items.filter((item) => item.productId !== action.payload),
+        [key]: state[key].filter((item) => item.productId !== productId),
       };
+    }
 
     case "CLEAR_CART":
-      return { ...state, items: [] };
+      return {
+        ...state,
+        [action.payload === "standard" ? "standardItems" : "preorderItems"]: []
+      };
 
     case "TOGGLE_CART":
       return { ...state, isCartOpen: !state.isCartOpen };
 
     case "SET_CART_OPEN":
       return { ...state, isCartOpen: action.payload };
+
+    case "SET_ACTIVE_TAB":
+      return { ...state, activeTab: action.payload };
 
     default:
       return state;
@@ -152,123 +184,103 @@ export const CartProvider: React.FC<CartProviderProps> = ({ children }) => {
   const { user, isAuthenticated } = useAuth();
   const { globalDiscount } = useGlobalDiscount();
 
-  // Computed values
-  const totalItems = state.items.reduce(
-    (total, item) => total + item.quantity,
-    0
-  );
-  const totalPrice = state.items.reduce((total, item) => {
-    const storeItem = item.product.storeItem;
-    if (!storeItem) return total;
-    const price = getStoreItemPricing(storeItem, {
-      globalDiscount,
-    }).currentPrice;
-    return total + price * item.quantity;
-  }, 0);
+  const calculateCartTotal = useCallback((items: CartItemWithRelations[], type: CartType) => {
+    // Normal cart: consolidated price calculation
+    // Pre-order cart: individual items calculated (though pricing logic is similar, 
+    // the UI/Backend will split shipping later)
+    return items.reduce((total, item) => {
+      const storeItem = item.product.storeItem;
+      if (!storeItem) return total;
+      const price = getStoreItemPricing(storeItem, {
+        globalDiscount,
+      }).currentPrice;
+      return total + price * item.quantity;
+    }, 0);
+  }, [globalDiscount]);
 
-  // Load guest cart from localStorage and convert to CartItemWithRelations format
-  const loadGuestCart = useCallback(async () => {
+  // Computed values
+  const standardTotal = calculateCartTotal(state.standardItems, "standard");
+  const preorderTotal = calculateCartTotal(state.preorderItems, "preorder");
+
+  const activeItems = state.activeTab === "standard" ? state.standardItems : state.preorderItems;
+  const totalItems = activeItems.reduce((total, item) => total + item.quantity, 0);
+  const totalPrice = state.activeTab === "standard" ? standardTotal : preorderTotal;
+
+  const mapGuestToCartItem = (guestItem: GuestCartItem, storeItem: any): CartItemWithRelations => ({
+    id: `guest-${guestItem.productId}`,
+    productId: guestItem.productId,
+    userId: "guest",
+    quantity: guestItem.quantity,
+    product: {
+      id: storeItem.productId,
+      type: "STORE",
+      pricingModel: "ONE_TIME",
+      createdAt: storeItem.createdAt || new Date().toISOString(),
+      updatedAt: storeItem.updatedAt || new Date().toISOString(),
+      storeItem: storeItem,
+    },
+    user: {
+      id: "guest",
+      email: "",
+      firstName: "",
+      lastName: "",
+      role: "USER",
+      profilePicture: null,
+      isActive: true,
+      createdAt: new Date().toISOString(),
+      updatedAt: new Date().toISOString(),
+    },
+  });
+
+  // Load guest carts
+  const loadGuestCarts = useCallback(async () => {
     try {
       dispatch({ type: "SET_LOADING", payload: true });
-      const guestItems = getGuestCart();
 
-      if (guestItems.length === 0) {
-        dispatch({ type: "SET_ITEMS", payload: [] });
-        return;
-      }
+      const loadType = async (type: CartType) => {
+        const guestItems = getGuestCart(type);
+        if (guestItems.length === 0) return [];
 
-      // Fetch product details for each guest cart item
-      const cartItems: (CartItemWithRelations | null)[] = await Promise.all(
-        guestItems.map(async (guestItem) => {
-          try {
-            const productResponse = await fetchStoreItemById(
-              guestItem.productId
-            );
-            const storeItem = productResponse.data;
+        const cartItems = await Promise.all(
+          guestItems.map(async (gi) => {
+            try {
+              const res = await fetchStoreItemById(gi.productId);
+              return res.data ? mapGuestToCartItem(gi, res.data) : null;
+            } catch { return null; }
+          })
+        );
+        return cartItems.filter((i): i is CartItemWithRelations => i !== null);
+      };
 
-            if (!storeItem) {
-              return null;
-            }
+      const [standard, preorder] = await Promise.all([
+        loadType("standard"),
+        loadType("preorder")
+      ]);
 
-            // Create a CartItemWithRelations-like structure for guest cart
-            const cartItem: CartItemWithRelations = {
-              id: `guest-${guestItem.productId}`,
-              productId: guestItem.productId,
-              userId: "guest",
-              quantity: guestItem.quantity,
-              product: {
-                id: storeItem.productId,
-                type: "STORE",
-                pricingModel: "ONE_TIME",
-                createdAt: storeItem.createdAt
-                  ? typeof storeItem.createdAt === "string"
-                    ? storeItem.createdAt
-                    : new Date(storeItem.createdAt).toISOString()
-                  : new Date().toISOString(),
-                updatedAt: storeItem.updatedAt
-                  ? typeof storeItem.updatedAt === "string"
-                    ? storeItem.updatedAt
-                    : new Date(storeItem.updatedAt).toISOString()
-                  : new Date().toISOString(),
-                storeItem: storeItem,
-              },
-              user: {
-                id: "guest",
-                email: "",
-                firstName: "",
-                lastName: "",
-                role: "USER",
-                profilePicture: null,
-                isActive: true,
-                createdAt: new Date().toISOString(),
-                updatedAt: new Date().toISOString(),
-              },
-            };
-            return cartItem;
-          } catch (error) {
-            console.error(
-              `Failed to fetch product ${guestItem.productId}:`,
-              error
-            );
-            return null;
-          }
-        })
-      );
-
-      // Filter out null items (failed fetches)
-      const validItems = cartItems.filter(
-        (item): item is CartItemWithRelations => item !== null
-      );
-      dispatch({ type: "SET_ITEMS", payload: validItems });
+      dispatch({ type: "SET_STANDARD_ITEMS", payload: standard });
+      dispatch({ type: "SET_PREORDER_ITEMS", payload: preorder });
     } catch (error) {
-      console.error("Error loading guest cart:", error);
-      dispatch({ type: "SET_ITEMS", payload: [] });
+      console.error("Error loading guest carts:", error);
     } finally {
       dispatch({ type: "SET_LOADING", payload: false });
     }
   }, []);
 
-  // Load cart when user logs in or load guest cart when logged out
+  // Update effect to reload on auth change
   useEffect(() => {
-    const initializeCart = async () => {
+    const init = async () => {
       if (isAuthenticated && user) {
-        // Always refresh cart from server to update UI
         await refreshCart();
       } else {
-        // Load guest cart from localStorage when logged out
-        await loadGuestCart();
+        await loadGuestCarts();
       }
     };
-
-    initializeCart();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
+    init();
   }, [isAuthenticated, user]);
 
-  // Refresh cart from server (authenticated) or localStorage (guest)
   const refreshCart = useCallback(async () => {
     if (!isAuthenticated) {
-      // For guests, reload from localStorage
-      await loadGuestCart();
+      await loadGuestCarts();
       return;
     }
 
@@ -276,324 +288,180 @@ export const CartProvider: React.FC<CartProviderProps> = ({ children }) => {
       dispatch({ type: "SET_LOADING", payload: true });
       dispatch({ type: "SET_ERROR", payload: null });
 
+      // Note: Backend doesn't support dual carts yet, so we map everything 
+      // based on item properties for now.
       const response = await cartAPI.getCart();
 
       if (response.status === ResponseStatus.SUCCESS && response.data) {
-        dispatch({ type: "SET_ITEMS", payload: response.data.items });
+        const allItems = response.data.items;
 
-        // Sync server cart to localStorage for consistency
-        const serverItems: GuestCartItem[] = response.data.items.map(
-          (item) => ({
-            productId: item.productId,
-            quantity: item.quantity,
-          })
-        );
-        saveGuestCart(serverItems);
+        const standard = allItems.filter(item => {
+          const si = item.product.storeItem;
+          const isPreorder = si && Boolean(si.preOrderEnabled) && (si.stock ?? 0) <= 0;
+          return !isPreorder;
+        });
+
+        const preorder = allItems.filter(item => {
+          const si = item.product.storeItem;
+          return si && Boolean(si.preOrderEnabled) && (si.stock ?? 0) <= 0;
+        });
+
+        dispatch({ type: "SET_STANDARD_ITEMS", payload: standard });
+        dispatch({ type: "SET_PREORDER_ITEMS", payload: preorder });
+
+        // Sync to local storage
+        saveGuestCart(standard.map(i => ({ productId: i.productId, quantity: i.quantity })), "standard");
+        saveGuestCart(preorder.map(i => ({ productId: i.productId, quantity: i.quantity })), "preorder");
       }
     } catch (error: any) {
-      const errorMessage =
-        error.response?.data?.message || "Failed to load cart";
-      dispatch({ type: "SET_ERROR", payload: errorMessage });
-      console.error("Error loading cart:", error);
+      dispatch({ type: "SET_ERROR", payload: error.response?.data?.message || "Failed to load cart" });
     } finally {
       dispatch({ type: "SET_LOADING", payload: false });
     }
-  }, [isAuthenticated, loadGuestCart]);
+  }, [isAuthenticated, loadGuestCarts]);
 
-  // Add item to cart
-  // For guests: stores in localStorage
-  // For authenticated users: stores on server and syncs to localStorage
   const addToCart = async (productId: string, quantity: number = 1) => {
     try {
       dispatch({ type: "SET_LOADING", payload: true });
-      dispatch({ type: "SET_ERROR", payload: null });
+
+      const productResponse = await fetchStoreItemById(productId);
+      const storeItem = productResponse.data;
+      if (!storeItem) throw new Error("Product not found");
+
+      const isPreorder = Boolean(storeItem.preOrderEnabled) && (storeItem.stock ?? 0) <= 0;
+      const type: CartType = isPreorder ? "preorder" : "standard";
 
       if (!isAuthenticated) {
-        // Guest cart: store in localStorage
-        addToGuestCart(productId, quantity);
-
-        // Fetch product details to add to state
-        try {
-          const productResponse = await fetchStoreItemById(productId);
-          const storeItem = productResponse.data;
-
-          if (storeItem) {
-            const cartItem: CartItemWithRelations = {
-              id: `guest-${productId}`,
-              productId: productId,
-              userId: "guest",
-              quantity: getGuestCartItemQuantity(productId),
-              product: {
-                id: storeItem.productId,
-                type: "STORE",
-                pricingModel: "ONE_TIME",
-                createdAt: storeItem.createdAt
-                  ? typeof storeItem.createdAt === "string"
-                    ? storeItem.createdAt
-                    : new Date(storeItem.createdAt).toISOString()
-                  : new Date().toISOString(),
-                updatedAt: storeItem.updatedAt
-                  ? typeof storeItem.updatedAt === "string"
-                    ? storeItem.updatedAt
-                    : new Date(storeItem.updatedAt).toISOString()
-                  : new Date().toISOString(),
-                storeItem: storeItem,
-              },
-              user: {
-                id: "guest",
-                email: "",
-                firstName: "",
-                lastName: "",
-                role: "USER",
-                profilePicture: null,
-                isActive: true,
-                createdAt: new Date().toISOString(),
-                updatedAt: new Date().toISOString(),
-              },
-            };
-
-            // Check if item already exists in state
-            const existingIndex = state.items.findIndex(
-              (item) => item.productId === productId
-            );
-
-            if (existingIndex >= 0) {
-              dispatch({ type: "UPDATE_ITEM", payload: cartItem });
-            } else {
-              dispatch({ type: "ADD_ITEM", payload: cartItem });
-            }
-
-            dispatch({ type: "SET_CART_OPEN", payload: true });
-          }
-        } catch (error) {
-          console.error("Failed to fetch product details:", error);
-          toast.error("Item added to cart, but couldn't load details");
-        }
+        addToGuestCart(productId, type, quantity);
+        const cartItem = mapGuestToCartItem({ productId, quantity: getGuestCartItemQuantity(productId, type) }, storeItem);
+        dispatch({ type: "ADD_ITEM", payload: { item: cartItem, type } });
+        dispatch({ type: "SET_ACTIVE_TAB", payload: type });
+        dispatch({ type: "SET_CART_OPEN", payload: true });
       } else {
-        // Authenticated: use server API
-        const addToCartDto: AddToCartDto = { productId, quantity };
-        const response = await cartAPI.addToCart(addToCartDto);
-
+        const response = await cartAPI.addToCart({ productId, quantity });
         if (response.status === ResponseStatus.SUCCESS && response.data) {
-          // Add the item to state immediately for instant feedback
-          dispatch({ type: "ADD_ITEM", payload: response.data });
-
-          // Open the cart immediately
+          dispatch({ type: "ADD_ITEM", payload: { item: response.data, type } });
+          dispatch({ type: "SET_ACTIVE_TAB", payload: type });
           dispatch({ type: "SET_CART_OPEN", payload: true });
-
-          // Refresh cart from server in the background to ensure consistency
-          refreshCart().catch((err) =>
-            console.error("Background cart refresh failed:", err)
-          );
+          refreshCart().catch(console.error);
         } else {
-          const errorMessage = response.message || "Failed to add item to cart";
-          dispatch({ type: "SET_ERROR", payload: errorMessage });
-          toast.error(errorMessage);
-          throw new Error(errorMessage);
+          throw new Error(response.message || "Failed to add to cart");
         }
       }
     } catch (error: any) {
-      // Only handle errors for authenticated users (server errors)
-      if (isAuthenticated) {
-        const backendMessageRaw =
-          error?.response?.data?.message ||
-          (Array.isArray(error?.response?.data?.message)
-            ? error.response.data.message[0]
-            : undefined);
-
-        const errorMessage =
-          backendMessageRaw ||
-          error?.message ||
-          "Failed to add item to cart. Please try again.";
-
-        dispatch({ type: "SET_ERROR", payload: errorMessage });
-        toast.error(errorMessage);
-        console.error("Error adding to cart:", error);
-        throw error;
-      }
+      const msg = error.response?.data?.message || error.message || "Error adding to cart";
+      toast.error(msg);
+      throw error;
     } finally {
       dispatch({ type: "SET_LOADING", payload: false });
     }
   };
 
-  // Update cart item quantity
-  const updateCartItem = async (productId: string, quantity: number) => {
+  const updateCartItem = async (productId: string, quantity: number, type?: CartType) => {
+    const cartType = type || state.activeTab;
     try {
       dispatch({ type: "SET_LOADING", payload: true });
-      dispatch({ type: "SET_ERROR", payload: null });
-
       if (!isAuthenticated) {
-        // Guest cart: update localStorage
-        updateGuestCartItem(productId, quantity);
-
-        // Update state
-        const existingItem = state.items.find(
-          (item) => item.productId === productId
-        );
-        if (existingItem) {
-          const updatedItem: CartItemWithRelations = {
-            ...existingItem,
-            quantity: quantity,
-          };
-          dispatch({ type: "UPDATE_ITEM", payload: updatedItem });
+        updateGuestCartItem(productId, quantity, cartType);
+        const existing = (cartType === "standard" ? state.standardItems : state.preorderItems).find(i => i.productId === productId);
+        if (existing) {
+          dispatch({ type: "UPDATE_ITEM", payload: { item: { ...existing, quantity }, type: cartType } });
         }
-
-        if (quantity <= 0) {
-          dispatch({ type: "REMOVE_ITEM", payload: productId });
-        }
+        if (quantity <= 0) dispatch({ type: "REMOVE_ITEM", payload: { productId, type: cartType } });
       } else {
-        // Authenticated: use server API
-        const updateDto: UpdateCartItemDto = { quantity };
-        const response = await cartAPI.updateCartItem(productId, updateDto);
-
+        const response = await cartAPI.updateCartItem(productId, { quantity });
         if (response.status === ResponseStatus.SUCCESS && response.data) {
-          dispatch({ type: "UPDATE_ITEM", payload: response.data });
-          toast.success("Cart updated");
-
-          // Sync to localStorage
-          updateGuestCartItem(productId, quantity);
+          dispatch({ type: "UPDATE_ITEM", payload: { item: response.data, type: cartType } });
+          updateGuestCartItem(productId, quantity, cartType);
         }
       }
     } catch (error: any) {
-      if (isAuthenticated) {
-        const errorMessage =
-          error.response?.data?.message || "Failed to update cart item";
-        dispatch({ type: "SET_ERROR", payload: errorMessage });
-        toast.error(errorMessage);
-        console.error("Error updating cart item:", error);
-      }
+      toast.error(error.response?.data?.message || "Update failed");
     } finally {
       dispatch({ type: "SET_LOADING", payload: false });
     }
   };
 
-  // Remove item from cart
-  const removeFromCart = async (productId: string) => {
+  const removeFromCart = async (productId: string, type?: CartType) => {
+    const cartType = type || state.activeTab;
     try {
       dispatch({ type: "SET_LOADING", payload: true });
-      dispatch({ type: "SET_ERROR", payload: null });
-
       if (!isAuthenticated) {
-        // Guest cart: remove from localStorage
-        removeFromGuestCart(productId);
-        dispatch({ type: "REMOVE_ITEM", payload: productId });
-        toast.success("Item removed from cart");
+        removeFromGuestCart(productId, cartType);
+        dispatch({ type: "REMOVE_ITEM", payload: { productId, type: cartType } });
+        toast.success("Removed from cart");
       } else {
-        // Authenticated: use server API
         await cartAPI.removeFromCart(productId);
-        dispatch({ type: "REMOVE_ITEM", payload: productId });
-        toast.success("Item removed from cart");
-
-        // Sync to localStorage
-        removeFromGuestCart(productId);
+        dispatch({ type: "REMOVE_ITEM", payload: { productId, type: cartType } });
+        removeFromGuestCart(productId, cartType);
+        toast.success("Removed from cart");
       }
     } catch (error: any) {
-      if (isAuthenticated) {
-        const errorMessage =
-          error.response?.data?.message || "Failed to remove item from cart";
-        dispatch({ type: "SET_ERROR", payload: errorMessage });
-        toast.error(errorMessage);
-        console.error("Error removing from cart:", error);
-      }
+      toast.error(error.response?.data?.message || "Remove failed");
     } finally {
       dispatch({ type: "SET_LOADING", payload: false });
     }
   };
 
-  // Clear entire cart
-  const clearCart = async () => {
+  const clearCart = async (type?: CartType) => {
+    const cartType = type || state.activeTab;
     try {
       dispatch({ type: "SET_LOADING", payload: true });
-      dispatch({ type: "SET_ERROR", payload: null });
-
       if (!isAuthenticated) {
-        // Guest cart: clear localStorage
-        clearGuestCart();
-        dispatch({ type: "CLEAR_CART" });
-        toast.success("Cart cleared");
+        clearGuestCart(cartType);
+        dispatch({ type: "CLEAR_CART", payload: cartType });
       } else {
-        // Authenticated: use server API
         await cartAPI.clearCart();
-        dispatch({ type: "CLEAR_CART" });
-        toast.success("Cart cleared");
-
-        // Sync to localStorage
-        clearGuestCart();
+        dispatch({ type: "CLEAR_CART", payload: cartType });
+        clearGuestCart(cartType);
       }
+      toast.success(`${cartType === "standard" ? "Standard" : "Pre-order"} cart cleared`);
     } catch (error: any) {
-      if (isAuthenticated) {
-        const errorMessage =
-          error.response?.data?.message || "Failed to clear cart";
-        dispatch({ type: "SET_ERROR", payload: errorMessage });
-        toast.error(errorMessage);
-        console.error("Error clearing cart:", error);
-      }
+      toast.error(error.response?.data?.message || "Clear failed");
     } finally {
       dispatch({ type: "SET_LOADING", payload: false });
     }
   };
 
-  // Cart visibility controls
-  const toggleCart = () => dispatch({ type: "TOGGLE_CART" });
-  const openCart = () => dispatch({ type: "SET_CART_OPEN", payload: true });
-  const closeCart = () => dispatch({ type: "SET_CART_OPEN", payload: false });
-
-  // Utility functions
-  const getItemQuantity = (productId: string): number => {
-    const item = state.items.find((item) => item.productId === productId);
-    if (item) return item.quantity;
-    // Fallback to guest cart if not authenticated
-    if (!isAuthenticated) {
-      return getGuestCartItemQuantity(productId);
-    }
-    return 0;
+  const getItemQuantity = (productId: string, type?: CartType): number => {
+    const t = type || state.activeTab;
+    const items = t === "standard" ? state.standardItems : state.preorderItems;
+    const item = items.find((i) => i.productId === productId);
+    return item ? item.quantity : (isAuthenticated ? 0 : getGuestCartItemQuantity(productId, t));
   };
 
-  const isInCart = (productId: string): boolean => {
-    if (state.items.some((item) => item.productId === productId)) {
-      return true;
-    }
-    // Fallback to guest cart if not authenticated
-    if (!isAuthenticated) {
-      return isInGuestCart(productId);
-    }
-    return false;
+  const isInCart = (productId: string, type?: CartType): boolean => {
+    const t = type || state.activeTab;
+    const items = t === "standard" ? state.standardItems : state.preorderItems;
+    return items.some((i) => i.productId === productId) || (!isAuthenticated && isInGuestCart(productId, t));
   };
 
   const contextValue: CartContextType = {
-    // State
-    items: state.items,
-    isLoading: state.isLoading,
-    error: state.error,
-    isCartOpen: state.isCartOpen,
-
-    // Computed values
+    ...state,
+    activeItems,
     totalItems,
     totalPrice,
-
-    // Actions
+    standardTotal,
+    preorderTotal,
     addToCart,
     updateCartItem,
     removeFromCart,
     clearCart,
     refreshCart,
-    toggleCart,
-    openCart,
-    closeCart,
+    toggleCart: () => dispatch({ type: "TOGGLE_CART" }),
+    openCart: () => dispatch({ type: "SET_CART_OPEN", payload: true }),
+    closeCart: () => dispatch({ type: "SET_CART_OPEN", payload: false }),
+    setActiveTab: (payload) => dispatch({ type: "SET_ACTIVE_TAB", payload }),
     getItemQuantity,
     isInCart,
   };
 
-  return (
-    <CartContext.Provider value={contextValue}>{children}</CartContext.Provider>
-  );
+  return <CartContext.Provider value={contextValue}>{children}</CartContext.Provider>;
 };
 
-// Custom hook to use cart context
-export const useCart = (): CartContextType => {
+export const useCart = () => {
   const context = useContext(CartContext);
-  if (context === undefined) {
-    throw new Error("useCart must be used within a CartProvider");
-  }
+  if (context === undefined) throw new Error("useCart must be used within a CartProvider");
   return context;
 };
+

@@ -300,7 +300,7 @@ const App: React.FC = () => {
           <Route
             path="/contact"
             element={
-              <RouteWithLayout showFooter={false}>
+              <RouteWithLayout>
                 <Suspense fallback={<Loader />}>
                   <ContactUs />
                 </Suspense>
