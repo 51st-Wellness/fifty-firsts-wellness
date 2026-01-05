@@ -29,9 +29,9 @@ const MyCart: React.FC = () => {
 
   // Pre-order shipping logic (matching slider)
   const PREORDER_SHIPPING_FEE = 4.19;
-  const estimatedPreorderShipping = preorderItems.reduce((acc, item) => acc + (PREORDER_SHIPPING_FEE * item.quantity), 0);
+  const estimatedPreorderShipping = (preorderItems || []).reduce((acc, item) => acc + (PREORDER_SHIPPING_FEE * item.quantity), 0);
 
-  const totalItemCount = activeItems.reduce((acc, item) => acc + item.quantity, 0);
+  const totalItemCount = (activeItems || []).reduce((acc, item) => acc + item.quantity, 0);
 
   const tabs = [
     { id: "orders", label: `Orders (${standardItems.length})` },

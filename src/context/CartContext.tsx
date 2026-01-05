@@ -127,15 +127,15 @@ const cartReducer = (state: CartState, action: CartAction): CartState => {
       return { ...state, error: action.payload };
 
     case "SET_STANDARD_ITEMS":
-      return { ...state, standardItems: action.payload };
+      return { ...state, standardItems: action.payload || [] };
 
     case "SET_PREORDER_ITEMS":
-      return { ...state, preorderItems: action.payload };
+      return { ...state, preorderItems: action.payload || [] };
 
     case "ADD_ITEM": {
       const { item, type } = action.payload;
       const key = type === "orders" ? "standardItems" : "preorderItems";
-      const existingItems = state[key];
+      const existingItems = state[key] || [];
 
       const existingItemIndex = existingItems.findIndex(
         (i) => i.productId === item.productId
@@ -153,9 +153,10 @@ const cartReducer = (state: CartState, action: CartAction): CartState => {
     case "UPDATE_ITEM": {
       const { item, type } = action.payload;
       const key = type === "orders" ? "standardItems" : "preorderItems";
+      const currentItems = state[key] || [];
       return {
         ...state,
-        [key]: state[key].map((i) =>
+        [key]: currentItems.map((i) =>
           i.productId === item.productId ? item : i
         ),
       };
@@ -164,9 +165,10 @@ const cartReducer = (state: CartState, action: CartAction): CartState => {
     case "REMOVE_ITEM": {
       const { productId, type } = action.payload;
       const key = type === "orders" ? "standardItems" : "preorderItems";
+      const currentItems = state[key] || [];
       return {
         ...state,
-        [key]: state[key].filter((item) => item.productId !== productId),
+        [key]: currentItems.filter((item) => item.productId !== productId),
       };
     }
 
@@ -208,8 +210,9 @@ export const CartProvider: React.FC<CartProviderProps> = ({ children }) => {
       // Normal cart: consolidated price calculation
       // Pre-order cart: individual items calculated (though pricing logic is similar,
       // the UI/Backend will split shipping later)
+      if (!items || !Array.isArray(items)) return 0;
       return items.reduce((total, item) => {
-        const storeItem = item.product.storeItem;
+        const storeItem = item.product?.storeItem;
         if (!storeItem) return total;
         const price = getStoreItemPricing(storeItem, {
           globalDiscount,
@@ -221,12 +224,17 @@ export const CartProvider: React.FC<CartProviderProps> = ({ children }) => {
   );
 
   // Computed values
-  const standardTotal = calculateCartTotal(state.standardItems, "orders");
-  const preorderTotal = calculateCartTotal(state.preorderItems, "preorders");
+  const standardTotal = calculateCartTotal(state.standardItems || [], "orders");
+  const preorderTotal = calculateCartTotal(
+    state.preorderItems || [],
+    "preorders"
+  );
 
   const activeItems =
-    state.activeTab === "orders" ? state.standardItems : state.preorderItems;
-  const totalItems = activeItems.reduce(
+    (state.activeTab === "orders"
+      ? state.standardItems
+      : state.preorderItems) || [];
+  const totalItems = (activeItems || []).reduce(
     (total, item) => total + item.quantity,
     0
   );
@@ -289,10 +297,19 @@ export const CartProvider: React.FC<CartProviderProps> = ({ children }) => {
         loadType("preorder"),
       ]);
 
-      dispatch({ type: "SET_STANDARD_ITEMS", payload: standard });
-      dispatch({ type: "SET_PREORDER_ITEMS", payload: preorder });
+      dispatch({
+        type: "SET_STANDARD_ITEMS",
+        payload: Array.isArray(standard) ? standard : [],
+      });
+      dispatch({
+        type: "SET_PREORDER_ITEMS",
+        payload: Array.isArray(preorder) ? preorder : [],
+      });
     } catch (error) {
       console.error("Error loading guest carts:", error);
+      // Ensure arrays are set even on error
+      dispatch({ type: "SET_STANDARD_ITEMS", payload: [] });
+      dispatch({ type: "SET_PREORDER_ITEMS", payload: [] });
     } finally {
       dispatch({ type: "SET_LOADING", payload: false });
     }
@@ -325,8 +342,14 @@ export const CartProvider: React.FC<CartProviderProps> = ({ children }) => {
 
       if (response.status === ResponseStatus.SUCCESS && response.data) {
         // Backend returns both carts when no cartType is specified
-        const ordersItems = response.data.orders || response.data.items || [];
-        const preordersItems = response.data.preorders || [];
+        const ordersItems = Array.isArray(response.data.orders)
+          ? response.data.orders
+          : Array.isArray(response.data.items)
+          ? response.data.items
+          : [];
+        const preordersItems = Array.isArray(response.data.preorders)
+          ? response.data.preorders
+          : [];
 
         dispatch({ type: "SET_STANDARD_ITEMS", payload: ordersItems });
         dispatch({ type: "SET_PREORDER_ITEMS", payload: preordersItems });
@@ -346,6 +369,10 @@ export const CartProvider: React.FC<CartProviderProps> = ({ children }) => {
           })),
           "preorder"
         );
+      } else {
+        // Ensure arrays are set even if response is unexpected
+        dispatch({ type: "SET_STANDARD_ITEMS", payload: [] });
+        dispatch({ type: "SET_PREORDER_ITEMS", payload: [] });
       }
     } catch (error: any) {
       dispatch({
@@ -432,7 +459,8 @@ export const CartProvider: React.FC<CartProviderProps> = ({ children }) => {
       if (!isAuthenticated) {
         updateGuestCartItem(productId, quantity, guestCartType);
         const existing = (
-          cartType === "orders" ? state.standardItems : state.preorderItems
+          (cartType === "orders" ? state.standardItems : state.preorderItems) ||
+          []
         ).find((i) => i.productId === productId);
         if (existing) {
           dispatch({
@@ -526,7 +554,8 @@ export const CartProvider: React.FC<CartProviderProps> = ({ children }) => {
 
   const getItemQuantity = (productId: string, type?: CartType): number => {
     const t = type || state.activeTab;
-    const items = t === "orders" ? state.standardItems : state.preorderItems;
+    const items =
+      (t === "orders" ? state.standardItems : state.preorderItems) || [];
     const item = items.find((i) => i.productId === productId);
     // Map to guest cart type for local storage
     const guestCartType = toGuestCartType(t);
@@ -539,7 +568,8 @@ export const CartProvider: React.FC<CartProviderProps> = ({ children }) => {
 
   const isInCart = (productId: string, type?: CartType): boolean => {
     const t = type || state.activeTab;
-    const items = t === "orders" ? state.standardItems : state.preorderItems;
+    const items =
+      (t === "orders" ? state.standardItems : state.preorderItems) || [];
     // Map to guest cart type for local storage
     const guestCartType = toGuestCartType(t);
     return (

@@ -77,7 +77,7 @@ const CartSlider: React.FC<CartSliderProps> = ({ isOpen, onClose }) => {
 
   // Mock shipping logic for pre-orders as specified in requirements
   const PREORDER_SHIPPING_FEE = 4.19;
-  const estimatedPreorderShipping = preorderItems.reduce(
+  const estimatedPreorderShipping = (preorderItems || []).reduce(
     (acc, item) => acc + PREORDER_SHIPPING_FEE * item.quantity,
     0
   );
