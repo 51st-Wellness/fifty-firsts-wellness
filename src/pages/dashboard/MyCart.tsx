@@ -34,8 +34,8 @@ const MyCart: React.FC = () => {
   const totalItemCount = activeItems.reduce((acc, item) => acc + item.quantity, 0);
 
   const tabs = [
-    { id: "standard", label: `Standard (${standardItems.length})` },
-    { id: "preorder", label: `Pre-orders (${preorderItems.length})` },
+    { id: "orders", label: `Orders (${standardItems.length})` },
+    { id: "preorders", label: `Pre-orders (${preorderItems.length})` },
   ] as const;
 
   return (
@@ -66,7 +66,7 @@ const MyCart: React.FC = () => {
         </div>
       </div>
 
-      {activeTab === "preorder" && preorderItems.length > 0 && (
+      {activeTab === "preorders" && preorderItems.length > 0 && (
         <div className="mb-6 rounded-xl bg-orange-50 border border-orange-200 px-4 py-3 text-sm text-orange-800 flex gap-3">
           <Info className="w-5 h-5 text-orange-600 flex-shrink-0 mt-0.5" />
           <div>
@@ -91,7 +91,7 @@ const MyCart: React.FC = () => {
             className="text-lg font-medium text-gray-900 mb-1"
             style={{ fontFamily: '"League Spartan", sans-serif' }}
           >
-            Your {activeTab === "standard" ? "standard" : "pre-order"} cart is empty
+            Your {activeTab === "orders" ? "orders" : "pre-orders"} cart is empty
           </h3>
           <p className="text-gray-500 text-sm mb-6">
             Browse the marketplace to add products.
@@ -131,7 +131,7 @@ const MyCart: React.FC = () => {
                     <div className="text-xs text-brand-green font-medium mt-1 inline-block bg-brand-green/5 px-2 py-0.5 rounded">
                       {category}
                     </div>
-                    {activeTab === "preorder" && (
+                    {activeTab === "preorders" && (
                       <div className="flex items-center gap-1 mt-2 text-[10px] text-orange-600 font-medium uppercase tracking-tighter">
                         <Package className="w-3 h-3" />
                         Ships individually
@@ -163,7 +163,7 @@ const MyCart: React.FC = () => {
                     <div className="text-lg font-bold text-gray-900">
                       {formatPrice(storeItem?.price ?? 0)}
                     </div>
-                    {activeTab === "preorder" && (
+                    {activeTab === "preorders" && (
                       <div className="text-[10px] text-gray-400 mt-1">
                         + {formatPrice(PREORDER_SHIPPING_FEE)} shipping
                       </div>
@@ -200,10 +200,10 @@ const MyCart: React.FC = () => {
 
               <div className="flex justify-between items-center text-sm border-t border-gray-50 pt-3">
                 <span className="text-gray-500">
-                  Shipping {activeTab === "preorder" ? `(${totalItemCount} items × ${formatPrice(PREORDER_SHIPPING_FEE)})` : "Fees"}
+                  Shipping {activeTab === "preorders" ? `(${totalItemCount} items × ${formatPrice(PREORDER_SHIPPING_FEE)})` : "Fees"}
                 </span>
                 <span className="font-semibold text-gray-900">
-                  {activeTab === "preorder" ? formatPrice(estimatedPreorderShipping) : "Calculated next"}
+                  {activeTab === "preorders" ? formatPrice(estimatedPreorderShipping) : "Calculated next"}
                 </span>
               </div>
 
@@ -213,9 +213,9 @@ const MyCart: React.FC = () => {
                 </span>
                 <div className="text-right">
                   <span className="text-2xl font-bold text-brand-green" style={{ fontFamily: '"League Spartan", sans-serif' }}>
-                    {formatPrice(activeTab === "preorder" ? totalPrice + estimatedPreorderShipping : totalPrice)}
+                    {formatPrice(activeTab === "preorders" ? totalPrice + estimatedPreorderShipping : totalPrice)}
                   </span>
-                  {activeTab === "standard" && (
+                  {activeTab === "orders" && (
                     <p className="text-[10px] text-gray-400 font-medium">Excluded delivery fees</p>
                   )}
                 </div>

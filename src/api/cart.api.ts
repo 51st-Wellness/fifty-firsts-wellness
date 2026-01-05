@@ -2,7 +2,7 @@ import http from "./http";
 import type { ResponseDto } from "../types/response.types";
 import type { User, StoreItem } from "../types";
 
-export type CartType = "standard" | "preorder";
+export type CartType = "orders" | "preorders";
 
 // Cart-specific DTOs
 export interface AddToCartDto {
@@ -59,7 +59,7 @@ export interface CartSummary {
 class CartAPI {
   private baseURL = "/user/cart";
 
-  // Add item to cart
+  // Add item to cart (cartType is required in data)
   async addToCart(
     data: AddToCartDto
   ): Promise<ResponseDto<CartItemWithRelations>> {
@@ -70,19 +70,32 @@ class CartAPI {
     return response.data;
   }
 
-  // Get user's cart
-  async getCart(cartType?: CartType): Promise<ResponseDto<{ items: CartItemWithRelations[] }>> {
+  // Get user's cart(s)
+  // If cartType is provided, returns single cart. If not, returns both carts
+  async getCart(
+    cartType?: CartType
+  ): Promise<
+    ResponseDto<{
+      items?: CartItemWithRelations[];
+      orders?: CartItemWithRelations[];
+      preorders?: CartItemWithRelations[];
+    }>
+  > {
     const response = await http.get<
-      ResponseDto<{ items: CartItemWithRelations[] }>
-    >(`${this.baseURL}/me`, { params: { cartType } });
+      ResponseDto<{
+        items?: CartItemWithRelations[];
+        orders?: CartItemWithRelations[];
+        preorders?: CartItemWithRelations[];
+      }>
+    >(`${this.baseURL}/me`, { params: cartType ? { cartType } : {} });
     return response.data;
   }
 
-  // Update cart item quantity
+  // Update cart item quantity (cartType is required)
   async updateCartItem(
     productId: string,
     data: UpdateCartItemDto,
-    cartType?: CartType
+    cartType: CartType
   ): Promise<ResponseDto<CartItemWithRelations>> {
     const response = await http.patch<ResponseDto<CartItemWithRelations>>(
       `${this.baseURL}/${productId}`,
@@ -92,8 +105,11 @@ class CartAPI {
     return response.data;
   }
 
-  // Remove item from cart
-  async removeFromCart(productId: string, cartType?: CartType): Promise<ResponseDto<CartItem>> {
+  // Remove item from cart (cartType is required)
+  async removeFromCart(
+    productId: string,
+    cartType: CartType
+  ): Promise<ResponseDto<CartItem>> {
     const response = await http.delete<ResponseDto<CartItem>>(
       `${this.baseURL}/${productId}`,
       { params: { cartType } }
@@ -101,15 +117,25 @@ class CartAPI {
     return response.data;
   }
 
-  // Clear entire cart
-  async clearCart(cartType?: CartType): Promise<ResponseDto<{ deletedCount: number }>> {
-    const response = await http.delete<ResponseDto<{ deletedCount: number }>>(
-      `${this.baseURL}/clear`,
-      { params: { cartType } }
-    );
+  // Clear entire cart (cartType is optional - if not provided, clears both)
+  async clearCart(
+    cartType?: CartType
+  ): Promise<
+    ResponseDto<{
+      deletedCount?: number;
+      orders?: { deletedCount: number };
+      preorders?: { deletedCount: number };
+    }>
+  > {
+    const response = await http.delete<
+      ResponseDto<{
+        deletedCount?: number;
+        orders?: { deletedCount: number };
+        preorders?: { deletedCount: number };
+      }>
+    >(`${this.baseURL}/clear`, { params: cartType ? { cartType } : {} });
     return response.data;
   }
 }
 
 export const cartAPI = new CartAPI();
-

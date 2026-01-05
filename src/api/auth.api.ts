@@ -6,7 +6,7 @@ import { User } from "@/types";
 export const login = async (payload: {
   email: string;
   password: string;
-  cartItems?: { productId: string; quantity: number }[];
+  cartItems?: { productId: string; quantity: number; cartType: "orders" | "preorders" }[];
 }): Promise<ResponseDto<{ user: User; accessToken: string }>> => {
   const { data } = await http.post("/auth/login", payload);
   return data as ResponseDto<{ user: User; accessToken: string }>;
@@ -19,7 +19,7 @@ export const signUp = async (payload: {
   firstName: string;
   lastName: string;
   phone: string;
-  cartItems?: { productId: string; quantity: number }[];
+  cartItems?: { productId: string; quantity: number; cartType: "orders" | "preorders" }[];
 }): Promise<ResponseDto<{ email: string }>> => {
   const { data } = await http.post("/auth/signup", payload);
   return data as ResponseDto<{ email: string }>;
@@ -81,7 +81,7 @@ export const getGoogleAuthUrl = (): string => {
 // Google One Tap authentication
 export const googleOneTap = async (payload: {
   token: string;
-  cartItems?: { productId: string; quantity: number }[];
+  cartItems?: { productId: string; quantity: number; cartType: "orders" | "preorders" }[];
 }): Promise<ResponseDto<{ user: User; accessToken: string }>> => {
   const { data } = await http.post("/auth/google/onetap", payload);
   return data as ResponseDto<{ user: User; accessToken: string }>;

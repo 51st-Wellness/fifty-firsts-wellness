@@ -9,7 +9,15 @@ import {
 } from "@mui/material";
 import { Button } from "./ui/button";
 import { useCart } from "../context/CartContext";
-import { Minus, Plus, Trash2, ShoppingCart, X, Package, Info } from "lucide-react";
+import {
+  Minus,
+  Plus,
+  Trash2,
+  ShoppingCart,
+  X,
+  Package,
+  Info,
+} from "lucide-react";
 import { CartItemWithRelations } from "../api/cart.api";
 import { useGlobalDiscount } from "../context/GlobalDiscountContext";
 
@@ -69,7 +77,10 @@ const CartSlider: React.FC<CartSliderProps> = ({ isOpen, onClose }) => {
 
   // Mock shipping logic for pre-orders as specified in requirements
   const PREORDER_SHIPPING_FEE = 4.19;
-  const estimatedPreorderShipping = preorderItems.reduce((acc, item) => acc + (PREORDER_SHIPPING_FEE * item.quantity), 0);
+  const estimatedPreorderShipping = preorderItems.reduce(
+    (acc, item) => acc + PREORDER_SHIPPING_FEE * item.quantity,
+    0
+  );
 
   const CartItem: React.FC<{ item: CartItemWithRelations }> = ({ item }) => {
     const { product, quantity } = item;
@@ -132,7 +143,9 @@ const CartSlider: React.FC<CartSliderProps> = ({ isOpen, onClose }) => {
         <div className="absolute top-4 right-4 text-right space-y-0.5 sm:space-y-1 min-w-[80px] sm:min-w-[100px]">
           <div className="text-xs sm:text-sm font-semibold text-gray-900 leading-tight">
             {formatPrice(unitPrice)}
-            <span className="ml-1 text-[10px] sm:text-xs text-gray-500">ea</span>
+            <span className="ml-1 text-[10px] sm:text-xs text-gray-500">
+              ea
+            </span>
           </div>
           <div className="text-[10px] sm:text-xs text-gray-500 leading-tight">
             Subtotal: {formatPrice(lineTotal)}
@@ -158,7 +171,7 @@ const CartSlider: React.FC<CartSliderProps> = ({ isOpen, onClose }) => {
       anchor="right"
       open={isOpen}
       onClose={onClose}
-      onOpen={() => { }}
+      onOpen={() => {}}
       disableBackdropTransition={!iOS}
       disableDiscovery={iOS}
       keepMounted
@@ -211,21 +224,23 @@ const CartSlider: React.FC<CartSliderProps> = ({ isOpen, onClose }) => {
           {/* Tabs */}
           <div className="flex gap-2 pb-2">
             <button
-              onClick={() => setActiveTab("standard")}
-              className={`flex-1 py-1.5 rounded-full text-xs font-semibold transition-all ${activeTab === "standard"
-                ? "bg-brand-green text-white shadow-sm"
-                : "bg-gray-100 text-gray-500 hover:bg-gray-200"
-                }`}
+              onClick={() => setActiveTab("orders")}
+              className={`flex-1 py-1.5 rounded-full text-xs font-semibold transition-all ${
+                activeTab === "orders"
+                  ? "bg-brand-green text-white shadow-sm"
+                  : "bg-gray-100 text-gray-500 hover:bg-gray-200"
+              }`}
               style={{ fontFamily: '"League Spartan", sans-serif' }}
             >
               Standard ({standardItems.length})
             </button>
             <button
-              onClick={() => setActiveTab("preorder")}
-              className={`flex-1 py-1.5 rounded-full text-xs font-semibold transition-all ${activeTab === "preorder"
-                ? "bg-brand-green text-white shadow-sm"
-                : "bg-gray-100 text-gray-500 hover:bg-gray-200"
-                }`}
+              onClick={() => setActiveTab("preorders")}
+              className={`flex-1 py-1.5 rounded-full text-xs font-semibold transition-all ${
+                activeTab === "preorders"
+                  ? "bg-brand-green text-white shadow-sm"
+                  : "bg-gray-100 text-gray-500 hover:bg-gray-200"
+              }`}
               style={{ fontFamily: '"League Spartan", sans-serif' }}
             >
               Pre-orders ({preorderItems.length})
@@ -250,7 +265,9 @@ const CartSlider: React.FC<CartSliderProps> = ({ isOpen, onClose }) => {
                 className="text-lg font-medium text-gray-900 mb-2"
                 style={{ fontFamily: '"League Spartan", sans-serif' }}
               >
-                {activeTab === "standard" ? "Standard cart is empty" : "No pre-orders yet"}
+                {activeTab === "orders"
+                  ? "Orders cart is empty"
+                  : "No pre-orders yet"}
               </h3>
               <p className="text-gray-500 text-center text-sm">
                 Add some items to get started
@@ -258,7 +275,7 @@ const CartSlider: React.FC<CartSliderProps> = ({ isOpen, onClose }) => {
             </div>
           ) : (
             <>
-              {activeTab === "preorder" && (
+              {activeTab === "preorders" && (
                 <div className="mb-3 rounded-xl bg-orange-50 border border-orange-200 px-3 py-2.5 text-[11px] sm:text-xs text-orange-800">
                   <div className="flex gap-2">
                     <Info className="flex-shrink-0 w-4 h-4 text-orange-600" />
@@ -269,7 +286,10 @@ const CartSlider: React.FC<CartSliderProps> = ({ isOpen, onClose }) => {
                       >
                         Pre-order Notice
                       </p>
-                      <p>These items ship separately as they become available. Shipping is calculated per individual item.</p>
+                      <p>
+                        These items ship separately as they become available.
+                        Shipping is calculated per individual item.
+                      </p>
                     </div>
                   </div>
                 </div>
@@ -301,7 +321,7 @@ const CartSlider: React.FC<CartSliderProps> = ({ isOpen, onClose }) => {
             }}
           >
             {/* Breakdown for Pre-orders */}
-            {activeTab === "preorder" && (
+            {activeTab === "preorders" && (
               <div className="space-y-1 mb-3 pt-1">
                 <div className="flex justify-between text-xs text-gray-500">
                   <span>Items total</span>
@@ -309,7 +329,16 @@ const CartSlider: React.FC<CartSliderProps> = ({ isOpen, onClose }) => {
                 </div>
                 <div className="flex justify-between text-xs text-gray-500">
                   <span className="flex items-center gap-1">
-                    Shipping <span className="italic text-[10px] bg-gray-100 px-1 rounded">({activeTab === "preorder" ? `${totalItems} items × ${formatPrice(PREORDER_SHIPPING_FEE)}` : 'Consolidated'})</span>
+                    Shipping{" "}
+                    <span className="italic text-[10px] bg-gray-100 px-1 rounded">
+                      (
+                      {activeTab === "preorders"
+                        ? `${totalItems} items × ${formatPrice(
+                            PREORDER_SHIPPING_FEE
+                          )}`
+                        : "Consolidated"}
+                      )
+                    </span>
                   </span>
                   <span>{formatPrice(estimatedPreorderShipping)}</span>
                 </div>
@@ -321,17 +350,25 @@ const CartSlider: React.FC<CartSliderProps> = ({ isOpen, onClose }) => {
                 className="text-lg font-semibold text-gray-900"
                 style={{ fontFamily: '"League Spartan", sans-serif' }}
               >
-                {activeTab === "preorder" ? "Total + Est. Shipping:" : "Subtotal:"}
+                {activeTab === "preorders"
+                  ? "Total + Est. Shipping:"
+                  : "Subtotal:"}
               </span>
               <div className="text-right">
                 <span
                   className="text-xl font-bold text-brand-green"
                   style={{ fontFamily: '"League Spartan", sans-serif' }}
                 >
-                  {formatPrice(activeTab === "preorder" ? totalPrice + estimatedPreorderShipping : totalPrice)}
+                  {formatPrice(
+                    activeTab === "preorders"
+                      ? totalPrice + estimatedPreorderShipping
+                      : totalPrice
+                  )}
                 </span>
-                {activeTab === "preorder" && (
-                  <p className="text-[10px] text-gray-400 mt-1 italic">Individual shipping applied</p>
+                {activeTab === "preorders" && (
+                  <p className="text-[10px] text-gray-400 mt-1 italic">
+                    Individual shipping applied
+                  </p>
                 )}
               </div>
             </div>
@@ -342,7 +379,7 @@ const CartSlider: React.FC<CartSliderProps> = ({ isOpen, onClose }) => {
                 disabled={isLoading}
                 onClick={handleCheckoutRedirect}
               >
-                Checkout {activeTab === "preorder" ? "Pre-order" : "Standard"}
+                Checkout {activeTab === "preorders" ? "Pre-order" : "Orders"}
               </Button>
               <Button
                 variant="outline"
@@ -369,4 +406,3 @@ const CartSlider: React.FC<CartSliderProps> = ({ isOpen, onClose }) => {
 };
 
 export default CartSlider;
-

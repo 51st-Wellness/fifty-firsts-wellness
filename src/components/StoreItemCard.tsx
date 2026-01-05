@@ -59,11 +59,11 @@ const StoreItemCard: React.FC<StoreItemCardProps> = ({
   );
 
   const currentQuantity = useMemo(
-    () => getItemQuantity(item.productId, canPreOrder ? "preorder" : "standard"),
+    () => getItemQuantity(item.productId, canPreOrder ? "preorders" : "orders"),
     [getItemQuantity, item.productId, canPreOrder]
   );
   const inCart = useMemo(
-    () => isInCart(item.productId, canPreOrder ? "preorder" : "standard"),
+    () => isInCart(item.productId, canPreOrder ? "preorders" : "orders"),
     [isInCart, item.productId, canPreOrder]
   );
 

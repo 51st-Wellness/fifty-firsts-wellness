@@ -1,5 +1,5 @@
 import React, { useCallback, useEffect, useMemo, useState } from "react";
-import { useNavigate, Link } from "react-router-dom";
+import { useNavigate, Link, useLocation } from "react-router-dom";
 import { Loader2, ArrowLeft, MapPinned, Phone, Plus } from "lucide-react";
 import { useAuth } from "../../context/AuthContextProvider";
 import { useCart } from "../../context/CartContext";
@@ -17,13 +17,21 @@ import CheckoutAddressSelector from "../../components/checkout/CheckoutAddressSe
 
 const Checkout: React.FC = () => {
   const navigate = useNavigate();
+  const location = useLocation();
   const { isAuthenticated, user } = useAuth();
   const {
-    items,
+    activeItems,
     isLoading: cartLoading,
     updateCartItem,
     removeFromCart,
+    activeTab,
   } = useCart();
+
+  // Get cartType from location state or fallback to activeTab
+  const cartType =
+    (location.state?.cartType as "orders" | "preorders") ||
+    activeTab ||
+    "orders";
 
   const [summary, setSummary] = useState<CartCheckoutSummary | null>(null);
   const [loading, setLoading] = useState(true);
@@ -58,7 +66,7 @@ const Checkout: React.FC = () => {
     null
   );
 
-  const hasCartItems = items.length > 0;
+  const hasCartItems = activeItems.length > 0;
   const isSuccessStatus = (status?: string | null) =>
     typeof status === "string" && status.toUpperCase() === "SUCCESS";
 
@@ -152,10 +160,10 @@ const Checkout: React.FC = () => {
       shippingCost,
       grandTotal,
       currency: summary.pricing?.currency || fallbackCurrency,
-      itemCount: summaryBreakdown?.itemCount || items.length,
-      totalQuantity: summaryBreakdown?.totalQuantity || items.length,
+      itemCount: summaryBreakdown?.itemCount || activeItems.length,
+      totalQuantity: summaryBreakdown?.totalQuantity || activeItems.length,
     };
-  }, [summary, items.length, selectedShipping]);
+  }, [summary, activeItems.length, selectedShipping]);
   // Always use GBP - force conversion regardless of API response
   const currencyCode = "GBP";
   const discountSummary = summary?.discounts;
@@ -177,7 +185,7 @@ const Checkout: React.FC = () => {
           setIsRefreshingSummary(true);
         }
         setError(null);
-        const response = await paymentAPI.getCartCheckoutSummary();
+        const response = await paymentAPI.getCartCheckoutSummary(cartType);
 
         if (isSuccessStatus(response.status) && response.data) {
           const summaryData = response.data;
@@ -397,7 +405,7 @@ const Checkout: React.FC = () => {
         payload.shippingServiceKey = selectedShippingKey;
       }
 
-      const response = await paymentAPI.checkoutCart(payload);
+      const response = await paymentAPI.checkoutCart(payload, cartType);
 
       if (response.status === ResponseStatus.SUCCESS && response.data) {
         toast.success("Redirecting you to securely complete payment");
@@ -500,7 +508,7 @@ const Checkout: React.FC = () => {
           <section className="order-1 lg:order-1 lg:col-start-1 lg:col-end-2">
             <CheckoutOrderSummary
               summary={summary}
-              items={items}
+              items={activeItems}
               orderTotals={orderTotals}
               globalDiscountInfo={globalDiscountInfo}
               hasPreOrders={hasPreOrders}
