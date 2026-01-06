@@ -86,17 +86,11 @@ const RouteWithLayout: React.FC<{
   children: React.ReactNode;
   showFooter?: boolean;
 }> = ({ children, showFooter = true }) => (
-  <>
-    <Suspense fallback={<Loader />}>
-      <Navbar />
-    </Suspense>
-    <Suspense fallback={<Loader />}>{children}</Suspense>
-    {showFooter && (
-      <Suspense fallback={null}>
-        <Footer />
-      </Suspense>
-    )}
-  </>
+  <Suspense fallback={<Loader />}>
+    <Navbar />
+    {children}
+    {showFooter && <Footer />}
+  </Suspense>
 );
 
 // Scroll to top component
@@ -132,9 +126,7 @@ const App: React.FC = () => {
             path="/"
             element={
               <RouteWithLayout>
-                <Suspense fallback={<Loader />}>
-                  <Home />
-                </Suspense>
+                <Home />
               </RouteWithLayout>
             }
           />
@@ -143,9 +135,7 @@ const App: React.FC = () => {
             path="/about"
             element={
               <RouteWithLayout>
-                <Suspense fallback={<Loader />}>
-                  <About />
-                </Suspense>
+                <About />
               </RouteWithLayout>
             }
           />
@@ -153,9 +143,7 @@ const App: React.FC = () => {
             path="/services/personal-wellness"
             element={
               <RouteWithLayout>
-                <Suspense fallback={<Loader />}>
-                  <PersonalWellnessProgrammes />
-                </Suspense>
+                <PersonalWellnessProgrammes />
               </RouteWithLayout>
             }
           />
@@ -163,9 +151,7 @@ const App: React.FC = () => {
             path="/services/business-wellness"
             element={
               <RouteWithLayout>
-                <Suspense fallback={<Loader />}>
-                  <BusinessWellnessProgrammes />
-                </Suspense>
+                <BusinessWellnessProgrammes />
               </RouteWithLayout>
             }
           />
@@ -173,9 +159,7 @@ const App: React.FC = () => {
             path="/services/program-details"
             element={
               <RouteWithLayout>
-                <Suspense fallback={<Loader />}>
-                  <WellnessProgramDetails />
-                </Suspense>
+                <WellnessProgramDetails />
               </RouteWithLayout>
             }
           />
@@ -183,9 +167,7 @@ const App: React.FC = () => {
             path="/marketplace"
             element={
               <RouteWithLayout showFooter={false}>
-                <Suspense fallback={<Loader />}>
-                  <MarketPlace />
-                </Suspense>
+                <MarketPlace />
               </RouteWithLayout>
             }
           />
@@ -193,9 +175,7 @@ const App: React.FC = () => {
             path="/products/:productId"
             element={
               <RouteWithLayout showFooter={false}>
-                <Suspense fallback={<Loader />}>
-                  <ProductDetail />
-                </Suspense>
+                <ProductDetail />
               </RouteWithLayout>
             }
           />
@@ -203,9 +183,7 @@ const App: React.FC = () => {
             path="/programmes"
             element={
               <RouteWithLayout>
-                <Suspense fallback={<Loader />}>
-                  <PersonalWellnessProgrammes />
-                </Suspense>
+                <PersonalWellnessProgrammes />
               </RouteWithLayout>
             }
           />
@@ -213,9 +191,7 @@ const App: React.FC = () => {
             path="/programmes/:productId"
             element={
               <RouteWithLayout showFooter={false}>
-                <Suspense fallback={<Loader />}>
-                  <ProgrammeDetail />
-                </Suspense>
+                <ProgrammeDetail />
               </RouteWithLayout>
             }
           />
@@ -223,9 +199,7 @@ const App: React.FC = () => {
             path="/podcasts"
             element={
               <RouteWithLayout showFooter={false}>
-                <Suspense fallback={<Loader />}>
-                  <Podcasts />
-                </Suspense>
+                <Podcasts />
               </RouteWithLayout>
             }
           />
@@ -233,9 +207,7 @@ const App: React.FC = () => {
             path="/podcasts/:id"
             element={
               <RouteWithLayout>
-                <Suspense fallback={<Loader />}>
-                  <PodcastDetail />
-                </Suspense>
+                <PodcastDetail />
               </RouteWithLayout>
             }
           />
@@ -243,9 +215,7 @@ const App: React.FC = () => {
             path="/resources/webinars"
             element={
               <RouteWithLayout showFooter={false}>
-                <Suspense fallback={<Loader />}>
-                  <Webinars />
-                </Suspense>
+                <Webinars />
               </RouteWithLayout>
             }
           />
@@ -253,9 +223,7 @@ const App: React.FC = () => {
             path="/blog"
             element={
               <RouteWithLayout>
-                <Suspense fallback={<Loader />}>
-                  <Blog />
-                </Suspense>
+                <Blog />
               </RouteWithLayout>
             }
           />
@@ -263,9 +231,7 @@ const App: React.FC = () => {
             path="/blog/:slug"
             element={
               <RouteWithLayout>
-                <Suspense fallback={<Loader />}>
-                  <BlogPost />
-                </Suspense>
+                <BlogPost />
               </RouteWithLayout>
             }
           />
@@ -273,9 +239,7 @@ const App: React.FC = () => {
             path="/ai-wellness"
             element={
               <RouteWithLayout showFooter={false}>
-                <Suspense fallback={<Loader />}>
-                  <AIWellness />
-                </Suspense>
+                <AIWellness />
               </RouteWithLayout>
             }
           />
@@ -291,9 +255,7 @@ const App: React.FC = () => {
             path="/subscriptions"
             element={
               <RouteWithLayout showFooter={false}>
-                <Suspense fallback={<Loader />}>
-                  <Subscriptions />
-                </Suspense>
+                <Subscriptions />
               </RouteWithLayout>
             }
           />
@@ -301,9 +263,7 @@ const App: React.FC = () => {
             path="/contact"
             element={
               <RouteWithLayout>
-                <Suspense fallback={<Loader />}>
-                  <ContactUs />
-                </Suspense>
+                <ContactUs />
               </RouteWithLayout>
             }
           />
@@ -311,9 +271,7 @@ const App: React.FC = () => {
             path="/cookie-policy"
             element={
               <RouteWithLayout showFooter={false}>
-                <Suspense fallback={<Loader />}>
-                  <CookiePolicy />
-                </Suspense>
+                <CookiePolicy />
               </RouteWithLayout>
             }
           />
@@ -321,9 +279,7 @@ const App: React.FC = () => {
             path="/terms-and-conditions"
             element={
               <RouteWithLayout showFooter={false}>
-                <Suspense fallback={<Loader />}>
-                  <TermsAndConditions />
-                </Suspense>
+                <TermsAndConditions />
               </RouteWithLayout>
             }
           />
@@ -331,9 +287,7 @@ const App: React.FC = () => {
             path="/privacy-policy"
             element={
               <RouteWithLayout showFooter={false}>
-                <Suspense fallback={<Loader />}>
-                  <PrivacyPolicy />
-                </Suspense>
+                <PrivacyPolicy />
               </RouteWithLayout>
             }
           />
@@ -371,46 +325,11 @@ const App: React.FC = () => {
               </EmailVerificationGuard>
             }
           >
-            <Route
-              index
-              element={
-                <Suspense fallback={<Loader />}>
-                  <MyAccount />
-                </Suspense>
-              }
-            />
-            <Route
-              path="orders"
-              element={
-                <Suspense fallback={<Loader />}>
-                  <OrdersHistory />
-                </Suspense>
-              }
-            />
-            <Route
-              path="orders/:orderId"
-              element={
-                <Suspense fallback={<Loader />}>
-                  <OrderDetails />
-                </Suspense>
-              }
-            />
-            <Route
-              path="addresses"
-              element={
-                <Suspense fallback={<Loader />}>
-                  <DeliveryAddresses />
-                </Suspense>
-              }
-            />
-            <Route
-              path="cart"
-              element={
-                <Suspense fallback={<Loader />}>
-                  <MyCart />
-                </Suspense>
-              }
-            />
+            <Route index element={<MyAccount />} />
+            <Route path="orders" element={<OrdersHistory />} />
+            <Route path="orders/:orderId" element={<OrderDetails />} />
+            <Route path="addresses" element={<DeliveryAddresses />} />
+            <Route path="cart" element={<MyCart />} />
           </Route>
           <Route
             path="/forgot-password"
@@ -448,9 +367,7 @@ const App: React.FC = () => {
             path="/payment/cancel"
             element={
               <RouteWithLayout>
-                <Suspense fallback={<Loader />}>
-                  <PaymentCancel />
-                </Suspense>
+                <PaymentCancel />
               </RouteWithLayout>
             }
           />
@@ -458,9 +375,7 @@ const App: React.FC = () => {
             path="/payment/success"
             element={
               <RouteWithLayout>
-                <Suspense fallback={<Loader />}>
-                  <PaymentSuccess />
-                </Suspense>
+                <PaymentSuccess />
               </RouteWithLayout>
             }
           />
@@ -468,9 +383,7 @@ const App: React.FC = () => {
             path="/payment/error"
             element={
               <RouteWithLayout>
-                <Suspense fallback={<Loader />}>
-                  <PaymentError />
-                </Suspense>
+                <PaymentError />
               </RouteWithLayout>
             }
           />
@@ -479,9 +392,7 @@ const App: React.FC = () => {
             element={
               <ProtectedRoute>
                 <RouteWithLayout>
-                  <Suspense fallback={<Loader />}>
-                    <Checkout />
-                  </Suspense>
+                  <Checkout />
                 </RouteWithLayout>
               </ProtectedRoute>
             }
@@ -499,55 +410,12 @@ const App: React.FC = () => {
             }
           >
             {/* Redirect /management to /management/overview by default */}
-            <Route
-              // path="overview"
-              index
-              element={
-                <Suspense fallback={<Loader />}>
-                  <ManagementOverview />
-                </Suspense>
-              }
-            />
-            <Route
-              path="general"
-              element={
-                <Suspense fallback={<Loader />}>
-                  <ManagementGeneral />
-                </Suspense>
-              }
-            />
-            <Route
-              path="subscriptions"
-              element={
-                <Suspense fallback={<Loader />}>
-                  <ManagementSubscriptions />
-                </Suspense>
-              }
-            />
-            <Route
-              path="marketplace"
-              element={
-                <Suspense fallback={<Loader />}>
-                  <ManagementMarketplace />
-                </Suspense>
-              }
-            />
-            <Route
-              path="programmes"
-              element={
-                <Suspense fallback={<Loader />}>
-                  <ManagementProgrammes />
-                </Suspense>
-              }
-            />
-            <Route
-              path="users"
-              element={
-                <Suspense fallback={<Loader />}>
-                  <ManagementUsers />
-                </Suspense>
-              }
-            />
+            <Route index element={<ManagementOverview />} />
+            <Route path="general" element={<ManagementGeneral />} />
+            <Route path="subscriptions" element={<ManagementSubscriptions />} />
+            <Route path="marketplace" element={<ManagementMarketplace />} />
+            <Route path="programmes" element={<ManagementProgrammes />} />
+            <Route path="users" element={<ManagementUsers />} />
           </Route>
 
           {/* 404 Catch-all route - must be last */}
@@ -566,3 +434,4 @@ const App: React.FC = () => {
 };
 
 export default App;
+

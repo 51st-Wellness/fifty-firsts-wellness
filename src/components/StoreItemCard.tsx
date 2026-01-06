@@ -1,5 +1,5 @@
 import React, { useMemo, useState, useCallback, memo } from "react";
-import { ShoppingCart, Heart, Bell, Package, Star } from "lucide-react";
+import { ShoppingCart, Heart, Bell, Package, Star, Share2 } from "lucide-react";
 import type { StoreItem } from "../types/marketplace.types";
 import type { ReviewSummary } from "../types/review.types";
 import { useCart } from "../context/CartContext";
@@ -98,6 +98,19 @@ const StoreItemCard: React.FC<StoreItemCardProps> = ({
     }
   }, [canPreOrder, addToCart, item.productId]);
 
+  const handleShare = useCallback(async (e: React.MouseEvent) => {
+    e.stopPropagation();
+    const shareUrl = `${window.location.origin}/products/${item.productId}`;
+
+    try {
+      await navigator.clipboard.writeText(shareUrl);
+      toast.success("Product link copied!");
+    } catch (error) {
+      console.error("Error copying to clipboard:", error);
+      toast.error("Failed to copy link");
+    }
+  }, [item.productId]);
+
   const handleCardClick = useCallback((e: React.MouseEvent) => {
     // Prevent opening dialog when clicking on cart buttons
     if ((e.target as HTMLElement).closest(".cart-controls")) {
@@ -145,6 +158,15 @@ const StoreItemCard: React.FC<StoreItemCardProps> = ({
               <ShoppingCart className="w-12 h-12 text-gray-400" />
             </div>
           )}
+
+          {/* Share Button - Top Right */}
+          <button
+            onClick={handleShare}
+            className="absolute top-2 right-2 p-1.5 rounded-full bg-white/80 text-gray-700 hover:bg-white hover:text-brand-green transition-all shadow-sm z-10"
+            title="Share Product"
+          >
+            <Share2 className="w-3.5 h-3.5" />
+          </button>
 
           {/* Discount Badge - Mobile Only (Bottom Right of Image) */}
           {pricing.hasDiscount && (
@@ -321,7 +343,7 @@ const StoreItemCard: React.FC<StoreItemCardProps> = ({
             )}
           </div>
         </div>
-      </div>
+      </div >
 
       <NotificationOptIn
         item={item}
