@@ -108,12 +108,23 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
     setError(null);
 
     try {
-      // Get guest cart items to sync
-      const guestCart = getGuestCart();
-      const cartItems = guestCart.map((item) => ({
-        productId: item.productId,
-        quantity: item.quantity,
-      }));
+      // Get guest cart items from both carts to sync
+      const standardCart = getGuestCart("standard");
+      const preorderCart = getGuestCart("preorder");
+
+      // Map items with their cartType
+      const cartItems = [
+        ...standardCart.map((item) => ({
+          productId: item.productId,
+          quantity: item.quantity,
+          cartType: "orders" as const,
+        })),
+        ...preorderCart.map((item) => ({
+          productId: item.productId,
+          quantity: item.quantity,
+          cartType: "preorders" as const,
+        })),
+      ];
 
       const response = await loginApi({ email, password, cartItems });
 
@@ -221,12 +232,23 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
     setError(null);
 
     try {
-      // Get guest cart items to sync
-      const guestCart = getGuestCart();
-      const cartItems = guestCart.map((item) => ({
-        productId: item.productId,
-        quantity: item.quantity,
-      }));
+      // Get guest cart items from both carts to sync
+      const standardCart = getGuestCart("standard");
+      const preorderCart = getGuestCart("preorder");
+
+      // Map items with their cartType
+      const cartItems = [
+        ...standardCart.map((item) => ({
+          productId: item.productId,
+          quantity: item.quantity,
+          cartType: "orders" as const,
+        })),
+        ...preorderCart.map((item) => ({
+          productId: item.productId,
+          quantity: item.quantity,
+          cartType: "preorders" as const,
+        })),
+      ];
 
       const response = await googleOneTap({ token, cartItems });
 

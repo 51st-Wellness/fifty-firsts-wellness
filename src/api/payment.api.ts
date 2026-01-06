@@ -137,20 +137,25 @@ export interface CartCheckoutResult {
 
 class PaymentAPI {
   // Fetch checkout summary plus default delivery information
-  async getCartCheckoutSummary(): Promise<ResponseDto<CartCheckoutSummary>> {
+  async getCartCheckoutSummary(
+    cartType: "orders" | "preorders" = "orders"
+  ): Promise<ResponseDto<CartCheckoutSummary>> {
     const response = await http.get<ResponseDto<CartCheckoutSummary>>(
-      "/payment/checkout/cart/summary"
+      "/payment/checkout/cart/summary",
+      { params: { cartType } }
     );
     return response.data;
   }
 
   // Initialize checkout for cart items and receive provider approval URL
   async checkoutCart(
-    payload: CartCheckoutPayload
+    payload: CartCheckoutPayload,
+    cartType: "orders" | "preorders" = "orders"
   ): Promise<ResponseDto<CartCheckoutResult>> {
     const response = await http.post<ResponseDto<CartCheckoutResult>>(
       "/payment/checkout/cart",
-      payload
+      payload,
+      { params: { cartType } }
     );
     return response.data;
   }

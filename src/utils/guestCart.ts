@@ -21,9 +21,12 @@ const LEGACY_GUEST_CART_KEY = "fifty_firsts_guest_cart";
  */
 export const getGuestCart = (type: CartType = "standard"): GuestCartItem[] => {
   try {
-    // If we're looking for standard and the standard key doesn't exist, 
+    // If we're looking for standard and the standard key doesn't exist,
     // try to migrate from the legacy key
-    if (type === "standard" && !localStorage.getItem(GUEST_CART_KEYS.standard)) {
+    if (
+      type === "standard" &&
+      !localStorage.getItem(GUEST_CART_KEYS.standard)
+    ) {
       const legacy = localStorage.getItem(LEGACY_GUEST_CART_KEY);
       if (legacy) {
         localStorage.setItem(GUEST_CART_KEYS.standard, legacy);
@@ -37,7 +40,7 @@ export const getGuestCart = (type: CartType = "standard"): GuestCartItem[] => {
     const parsed = JSON.parse(stored);
 
     // Handle legacy format in the new key or array format
-    const items = Array.isArray(parsed) ? parsed : (parsed.items || []);
+    const items = Array.isArray(parsed) ? parsed : parsed.items || [];
 
     return items.filter(
       (item: any) =>
@@ -47,7 +50,10 @@ export const getGuestCart = (type: CartType = "standard"): GuestCartItem[] => {
         item.quantity > 0
     );
   } catch (error) {
-    console.error(`Error reading guest cart (${type}) from localStorage:`, error);
+    console.error(
+      `Error reading guest cart (${type}) from localStorage:`,
+      error
+    );
     return [];
   }
 };
@@ -55,7 +61,10 @@ export const getGuestCart = (type: CartType = "standard"): GuestCartItem[] => {
 /**
  * Save guest cart items to localStorage by type
  */
-export const saveGuestCart = (items: GuestCartItem[], type: CartType = "standard"): void => {
+export const saveGuestCart = (
+  items: GuestCartItem[],
+  type: CartType = "standard"
+): void => {
   try {
     const validItems = items.filter(
       (item) =>
@@ -80,9 +89,7 @@ export const addToGuestCart = (
   quantity: number = 1
 ): void => {
   const items = getGuestCart(type);
-  const existingIndex = items.findIndex(
-    (item) => item.productId === productId
-  );
+  const existingIndex = items.findIndex((item) => item.productId === productId);
 
   if (existingIndex >= 0) {
     items[existingIndex].quantity += quantity;
@@ -110,9 +117,7 @@ export const updateGuestCartItem = (
   }
 
   const items = getGuestCart(type);
-  const existingIndex = items.findIndex(
-    (item) => item.productId === productId
-  );
+  const existingIndex = items.findIndex((item) => item.productId === productId);
 
   if (existingIndex >= 0) {
     items[existingIndex].quantity = quantity;
@@ -123,7 +128,10 @@ export const updateGuestCartItem = (
 /**
  * Remove item from guest cart by type
  */
-export const removeFromGuestCart = (productId: string, type: CartType = "standard"): void => {
+export const removeFromGuestCart = (
+  productId: string,
+  type: CartType = "standard"
+): void => {
   const items = getGuestCart(type).filter(
     (item) => item.productId !== productId
   );
@@ -144,7 +152,10 @@ export const clearGuestCart = (type: CartType = "standard"): void => {
 /**
  * Get quantity of a specific item in guest cart by type
  */
-export const getGuestCartItemQuantity = (productId: string, type: CartType = "standard"): number => {
+export const getGuestCartItemQuantity = (
+  productId: string,
+  type: CartType = "standard"
+): number => {
   const items = getGuestCart(type);
   const item = items.find((item) => item.productId === productId);
   return item ? item.quantity : 0;
@@ -153,8 +164,9 @@ export const getGuestCartItemQuantity = (productId: string, type: CartType = "st
 /**
  * Check if item is in guest cart by type
  */
-export const isInGuestCart = (productId: string, type: CartType = "standard"): boolean => {
+export const isInGuestCart = (
+  productId: string,
+  type: CartType = "standard"
+): boolean => {
   return getGuestCartItemQuantity(productId, type) > 0;
 };
-
-
