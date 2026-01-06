@@ -162,29 +162,16 @@ const StoreItemCard: React.FC<StoreItemCardProps> = ({
           {/* Share Button - Top Right */}
           <button
             onClick={handleShare}
-            className="absolute top-2 right-2 p-1.5 rounded-full bg-white/80 text-gray-700 hover:bg-white hover:text-brand-green transition-all shadow-sm z-10"
+            className="absolute top-2 right-2 p-1 md:p-1.5 rounded-full bg-white/80 text-gray-700 hover:bg-white hover:text-brand-green transition-all shadow-sm z-10"
             title="Share Product"
           >
-            <Share2 className="w-3.5 h-3.5" />
+            <Share2 className="w-3 h-3 md:w-3.5 md:h-3.5" />
           </button>
 
           {/* Discount Badge - Mobile Only (Bottom Right of Image) */}
           {pricing.hasDiscount && (
             <span className="absolute bottom-2 right-2 md:hidden inline-flex items-center rounded-lg bg-blue-100 px-2 py-1 text-[10px] font-bold text-blue-700 shadow-sm border border-blue-200/50">
               -{discountPercent}%
-            </span>
-          )}
-
-          {canPreOrder && (
-            <span className="absolute top-2 left-2 inline-flex items-center gap-1 rounded-full bg-white/90 px-3 py-1 text-[10px] font-semibold uppercase text-brand-green shadow-sm">
-              <Package className="w-3 h-3" />
-              Pre-order
-            </span>
-          )}
-          {!canPreOrder && isOutOfStock && (
-            <span className="absolute top-2 left-2 inline-flex items-center gap-1 rounded-full bg-gray-900/80 px-3 py-1 text-[10px] font-semibold uppercase text-white shadow-sm">
-              <ShoppingCart className="w-3 h-3 text-white" />
-              Out of Stock
             </span>
           )}
         </div>
