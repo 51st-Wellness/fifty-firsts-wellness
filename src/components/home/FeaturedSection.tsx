@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useRef } from "react";
 import { ShoppingCart, Heart, Loader } from "lucide-react";
 import { fetchStoreItems } from "../../api/marketplace.api";
 import type { StoreItem } from "../../types/marketplace.types";
@@ -10,6 +10,12 @@ import LazyImage from "../ui/LazyImage";
 const FeaturedSection: React.FC = () => {
   const [featuredItems, setFeaturedItems] = useState<StoreItem[]>([]);
   const [loading, setLoading] = useState<boolean>(true);
+  const [currentIndex, setCurrentIndex] = useState(0);
+  const [touchStart, setTouchStart] = useState<number | null>(null);
+  const [touchEnd, setTouchEnd] = useState<number | null>(null);
+  const [isPaused, setIsPaused] = useState(false);
+  const carouselRef = useRef<HTMLDivElement>(null);
+  const autoScrollIntervalRef = useRef<NodeJS.Timeout | null>(null);
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -45,11 +51,75 @@ const FeaturedSection: React.FC = () => {
     loadFeaturedItems();
   }, []);
 
+  // Auto-scroll functionality for mobile carousel
+  useEffect(() => {
+    // Only auto-scroll on mobile (when items exist and we're showing carousel)
+    if (featuredItems.length <= 1 || isPaused) {
+      if (autoScrollIntervalRef.current) {
+        clearInterval(autoScrollIntervalRef.current);
+        autoScrollIntervalRef.current = null;
+      }
+      return;
+    }
+
+    // Set up auto-scroll interval
+    autoScrollIntervalRef.current = setInterval(() => {
+      setCurrentIndex((prevIndex) => {
+        // Loop back to 0 when reaching the end
+        return prevIndex === featuredItems.length - 1 ? 0 : prevIndex + 1;
+      });
+    }, 3500); // 3.5 seconds
+
+    // Cleanup interval on unmount or when dependencies change
+    return () => {
+      if (autoScrollIntervalRef.current) {
+        clearInterval(autoScrollIntervalRef.current);
+        autoScrollIntervalRef.current = null;
+      }
+    };
+  }, [featuredItems.length, isPaused]);
+
   const handleCardClick = (item: StoreItem) => {
     const imageUrl = item.display?.url || item.images?.[0] || "";
     navigate(`/products/${item.productId}`, {
       state: { cover: imageUrl, images: item.images },
     });
+  };
+
+  // Swipe handlers for mobile
+  const minSwipeDistance = 50;
+
+  const onTouchStart = (e: React.TouchEvent) => {
+    setIsPaused(true); // Pause auto-scroll when user starts touching
+    setTouchEnd(null);
+    setTouchStart(e.targetTouches[0].clientX);
+  };
+
+  const onTouchMove = (e: React.TouchEvent) => {
+    setTouchEnd(e.targetTouches[0].clientX);
+  };
+
+  const onTouchEnd = () => {
+    if (!touchStart || !touchEnd) {
+      // Resume auto-scroll if no swipe was detected
+      setIsPaused(false);
+      return;
+    }
+    const distance = touchStart - touchEnd;
+    const isLeftSwipe = distance > minSwipeDistance;
+    const isRightSwipe = distance < -minSwipeDistance;
+
+    if (isLeftSwipe && currentIndex < featuredItems.length - 1) {
+      setCurrentIndex(currentIndex + 1);
+    }
+    if (isRightSwipe && currentIndex > 0) {
+      setCurrentIndex(currentIndex - 1);
+    }
+    
+    // Resume auto-scroll after a short delay
+    setTimeout(() => {
+      setIsPaused(false);
+    }, 1000);
   };
 
   return (
@@ -76,77 +146,197 @@ const FeaturedSection: React.FC = () => {
             </p>
           </div>
         ) : (
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
-            {featuredItems.slice(0, 4).map((item) => {
-              const imageUrl = item.display?.url || item.images?.[0] || "";
-              const pricing = getStoreItemPricing(item);
-              const hasReviews = item.reviews && item.reviews.length > 0;
-              const averageRating = hasReviews
-                ? item.reviews.reduce((sum, r) => sum + (r.rating || 0), 0) /
-                  item.reviews.length
-                : 0;
+          <>
+            {/* Desktop Grid Layout */}
+            <div className="hidden sm:grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+              {featuredItems.slice(0, 4).map((item) => {
+                const imageUrl = item.display?.url || item.images?.[0] || "";
+                const pricing = getStoreItemPricing(item);
+                const hasReviews = item.reviews && item.reviews.length > 0;
+                const averageRating = hasReviews
+                  ? item.reviews.reduce((sum, r) => sum + (r.rating || 0), 0) /
+                    item.reviews.length
+                  : 0;
 
-              return (
-                <div
-                  key={item.productId}
-                  className="bg-white rounded-2xl shadow-md p-3 cursor-pointer hover:shadow-lg transition-shadow"
-                  onClick={() => handleCardClick(item)}
-                >
-                  <div className="relative w-full h-40 sm:h-44 bg-gray-100 rounded-xl overflow-hidden">
-                    {imageUrl ? (
-                      <LazyImage
-                        src={imageUrl}
-                        alt={item.name}
-                        className="w-full h-full object-cover"
-                      />
-                    ) : (
-                      <div className="w-full h-full flex items-center justify-center bg-gray-200">
-                        <ShoppingCart className="w-12 h-12 text-gray-400" />
-                      </div>
-                    )}
-                  </div>
-                  <div className="p-4 flex flex-col">
-                    <h3 className="text-base font-normal text-gray-900 leading-snug line-clamp-2 font-primary h-[48px] flex items-start">
-                      {item.name}
-                    </h3>
-                    <div className="mt-4 flex items-center justify-between min-h-[28px]">
-                      <Price
-                        price={pricing.currentPrice ?? item.price ?? 0}
-                        oldPrice={
-                          pricing.hasDiscount
-                            ? pricing.basePrice
-                            : item.oldPrice
-                        }
-                      />
-                    </div>
-                    <div className="mt-3 flex items-center gap-2 text-sm text-gray-600 min-h-[20px]">
-                      {hasReviews ? (
-                        <span className="text-gray-600">
-                          {averageRating.toFixed(1)} ({item.reviews.length}{" "}
-                          review{item.reviews.length !== 1 ? "s" : ""})
-                        </span>
+                return (
+                  <div
+                    key={item.productId}
+                    className="bg-white rounded-2xl shadow-md p-3 cursor-pointer hover:shadow-lg transition-shadow"
+                    onClick={() => handleCardClick(item)}
+                  >
+                    <div className="relative w-full h-40 sm:h-44 bg-gray-100 rounded-xl overflow-hidden">
+                      {imageUrl ? (
+                        <LazyImage
+                          src={imageUrl}
+                          alt={item.name}
+                          className="w-full h-full object-cover"
+                        />
                       ) : (
-                        <span className="text-gray-500">NO REVIEWS YET</span>
+                        <div className="w-full h-full flex items-center justify-center bg-gray-200">
+                          <ShoppingCart className="w-12 h-12 text-gray-400" />
+                        </div>
                       )}
                     </div>
-                    <div className="mt-4">
-                      <button
-                        type="button"
-                        onClick={(e) => {
-                          e.stopPropagation();
-                          handleCardClick(item);
-                        }}
-                        className="inline-flex items-center gap-2 bg-brand-green text-white px-4 py-2 rounded-full text-sm font-semibold hover:bg-brand-green-dark transition-colors w-full justify-center"
-                      >
-                        <ShoppingCart className="w-4 h-4" />
-                        View Product
-                      </button>
+                    <div className="p-4 flex flex-col">
+                      <h3 className="text-base font-normal text-gray-900 leading-snug line-clamp-2 font-primary h-[48px] flex items-start">
+                        {item.name}
+                      </h3>
+                      <div className="mt-4 flex items-center justify-between min-h-[28px]">
+                        <Price
+                          price={pricing.currentPrice ?? item.price ?? 0}
+                          oldPrice={
+                            pricing.hasDiscount
+                              ? pricing.basePrice
+                              : item.oldPrice
+                          }
+                        />
+                      </div>
+                      <div className="mt-3 flex items-center gap-2 text-sm text-gray-600 min-h-[20px]">
+                        {hasReviews ? (
+                          <span className="text-gray-600">
+                            {averageRating.toFixed(1)} ({item.reviews.length}{" "}
+                            review{item.reviews.length !== 1 ? "s" : ""})
+                          </span>
+                        ) : (
+                          <span className="text-gray-500">NO REVIEWS YET</span>
+                        )}
+                      </div>
+                      <div className="mt-4">
+                        <button
+                          type="button"
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            handleCardClick(item);
+                          }}
+                          className="inline-flex items-center gap-2 bg-brand-green text-white px-4 py-2 rounded-full text-sm font-semibold hover:bg-brand-green-dark transition-colors w-full justify-center"
+                        >
+                          <ShoppingCart className="w-4 h-4" />
+                          View Product
+                        </button>
+                      </div>
                     </div>
                   </div>
+                );
+              })}
+            </div>
+
+            {/* Mobile Swipeable Carousel */}
+            <div className="sm:hidden">
+              <div
+                ref={carouselRef}
+                className="relative overflow-hidden"
+                onTouchStart={onTouchStart}
+                onTouchMove={onTouchMove}
+                onTouchEnd={onTouchEnd}
+              >
+                <div
+                  className="flex transition-transform duration-300 ease-in-out"
+                  style={{
+                    transform: `translateX(-${currentIndex * 100}%)`,
+                  }}
+                >
+                  {featuredItems.slice(0, 4).map((item) => {
+                    const imageUrl = item.display?.url || item.images?.[0] || "";
+                    const pricing = getStoreItemPricing(item);
+                    const hasReviews = item.reviews && item.reviews.length > 0;
+                    const averageRating = hasReviews
+                      ? item.reviews.reduce((sum, r) => sum + (r.rating || 0), 0) /
+                        item.reviews.length
+                      : 0;
+
+                    return (
+                      <div
+                        key={item.productId}
+                        className="w-full flex-shrink-0 px-2"
+                      >
+                        <div
+                          className="bg-white rounded-2xl shadow-md p-3 cursor-pointer hover:shadow-lg transition-shadow"
+                          onClick={() => handleCardClick(item)}
+                        >
+                          <div className="relative w-full h-40 bg-gray-100 rounded-xl overflow-hidden">
+                            {imageUrl ? (
+                              <LazyImage
+                                src={imageUrl}
+                                alt={item.name}
+                                className="w-full h-full object-cover"
+                              />
+                            ) : (
+                              <div className="w-full h-full flex items-center justify-center bg-gray-200">
+                                <ShoppingCart className="w-12 h-12 text-gray-400" />
+                              </div>
+                            )}
+                          </div>
+                          <div className="p-4 flex flex-col">
+                            <h3 className="text-base font-normal text-gray-900 leading-snug line-clamp-2 font-primary h-[48px] flex items-start">
+                              {item.name}
+                            </h3>
+                            <div className="mt-4 flex items-center justify-between min-h-[28px]">
+                              <Price
+                                price={pricing.currentPrice ?? item.price ?? 0}
+                                oldPrice={
+                                  pricing.hasDiscount
+                                    ? pricing.basePrice
+                                    : item.oldPrice
+                                }
+                              />
+                            </div>
+                            <div className="mt-3 flex items-center gap-2 text-sm text-gray-600 min-h-[20px]">
+                              {hasReviews ? (
+                                <span className="text-gray-600">
+                                  {averageRating.toFixed(1)} ({item.reviews.length}{" "}
+                                  review{item.reviews.length !== 1 ? "s" : ""})
+                                </span>
+                              ) : (
+                                <span className="text-gray-500">NO REVIEWS YET</span>
+                              )}
+                            </div>
+                            <div className="mt-4">
+                              <button
+                                type="button"
+                                onClick={(e) => {
+                                  e.stopPropagation();
+                                  handleCardClick(item);
+                                }}
+                                className="inline-flex items-center gap-2 bg-brand-green text-white px-4 py-2 rounded-full text-sm font-semibold hover:bg-brand-green-dark transition-colors w-full justify-center"
+                              >
+                                <ShoppingCart className="w-4 h-4" />
+                                View Product
+                              </button>
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+                    );
+                  })}
                 </div>
-              );
-            })}
-          </div>
+              </div>
+              
+              {/* Dots Indicator */}
+              {featuredItems.length > 1 && (
+                <div className="flex justify-center gap-2 mt-6">
+                  {featuredItems.slice(0, 4).map((_, index) => (
+                    <button
+                      key={index}
+                      onClick={() => {
+                        setCurrentIndex(index);
+                        setIsPaused(true);
+                        // Resume auto-scroll after clicking a dot
+                        setTimeout(() => {
+                          setIsPaused(false);
+                        }, 1000);
+                      }}
+                      className={`w-2 h-2 rounded-full transition-all ${
+                        index === currentIndex
+                          ? "bg-brand-green w-6"
+                          : "bg-white/50"
+                      }`}
+                      aria-label={`Go to slide ${index + 1}`}
+                    />
+                  ))}
+                </div>
+              )}
+            </div>
+          </>
         )}
       </div>
     </section>

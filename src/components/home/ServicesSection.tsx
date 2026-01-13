@@ -20,11 +20,11 @@ const ServiceCard: React.FC<ServiceCardProps> = ({
 }) => {
   const CTAButton = () => {
     if (isComingSoon) {
-      return (
-        <button className="mt-6 inline-block bg-gray-400 text-white px-6 py-3 rounded-full text-sm font-semibold cursor-not-allowed">
-          {ctaText}
-        </button>
-      );
+    return (
+      <button className="mt-4 sm:mt-6 inline-block bg-gray-400 text-white px-5 py-2 sm:px-6 sm:py-3 rounded-full text-xs sm:text-sm font-semibold cursor-not-allowed">
+        {ctaText}
+      </button>
+    );
     }
 
     // Handle waitlist scroll
@@ -37,7 +37,7 @@ const ServiceCard: React.FC<ServiceCardProps> = ({
               waitlistSection.scrollIntoView({ behavior: "smooth" });
             }
           }}
-          className="mt-6 inline-block bg-brand-green text-white px-6 py-3 rounded-full text-sm font-semibold hover:bg-brand-green-dark transition-colors"
+          className="mt-4 sm:mt-6 inline-block bg-brand-green text-white px-5 py-2 sm:px-6 sm:py-3 rounded-full text-xs sm:text-sm font-semibold hover:bg-brand-green-dark transition-colors"
         >
           {ctaText}
         </button>
@@ -55,21 +55,21 @@ const ServiceCard: React.FC<ServiceCardProps> = ({
   };
 
   return (
-    <div className="bg-white rounded-3xl shadow-xl p-6 sm:p-8 flex flex-col items-center text-center border border-gray-100 h-full">
-      <div className="w-full overflow-hidden rounded-2xl">
+    <div className="bg-white rounded-2xl sm:rounded-3xl shadow-xl p-4 sm:p-6 md:p-8 flex flex-col items-center text-center border border-gray-100 h-full">
+      <div className="w-full overflow-hidden rounded-xl sm:rounded-2xl">
         <img
           src={imageSrc}
           alt={title}
-          className="w-full h-72 sm:h-80 object-cover"
+          className="w-full h-56 sm:h-64 md:h-72 lg:h-80 object-cover"
         />
       </div>
       <h3
-        className="mt-6 text-xl sm:text-2xl font-semibold text-gray-900 min-h-[64px] flex items-center justify-center"
+        className="mt-4 sm:mt-6 text-lg sm:text-xl md:text-2xl font-semibold text-gray-900 min-h-[48px] sm:min-h-[56px] md:min-h-[64px] flex items-center justify-center"
         style={{ fontFamily: '"League Spartan", sans-serif' }}
       >
         {title}
       </h3>
-      <p className="mt-4 text-sm sm:text-base text-gray-600 leading-7 flex-grow">
+      <p className="mt-3 sm:mt-4 text-xs sm:text-sm md:text-base text-gray-600 leading-6 sm:leading-7 flex-grow">
         {description}
       </p>
       <CTAButton />
@@ -80,7 +80,7 @@ const ServiceCard: React.FC<ServiceCardProps> = ({
 const ServicesSection: React.FC = () => {
   return (
     <section
-      className="relative w-full py-24 lg:py-32 min-h-[1100px] lg:min-h-[1300px] z-20"
+      className="relative w-full py-12 sm:py-16 md:py-20 lg:py-24 xl:py-32 min-h-[800px] sm:min-h-[900px] md:min-h-[1000px] lg:min-h-[1100px] xl:min-h-[1300px] z-20"
       style={{
         backgroundImage:
           "url(/assets/homepage/service-cards/new-service-bg.svg)",
@@ -92,17 +92,17 @@ const ServicesSection: React.FC = () => {
       }}
     >
       <div className="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="relative text-center mb-10">
+        <div className="relative text-center mb-6 sm:mb-8 md:mb-10">
           <h2
-            className="text-3xl sm:text-4xl font-normal text-white"
+            className="text-2xl sm:text-3xl md:text-4xl font-normal text-white"
             style={{ fontFamily: '"Lilita One", sans-serif' }}
           >
             Wellness Pillars
           </h2>
-          <div className="w-16 h-1 bg-brand-green mx-auto rounded-full mt-3" />
+          <div className="w-12 sm:w-16 h-1 bg-brand-green mx-auto rounded-full mt-2 sm:mt-3" />
         </div>
 
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 lg:gap-8">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-5 md:gap-6 lg:gap-8">
           <ServiceCard
             imageSrc="/assets/homepage/service-cards/service2.png"
             title="Personal Wellness Services"

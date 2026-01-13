@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import { Link } from "react-router-dom";
 import { fetchBlogs, BlogEntity, mediaUrl } from "../../api/blog.api";
 
@@ -37,6 +37,12 @@ const BlogCard: React.FC<BlogCardProps> = ({ imageSrc, title, excerpt, to }) => 
 const BlogSection: React.FC = () => {
   const [blogs, setBlogs] = useState<BlogEntity[]>([]);
   const [loading, setLoading] = useState(true);
+  const [currentIndex, setCurrentIndex] = useState(0);
+  const [touchStart, setTouchStart] = useState<number | null>(null);
+  const [touchEnd, setTouchEnd] = useState<number | null>(null);
+  const [isPaused, setIsPaused] = useState(false);
+  const carouselRef = useRef<HTMLDivElement>(null);
+  const autoScrollIntervalRef = useRef<NodeJS.Timeout | null>(null);
 
   useEffect(() => {
     const loadBlogs = async () => {
@@ -53,11 +59,75 @@ const BlogSection: React.FC = () => {
     loadBlogs();
   }, []);
 
+  // Auto-scroll functionality for mobile carousel
+  useEffect(() => {
+    // Only auto-scroll on mobile (when blogs exist and we're showing carousel)
+    if (blogs.length <= 1 || isPaused) {
+      if (autoScrollIntervalRef.current) {
+        clearInterval(autoScrollIntervalRef.current);
+        autoScrollIntervalRef.current = null;
+      }
+      return;
+    }
+
+    // Set up auto-scroll interval
+    autoScrollIntervalRef.current = setInterval(() => {
+      setCurrentIndex((prevIndex) => {
+        // Loop back to 0 when reaching the end
+        return prevIndex === blogs.length - 1 ? 0 : prevIndex + 1;
+      });
+    }, 3500); // 3.5 seconds
+
+    // Cleanup interval on unmount or when dependencies change
+    return () => {
+      if (autoScrollIntervalRef.current) {
+        clearInterval(autoScrollIntervalRef.current);
+        autoScrollIntervalRef.current = null;
+      }
+    };
+  }, [blogs.length, isPaused]);
+
   // Truncate description to ~150 characters
   const truncateText = (text: string, maxLength: number = 150) => {
     if (!text) return "";
     if (text.length <= maxLength) return text;
     return text.substring(0, maxLength).trim() + "...";
+  };
+
+  // Swipe handlers for mobile
+  const minSwipeDistance = 50;
+
+  const onTouchStart = (e: React.TouchEvent) => {
+    setIsPaused(true); // Pause auto-scroll when user starts touching
+    setTouchEnd(null);
+    setTouchStart(e.targetTouches[0].clientX);
+  };
+
+  const onTouchMove = (e: React.TouchEvent) => {
+    setTouchEnd(e.targetTouches[0].clientX);
+  };
+
+  const onTouchEnd = () => {
+    if (!touchStart || !touchEnd) {
+      // Resume auto-scroll if no swipe was detected
+      setIsPaused(false);
+      return;
+    }
+    const distance = touchStart - touchEnd;
+    const isLeftSwipe = distance > minSwipeDistance;
+    const isRightSwipe = distance < -minSwipeDistance;
+
+    if (isLeftSwipe && currentIndex < blogs.length - 1) {
+      setCurrentIndex(currentIndex + 1);
+    }
+    if (isRightSwipe && currentIndex > 0) {
+      setCurrentIndex(currentIndex - 1);
+    }
+    
+    // Resume auto-scroll after a short delay
+    setTimeout(() => {
+      setIsPaused(false);
+    }, 1000);
   };
 
   return (
@@ -82,39 +152,116 @@ const BlogSection: React.FC = () => {
         </div>
 
         {loading ? (
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 lg:gap-8 mt-8 lg:mt-12">
-            {[1, 2, 3].map((i) => (
-              <div
-                key={i}
-                className="bg-white rounded-3xl shadow-xl p-6 sm:p-8 flex flex-col items-center text-center border border-gray-100 animate-pulse"
-              >
-                <div className="w-full h-72 sm:h-80 bg-gray-200 rounded-2xl" />
+          <>
+            {/* Desktop Loading */}
+            <div className="hidden md:grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 lg:gap-8 mt-8 lg:mt-12">
+              {[1, 2, 3].map((i) => (
+                <div
+                  key={i}
+                  className="bg-white rounded-3xl shadow-xl p-6 sm:p-8 flex flex-col items-center text-center border border-gray-100 animate-pulse"
+                >
+                  <div className="w-full h-72 sm:h-80 bg-gray-200 rounded-2xl" />
+                  <div className="w-3/4 h-6 bg-gray-200 rounded mt-6" />
+                  <div className="w-full h-4 bg-gray-200 rounded mt-4" />
+                  <div className="w-5/6 h-4 bg-gray-200 rounded mt-2" />
+                  <div className="w-24 h-10 bg-gray-200 rounded-full mt-6" />
+                </div>
+              ))}
+            </div>
+            {/* Mobile Loading */}
+            <div className="md:hidden mt-8">
+              <div className="bg-white rounded-3xl shadow-xl p-6 flex flex-col items-center text-center border border-gray-100 animate-pulse">
+                <div className="w-full h-72 bg-gray-200 rounded-2xl" />
                 <div className="w-3/4 h-6 bg-gray-200 rounded mt-6" />
                 <div className="w-full h-4 bg-gray-200 rounded mt-4" />
                 <div className="w-5/6 h-4 bg-gray-200 rounded mt-2" />
                 <div className="w-24 h-10 bg-gray-200 rounded-full mt-6" />
               </div>
-            ))}
-          </div>
+            </div>
+          </>
         ) : blogs.length > 0 ? (
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 lg:gap-8 mt-8 lg:mt-12">
-            {blogs.map((blog) => {
-              const coverImageUrl =
-                mediaUrl(blog.coverImage?.url) ||
-                mediaUrl(blog.coverImage?.data?.attributes?.url) ||
-                "/assets/homepage/blog/blog-1.svg";
+          <>
+            {/* Desktop Grid Layout */}
+            <div className="hidden md:grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 lg:gap-8 mt-8 lg:mt-12">
+              {blogs.map((blog) => {
+                const coverImageUrl =
+                  mediaUrl(blog.coverImage?.url) ||
+                  mediaUrl(blog.coverImage?.data?.attributes?.url) ||
+                  "/assets/homepage/blog/blog-1.svg";
+                
+                return (
+                  <BlogCard
+                    key={blog.documentId}
+                    imageSrc={coverImageUrl}
+                    title={blog.title}
+                    excerpt={truncateText(blog.description || "", 150)}
+                    to={`/blog/${blog.slug}`}
+                  />
+                );
+              })}
+            </div>
+
+            {/* Mobile Swipeable Carousel */}
+            <div className="md:hidden mt-8">
+              <div
+                ref={carouselRef}
+                className="relative overflow-hidden"
+                onTouchStart={onTouchStart}
+                onTouchMove={onTouchMove}
+                onTouchEnd={onTouchEnd}
+              >
+                <div
+                  className="flex transition-transform duration-300 ease-in-out"
+                  style={{
+                    transform: `translateX(-${currentIndex * 100}%)`,
+                  }}
+                >
+                  {blogs.map((blog) => {
+                    const coverImageUrl =
+                      mediaUrl(blog.coverImage?.url) ||
+                      mediaUrl(blog.coverImage?.data?.attributes?.url) ||
+                      "/assets/homepage/blog/blog-1.svg";
+                    
+                    return (
+                      <div key={blog.documentId} className="w-full flex-shrink-0 px-2">
+                        <BlogCard
+                          imageSrc={coverImageUrl}
+                          title={blog.title}
+                          excerpt={truncateText(blog.description || "", 150)}
+                          to={`/blog/${blog.slug}`}
+                        />
+                      </div>
+                    );
+                  })}
+                </div>
+              </div>
               
-              return (
-                <BlogCard
-                  key={blog.documentId}
-                  imageSrc={coverImageUrl}
-                  title={blog.title}
-                  excerpt={truncateText(blog.description || "", 150)}
-                  to={`/blog/${blog.slug}`}
-                />
-              );
-            })}
-          </div>
+              {/* Dots Indicator */}
+              {blogs.length > 1 && (
+                <div className="flex justify-center gap-2 mt-6">
+                  {blogs.map((_, index) => (
+                    <button
+                      key={index}
+                      onClick={() => {
+                        setCurrentIndex(index);
+                        setIsPaused(true);
+                        // Resume auto-scroll after clicking a dot
+                        setTimeout(() => {
+                          setIsPaused(false);
+                        }, 1000);
+                      }}
+                      className={`w-2 h-2 rounded-full transition-all ${
+                        index === currentIndex
+                          ? "bg-brand-green w-6"
+                          : "bg-white/50"
+                      }`}
+                      aria-label={`Go to slide ${index + 1}`}
+                    />
+                  ))}
+                </div>
+              )}
+            </div>
+          </>
         ) : (
           <div className="text-center text-white py-12">
             <p className="text-lg">No blog posts available at the moment.</p>
