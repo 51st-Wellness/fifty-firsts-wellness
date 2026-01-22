@@ -120,9 +120,9 @@ const ServicesSection: React.FC = () => {
           <ServiceCard
             imageSrc="/assets/homepage/service-cards/service3.png"
             title="Supplements and Products"
-            description="Not all wellness products are created equal, so we've done the homework and partnered with supplement and wellness experts to bring you products to support physical and mental wellness, longevity and hormonal balance. Safety-checked and rooted in real results. Your daily essentials are coming soon. Join our waitlist below and you will be notified when they are available."
-            ctaText="Waitlist"
-            ctaLink="#waitlist"
+            description="Not all wellness products are created equal, so we've done the homework and partnered with supplement and wellness experts to bring you products to support physical and mental wellness, longevity and hormonal balance. Safety-checked and rooted in real results."
+            ctaText="Shop"
+            ctaLink="/marketplace"
           />
         </div>
       </div>
