@@ -44,6 +44,7 @@ const Podcasts = lazy(() => import("./pages/ResourcesHub/Podcasts"));
 const PodcastDetail = lazy(() => import("./pages/ResourcesHub/PodcastDetail"));
 const Webinars = lazy(() => import("./pages/ResourcesHub/Webinars"));
 const BusinessWellnessProgrammes = lazy(() => import("./pages/service/BusinessWellnessProgrammes"));
+const LuceoLounge = lazy(() => import("./pages/service/LuceoLounge"));
 const CookiePolicy = lazy(() => import("./pages/legal/CookiePolicy"));
 const TermsAndConditions = lazy(() => import("./pages/legal/TermsAndConditions"));
 const PrivacyPolicy = lazy(() => import("./pages/legal/PrivacyPolicy"));
@@ -152,6 +153,14 @@ const App: React.FC = () => {
             element={
               <RouteWithLayout>
                 <BusinessWellnessProgrammes />
+              </RouteWithLayout>
+            }
+          />
+          <Route
+            path="/services/luceo-lounge"
+            element={
+              <RouteWithLayout>
+                <LuceoLounge />
               </RouteWithLayout>
             }
           />

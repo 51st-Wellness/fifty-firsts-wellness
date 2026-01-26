@@ -167,6 +167,15 @@ const Navbar: React.FC = () => {
                       Business Wellness
                     </Link>
                   </li>
+                  <li>
+                    <Link
+                      to="/services/luceo-lounge"
+                      className="block px-4 py-3 text-gray-700  hover:text-brand-green transition-colors"
+                      onClick={() => setServicesOpen(false)}
+                    >
+                      Luceo Lounge
+                    </Link>
+                  </li>
                   {/* <li>
                     <Link
                       to="/services/program-details"
@@ -346,6 +355,18 @@ const Navbar: React.FC = () => {
                             className="block px-8 py-3 text-gray-600  hover:text-brand-green transition-colors"
                           >
                             Business Wellness Programmes
+                          </Link>
+                        </li>
+                        <li>
+                          <Link
+                            to="/services/luceo-lounge"
+                            onClick={() => {
+                              setMenuOpen(false);
+                              setServicesOpen(false);
+                            }}
+                            className="block px-8 py-3 text-gray-600  hover:text-brand-green transition-colors"
+                          >
+                            Luceo Lounge
                           </Link>
                         </li>
                         {/* <li>
