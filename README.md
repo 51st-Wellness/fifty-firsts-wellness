@@ -18,6 +18,7 @@ A comprehensive wellness platform and e-commerce marketplace built with React an
 - **Wellness Programs**
   - Personal wellness programs
   - Business wellness programs
+  - Luceo Lounge wellness hub (Red Light Therapy & Contrast Therapy)
   - Program details and enrollment
   - Subscription management
 
@@ -186,6 +187,7 @@ fifty-firsts-wellness/
 │   │   ├── dashboard/   # User dashboard pages
 │   │   ├── management/  # Admin management pages
 │   │   ├── marketplace/ # Marketplace pages
+│   │   ├── service/     # Service pages (Wellness Programs, Luceo Lounge)
 │   │   └── ...
 │   ├── services/        # Service layer
 │   ├── styles/          # Global styles
@@ -193,6 +195,7 @@ fifty-firsts-wellness/
 │   ├── types/           # TypeScript type definitions
 │   └── utils/           # Utility functions
 ├── docs/                 # Documentation
+│   └── Luceo-Lounge.md  # Luceo Lounge service documentation
 ├── emails/               # Email templates
 ├── eslint.config.js      # ESLint configuration
 ├── tailwind.config.js    # Tailwind CSS configuration
@@ -292,9 +295,26 @@ The project is configured for deployment on Vercel. The `vercel.json` configurat
 ### Build Optimization
 
 - Code splitting with React lazy loading
+- Image lazy loading with IntersectionObserver
+- Route prefetching for improved perceived performance
+- API response caching with TTL
+- Component memoization (React.memo, useMemo, useCallback)
+- Font loading optimization (deferred non-critical fonts)
+- Dynamic script loading for third-party services
 - Asset optimization
 - Tree shaking
 - Production minification
+
+## 🌟 Services
+
+### Luceo Lounge
+
+A wellness hub offering evidence-based light and temperature therapies:
+
+- **Red Light Therapy (Photobiomodulation)**: Uses low-level wavelengths of red and near-infrared light to stimulate cellular repair, enhance circulation, and promote tissue rejuvenation
+- **Contrast Therapy**: Alternating hot and cold immersion therapy using sauna pods, steam pods, and cold plunge tubs for physical recovery and nervous system strengthening
+
+The Luceo Lounge service page provides comprehensive information about both therapies, their benefits, how they work, and the wellness philosophy behind the treatments.
 
 ## 📄 License
 
