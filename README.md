@@ -239,7 +239,7 @@ The application implements role-based access control:
 - Persistent cart storage
 - Guest cart support
 - Quantity management
-- Discount application
+- Discount application.
 
 ### Checkout Process
 - Royal Mail address verification (UK addresses)
