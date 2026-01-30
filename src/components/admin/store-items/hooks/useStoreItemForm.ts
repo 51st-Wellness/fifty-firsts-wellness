@@ -245,6 +245,39 @@ export const useStoreItemForm = ({
       return;
     }
 
+    // Validate shipping dimensions
+    if (mode === "create") {
+      // On create, all dimensions must be provided and > 0
+      if (
+        !formData.weight ||
+        formData.weight <= 0 ||
+        !formData.length ||
+        formData.length <= 0 ||
+        !formData.width ||
+        formData.width <= 0 ||
+        !formData.height ||
+        formData.height <= 0
+      ) {
+        toast.error(
+          "All shipping dimensions (weight, length, width, height) are required and must be greater than 0"
+        );
+        return;
+      }
+    } else {
+      // On update, at least one dimension must remain > 0
+      const hasWeight = formData.weight > 0;
+      const hasLength = formData.length > 0;
+      const hasWidth = formData.width > 0;
+      const hasHeight = formData.height > 0;
+
+      if (!hasWeight && !hasLength && !hasWidth && !hasHeight) {
+        toast.error(
+          "At least one shipping dimension (weight, length, width, or height) must be provided"
+        );
+        return;
+      }
+    }
+
     setSubmitting(true);
     try {
       const submitData = new FormData();

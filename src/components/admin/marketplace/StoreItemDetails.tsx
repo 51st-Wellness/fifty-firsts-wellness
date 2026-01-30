@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useState, useEffect } from "react";
 import {
   Box,
   Typography,
@@ -8,9 +8,11 @@ import {
   Chip,
   ImageList,
   ImageListItem,
+  CircularProgress,
 } from "@mui/material";
 import { Edit as EditIcon, Delete as DeleteIcon, Image as ImageIcon } from "@mui/icons-material";
 import type { StoreItem } from "../../../types/marketplace.types";
+import { fetchStoreItemById } from "../../../api/marketplace.api";
 
 interface StoreItemDetailsProps {
   item: StoreItem | null;
@@ -28,7 +30,34 @@ const StoreItemDetails: React.FC<StoreItemDetailsProps> = ({
   onEdit,
   onDelete,
 }) => {
-  if (!item) {
+  const [currentItem, setCurrentItem] = useState<StoreItem | null>(item);
+  const [loading, setLoading] = useState(false);
+
+  // Fetch item by ID when item prop changes
+  useEffect(() => {
+    if (item?.productId) {
+      const fetchItem = async () => {
+        try {
+          setLoading(true);
+          const response = await fetchStoreItemById(item.productId);
+          if (response.data) {
+            setCurrentItem(response.data);
+          }
+        } catch (error) {
+          console.error("Failed to fetch store item:", error);
+          // Fallback to prop item if fetch fails
+          setCurrentItem(item);
+        } finally {
+          setLoading(false);
+        }
+      };
+      fetchItem();
+    } else {
+      setCurrentItem(null);
+    }
+  }, [item?.productId]);
+
+  if (!currentItem) {
     return (
       <Box sx={{ p: { xs: 2, sm: 4 }, textAlign: "center" }}>
         <Typography
@@ -39,6 +68,23 @@ const StoreItemDetails: React.FC<StoreItemDetailsProps> = ({
           Select an item to view details
         </Typography>
       </Box>
+    );
+  }
+
+  if (loading) {
+    return (
+      <Card sx={{ height: "fit-content" }}>
+        <CardContent sx={{ p: { xs: 2, sm: 3 }, textAlign: "center" }}>
+          <CircularProgress size={24} />
+          <Typography
+            variant="body2"
+            color="text.secondary"
+            sx={{ mt: 2, fontSize: { xs: "0.75rem", sm: "0.875rem" } }}
+          >
+            Loading item details...
+          </Typography>
+        </CardContent>
+      </Card>
     );
   }
 
@@ -64,7 +110,7 @@ const StoreItemDetails: React.FC<StoreItemDetailsProps> = ({
               minWidth: 0,
             }}
           >
-            {item.name}
+            {currentItem.name}
           </Typography>
           <Box sx={{ display: "flex", gap: 0.5, flexShrink: 0 }}>
             <IconButton
@@ -107,7 +153,7 @@ const StoreItemDetails: React.FC<StoreItemDetailsProps> = ({
                 mb: { xs: 1.5, sm: 2 },
               }}
             >
-              {item.display?.url ? (
+              {currentItem.display?.url ? (
                 item.display.type === "video" ? (
                   <video
                     src={item.display.url}
@@ -120,8 +166,8 @@ const StoreItemDetails: React.FC<StoreItemDetailsProps> = ({
                   />
                 ) : (
                   <img
-                    src={item.display.url}
-                    alt={item.name}
+                    src={currentItem.display.url}
+                    alt={currentItem.name}
                     style={{
                       width: "100%",
                       height: "100%",
@@ -137,7 +183,7 @@ const StoreItemDetails: React.FC<StoreItemDetailsProps> = ({
             </Box>
 
             {/* Additional Images */}
-            {item.images && item.images.length > 0 && (
+            {currentItem.images && currentItem.images.length > 0 && (
               <ImageList
                 cols={4}
                 gap={8}
@@ -149,7 +195,7 @@ const StoreItemDetails: React.FC<StoreItemDetailsProps> = ({
                   },
                 }}
               >
-                {item.images.map((img, idx) => (
+                {currentItem.images.map((img, idx) => (
                   <ImageListItem key={idx}>
                     <img
                       src={img}
@@ -176,7 +222,7 @@ const StoreItemDetails: React.FC<StoreItemDetailsProps> = ({
                 fontSize: { xs: "0.875rem", sm: "1rem" },
               }}
             >
-              {item.description || "No description provided"}
+              {currentItem.description || "No description provided"}
             </Typography>
 
             <Box sx={{ mb: { xs: 1.5, sm: 2 } }}>
@@ -189,7 +235,7 @@ const StoreItemDetails: React.FC<StoreItemDetailsProps> = ({
                   fontSize: { xs: "1.25rem", sm: "1.75rem", lg: "2.125rem" },
                 }}
               >
-                {currencyFormatter.format(item.price)}
+                {currencyFormatter.format(currentItem.price)}
               </Typography>
               <Typography
                 variant="body2"
@@ -199,17 +245,17 @@ const StoreItemDetails: React.FC<StoreItemDetailsProps> = ({
                   fontSize: { xs: "0.75rem", sm: "0.875rem" },
                 }}
               >
-                Stock: {item.stock} items
+                Stock: {currentItem.stock} items
               </Typography>
             </Box>
 
-            {item.discountType && item.discountType !== "NONE" && (
+            {currentItem.discountType && currentItem.discountType !== "NONE" && (
               <Box sx={{ mb: { xs: 1.5, sm: 2 }, display: "flex", gap: 0.5, flexWrap: "wrap" }}>
                 <Chip
                   label={`Discount: ${
-                    item.discountType === "PERCENTAGE"
-                      ? `${item.discountValue || 0}%`
-                      : currencyFormatter.format(item.discountValue || 0)
+                    currentItem.discountType === "PERCENTAGE"
+                      ? `${currentItem.discountValue || 0}%`
+                      : currencyFormatter.format(currentItem.discountValue || 0)
                   }`}
                   color="success"
                   variant="outlined"
@@ -219,7 +265,7 @@ const StoreItemDetails: React.FC<StoreItemDetailsProps> = ({
                     fontSize: { xs: "0.7rem", sm: "0.75rem" },
                   }}
                 />
-                {item.discountActive ? (
+                {currentItem.discountActive ? (
                   <Chip
                     label="Active"
                     color="success"
@@ -244,7 +290,7 @@ const StoreItemDetails: React.FC<StoreItemDetailsProps> = ({
             )}
 
             {/* Categories */}
-            {item.categories && item.categories.length > 0 && (
+            {currentItem.categories && currentItem.categories.length > 0 && (
               <Box sx={{ mb: { xs: 1.5, sm: 2 } }}>
                 <Typography
                   variant="subtitle2"
@@ -263,7 +309,7 @@ const StoreItemDetails: React.FC<StoreItemDetailsProps> = ({
                     gap: 0.5,
                   }}
                 >
-                  {item.categories.map((category, idx) => (
+                  {currentItem.categories.map((category, idx) => (
                     <Chip
                       key={idx}
                       label={category}
@@ -281,7 +327,7 @@ const StoreItemDetails: React.FC<StoreItemDetailsProps> = ({
 
             {/* Status */}
             <Box sx={{ display: "flex", gap: 0.5, flexWrap: "wrap" }}>
-              {item.isFeatured && (
+              {currentItem.isFeatured && (
                 <Chip
                   label="Featured"
                   color="primary"
@@ -292,7 +338,7 @@ const StoreItemDetails: React.FC<StoreItemDetailsProps> = ({
                   }}
                 />
               )}
-              {item.isPublished ? (
+              {currentItem.isPublished ? (
                 <Chip
                   label="Published"
                   sx={{
@@ -313,7 +359,7 @@ const StoreItemDetails: React.FC<StoreItemDetailsProps> = ({
                   }}
                 />
               )}
-              {item.preOrderEnabled && (
+              {currentItem.preOrderEnabled && (
                 <Chip
                   label="Pre-orders enabled"
                   variant="outlined"
