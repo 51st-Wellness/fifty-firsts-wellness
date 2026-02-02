@@ -12,7 +12,7 @@ const SLIDES = [
   {
     image: "/assets/services/contrast.png",
     title: "Contrast Therapy",
-    subtitle: "Sauna, steam & cold plunge",
+    subtitle: "Sauna & cold plunge",
   },
 ];
 
