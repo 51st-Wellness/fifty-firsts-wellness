@@ -39,7 +39,7 @@ const StoreItemShipping: React.FC<StoreItemShippingProps> = ({
           fontSize: { xs: "0.75rem", sm: "0.875rem" },
         }}
       >
-        Enter product dimensions and weight for accurate shipping cost
+        All shipping dimensions are required for accurate shipping cost
         calculation
       </Typography>
 
@@ -48,10 +48,11 @@ const StoreItemShipping: React.FC<StoreItemShippingProps> = ({
           label="Weight (grams)"
           size="small"
           fullWidth
+          required
           value={formData.weight}
           onChange={(val) => onFormDataChange({ weight: val })}
           allowDecimals={false}
-          min={0}
+          min={1}
           InputProps={{
             endAdornment: (
               <InputAdornment position="end" sx={{ fontSize: { xs: "0.875rem", sm: "1rem" } }}>
@@ -59,8 +60,8 @@ const StoreItemShipping: React.FC<StoreItemShippingProps> = ({
               </InputAdornment>
             ),
           }}
-          placeholder="0"
-          helperText="Product weight for shipping calculation"
+          placeholder="Enter weight"
+          helperText="Product weight for shipping calculation (required)"
           sx={{
             "& .MuiInputBase-root": {
               fontSize: { xs: "0.875rem", sm: "1rem" },
@@ -89,10 +90,11 @@ const StoreItemShipping: React.FC<StoreItemShippingProps> = ({
           <NumberInput
             label="Length"
             size="small"
+            required
             value={formData.length}
             onChange={(val) => onFormDataChange({ length: val })}
             allowDecimals={false}
-            min={0}
+            min={1}
             InputProps={{
               endAdornment: (
                 <InputAdornment position="end" sx={{ fontSize: { xs: "0.875rem", sm: "1rem" } }}>
@@ -100,7 +102,7 @@ const StoreItemShipping: React.FC<StoreItemShippingProps> = ({
                 </InputAdornment>
               ),
             }}
-            placeholder="0"
+            placeholder="Enter length"
             sx={{
               "& .MuiInputBase-root": {
                 fontSize: { xs: "0.875rem", sm: "1rem" },
@@ -110,10 +112,11 @@ const StoreItemShipping: React.FC<StoreItemShippingProps> = ({
           <NumberInput
             label="Width"
             size="small"
+            required
             value={formData.width}
             onChange={(val) => onFormDataChange({ width: val })}
             allowDecimals={false}
-            min={0}
+            min={1}
             InputProps={{
               endAdornment: (
                 <InputAdornment position="end" sx={{ fontSize: { xs: "0.875rem", sm: "1rem" } }}>
@@ -121,7 +124,7 @@ const StoreItemShipping: React.FC<StoreItemShippingProps> = ({
                 </InputAdornment>
               ),
             }}
-            placeholder="0"
+            placeholder="Enter width"
             sx={{
               "& .MuiInputBase-root": {
                 fontSize: { xs: "0.875rem", sm: "1rem" },
@@ -131,10 +134,11 @@ const StoreItemShipping: React.FC<StoreItemShippingProps> = ({
           <NumberInput
             label="Height"
             size="small"
+            required
             value={formData.height}
             onChange={(val) => onFormDataChange({ height: val })}
             allowDecimals={false}
-            min={0}
+            min={1}
             InputProps={{
               endAdornment: (
                 <InputAdornment position="end" sx={{ fontSize: { xs: "0.875rem", sm: "1rem" } }}>
@@ -142,7 +146,7 @@ const StoreItemShipping: React.FC<StoreItemShippingProps> = ({
                 </InputAdornment>
               ),
             }}
-            placeholder="0"
+            placeholder="Enter height"
             sx={{
               "& .MuiInputBase-root": {
                 fontSize: { xs: "0.875rem", sm: "1rem" },
