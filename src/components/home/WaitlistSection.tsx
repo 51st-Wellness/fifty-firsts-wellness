@@ -62,7 +62,7 @@ const WaitlistSection: React.FC = () => {
             >
               Join Our
               <br />
-              Product Waitlist!
+              Luceo Lounge Waitlist!
             </h2>
           </div>
 
@@ -75,7 +75,7 @@ const WaitlistSection: React.FC = () => {
               <label className="block text-xs pt-5 text-gray-500 ml-1 mb-1"></label>
               {/* Small notification text */}
               <p className="text-xs text-gray-500 ml-1 mb-3">
-                We'll notify you as soon as products are available.
+                Be the first to know when Luceo Lounge opens its doors.
               </p>
 
               {/* Success/Error Message */}

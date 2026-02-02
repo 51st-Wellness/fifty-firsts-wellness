@@ -143,13 +143,13 @@ const LuceoLounge: React.FC = () => {
               </p>
             </div>
 
-            {/* Right Side - Image Placeholder */}
-            <div className="relative">
-              <div className="w-full h-[400px] bg-gray-200 rounded-2xl shadow-lg flex items-center justify-center">
-                <span className="text-gray-400 text-lg">
-                  Luceo Lounge Image Placeholder
-                </span>
-              </div>
+            {/* Right Side - Logo */}
+            <div className="relative flex justify-center lg:justify-end">
+              <img
+                src="/assets/services/logo.png"
+                alt="Luceo Lounge – A Fifty Firsts Wellness Hub"
+                className="w-full max-w-md h-auto rounded-2xl shadow-lg object-contain"
+              />
             </div>
           </div>
         </div>
@@ -225,13 +225,13 @@ const LuceoLounge: React.FC = () => {
       <section className="w-full py-16 sm:py-24 bg-brand-green-dark">
         <div className="max-w-7xl mx-auto px-6 sm:px-10 lg:px-16">
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 lg:gap-12 items-start mb-12">
-            {/* Left Side - Image Placeholder */}
+            {/* Left Side - Image */}
             <div className="relative">
-              <div className="w-full h-[400px] bg-gray-200 rounded-2xl shadow-lg flex items-center justify-center">
-                <span className="text-gray-400 text-lg">
-                  Red Light Therapy Image Placeholder
-                </span>
-              </div>
+              <img
+                src="/assets/services/redlight.png"
+                alt="Red Light Therapy session"
+                className="w-full h-[400px] object-cover rounded-2xl shadow-lg"
+              />
             </div>
 
             {/* Right Side - Content */}
@@ -349,13 +349,13 @@ const LuceoLounge: React.FC = () => {
               </p>
             </div>
 
-            {/* Right Side - Image Placeholder */}
+            {/* Right Side - Image */}
             <div className="relative">
-              <div className="w-full h-[400px] bg-gray-200 rounded-2xl shadow-lg flex items-center justify-center">
-                <span className="text-gray-400 text-lg">
-                  Contrast Therapy Image Placeholder
-                </span>
-              </div>
+              <img
+                src="/assets/services/contrast.png"
+                alt="Contrast Therapy – sauna and cold plunge"
+                className="w-full h-[400px] object-cover rounded-2xl shadow-lg"
+              />
             </div>
           </div>
 
@@ -452,15 +452,19 @@ const LuceoLounge: React.FC = () => {
           </div>
 
           <div className="max-w-4xl mx-auto">
-            <ul className="space-y-4 list-disc list-inside">
+            <ul className="space-y-4">
               {whyChoose.map((item, index) => (
                 <li
                   key={index}
-                  className="bg-white/10 backdrop-blur-sm rounded-xl p-6 border border-white/20"
+                  className="flex items-center gap-3 bg-white/10 backdrop-blur-sm rounded-xl px-6 py-4 border border-white/20"
                 >
-                  <p className="text-base sm:text-lg text-white/90 leading-relaxed">
+                  <span
+                    className="w-2 h-2 rounded-full bg-white flex-shrink-0"
+                    aria-hidden
+                  />
+                  <span className="text-base sm:text-lg text-white/90 leading-relaxed">
                     {item}
-                  </p>
+                  </span>
                 </li>
               ))}
             </ul>
