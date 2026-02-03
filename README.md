@@ -252,7 +252,7 @@ The application implements role-based access control:
 - Stock management
 - Out-of-stock notifications
 - Product reviews and ratings
-- Category organization
+- Category organization.
 
 ## 📧 Email System
 
