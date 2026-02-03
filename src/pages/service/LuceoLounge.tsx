@@ -1,7 +1,6 @@
 import React from "react";
 import {
   Sun,
-  Droplets,
   Heart,
   Brain,
   Sparkles,
@@ -115,42 +114,29 @@ const LuceoLounge: React.FC = () => {
 
   return (
     <div className="min-h-screen bg-white">
-      {/* Hero Section */}
-      <section className="w-full pt-16 pb-16 sm:pt-20 sm:pb-24 bg-brand-green-dark">
-        <div className="max-w-7xl mx-auto px-6 sm:px-10 lg:px-16">
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 lg:gap-12 items-center">
-            {/* Left Side - Text Content */}
-            <div className="flex flex-col justify-center">
-              <h1
-                className="text-4xl sm:text-5xl lg:text-6xl font-semibold text-white mb-4"
-                style={{ fontFamily: '"League Spartan", sans-serif' }}
-              >
-                Luceo Lounge
-              </h1>
-              <div className="w-20 h-1 bg-white rounded-full mb-6" />
-
-              <p className="text-base sm:text-lg text-white leading-relaxed mb-6">
-                Our Wellness Hub, Luceo Lounge is here! A wellness space for
-                regeneration, revival and restorative health.
-              </p>
-              <p className="text-base sm:text-lg text-white leading-relaxed">
-                At Luceo Lounge, our mission is simple: to elevate your
-                physical and mental wellbeing through evidence based light and
-                temperature therapies. Our lounge offers two core treatments,
-                Red Light Therapy and Contrast Therapy. Each designed to restore
-                vitality, enhance recovery and bring equilibrium to both body and
-                mind.
-              </p>
-            </div>
-
-            {/* Right Side - Logo */}
-            <div className="relative flex justify-center lg:justify-end">
-              <img
-                src="/assets/services/logo.png"
-                alt="Luceo Lounge – A Fifty Firsts Wellness Hub"
-                className="w-full max-w-md h-auto rounded-2xl shadow-lg object-contain"
-              />
-            </div>
+      {/* Hero Section – full-bleed image, text bottom left */}
+      <section className="relative w-full min-h-[70vh] sm:min-h-[75vh] lg:min-h-[85vh] flex flex-col justify-end">
+        <img
+          src="/assets/services/hero.png"
+          alt="Luceo Lounge – wellness and restoration"
+          className="absolute inset-0 w-full h-full object-cover"
+        />
+        <div className="absolute inset-0 bg-black/30" aria-hidden />
+        <div className="relative z-10 max-w-7xl mx-auto w-full px-6 sm:px-10 lg:px-16 pb-12 sm:pb-16 lg:pb-20 pt-32">
+          <div className="max-w-xl">
+            <h1
+              className="text-4xl sm:text-5xl lg:text-6xl xl:text-7xl font-semibold text-white mb-4 drop-shadow-md"
+              style={{ fontFamily: '"League Spartan", sans-serif' }}
+            >
+              Luceo Lounge
+            </h1>
+            <div className="w-20 h-1 bg-white rounded-full mb-6 drop-shadow-sm" />
+            <p className="text-base sm:text-lg lg:text-xl text-white leading-relaxed mb-4 drop-shadow-md">
+              Our Wellness Hub. A wellness space for regeneration, revival and restorative health.
+            </p>
+            <p className="text-base sm:text-lg text-white/95 leading-relaxed max-w-lg drop-shadow-md">
+              At Luceo Lounge, our mission is simple: to elevate your physical and mental wellbeing through evidence-based light and temperature therapies. Red Light Therapy and Contrast Therapy—each designed to restore vitality, enhance recovery and bring equilibrium to body and mind.
+            </p>
           </div>
         </div>
       </section>
@@ -209,7 +195,7 @@ const LuceoLounge: React.FC = () => {
               <p className="text-sm text-white/90 leading-relaxed mb-4">
                 Alternating between hot and cold environments to improve physical
                 recovery, enhance mood and strengthen the nervous system. Our
-                suite provides access to a Sauna pod, Steam Pod and Cold Plunge
+                suite provides access to a Sauna pod and Cold Plunge
                 Tub.
               </p>
               <p className="text-xs text-white/80 leading-relaxed">
@@ -395,41 +381,32 @@ const LuceoLounge: React.FC = () => {
         </div>
       </section>
 
-      {/* Wellness Philosophy Section */}
-      <section className="w-full py-16 sm:py-24 bg-[#580F41]">
+      {/* Philosophy – editorial block + grid */}
+      <section className="w-full py-20 sm:py-28 lg:py-36 bg-[#580F41]">
         <div className="max-w-7xl mx-auto px-6 sm:px-10 lg:px-16">
-          <div className="text-center mb-12">
-            <h2
-              className="text-3xl sm:text-4xl lg:text-5xl font-semibold text-white mb-6"
-              style={{ fontFamily: '"League Spartan", sans-serif' }}
-            >
-              Our Wellness Philosophy
+          <div className="max-w-2xl mb-16 lg:mb-20">
+            <p className="text-white/60 text-sm uppercase tracking-widest mb-4" style={{ fontFamily: '"League Spartan", sans-serif' }}>
+              Our Philosophy
+            </p>
+            <h2 className="text-3xl sm:text-4xl lg:text-5xl font-semibold text-white leading-tight mb-6" style={{ fontFamily: '"League Spartan", sans-serif' }}>
+              Wellbeing is holistic and highly personal.
             </h2>
-            <p className="text-base sm:text-lg text-white/90 leading-relaxed max-w-3xl mx-auto">
-              At Luceo Lounge, we believe wellbeing is both holistic and highly
-              personal. Our space is designed to support your journey to optimal
-              health.
+            <p className="text-white/80 text-lg leading-relaxed">
+              Our space is designed to support your journey to optimal health.
             </p>
           </div>
-
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
             {wellnessPhilosophy.map((item, index) => {
               const Icon = item.icon;
               return (
-                <div
-                  key={index}
-                  className={`${item.color} rounded-2xl p-6 text-left`}
-                >
-                  <div className="w-12 h-12 mb-4 bg-gray-50 rounded-lg flex items-center justify-center">
-                    <Icon className="w-6 h-6 text-gray-700" />
+                <div key={index} className={`${item.color} rounded-2xl p-6 lg:p-8`}>
+                  <div className="w-12 h-12 mb-5 rounded-xl bg-white/80 flex items-center justify-center">
+                    <Icon className="w-6 h-6 text-gray-800" />
                   </div>
-                  <h3
-                    className="text-xl font-semibold text-gray-900 mb-3"
-                    style={{ fontFamily: '"League Spartan", sans-serif' }}
-                  >
+                  <h3 className="text-gray-900 font-semibold text-lg mb-2" style={{ fontFamily: '"League Spartan", sans-serif' }}>
                     {item.title}
                   </h3>
-                  <p className="text-sm text-gray-700 leading-relaxed">
+                  <p className="text-gray-700 text-sm leading-relaxed">
                     {item.description}
                   </p>
                 </div>
@@ -439,62 +416,51 @@ const LuceoLounge: React.FC = () => {
         </div>
       </section>
 
-      {/* Why Choose Luceo Lounge Section */}
-      <section className="w-full py-16 sm:py-24 bg-brand-green-dark">
+      {/* Why Choose – two-column list, clean */}
+      <section className="w-full py-20 sm:py-28 lg:py-36 bg-brand-green-dark">
         <div className="max-w-7xl mx-auto px-6 sm:px-10 lg:px-16">
-          <div className="text-center mb-12">
-            <h2
-              className="text-3xl sm:text-4xl lg:text-5xl font-semibold text-white mb-6"
-              style={{ fontFamily: '"League Spartan", sans-serif' }}
-            >
-              Why Choose Luceo Lounge
-            </h2>
-          </div>
-
-          <div className="max-w-4xl mx-auto">
-            <ul className="space-y-4">
-              {whyChoose.map((item, index) => (
-                <li
-                  key={index}
-                  className="flex items-center gap-3 bg-white/10 backdrop-blur-sm rounded-xl px-6 py-4 border border-white/20"
-                >
-                  <span
-                    className="w-2 h-2 rounded-full bg-white flex-shrink-0"
-                    aria-hidden
-                  />
-                  <span className="text-base sm:text-lg text-white/90 leading-relaxed">
-                    {item}
-                  </span>
-                </li>
-              ))}
-            </ul>
+          <div className="lg:grid lg:grid-cols-12 lg:gap-16 lg:items-start">
+            <div className="lg:col-span-4 mb-12 lg:mb-0 lg:sticky lg:top-24">
+              <h2 className="text-3xl sm:text-4xl lg:text-5xl font-semibold text-white leading-tight" style={{ fontFamily: '"League Spartan", sans-serif' }}>
+                Why Choose Luceo Lounge
+              </h2>
+            </div>
+            <div className="lg:col-span-8">
+              <ul className="space-y-1">
+                {whyChoose.map((item, index) => (
+                  <li
+                    key={index}
+                    className="flex items-start gap-4 py-5 border-b border-white/15 last:border-b-0"
+                  >
+                    <span className="w-1.5 h-1.5 rounded-full bg-white mt-2.5 flex-shrink-0" aria-hidden />
+                    <span className="text-white/90 text-base sm:text-lg leading-relaxed pt-0.5">
+                      {item}
+                    </span>
+                  </li>
+                ))}
+              </ul>
+            </div>
           </div>
         </div>
       </section>
 
-      {/* CTA Section */}
-      <section className="w-full py-16 sm:py-24 bg-[#580F41]">
-        <div className="max-w-7xl mx-auto px-6 sm:px-10 lg:px-16">
-          <div className="text-center">
-            <h2
-              className="text-3xl sm:text-4xl lg:text-5xl font-semibold text-white mb-6"
-              style={{ fontFamily: '"League Spartan", sans-serif' }}
-            >
-              Ready to Experience Luceo Lounge?
-            </h2>
-            <p className="text-base sm:text-lg text-white/90 leading-relaxed max-w-3xl mx-auto mb-8">
-              Contact us today to book your session and begin your journey to
-              regeneration, revival and restorative health.
-            </p>
-            <Link
-              to="/contact"
-              className="inline-flex items-center gap-3 bg-white text-brand-green px-8 py-4 rounded-full text-lg font-semibold hover:bg-white/90 transition-colors"
-              style={{ fontFamily: '"League Spartan", sans-serif' }}
-            >
-              Contact Us Today
-              <ArrowRight className="w-5 h-5" />
-            </Link>
-          </div>
+      {/* CTA – minimal, confident */}
+      <section className="w-full py-20 sm:py-28 lg:py-36 bg-[#580F41]">
+        <div className="max-w-3xl mx-auto px-6 sm:px-10 lg:px-16 text-center">
+          <h2 className="text-3xl sm:text-4xl lg:text-5xl font-semibold text-white mb-6 leading-tight" style={{ fontFamily: '"League Spartan", sans-serif' }}>
+            Ready to Experience Luceo Lounge?
+          </h2>
+          <p className="text-white/80 text-lg mb-10">
+            Book your session and begin your journey to regeneration, revival and restorative health.
+          </p>
+          <Link
+            to="/contact"
+            className="inline-flex items-center gap-3 bg-white text-brand-green px-8 py-4 rounded-full text-lg font-semibold hover:bg-white/95 transition-colors"
+            style={{ fontFamily: '"League Spartan", sans-serif' }}
+          >
+            Contact Us Today
+            <ArrowRight className="w-5 h-5" />
+          </Link>
         </div>
       </section>
     </div>
