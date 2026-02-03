@@ -115,7 +115,7 @@ const LuceoLounge: React.FC = () => {
   return (
     <div className="min-h-screen bg-white">
       {/* Hero Section – full-bleed image, text bottom left */}
-      <section className="relative w-full min-h-[70vh] sm:min-h-[75vh] lg:min-h-[85vh] flex flex-col justify-end">
+      <section className="relative w-full min-h-[90vh] sm:min-h-[90vh] lg:min-h-[90vh] flex flex-col justify-end">
         <img
           src="/assets/services/hero.png"
           alt="Luceo Lounge – wellness and restoration"
