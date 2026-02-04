@@ -28,20 +28,36 @@ const WaitlistSection: React.FC = () => {
         setIsSuccess(true);
         setEmail(""); // Clear the form
       } else {
-        // Check if user is already subscribed
-        if (
-          response.message.includes("already on our waitlist") ||
-          response.message.includes("already")
-        ) {
-          setMessage("You are already subscribed, check your mail 😊");
-          setIsSuccess(true); // Show as success message
-        } else {
-          setMessage(response.message);
-          setIsSuccess(false);
-        }
+        // Backend returned success: false (e.g. already on waitlist)
+        const msg = response.message || "";
+        const isAlreadySubscribed =
+          /already|already subscribed|already on|already registered|duplicate/i.test(
+            msg
+          );
+        setMessage(
+          isAlreadySubscribed
+            ? "You're already on the Luceo Lounge waitlist. We'll notify you when we open."
+            : msg || "Something went wrong. Please try again later."
+        );
+        setIsSuccess(false);
       }
-    } catch (error) {
-      setMessage("Something went wrong. Please try again later.");
+    } catch (error: unknown) {
+      // Backend may return 4xx (e.g. 409) with a message in the body
+      const err = error as {
+        response?: { status?: number; data?: { message?: string } };
+      };
+      const status = err.response?.status;
+      const bodyMessage = err.response?.data?.message ?? "";
+      const isAlreadySubscribed =
+        status === 409 ||
+        /already|already subscribed|already on|already registered|duplicate/i.test(
+          String(bodyMessage)
+        );
+      setMessage(
+        isAlreadySubscribed
+          ? "You're already on the Luceo Lounge waitlist. We'll notify you when we open."
+          : bodyMessage || "Something went wrong. Please try again later."
+      );
       setIsSuccess(false);
     } finally {
       setIsLoading(false);
