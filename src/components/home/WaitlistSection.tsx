@@ -28,8 +28,17 @@ const WaitlistSection: React.FC = () => {
         setIsSuccess(true);
         setEmail(""); // Clear the form
       } else {
-        setMessage(response.message);
-        setIsSuccess(false);
+        // Check if user is already subscribed
+        if (
+          response.message.includes("already on our waitlist") ||
+          response.message.includes("already")
+        ) {
+          setMessage("You are already subscribed, check your mail 😊");
+          setIsSuccess(true); // Show as success message
+        } else {
+          setMessage(response.message);
+          setIsSuccess(false);
+        }
       }
     } catch (error) {
       setMessage("Something went wrong. Please try again later.");
