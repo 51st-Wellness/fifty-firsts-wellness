@@ -28,11 +28,34 @@ const WaitlistSection: React.FC = () => {
         setIsSuccess(true);
         setEmail(""); // Clear the form
       } else {
-        setMessage(response.message);
+        // Backend returned success: false (e.g. already on waitlist)
+        const msg = response.message || "";
+        const isAlreadySubscribed =
+          /already|already subscribed|already on|already registered|duplicate/i.test(
+            msg
+          );
+        setMessage(
+          isAlreadySubscribed
+            ? "You're already on the Luceo Lounge waitlist. We'll notify you when we open."
+            : msg || "Something went wrong. Please try again later."
+        );
         setIsSuccess(false);
       }
-    } catch (error) {
-      setMessage("Something went wrong. Please try again later.");
+    } catch (error: unknown) {
+      // Backend may return 4xx (e.g. 409) with a message in the body
+      const err = error as { response?: { status?: number; data?: { message?: string } } };
+      const status = err.response?.status;
+      const bodyMessage = err.response?.data?.message ?? "";
+      const isAlreadySubscribed =
+        status === 409 ||
+        /already|already subscribed|already on|already registered|duplicate/i.test(
+          String(bodyMessage)
+        );
+      setMessage(
+        isAlreadySubscribed
+          ? "You're already on the Luceo Lounge waitlist. We'll notify you when we open."
+          : bodyMessage || "Something went wrong. Please try again later."
+      );
       setIsSuccess(false);
     } finally {
       setIsLoading(false);
