@@ -132,7 +132,7 @@ const BlogSection: React.FC = () => {
 
   return (
     <section
-      className="w-full py-40 lg:py-52 min-h-[1100px] lg:min-h-[1400px] bg-no-repeat"
+      className="w-full pt-56 pb-40 sm:pt-52 sm:pb-40 lg:pt-52 lg:pb-52 min-h-[1100px] lg:min-h-[1400px] bg-no-repeat"
       style={{
         backgroundImage: "url(/assets/homepage/blog-bg.svg)",
         backgroundSize: "cover",

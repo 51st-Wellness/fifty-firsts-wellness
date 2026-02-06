@@ -43,7 +43,9 @@ const WaitlistSection: React.FC = () => {
       }
     } catch (error: unknown) {
       // Backend may return 4xx (e.g. 409) with a message in the body
-      const err = error as { response?: { status?: number; data?: { message?: string } } };
+      const err = error as {
+        response?: { status?: number; data?: { message?: string } };
+      };
       const status = err.response?.status;
       const bodyMessage = err.response?.data?.message ?? "";
       const isAlreadySubscribed =
