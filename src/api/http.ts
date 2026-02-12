@@ -25,8 +25,9 @@ httpClient.interceptors.request.use(
       config.headers.Authorization = `Bearer ${token}`;
     }
 
-    // Check cache for GET requests
-    if (apiCache.shouldCache(config.method || "")) {
+    // Check cache for GET requests (skip when cache: false in config)
+    const skipCache = (config as any).cache === false;
+    if (!skipCache && apiCache.shouldCache(config.method || "")) {
       const cacheKey = apiCache.generateKey(
         config.url || "",
         config.params
@@ -59,8 +60,9 @@ httpClient.interceptors.response.use(
     const config = response.config;
     const method = config.method?.toLowerCase() || "";
 
-    // Cache successful GET responses
-    if (method === "get" && response.status === 200) {
+    // Cache successful GET responses (skip when cache: false in config)
+    const skipCache = (config as any).cache === false;
+    if (!skipCache && method === "get" && response.status === 200) {
       const cacheKey = apiCache.generateKey(config.url || "", config.params);
       // Cache for 5 minutes by default, can be customized per request
       const ttl = (config as any).cacheTTL || undefined;

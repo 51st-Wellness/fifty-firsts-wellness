@@ -318,13 +318,19 @@ export const CartProvider: React.FC<CartProviderProps> = ({ children }) => {
   // Update effect to reload on auth change
   useEffect(() => {
     const init = async () => {
-      if (isAuthenticated && user) {
-        await refreshCart();
-      } else {
-        await loadGuestCarts();
+      dispatch({ type: "SET_LOADING", payload: true });
+      try {
+        if (isAuthenticated && user) {
+          await refreshCart();
+        } else {
+          await loadGuestCarts();
+        }
+      } finally {
+        dispatch({ type: "SET_LOADING", payload: false });
       }
     };
     init();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [isAuthenticated, user]);
 
   const refreshCart = useCallback(async () => {
@@ -334,10 +340,9 @@ export const CartProvider: React.FC<CartProviderProps> = ({ children }) => {
     }
 
     try {
-      dispatch({ type: "SET_LOADING", payload: true });
       dispatch({ type: "SET_ERROR", payload: null });
 
-      // Fetch both carts from backend
+      // Fetch both carts from backend - cart.api uses cache: false so we always get fresh data
       const response = await cartAPI.getCart();
 
       if (response.status === ResponseStatus.SUCCESS && response.data) {
@@ -370,7 +375,6 @@ export const CartProvider: React.FC<CartProviderProps> = ({ children }) => {
           "preorder"
         );
       } else {
-        // Ensure arrays are set even if response is unexpected
         dispatch({ type: "SET_STANDARD_ITEMS", payload: [] });
         dispatch({ type: "SET_PREORDER_ITEMS", payload: [] });
       }
@@ -379,8 +383,6 @@ export const CartProvider: React.FC<CartProviderProps> = ({ children }) => {
         type: "SET_ERROR",
         payload: error.response?.data?.message || "Failed to load cart",
       });
-    } finally {
-      dispatch({ type: "SET_LOADING", payload: false });
     }
   }, [isAuthenticated, loadGuestCarts]);
 
@@ -415,20 +417,15 @@ export const CartProvider: React.FC<CartProviderProps> = ({ children }) => {
         dispatch({ type: "SET_ACTIVE_TAB", payload: cartType });
         dispatch({ type: "SET_CART_OPEN", payload: true });
       } else {
-        // Automatically include cartType in the request
         const response = await cartAPI.addToCart({
           productId,
           quantity,
           cartType,
         });
         if (response.status === ResponseStatus.SUCCESS && response.data) {
-          dispatch({
-            type: "ADD_ITEM",
-            payload: { item: response.data, type: cartType },
-          });
           dispatch({ type: "SET_ACTIVE_TAB", payload: cartType });
           dispatch({ type: "SET_CART_OPEN", payload: true });
-          refreshCart().catch(console.error);
+          await refreshCart();
         } else {
           throw new Error(response.message || "Failed to add to cart");
         }
@@ -481,11 +478,9 @@ export const CartProvider: React.FC<CartProviderProps> = ({ children }) => {
           cartType
         );
         if (response.status === ResponseStatus.SUCCESS && response.data) {
-          dispatch({
-            type: "UPDATE_ITEM",
-            payload: { item: response.data, type: cartType },
-          });
-          updateGuestCartItem(productId, quantity, guestCartType);
+          await refreshCart();
+        } else {
+          throw new Error(response.message || "Update failed");
         }
       }
     } catch (error: any) {
@@ -512,11 +507,8 @@ export const CartProvider: React.FC<CartProviderProps> = ({ children }) => {
       } else {
         // cartType is required for authenticated users
         await cartAPI.removeFromCart(productId, cartType);
-        dispatch({
-          type: "REMOVE_ITEM",
-          payload: { productId, type: cartType },
-        });
         removeFromGuestCart(productId, guestCartType);
+        await refreshCart();
         toast.success("Removed from cart");
       }
     } catch (error: any) {
@@ -539,8 +531,8 @@ export const CartProvider: React.FC<CartProviderProps> = ({ children }) => {
       } else {
         // Pass cartType to clear specific cart, or omit to clear both
         await cartAPI.clearCart(cartType);
-        dispatch({ type: "CLEAR_CART", payload: cartType });
         clearGuestCart(guestCartType);
+        await refreshCart();
       }
       toast.success(
         `${cartType === "orders" ? "Orders" : "Preorders"} cart cleared`

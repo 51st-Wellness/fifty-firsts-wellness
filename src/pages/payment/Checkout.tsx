@@ -20,11 +20,13 @@ const Checkout: React.FC = () => {
   const location = useLocation();
   const { isAuthenticated, user } = useAuth();
   const {
-    activeItems,
+    standardItems,
+    preorderItems,
     isLoading: cartLoading,
     updateCartItem,
     removeFromCart,
     activeTab,
+    setActiveTab,
   } = useCart();
 
   // Get cartType from location state or fallback to activeTab
@@ -32,6 +34,8 @@ const Checkout: React.FC = () => {
     (location.state?.cartType as "orders" | "preorders") ||
     activeTab ||
     "orders";
+  const checkoutItems =
+    cartType === "preorders" ? preorderItems : standardItems;
 
   const [summary, setSummary] = useState<CartCheckoutSummary | null>(null);
   const [loading, setLoading] = useState(true);
@@ -66,7 +70,7 @@ const Checkout: React.FC = () => {
     null
   );
 
-  const hasCartItems = activeItems.length > 0;
+  const hasCartItems = checkoutItems.length > 0;
   const isSuccessStatus = (status?: string | null) =>
     typeof status === "string" && status.toUpperCase() === "SUCCESS";
 
@@ -160,10 +164,10 @@ const Checkout: React.FC = () => {
       shippingCost,
       grandTotal,
       currency: summary.pricing?.currency || fallbackCurrency,
-      itemCount: summaryBreakdown?.itemCount || activeItems.length,
-      totalQuantity: summaryBreakdown?.totalQuantity || activeItems.length,
+      itemCount: summaryBreakdown?.itemCount || checkoutItems.length,
+      totalQuantity: summaryBreakdown?.totalQuantity || checkoutItems.length,
     };
-  }, [summary, activeItems.length, selectedShipping]);
+  }, [summary, checkoutItems.length, selectedShipping]);
   // Always use GBP - force conversion regardless of API response
   const currencyCode = "GBP";
   const discountSummary = summary?.discounts;
@@ -278,8 +282,12 @@ const Checkout: React.FC = () => {
         }
       }
     },
-    [isAuthenticated, user]
+    [cartType, isAuthenticated, user]
   );
+
+  useEffect(() => {
+    setActiveTab(cartType);
+  }, [cartType, setActiveTab]);
 
   useEffect(() => {
     loadSummary();
@@ -299,7 +307,7 @@ const Checkout: React.FC = () => {
   const handleRemove = async (productId: string) => {
     try {
       setUpdatingProductId(productId);
-      await removeFromCart(productId);
+      await removeFromCart(productId, cartType);
       await loadSummary({ showLoading: false });
     } finally {
       setUpdatingProductId(null);
@@ -317,7 +325,7 @@ const Checkout: React.FC = () => {
 
     try {
       setUpdatingProductId(productId);
-      await updateCartItem(productId, nextQuantity);
+      await updateCartItem(productId, nextQuantity, cartType);
       await loadSummary({ showLoading: false });
     } finally {
       setUpdatingProductId(null);
@@ -508,7 +516,7 @@ const Checkout: React.FC = () => {
           <section className="order-1 lg:order-1 lg:col-start-1 lg:col-end-2">
             <CheckoutOrderSummary
               summary={summary}
-              items={activeItems}
+              items={checkoutItems}
               orderTotals={orderTotals}
               globalDiscountInfo={globalDiscountInfo}
               hasPreOrders={hasPreOrders}

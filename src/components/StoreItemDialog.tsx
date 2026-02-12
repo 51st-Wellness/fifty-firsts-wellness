@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useMemo } from "react";
 import {
   X,
   ShoppingCart,
@@ -68,9 +68,17 @@ const StoreItemDialog: React.FC<StoreItemDialogProps> = ({
 
   if (!isOpen || !currentItem) return null;
 
+  // Derive cart type from item state so updates target the correct cart bucket.
+  const dialogCartType = useMemo(
+    () =>
+      Boolean(currentItem.preOrderEnabled) && (currentItem.stock ?? 0) <= 0
+        ? "preorders"
+        : "orders",
+    [currentItem.preOrderEnabled, currentItem.stock]
+  );
   const imageUrl = currentItem.display?.url || currentItem.images?.[0] || "";
-  const currentQuantity = getItemQuantity(currentItem.productId);
-  const inCart = isInCart(currentItem.productId);
+  const currentQuantity = getItemQuantity(currentItem.productId, dialogCartType);
+  const inCart = isInCart(currentItem.productId, dialogCartType);
 
   const handleAddToCart = async () => {
     if (!isAuthenticated) return;
@@ -91,9 +99,9 @@ const StoreItemDialog: React.FC<StoreItemDialogProps> = ({
     try {
       setItemLoading(true);
       if (newQuantity <= 0) {
-        await removeFromCart(currentItem.productId);
+        await removeFromCart(currentItem.productId, dialogCartType);
       } else {
-        await updateCartItem(currentItem.productId, newQuantity);
+        await updateCartItem(currentItem.productId, newQuantity, dialogCartType);
       }
     } catch (error) {
       console.error("Failed to update cart:", error);

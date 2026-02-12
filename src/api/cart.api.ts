@@ -70,7 +70,7 @@ class CartAPI {
     return response.data;
   }
 
-  // Get user's cart(s)
+  // Get user's cart(s) - always bypass cache so we get fresh data after add/remove
   // If cartType is provided, returns single cart. If not, returns both carts
   async getCart(
     cartType?: CartType
@@ -87,7 +87,10 @@ class CartAPI {
         orders?: CartItemWithRelations[];
         preorders?: CartItemWithRelations[];
       }>
-    >(`${this.baseURL}/me`, { params: cartType ? { cartType } : {} });
+    >(`${this.baseURL}/me`, {
+      params: cartType ? { cartType } : {},
+      cache: false,
+    } as any);
     return response.data;
   }
 
