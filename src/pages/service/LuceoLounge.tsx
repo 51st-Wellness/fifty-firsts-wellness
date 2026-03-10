@@ -10,7 +10,6 @@ import {
   Waves,
   Leaf,
 } from "lucide-react";
-import { Link } from "react-router-dom";
 
 const LuceoLounge: React.FC = () => {
   const redLightBenefits = [
@@ -453,14 +452,16 @@ const LuceoLounge: React.FC = () => {
           <p className="text-white/80 text-lg mb-10">
             Book your session and begin your journey to regeneration, revival and restorative health.
           </p>
-          <Link
-            to="/contact"
+          <a
+            href="https://www.fresha.com/book-now/luceo-lounge-by-fifty-firsts-wellness-vh9nwjwm/services?lid=2859509&share=true&pId=2764905"
+            target="_blank"
+            rel="noopener noreferrer"
             className="inline-flex items-center gap-3 bg-white text-brand-green px-8 py-4 rounded-full text-lg font-semibold hover:bg-white/95 transition-colors"
             style={{ fontFamily: '"League Spartan", sans-serif' }}
           >
-            Contact Us Today
+            Book Now
             <ArrowRight className="w-5 h-5" />
-          </Link>
+          </a>
         </div>
       </section>
     </div>

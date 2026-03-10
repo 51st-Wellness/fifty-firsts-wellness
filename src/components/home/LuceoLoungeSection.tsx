@@ -95,14 +95,25 @@ const LuceoLoungeSection: React.FC = () => {
               designed to restore vitality, enhance recovery and bring equilibrium
               to body and mind.
             </p>
-            <Link
-              to="/services/luceo-lounge"
-              className="inline-flex items-center gap-2 bg-brand-green text-white px-4 py-2 sm:px-5 sm:py-2.5 md:px-6 md:py-3 rounded-full text-xs sm:text-sm md:text-base font-semibold hover:bg-brand-green-dark transition-colors"
-              style={{ fontFamily: '"League Spartan", sans-serif' }}
-            >
-              Discover Luceo Lounge
-              <ArrowRight className="w-3.5 h-3.5 sm:w-4 sm:h-4 md:w-5 md:h-5" />
-            </Link>
+            <div className="flex flex-wrap items-center justify-center lg:justify-start gap-3">
+              <a
+                href="https://www.fresha.com/book-now/luceo-lounge-by-fifty-firsts-wellness-vh9nwjwm/services?lid=2859509&share=true&pId=2764905"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="inline-flex items-center gap-2 bg-brand-green text-white px-4 py-2 sm:px-5 sm:py-2.5 md:px-6 md:py-3 rounded-full text-xs sm:text-sm md:text-base font-semibold hover:bg-brand-green-dark transition-colors"
+                style={{ fontFamily: '"League Spartan", sans-serif' }}
+              >
+                Book Now
+                <ArrowRight className="w-3.5 h-3.5 sm:w-4 sm:h-4 md:w-5 md:h-5" />
+              </a>
+              <Link
+                to="/services/luceo-lounge"
+                className="inline-flex items-center gap-2 text-white/90 text-xs sm:text-sm md:text-base font-medium hover:text-white transition-colors underline underline-offset-4"
+                style={{ fontFamily: '"League Spartan", sans-serif' }}
+              >
+                Learn More
+              </Link>
+            </div>
           </div>
 
           {/* Right: Carousel with full-width images, text overlay bottom-right, swiper dots – visible on all screen sizes */}
