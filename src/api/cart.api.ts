@@ -59,13 +59,15 @@ export interface CartSummary {
 class CartAPI {
   private baseURL = "/user/cart";
 
-  // Add item to cart (cartType is required in data)
+  // Add item to cart (cartType passed as query param, not in body)
   async addToCart(
     data: AddToCartDto
   ): Promise<ResponseDto<CartItemWithRelations>> {
+    const { cartType, ...body } = data;
     const response = await http.post<ResponseDto<CartItemWithRelations>>(
       this.baseURL,
-      data
+      body,
+      { params: cartType ? { cartType } : {} }
     );
     return response.data;
   }
