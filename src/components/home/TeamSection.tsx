@@ -36,7 +36,7 @@ const teamMembers: TeamMember[] = [
   { name: "Lisa de-Laune", role: "Founder / Director", variant: "convex" as const, color: "#0FB9A5", photo: "/assets/homepage/team/team1.png" },
   { name: "Wellness Partners", role: "Our Expert Panel", variant: "concave" as const, color: "#530F40", photo: "/assets/homepage/team/team3.png" },
   { name: "Lucy Toman", role: "Operations Consultant", variant: "convex" as const, color: "#007a7e", photo: "/assets/homepage/team/team2.png" },
-  { name: "Onyiriuba Leonard", role: "IT Consultant", variant: "concave" as const, color: "#0FB9A5", photo: "/assets/homepage/team/team4.png" },
+  { name: "Onyiriuba Leonard", role: "Lead Product Developer", variant: "concave" as const, color: "#0FB9A5", photo: "/assets/homepage/team/team4.png" },
 ];
 
 const TeamSection: React.FC = () => {
